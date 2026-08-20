@@ -5,6 +5,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sai Computers Ltd Mainpuri</title>
+    <!-- 🟢 PWA Manifest & Mobile Web App Meta -->
+    <meta name="theme-color" content="#1a73e8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link id="manifest-placeholder" rel="manifest">
+    <script>
+      // 🟢 Dynamic Manifest Generator for GitHub Pages / Local hosting
+      (function() {
+        const manifestObj = {
+          name: "Sai Computers Ltd Mainpuri",
+          short_name: "Sai Portal",
+          start_url: "./",
+          display: "standalone",
+          background_color: "#0f172a",
+          theme_color: "#1a73e8",
+          icons: [
+            {
+              src: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/gauge-high.svg",
+              sizes: "192x192 512x512",
+              type: "image/svg+xml",
+              purpose: "any maskable"
+            }
+          ]
+        };
+        const blob = new Blob([JSON.stringify(manifestObj)], {type: 'application/json'});
+        document.getElementById('manifest-placeholder').setAttribute('href', URL.createObjectURL(blob));
+      })();
+
+      // 🟢 Register Inline Service Worker for Offline PWA Installation
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          const swCode = `
+            const CACHE_NAME = 'sai-computers-pwa-v1';
+            self.addEventListener('install', e => { self.skipWaiting(); });
+            self.addEventListener('activate', e => { e.waitUntil(clients.claim()); });
+            self.addEventListener('fetch', e => {
+              if (e.request.url.includes('script.google.com')) return;
+              e.respondWith(
+                fetch(e.request).catch(() => caches.match(e.request))
+              );
+            });
+          `;
+          const blob = new Blob([swCode], {type: 'application/javascript'});
+          navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(console.error);
+        });
+      }
+    </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -549,9 +597,12 @@
         overflow-y: auto; 
         flex-grow: 1; 
         min-height: 250px; 
-        width: 100% !important; /* डेटा टेबल को पूरी स्क्रीन पर फैलाएगा */
+        width: 100% !important; 
         max-width: 100% !important; 
         box-sizing: border-box; 
+        will-change: scroll-position;
+        -webkit-overflow-scrolling: touch;
+        contain: strict;
       }
 
       table.data-grid { 
@@ -1701,23 +1752,12 @@
 
       function storeFastIndexedDB(packet, timeStr) {
         return getIndexedDB().then(function(db) {
-          var tx = db.transaction(["cache_store", "raw_consumers"], "readwrite");
+          var tx = db.transaction(["cache_store"], "readwrite");
           var metaStore = tx.objectStore("cache_store");
-          var dataStore = tx.objectStore("raw_consumers");
           
-          metaStore.put(packet.reports || [], "reports");
-          metaStore.put(packet.filters || {}, "filters");
-          metaStore.put(packet.allSheetHeaders || [], "headers");
+          // 🟢 पूरा डेटा पैकेट एक ही जगह सुरक्षित करें ताकि रीलोड पर तुरंत मिल सके
+          metaStore.put(packet, "packet");
           metaStore.put(timeStr, "time");
-
-          dataStore.clear();
-          if (packet.rawDatabase && packet.rawDatabase.length > 0) {
-            for (var i = 0; i < packet.rawDatabase.length; i++) {
-              var item = packet.rawDatabase[i];
-              item._localId = i + 1;
-              dataStore.put(item);
-            }
-          }
         });
       }
 
@@ -1888,6 +1928,11 @@
 
             var now = new Date();
             var timeStr = now.toLocaleDateString('en-GB') + " " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+
+            // 🟢 पूरा प्रोसेस्ड डेटाबेस पैकेट में अटैच करके IndexedDB में सेव करें
+            packet.rawDatabase = cachedDatabase;
+            packet.reports = cachedReportsConfig;
+            packet.allSheetHeaders = originalSheetHeadersList;
 
             storeFastIndexedDB(packet, timeStr).catch(function(e) { console.log("IndexedDB Store Error:", e); });
 
@@ -3950,7 +3995,16 @@ if (isVirtualMode && tableWrapper) {
           for (var idx = 0; idx < activeSlice.length; idx++) {
             rowsBuffer[idx] = buildRowHtml(activeSlice[idx], startIdx + idx);
           }
-          tBody.innerHTML = rowsBuffer.join('');
+          // 🟢 DocumentFragment का उपयोग करें (DOM में एक ही बार में सब कुछ डालें)
+var fragment = document.createDocumentFragment();
+var tempDiv = document.createElement('tbody');
+tempDiv.innerHTML = rowsBuffer.join('');
+
+while(tempDiv.firstChild) {
+    fragment.appendChild(tempDiv.firstChild);
+}
+tBody.innerHTML = '';
+tBody.appendChild(fragment);
         }
 
         // Update Pagination Controls Info
