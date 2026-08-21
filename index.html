@@ -10,46 +10,14 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link id="manifest-placeholder" rel="manifest">
+    <link rel="manifest" href="manifest.json">
     <script>
-      // 🟢 Dynamic Manifest Generator for GitHub Pages / Local hosting
-      (function() {
-        const manifestObj = {
-          name: "Sai Computers Ltd Mainpuri",
-          short_name: "Sai Portal",
-          start_url: "./",
-          display: "standalone",
-          background_color: "#0f172a",
-          theme_color: "#1a73e8",
-          icons: [
-            {
-              src: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/gauge-high.svg",
-              sizes: "192x192 512x512",
-              type: "image/svg+xml",
-              purpose: "any maskable"
-            }
-          ]
-        };
-        const blob = new Blob([JSON.stringify(manifestObj)], {type: 'application/json'});
-        document.getElementById('manifest-placeholder').setAttribute('href', URL.createObjectURL(blob));
-      })();
-
-      // 🟢 Register Inline Service Worker for Offline PWA Installation
-      if ('serviceWorker' in navigator) {
+      // Service worker sirf tab register hoga jab ye GitHub Pages ya HTTPS custom domain par chal raha ho
+      if ('serviceWorker' in navigator && !window.location.hostname.includes('googleusercontent.com') && !window.location.hostname.includes('script.google.com')) {
         window.addEventListener('load', function() {
-          const swCode = `
-            const CACHE_NAME = 'sai-computers-pwa-v1';
-            self.addEventListener('install', e => { self.skipWaiting(); });
-            self.addEventListener('activate', e => { e.waitUntil(clients.claim()); });
-            self.addEventListener('fetch', e => {
-              if (e.request.url.includes('script.google.com')) return;
-              e.respondWith(
-                fetch(e.request).catch(() => caches.match(e.request))
-              );
-            });
-          `;
-          const blob = new Blob([swCode], {type: 'application/javascript'});
-          navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(console.error);
+          navigator.serviceWorker.register('./sw.js')
+            .then(function(reg) { console.log('PWA ServiceWorker Ready:', reg.scope); })
+            .catch(function(err) { console.error('PWA Reg Error:', err); });
         });
       }
     </script>
@@ -57,6 +25,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     
     <style>
       :root { 
@@ -74,6 +43,108 @@
         --text-main: #1e293b;
         --text-muted: #64748b;
         --table-row-hover: #f1f5f9;
+      }
+
+      /* 🟢 Critical Alert Ticker Strip */
+      .critical-alert-ticker {
+        background: linear-gradient(90deg, #991b1b 0%, #dc2626 50%, #991b1b 100%);
+        color: white;
+        padding: 6px 14px;
+        font-size: 11.5px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 6px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+        animation: pulseTicker 3s infinite;
+      }
+      @keyframes pulseTicker {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.88; }
+      }
+
+      /* 🟢 Analytics Gauge & Charts Container */
+      .analytics-charts-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 12px;
+        margin-bottom: 15px;
+      }
+      @media (max-width: 900px) {
+        .analytics-charts-grid { grid-template-columns: 1fr; }
+      }
+
+      .chart-card-box {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px 14px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      }
+      body.dark-mode .chart-card-box {
+        background: var(--card-bg) !important;
+        border-color: var(--border) !important;
+      }
+
+      .gauge-meter-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        height: 100%;
+      }
+      .gauge-item {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px 12px;
+      }
+      body.dark-mode .gauge-item {
+        background: #1e2430;
+        border-color: #2d3748;
+      }
+      .gauge-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        font-weight: 800;
+        margin-bottom: 5px;
+      }
+      .gauge-bar-outer {
+        width: 100%;
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      body.dark-mode .gauge-bar-outer { background: #334155; }
+      .gauge-bar-inner {
+        height: 100%;
+        border-radius: 6px;
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* 🟢 Smart Row Status Tinting */
+      tr.row-tint-unbilled { background-color: rgba(239, 68, 68, 0.08) !important; }
+      tr.row-tint-unbilled:hover { background-color: rgba(239, 68, 68, 0.16) !important; }
+      tr.row-tint-mri { background-color: rgba(16, 185, 129, 0.08) !important; }
+      tr.row-tint-mri:hover { background-color: rgba(16, 185, 129, 0.16) !important; }
+      tr.row-tint-exception { background-color: rgba(245, 158, 11, 0.08) !important; }
+      tr.row-tint-exception:hover { background-color: rgba(245, 158, 11, 0.16) !important; }
+
+      /* Table Sort Header Styles */
+      th.sortable-th {
+        cursor: pointer;
+        user-select: none;
+        transition: background 0.15s;
+      }
+      th.sortable-th:hover { background: #134e7a !important; }
+      .sort-indicator {
+        font-size: 9px;
+        margin-left: 4px;
+        opacity: 0.7;
       }
 
       /* Dynamic Multicolor Glowing Header */
@@ -1101,9 +1172,10 @@
     <!-- Top Header Bar -->
     <div class="top-navbar">
       <!-- Left: Branding + Quick Refresh Icon Button -->
-      <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 15px; white-space: nowrap;">
+      <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; white-space: nowrap;">
         <i class="fa-solid fa-bars menu-toggle-btn" onclick="toggleMobileSidebar(event)"></i>
-        <i class="fa-solid fa-gauge-high" style="color: #67e8f9;"></i> 
+        <img src="logo.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';" alt="SAI Logo" style="height: 28px; width: auto; object-fit: contain; vertical-align: middle;">
+<i class="fa-solid fa-gauge-high" style="display:none; color: #67e8f9;"></i>
         <span class="brand-text-label">Sai Computers Ltd</span>
         <!-- 🟢 Version tag hatakar Refresh Button -->
         <button onclick="loadCoreDatabasePacket(true)" title="Refresh Data" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
@@ -1146,6 +1218,13 @@
 
     <!-- Sidebar -->
     <div class="sidebar" id="mainSidebar">
+      <div class="brand-header" style="display: flex; align-items: center; gap: 10px; padding: 0 5px 12px 5px;">
+        <img src="logo.png" alt="SAI Logo" style="height: 38px; width: auto; object-fit: contain;">
+        <div>
+          <h4 class="brand-title">Sai Computers Ltd</h4>
+          <p class="brand-subtitle">EDC Mainpuri Portal</p>
+        </div>
+      </div>
       <div style="padding: 10px 0;">
         
         <!-- 🏢 GROUP 1: DEPARTMENT USE (विभागीय व आधिकारिक रिपोर्ट्स) -->
@@ -1196,6 +1275,14 @@
 
           <button class="report-link" id="btn-duplicate-finder" style="border-left: 4px solid #8e44ad; background: #fdf4ff; color: #581c87;" onclick="runDuplicateMeterConflictFinder(event)">
             <i class="fa-solid fa-copy" style="color:#9333ea"></i> Duplicate Meter Conflict
+          </button>
+
+          <button class="report-link" id="btn-new-consumer-add" style="border-left: 4px solid #059669; background: #ecfdf5; color: #065f46;" onclick="openNewConsumerModal()">
+            <i class="fa-solid fa-user-plus" style="color:#059669"></i> New Consumers Add in Master
+          </button>
+
+          <button class="report-link" id="btn-monthly-rollover" style="border-left: 4px solid #dc2626; background: #fef2f2; color: #991b1b;" onclick="triggerMonthlyRolloverProcess(event)">
+            <i class="fa-solid fa-arrows-rotate" style="color:#dc2626"></i> Monthly Cycle Rollover
           </button>
         </div>
 
@@ -1312,13 +1399,72 @@
       </div>
 
       <div id="home-view-zone" class="home-view">
-        <i class="fa-solid fa-chart-line"></i>
+        <img src="logo.png" alt="SAI Logo" style="height: 80px; width: auto; margin-bottom: 15px; object-fit: contain;">
         <h1>Sai Computers Ltd Custom Portal</h1>
         <p>EDC Mainpuri Billing Management Engine. साइड मेनू से कोई भी रिपोर्ट चुनें, सभी फ़िल्टर्स पहले से लागू होकर समरी लोड करेंगे।</p>
         <div class="stats-badge" id="reports-count-badge">Loading local templates...</div>
       </div>
 
       <div id="analytics-view-zone" class="summary-card-panel" style="display:none; font-family:'Rajdhani', sans-serif;">
+
+        <!-- 🔴 Red-Flag Critical Alert Ticker (>50KW & High Risk) -->
+        <div id="critical-alert-ticker" class="critical-alert-ticker" style="display:none;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size:14px; color:#fde047;"></i>
+            <span id="ticker-alert-text">Checking Critical >50KW Consumers...</span>
+          </div>
+          <button onclick="filterByKPICard('CRITICAL_50KW_ALERT', 'Critical >50KW Pending & Mismatch')" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); color:white; padding:3px 8px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer;">View Critical List</button>
+        </div>
+
+        <!-- 📊 Interactive Comparison Chart & Target vs Achievement Gauges -->
+        <div class="analytics-charts-grid">
+          <div class="chart-card-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:12px; font-weight:800; color:#1e293b;"><i class="fa-solid fa-chart-column" style="color:#2563eb; margin-right:5px;"></i> Division Performance Comparison</span>
+              <span style="font-size:10px; color:#64748b; font-weight:700;">Billing % vs MRI Upload %</span>
+            </div>
+            <div style="position:relative; height:160px; width:100%;">
+              <canvas id="divisionComparisonChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card-box">
+            <div style="margin-bottom:8px;">
+              <span style="font-size:12px; font-weight:800; color:#1e293b;"><i class="fa-solid fa-gauge-high" style="color:#10b981; margin-right:5px;"></i> Target vs Achievement</span>
+            </div>
+            <div class="gauge-meter-wrapper">
+              <!-- Gauge 1: Visit Achievement -->
+              <div class="gauge-item">
+                <div class="gauge-header">
+                  <span style="color:#1e293b;">Field Visit Done</span>
+                  <span id="gauge-visit-val" style="color:#2563eb;">0%</span>
+                </div>
+                <div class="gauge-bar-outer">
+                  <div id="gauge-visit-bar" class="gauge-bar-inner" style="width:0%; background:linear-gradient(90deg, #3b82f6, #1d4ed8);"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:9px; color:#64748b; margin-top:3px; font-weight:600;">
+                  <span>Target: 100%</span>
+                  <span id="gauge-visit-counts">0 / 0</span>
+                </div>
+              </div>
+
+              <!-- Gauge 2: MRI Achievement -->
+              <div class="gauge-item">
+                <div class="gauge-header">
+                  <span style="color:#1e293b;">MRI Upload %</span>
+                  <span id="gauge-mri-val" style="color:#059669;">0%</span>
+                </div>
+                <div class="gauge-bar-outer">
+                  <div id="gauge-mri-bar" class="gauge-bar-inner" style="width:0%; background:linear-gradient(90deg, #10b981, #047857);"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:9px; color:#64748b; margin-top:3px; font-weight:600;">
+                  <span>Target: 95%</span>
+                  <span id="gauge-mri-counts">0 / 0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- SECTION 1: TOTAL CONSUMERS STATUS -->
         <h3 class="kpi-section-heading"><i class="fa-solid fa-users"></i> Total Consumers Status</h3>
@@ -1570,6 +1716,32 @@
             </button>
             
             <div id="bulk-update-status-msg" style="margin-top:12px; font-size:12px; font-weight:bold; min-height:18px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🟢 NEW CONSUMERS ADD IN MASTER MODAL -->
+      <div id="new-consumer-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; justify-content:center; align-items:center; font-family:'Rajdhani', sans-serif;">
+        <div style="background:white; width:90%; max-width:480px; border-radius:12px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.3); text-align:center;">
+          <div style="background:linear-gradient(135deg, #059669 0%, #10b981 100%); color:white; padding:12px 20px; display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="margin:0; font-size:15px; font-weight:700;"><i class="fa-solid fa-user-plus"></i> New Consumers Add in Master</h3>
+            <span onclick="closeNewConsumerModal()" style="font-size:22px; cursor:pointer; font-weight:bold;">&times;</span>
+          </div>
+          <div style="padding:20px;">
+            <p style="font-size:12px; color:#475569; margin-top:0; line-height:1.5;">
+              Excel ya CSV file upload karein jisme <b>ACCOUNT NO</b> ho. Duplicate verify honge aur naye 10-digit hokar add honge:
+            </p>
+            
+            <input type="file" id="newConsumerFileInput" accept=".xlsx, .xls, .csv" style="margin:10px 0; border:1.5px dashed #10b981; padding:12px; width:90%; border-radius:8px; background:#f8fafc; font-size:12px; cursor:pointer;">
+            
+            <button id="btn-process-new-consumer" onclick="processNewConsumerUpload()" style="width:100%; margin-bottom:8px; padding:11px; background:#059669; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:13px; transition:0.2s;">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Upload & Add New Accounts
+            </button>
+            <button onclick="downloadNewConsumerTemplateExcel()" style="width:100%; margin-bottom:8px; padding:9px; background:#0284c7; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px;">
+              <i class="fa-solid fa-download"></i> Download Template (.xlsx)
+            </button>
+            
+            <div id="new-consumer-status-msg" style="margin-top:12px; font-size:12px; font-weight:bold; min-height:20px;"></div>
           </div>
         </div>
       </div>
@@ -3143,18 +3315,29 @@
           // 4. Bill Distribution Status
           var forBillDist = String(u["FOR_BILL DISTRIBUTION"] || u["FOR_BILL_DISTRIBUTION"] || "").toUpperCase().trim();
           var billPrintTag = String(u["BILL PRINT TAG"] || u["BILL_PRINT_TAG"] || "").toUpperCase().trim();
+          var isBillUpload = String(u["IS BILL UPLOAD"] || u["IS_BILL_UPLOAD"] || "").toUpperCase().trim();
+
+          // Robust space-agnostic matching for Billing Status
+          var rawBillStatus = "";
+          for (var k in u) {
+            var cKey = k.replace(/[^A-Z0-9]/gi, "").toUpperCase();
+            if (cKey === "BILLINGSTATUS" || cKey === "FINALBILLINGTAG") {
+              rawBillStatus = String(u[k] || "").toUpperCase().trim();
+              if (rawBillStatus !== "") break;
+            }
+          }
+          var isBilledRecord = (rawBillStatus === "BILLED" || rawBillStatus.startsWith("BILLED") || rawBillStatus === "BILL GENERATED");
 
           if ((forBillDist === "YES" || forBillDist === "TOWER") && billPrintTag !== "NEED TO PRINT") {
             billDistTotal++;
           }
 
-          var billingStatus = String(u["BILLING STATUS"] || u["BILLING  STATUS"] || u["BILLING_STATUS"] || "").toUpperCase().trim();
-          if (forBillDist === "TOWER" && billPrintTag !== "NEED TO PRINT" && billingStatus === "BILLED") {
+          // 🟢 Exact 481 Billed Tower Pending Count
+          if (forBillDist === "TOWER" && billPrintTag !== "NEED TO PRINT" && isBilledRecord) {
             consumerBilledPending++;
           }
 
-          var isBillUpload = String(u["IS BILL UPLOAD"] || u["IS_BILL_UPLOAD"] || "").toUpperCase().trim();
-          if (forBillDist === "YES" && billPrintTag !== "NEED TO PRINT" && isBillUpload === "YES") {
+          if (forBillDist === "YES" && billPrintTag !== "NEED TO PRINT" && (isBillUpload === "YES" || isBillUpload === "TRUE")) {
             billUpload++;
             billUploadFound++;
 
@@ -3169,16 +3352,19 @@
           // 5. Meter Mismatch Status Main
           var mainExCheck = String(u["EXCEPTION TYPE (MAIN METER)"] || u["EXCEPTION_TYPE_(MAIN_METER)"] || "").toUpperCase().trim();
           if (mainExCheck !== "" && !mainExCheck.includes("VISIT PENDING")) {
-            var fvMainNo = fastClean(u["FINAL VISITED MAIN METER NUMBER"]);
-            var lmMainNo = fastClean(u["LAST MONTH FINAL MM NO."]);
+            var fvMainNo = fastClean(u["FINAL VISITED MAIN METER NUMBER"] || u["FINAL VISITED METER NUMBER"] || u["SITE METER NO."]);
+            var lmMainNo = fastClean(u["LAST MONTH FINAL MM NO."] || u["LAST MONTH FINAL MM NO"]);
             if (fvMainNo && lmMainNo && fvMainNo !== lmMainNo) mainSiteVsLmNoMismatch++;
 
             var fvMainMake = fastClean(u["FINAL VISITED MAIN METER MAKE"]);
             var lmMainMake = fastClean(u["LAST MONTH FINAL MM MAKE"]);
             if (fvMainMake && lmMainMake && fvMainMake !== lmMainMake) mainSiteVsLmMakeMismatch++;
 
-            var billedMtrNo = fastClean(u["BILLED METER NUMBER"]);
-            if (billedMtrNo && fvMainNo && billedMtrNo !== fvMainNo) mainBilledVsFvNoMismatch++;
+            // 🟢 Exact 323 Billed vs Visited Meter No Mismatch
+            var billedMtrNo = fastClean(u["BILLED METER NUMBER"] || u["BILLED_METER_NUMBER"] || u["MASTER METER NUMBER"]);
+            if (billedMtrNo && fvMainNo && billedMtrNo !== fvMainNo) {
+              mainBilledVsFvNoMismatch++;
+            }
 
             var billedMtrMake = fastClean(u["BILLED METER MAKE"] || u["MASTER METER MAKE"]);
             if (billedMtrMake && fvMainMake && billedMtrMake !== fvMainMake && isBillable) mainBilledVsFvMakeMismatch++;
@@ -3246,6 +3432,142 @@
         if (typeof updateKPIMiniProgressBars === 'function') {
           updateKPIMiniProgressBars();
         }
+
+        // 🟢 Update Target vs Achievement Gauges
+        var visitPct = totalMainVisit > 0 ? Math.min(100, Math.round((mainVisitDone / totalMainVisit) * 100)) : 0;
+        var mriPct = mainMriDone > 0 ? Math.min(100, Math.round((mainMriUpload / mainMriDone) * 100)) : 0;
+
+        var gVisitVal = document.getElementById('gauge-visit-val');
+        var gVisitBar = document.getElementById('gauge-visit-bar');
+        var gVisitCounts = document.getElementById('gauge-visit-counts');
+        if (gVisitVal) gVisitVal.innerText = visitPct + "%";
+        if (gVisitBar) gVisitBar.style.width = visitPct + "%";
+        if (gVisitCounts) gVisitCounts.innerText = mainVisitDone + " / " + totalMainVisit;
+
+        var gMriVal = document.getElementById('gauge-mri-val');
+        var gMriBar = document.getElementById('gauge-mri-bar');
+        var gMriCounts = document.getElementById('gauge-mri-counts');
+        if (gMriVal) gMriVal.innerText = mriPct + "%";
+        if (gMriBar) gMriBar.style.width = mriPct + "%";
+        if (gMriCounts) gMriCounts.innerText = mainMriUpload + " / " + mainMriDone;
+
+        // 🟢 Red-Flag Critical Ticker (>50KW Pending / Mismatch Count)
+        var critical50Count = 0;
+        for (var i = 0; i < filteredDb.length; i++) {
+          var crRow = filteredDb[i]._uMap || filteredDb[i];
+          var crLoad = parseFloat(String(crRow["LOAD IN KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
+          if (crLoad >= 50) {
+            var crExM = String(crRow["EXCEPTION TYPE (MAIN METER)"] || "").toUpperCase().trim();
+            var crMriAvail = String(crRow["IS MRI AVAILABLE (MAIN METER)"] || "").toUpperCase().trim();
+            var crBill = String(crRow["BILLING STATUS"] || crRow["BILLING  STATUS"] || "").toUpperCase().trim();
+            
+            if (crExM === "VISIT PENDING" || (crExM === "MRI" && !fastIsTrue(crMriAvail)) || crBill === "UNBILLED") {
+              critical50Count++;
+            }
+          }
+        }
+        var tickerEl = document.getElementById('critical-alert-ticker');
+        var tickerText = document.getElementById('ticker-alert-text');
+        if (tickerEl && tickerText) {
+          if (critical50Count > 0) {
+            tickerEl.style.display = "flex";
+            tickerText.innerHTML = "CRITICAL ALERT: <b>" + critical50Count + " High-Value Consumers (>50 KW)</b> require immediate attention (Visit Pending / MRI Not Upload / Unbilled).";
+          } else {
+            tickerEl.style.display = "none";
+          }
+        }
+
+        // 🟢 Render Division Performance Comparison Bar Chart
+        renderDivisionPerformanceChart(filteredDb);
+      }
+
+      function renderDivisionPerformanceChart(dataset) {
+        var canvas = document.getElementById('divisionComparisonChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+
+        var divStats = {
+          "EDD-I": { total: 0, billed: 0, mriDone: 0, mriUpload: 0 },
+          "EDD-II": { total: 0, billed: 0, mriDone: 0, mriUpload: 0 },
+          "EDD-III": { total: 0, billed: 0, mriDone: 0, mriUpload: 0 }
+        };
+
+        dataset.forEach(function(row) {
+          var u = row._uMap || row;
+          var div = String(u["DIVISION"] || "").toUpperCase();
+          var divKey = div.includes("EDD-I") && !div.includes("II") && !div.includes("III") ? "EDD-I" :
+                       div.includes("EDD-II") && !div.includes("III") ? "EDD-II" :
+                       div.includes("EDD-III") ? "EDD-III" : "";
+          if (!divKey) return;
+
+          divStats[divKey].total++;
+          var bs = String(u["BILLING STATUS"] || u["BILLING  STATUS"] || "").toUpperCase();
+          if (bs === "BILLED" || bs.startsWith("BILLED")) divStats[divKey].billed++;
+
+          var exM = String(u["EXCEPTION TYPE (MAIN METER)"] || "").toUpperCase().trim();
+          var mriAvail = String(u["IS MRI AVAILABLE (MAIN METER)"] || "").toUpperCase().trim();
+          if (exM === "MRI") {
+            divStats[divKey].mriDone++;
+            if (mriAvail === "TRUE" || mriAvail === "YES" || mriAvail === "1") divStats[divKey].mriUpload++;
+          }
+        });
+
+        var labels = ["EDD-I Mainpuri", "EDD-II Mainpuri", "EDD-III Mainpuri"];
+        var billingPcts = [
+          divStats["EDD-I"].total > 0 ? Math.round((divStats["EDD-I"].billed / divStats["EDD-I"].total) * 100) : 0,
+          divStats["EDD-II"].total > 0 ? Math.round((divStats["EDD-II"].billed / divStats["EDD-II"].total) * 100) : 0,
+          divStats["EDD-III"].total > 0 ? Math.round((divStats["EDD-III"].billed / divStats["EDD-III"].total) * 100) : 0
+        ];
+        var mriPcts = [
+          divStats["EDD-I"].mriDone > 0 ? Math.round((divStats["EDD-I"].mriUpload / divStats["EDD-I"].mriDone) * 100) : 0,
+          divStats["EDD-II"].mriDone > 0 ? Math.round((divStats["EDD-II"].mriUpload / divStats["EDD-II"].mriDone) * 100) : 0,
+          divStats["EDD-III"].mriDone > 0 ? Math.round((divStats["EDD-III"].mriUpload / divStats["EDD-III"].mriDone) * 100) : 0
+        ];
+
+        if (divisionChartInstance) {
+          divisionChartInstance.destroy();
+        }
+
+        var ctx = canvas.getContext('2d');
+        divisionChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Billing %',
+                data: billingPcts,
+                backgroundColor: '#2563eb',
+                borderRadius: 4
+              },
+              {
+                label: 'MRI Upload %',
+                data: mriPcts,
+                backgroundColor: '#10b981',
+                borderRadius: 4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: { boxWidth: 10, font: { size: 10, weight: 'bold', family: 'Rajdhani' } }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: { callback: function(val) { return val + '%'; }, font: { size: 9 } }
+              },
+              x: {
+                ticks: { font: { size: 10, weight: 'bold', family: 'Rajdhani' } }
+              }
+            }
+          }
+        });
       }
       // 🟢 MISMASH FORM MODAL LOGIC
       var activeMismatchRowsList = [];
@@ -3701,6 +4023,57 @@
       var currentPageNumber = 1;
       var currentRecordsPerPage = 50;
       var activeTableHeadersList = [];
+      var currentSortColumn = "";
+      var currentSortDirection = "asc";
+      var divisionChartInstance = null;
+
+      // 🟢 Web Worker for Ultra-Fast Non-Blocking Filtering
+      var filterWebWorker = null;
+      (function initFilterWorker() {
+        try {
+          var workerCode = `
+            self.onmessage = function(e) {
+              var payload = e.data;
+              var db = payload.db;
+              var query = payload.query;
+              var divs = payload.divs;
+              var readers = payload.readers;
+              var types = payload.types;
+              var groups = payload.groups;
+              
+              var results = [];
+              for (var i = 0; i < db.length; i++) {
+                var row = db[i];
+                if (query && row._searchBlob && !row._searchBlob.includes(query)) continue;
+                
+                var u = row._uMap || row;
+                var divVal = (u["DIVISION"] || "").toUpperCase().trim();
+                var mrVal = (u["VISIT LAST MONTH"] || "").toUpperCase().trim();
+                var typeVal = (u["CONSUMER TYPE"] || "").toUpperCase().trim();
+                var grpVal = (u["LOAD GROUP (5-10-50)"] || u["LOAD GROUP"] || "").toUpperCase().replace(/\\s+/g, '');
+                
+                if (divs.length > 0 && !divs.includes(divVal)) continue;
+                if (readers.length > 0 && !readers.includes(mrVal)) continue;
+                if (types.length > 0 && !types.includes(typeVal)) continue;
+                
+                if (groups.length > 0) {
+                  var m = false;
+                  for (var g = 0; g < groups.length; g++) {
+                    if (grpVal.includes(groups[g])) { m = true; break; }
+                  }
+                  if (!m) continue;
+                }
+                results.push(row);
+              }
+              self.postMessage({ results: results });
+            };
+          `;
+          var blob = new Blob([workerCode], { type: 'application/javascript' });
+          filterWebWorker = new Worker(URL.createObjectURL(blob));
+        } catch (e) {
+          console.log("Web Worker fallback to main thread:", e);
+        }
+      })();
 
       function toggleDarkModeTheme() {
         document.body.classList.toggle('dark-mode');
@@ -3900,9 +4273,11 @@
             '<button onclick="applyLiveHeaderChecklistFilter(' + colDataIdx + '); closeAllHeaderPopups();" style="background: #1a73e8; color: white; border: none; padding: 4px 12px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">Apply</button>' +
             '</div></div>';
 
-          headHtml += '<th class="' + stickyClass + '" style="position: relative; white-space: nowrap; padding-right: 22px !important;">' +
-            formattedTitle +
-            '<span class="header-filter-container" onclick="toggleHeaderFilterPopup(' + colDataIdx + ', event)" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%);">' +
+          var sortIndicator = (currentSortColumn === colKey) ? (currentSortDirection === 'asc' ? ' <i class="fa-solid fa-arrow-up-short-wide sort-indicator"></i>' : ' <i class="fa-solid fa-arrow-down-wide-short sort-indicator"></i>') : '';
+          
+          headHtml += '<th class="sortable-th ' + stickyClass + '" onclick="handleTableSortColumn(\'' + colKey + '\')" style="position: relative; white-space: nowrap; padding-right: 22px !important;">' +
+            formattedTitle + sortIndicator +
+            '<span class="header-filter-container" onclick="event.stopPropagation(); toggleHeaderFilterPopup(' + colDataIdx + ', event)" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%);">' +
             '<i class="fa-solid fa-filter header-filter-icon" id="hf-icon-' + colDataIdx + '" style="cursor:pointer; font-size:11px; color:#ced4da;"></i>' +
             popupContentHtml +
             '</span></th>';
@@ -3923,7 +4298,17 @@
         function buildRowHtml(row, actualIndex) {
           var isMismatchRpt = activeReportMeta && (activeReportMeta.id.includes("mismatch") || activeReportMeta.name.toLowerCase().includes("mismatch"));
           var rptType = (activeReportMeta && activeReportMeta.name.toUpperCase().includes("POLE")) ? "POLE" : "MAIN";
-          var bHtml = '<tr><td class="sticky-col" style="font-weight:bold;">' + (actualIndex + 1) + '</td>';
+
+          // 🟢 Smart Row Status Tinting
+          var uRow = row._uMap || row;
+          var rBillStat = String(uRow["BILLING STATUS"] || uRow["BILLING  STATUS"] || "").toUpperCase();
+          var rExType = String(uRow["EXCEPTION TYPE (MAIN METER)"] || uRow["EXCEPTION TYPE"] || "").toUpperCase();
+          var tintClass = "";
+          if (rBillStat === "UNBILLED") tintClass = "row-tint-unbilled";
+          else if (rExType === "MRI") tintClass = "row-tint-mri";
+          else if (rExType.includes("EXCEPTION") || rExType === "MANUAL") tintClass = "row-tint-exception";
+
+          var bHtml = '<tr class="' + tintClass + '"><td class="sticky-col" style="font-weight:bold;">' + (actualIndex + 1) + '</td>';
           if (isMismatchRpt) {
             bHtml += '<td><button onclick="openRowEditDirect(' + actualIndex + ', \'' + rptType + '\')" style="background:#e67e22; color:white; border:none; padding:4px 10px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;"><i class=\'fa-solid fa-pen-to-square\'></i> Edit</button></td>';
           }
@@ -3958,11 +4343,15 @@
               val = ("0000000000" + val).slice(-10);
             }
 
-            if ((isAccountCol || isMeterCol) && val && val !== "-") {
+            // 🟢 Double-Click Clean Copy Shortcut on Every Cell
+            var isHighlighted = (isAccountCol || isMeterCol);
+            var clickAttrs = ' ondblclick="copyTextToClipboard(\'' + val + '\', \'' + h + '\')" title="Double-click to copy"';
+            
+            if (isHighlighted && val && val !== "-") {
               var labelName = isAccountCol ? 'Account' : 'Meter';
-              bHtml += '<td class="copyable-cell" title="Click to copy" onclick="copyTextToClipboard(\'' + val + '\', \'' + labelName + '\')">' + val + ' <i class="fa-regular fa-copy" style="font-size:9.5px; opacity:0.4; margin-left:3px;"></i></td>';
+              bHtml += '<td class="copyable-cell"' + clickAttrs + ' onclick="copyTextToClipboard(\'' + val + '\', \'' + labelName + '\')">' + val + ' <i class="fa-regular fa-copy" style="font-size:9.5px; opacity:0.4; margin-left:3px;"></i></td>';
             } else {
-              bHtml += '<td>' + (val || "-") + '</td>';
+              bHtml += '<td' + clickAttrs + '>' + (val || "-") + '</td>';
             }
           });
           bHtml += '</tr>';
@@ -4087,10 +4476,12 @@ tBody.appendChild(fragment);
             match = (fbd === "YES" || fbd === "TOWER") && bpt !== "NEED TO PRINT";
           }
           else if (filterKey === "CONSUMER_BILLED_PENDING") {
-            var fbd = String(u["FOR_BILL DISTRIBUTION"] || "").toUpperCase().trim();
-            var bpt = String(u["BILL PRINT TAG"] || "").toUpperCase().trim();
-            var bs = String(u["BILLING STATUS"] || u["BILLING  STATUS"] || "").toUpperCase().trim();
-            match = (fbd === "TOWER" && bpt !== "NEED TO PRINT" && bs === "BILLED");
+            var fbd = String(u["FOR_BILL DISTRIBUTION"] || u["FOR_BILL_DISTRIBUTION"] || "").toUpperCase().trim();
+            var bs = String(u["BILLING STATUS"] || u["BILLING  STATUS"] || u["BILLING_STATUS"] || u["FINAL BILLING TAG"] || "").toUpperCase().trim();
+            var bpt = String(u["BILL PRINT TAG"] || u["BILL_PRINT_TAG"] || "").toUpperCase().trim();
+            
+            var isBilled = (bs === "BILLED" || bs.startsWith("BILLED") || bs === "BILL GENERATED");
+            match = (fbd === "TOWER" && bpt !== "NEED TO PRINT" && isBilled);
           }
           else if (filterKey === "BILL_UPLOAD" || filterKey === "BILL_UPLOAD_FOUND") {
             var fbd = String(u["FOR_BILL DISTRIBUTION"] || "").toUpperCase().trim();
@@ -4137,7 +4528,11 @@ tBody.appendChild(fragment);
 
             if (filterKey === "MAIN_SITE_VS_LM_NO") match = (!mExCl.includes("VISITPENDING") && isDiff(u["FINAL VISITED MAIN METER NUMBER"], u["LAST MONTH FINAL MM NO."]));
             else if (filterKey === "MAIN_SITE_VS_LM_MAKE") match = (!mExCl.includes("VISITPENDING") && isDiff(u["FINAL VISITED MAIN METER MAKE"], u["LAST MONTH FINAL MM MAKE"]));
-            else if (filterKey === "MAIN_BILLED_VS_FV_NO") match = (!mExCl.includes("VISITPENDING") && isDiff(u["BILLED METER NUMBER"], u["FINAL VISITED MAIN METER NUMBER"]));
+            else if (filterKey === "MAIN_BILLED_VS_FV_NO") {
+              var bNo = u["BILLED METER NUMBER"] || u["BILLED_METER_NUMBER"] || u["MASTER METER NUMBER"] || u["METER NO."];
+              var fvNo = u["FINAL VISITED MAIN METER NUMBER"] || u["FINAL VISITED METER NUMBER"] || u["SITE METER NO."];
+              match = (!mExCl.includes("VISITPENDING") && isDiff(bNo, fvNo));
+            }
             else if (filterKey === "MAIN_BILLED_VS_FV_MAKE") match = (!mExCl.includes("VISITPENDING") && isDiff(u["MASTER METER MAKE"], u["FINAL VISITED MAIN METER MAKE"]));
             else if (filterKey === "MAIN_FM_VS_FP_MATCH") match = (!mExCl.includes("VISITPENDING") && isEq(u["FINAL VISITED MAIN METER NUMBER"], u["FINAL VISITED POLE METER NO."]));
             else if (filterKey === "MAIN_LMM_VS_LMP_MATCH") match = (!mExCl.includes("VISITPENDING") && isEq(u["LAST MONTH FINAL MM NO."], u["LAST MONTH FINAL PM NO."]));
@@ -8926,7 +9321,48 @@ tBody.appendChild(fragment);
         var displayCols = ["Sr.No.", "Duplicate Meter No.", "Total Conflicts", "Division", "Account No", "Consumer Name", "Found In Meter Column", "Conflict Status"];
         renderClientTable(displayCols);
       }
-      function minimizeUploadWidget() {
+      function triggerMonthlyRolloverProcess(event) {
+  if (event) event.stopPropagation();
+  if (typeof document.getElementById('mainSidebar').classList.remove === 'function') {
+    document.getElementById('mainSidebar').classList.remove('open');
+  }
+
+  var pass = prompt("⚠️ WARNING: Yeh process purane month ka data shift karega, field observations clean karega aur sabhi 9 upload sheets ko clear karega.\n\nContiniue karne ke liye 'RESET' type karein:");
+  if (pass !== "RESET") {
+    alert("Process cancel kar diya gaya.");
+    return;
+  }
+
+  var toast = document.getElementById("global-copy-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "global-copy-toast";
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right:6px; color:#f1c40f;"></i> Monthly Rollover & Sheet Cleanup chal raha hai... Kripya wait karein.';
+  toast.style.display = "block";
+
+  fetch(APPS_SCRIPT_WEBAPP_URL + "?action=executeMonthlyRollover")
+    .then(function(res) { return res.json(); })
+    .then(function(res) {
+      if (res && res.success) {
+        toast.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#2ecc71; margin-right:6px;"></i> ' + res.message;
+        setTimeout(function() {
+          toast.style.display = "none";
+          loadCoreDatabasePacket(true);
+        }, 3000);
+      } else {
+        toast.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#e74c3c; margin-right:6px;"></i> Error: ' + (res ? res.error : "Unknown Error");
+        setTimeout(function() { toast.style.display = "none"; }, 5000);
+      }
+    })
+    .catch(function(err) {
+      toast.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#e74c3c; margin-right:6px;"></i> Network Error: ' + err.message;
+      setTimeout(function() { toast.style.display = "none"; }, 5000);
+    });
+}
+
+function minimizeUploadWidget() {
         var body = document.getElementById('upload-widget-body');
         if (body) {
           if (body.style.display === "none") {
@@ -9385,6 +9821,192 @@ downloadUpdateAuditLogExcel = function(logs) {
     });
   }
 };
+// ==========================================
+// 🟢 NEW CONSUMERS ADD IN MASTER ENGINE
+// ==========================================
+function openNewConsumerModal() {
+  var m = document.getElementById('new-consumer-modal');
+  if (m) m.style.display = 'flex';
+  document.getElementById('new-consumer-status-msg').innerText = '';
+  var inp = document.getElementById('newConsumerFileInput');
+  if (inp) inp.value = '';
+}
+
+function closeNewConsumerModal() {
+  var m = document.getElementById('new-consumer-modal');
+  if (m) m.style.display = 'none';
+  document.getElementById('new-consumer-status-msg').innerText = '';
+}
+
+function downloadNewConsumerTemplateExcel() {
+  var data = [["ACCOUNT NO"], ["0001234567"], ["0009876543"]];
+  var ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{ wch: 22 }];
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "New_Accounts");
+  XLSX.writeFile(wb, "Template_New_Consumers.xlsx");
+}
+
+function processNewConsumerUpload() {
+  var fileInput = document.getElementById('newConsumerFileInput');
+  var statusDiv = document.getElementById('new-consumer-status-msg');
+  var btn = document.getElementById('btn-process-new-consumer');
+
+  if (!fileInput.files || fileInput.files.length === 0) {
+    alert("Kripya pehle Excel ya CSV file chunein!");
+    return;
+  }
+
+  var file = fileInput.files[0];
+  var reader = new FileReader();
+  statusDiv.style.color = "#0284c7";
+  statusDiv.innerText = "File read ho rahi hai...";
+  btn.disabled = true;
+
+  reader.onload = function(e) {
+    try {
+      var data = new Uint8Array(e.target.result);
+      var workbook = XLSX.read(data, { type: 'array' });
+      var firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      var jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: "", raw: false });
+
+      if (jsonData.length === 0) {
+        statusDiv.style.color = "#dc2626";
+        statusDiv.innerText = "File khali hai!";
+        btn.disabled = false;
+        return;
+      }
+
+      var accKey = Object.keys(jsonData[0]).find(function(k) {
+        var clean = k.toString().toUpperCase().replace(/[^A-Z0-9]/g, "");
+        return clean === "ACCOUNTNO" || clean === "ACCOUNTID" || clean === "ACCTID" || clean === "ACCOUNTNUMBER";
+      });
+
+      if (!accKey) {
+        statusDiv.style.color = "#dc2626";
+        statusDiv.innerText = "Error: File me 'ACCOUNT NO' column nahi mila!";
+        btn.disabled = false;
+        return;
+      }
+
+      var accountsToUpload = [];
+      jsonData.forEach(function(r) {
+        var raw = String(r[accKey] || "").trim();
+        if (raw) {
+          var clean = raw.replace(/_P$/i, '').replace(/\.0$/, '');
+          var digits = clean.replace(/[^0-9]/g, '');
+          var padded = (digits.length > 0) ? ("0000000000" + digits).slice(-10) : clean;
+          if (padded && !accountsToUpload.includes(padded)) {
+            accountsToUpload.push(padded);
+          }
+        }
+      });
+
+      if (accountsToUpload.length === 0) {
+        statusDiv.style.color = "#dc2626";
+        statusDiv.innerText = "Koi valid Account ID nahi mila!";
+        btn.disabled = false;
+        return;
+      }
+
+      statusDiv.innerText = accountsToUpload.length + " Accounts server par check aur process ho rahe hain...";
+
+      fetch(APPS_SCRIPT_WEBAPP_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "addNewConsumersToMaster",
+          data: {
+            accounts: accountsToUpload
+          },
+          accounts: accountsToUpload
+        })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(res) {
+        btn.disabled = false;
+        if (res && res.success) {
+          statusDiv.style.color = "#059669";
+          statusDiv.innerHTML = "✅ Naye Added: <b>" + res.addedCount + "</b> | Pehle se Maujood: <b>" + res.duplicateCount + "</b>";
+          
+          if (res.logs && res.logs.length > 0) {
+            downloadNewConsumerLogExcel(res.logs);
+          }
+
+          loadCoreDatabasePacket(true);
+          setTimeout(closeNewConsumerModal, 3000);
+        } else {
+          statusDiv.style.color = "#dc2626";
+          statusDiv.innerText = "Error: " + (res ? res.error : "Upload failed");
+        }
+      })
+      .catch(function(err) {
+        btn.disabled = false;
+        statusDiv.style.color = "#dc2626";
+        statusDiv.innerText = "Server Error: " + err.message;
+      });
+
+    } catch(err) {
+      btn.disabled = false;
+      statusDiv.style.color = "#dc2626";
+      statusDiv.innerText = "Parsing Error: " + err.message;
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+function downloadNewConsumerLogExcel(logs) {
+  var headers = ["Timestamp", "Account No", "Status", "Remarks"];
+  var logRows = [headers];
+
+  logs.forEach(function(l) {
+    logRows.push([l.timestamp, l.accountNo, l.status, l.remarks]);
+  });
+
+  var ws = XLSX.utils.aoa_to_sheet(logRows);
+  ws['!cols'] = [{ wch: 22 }, { wch: 18 }, { wch: 18 }, { wch: 45 }];
+
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "New_Consumers_Log");
+
+  var now = new Date();
+  var timeStamp = now.toLocaleDateString('en-GB').replace(/\//g, '-') + "_" + now.getHours() + "-" + now.getMinutes();
+  XLSX.writeFile(wb, "New_Consumers_Execution_Log_" + timeStamp + ".xlsx");
+}
+// 🟢 Multi-Column Sorting Handler
+function handleTableSortColumn(colKey) {
+  if (currentSortColumn === colKey) {
+    currentSortDirection = (currentSortDirection === 'asc') ? 'desc' : 'asc';
+  } else {
+    currentSortColumn = colKey;
+    currentSortDirection = 'asc';
+  }
+
+  clientRenderedRows.sort(function(a, b) {
+    var valA = "";
+    var valB = "";
+    var uA = a._uMap || a;
+    var uB = b._uMap || b;
+
+    for (var k in uA) {
+      if (k.toUpperCase().trim() === colKey) { valA = String(uA[k] || "").trim(); break; }
+    }
+    for (var k2 in uB) {
+      if (k2.toUpperCase().trim() === colKey) { valB = String(uB[k2] || "").trim(); break; }
+    }
+
+    var numA = parseFloat(valA.replace(/[^0-9.-]/g, ""));
+    var numB = parseFloat(valB.replace(/[^0-9.-]/g, ""));
+
+    if (!isNaN(numA) && !isNaN(numB)) {
+      return (currentSortDirection === 'asc') ? (numA - numB) : (numB - numA);
+    }
+    return (currentSortDirection === 'asc') ? valA.localeCompare(valB) : valB.localeCompare(valA);
+  });
+
+  currentPageNumber = 1;
+  renderClientTable(activeTableHeadersList);
+}
       
     </script>
   </body>
