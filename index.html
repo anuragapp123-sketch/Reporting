@@ -1227,6 +1227,11 @@
       #xml-reader-view-zone .report-table tr:nth-child(even) { background-color: #f8fafc; }
       #xml-reader-view-zone .report-table tr:hover { background-color: #f1f5f9; }
       #xml-reader-view-zone .note-box { background-color: #fffbeb; border: 1px solid #fef3c7; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 6px; margin-top: 10px; }
+      @media (max-width: 850px) {
+        .d-none-mobile {
+          display: none !important;
+        }
+      }
     </style>
   </head>
   <body>
@@ -1270,47 +1275,46 @@
 
     <!-- Top Header Bar -->
     <div class="top-navbar">
-      <!-- Left: Branding + Quick Refresh Icon Button -->
+      <!-- Left: Branding + Quick Refresh Icon Button + Navbar Quick Search Bar -->
       <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; white-space: nowrap;">
         <i class="fa-solid fa-bars menu-toggle-btn" onclick="toggleMobileSidebar(event)"></i>
         <img src="logo.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';" alt="SAI Logo" style="height: 28px; width: auto; object-fit: contain; vertical-align: middle;">
-<i class="fa-solid fa-gauge-high" style="display:none; color: #67e8f9;"></i>
-        <span class="brand-text-label">Sai Computers Ltd</span>
-        <!-- 🟢 Version tag hatakar Refresh Button -->
+        <i class="fa-solid fa-gauge-high" style="display:none; color: #67e8f9;"></i>
+        <span class="brand-text-label d-none-mobile">Sai Computers Ltd</span>
+        
         <button onclick="loadCoreDatabasePacket(true)" title="Refresh Data" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
           <i class="fa-solid fa-rotate"></i>
         </button>
+
+        <!-- Navbar Quick Search Box with Icon -->
+        <div style="position: relative; display: inline-flex; align-items: center; margin-left: 6px;">
+          <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 9px; font-size: 11px; color: #94a3b8; pointer-events: none;"></i>
+          <input type="text" id="navbar-quick-search" placeholder="Quick Search..." oninput="syncNavbarSearchToMain(this.value)" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 4px 8px 4px 28px; border-radius: 16px; font-size: 11.5px; font-weight: 600; outline: none; width: 140px; transition: width 0.3s;" onfocus="this.style.width='200px'" onblur="if(!this.value)this.style.width='140px'">
+        </div>
       </div>
 
-      <!-- Center: Dynamic Live Date & 12-Hour Time Widget -->
-      <div class="nav-datetime-center" id="nav-live-clock">
-        <i class="fa-regular fa-calendar-days" style="color:#67e8f9; font-size:13px;"></i>
+      <!-- Center: Dynamic Live Date & Time (Clean Desktop Widget) -->
+      <div class="nav-datetime-center d-none-mobile" id="nav-live-clock">
+        <i class="fa-regular fa-calendar-days" style="color:#67e8f9; font-size:12px;"></i>
         <span class="nav-date-part" id="live-nav-date">Loading date...</span>
         <span style="opacity: 0.5;">|</span>
-        <i class="fa-regular fa-clock" style="color:#f1c40f; font-size:13px;"></i>
+        <i class="fa-regular fa-clock" style="color:#f1c40f; font-size:12px;"></i>
         <span class="nav-time-part" id="live-nav-time">--:-- --</span>
       </div>
 
-      <!-- Right: Action Buttons & Controls + Report Updated Status Capsule -->
-      <div style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
-        <!-- 🟢 Report Updated & Source Badge (Live vs Cached) -->
-        <div id="data-sync-capsule" style="display: flex; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.35); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.25); font-size: 11px;">
-          <i class="fa-solid fa-database" id="sync-source-icon" style="color: #67e8f9; font-size: 11px;"></i>
-          <span id="update-timestamp-box" style="white-space: nowrap; font-weight: 600;">Report Updated: Checking...</span>
-          <span id="data-source-badge" style="background: #eab308; color: #000; padding: 2px 6px; border-radius: 10px; font-size: 9px; font-weight: 800; text-transform: uppercase;">Checking</span>
-        </div>
-
-        <span title="Network Status" style="display:flex; align-items:center; gap:5px; margin-right: 4px;">
+      <!-- Right: Action Buttons & Controls -->
+      <div style="display: flex; align-items: center; gap: 6px; font-size: 12px;">
+        <span title="Network Status" style="display:flex; align-items:center; gap:4px;">
           <span class="network-status-dot" id="net-dot"></span>
         </span>
-        <button id="btn-pwa-install" onclick="triggerPwaInstallPrompt()" title="Install App on Phone" style="display: none; background: #f39c12; border: none; color: white; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 11px;">
-          <i class="fa-solid fa-download"></i> Install App
+        <button id="btn-pwa-install" onclick="triggerPwaInstallPrompt()" title="Install App on Phone" style="display: none; background: #f39c12; border: none; color: white; padding: 5px 8px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 11px;">
+          <i class="fa-solid fa-download"></i> Install
         </button>
-        <button onclick="openBulletinConfigModal()" title="Download Daily Executive Bulletin PDF" style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25); color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 11.5px; transition: 0.2s;">
-          <i class="fa-solid fa-file-shield" style="color: #f1c40f; margin-right: 4px;"></i> <span class="d-none-mobile">Daily Bulletin</span>
+        <button onclick="openBulletinConfigModal()" title="Download Daily Executive Bulletin PDF" style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25); color: white; padding: 5px 9px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 11px; transition: 0.2s; white-space: nowrap;">
+          <i class="fa-solid fa-file-shield" style="color: #f1c40f; margin-right: 2px;"></i> <span class="d-none-mobile">Bulletin</span>
         </button>
-        <button onclick="toggleDarkModeTheme()" title="Toggle Dark/Light Mode" style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25); color: white; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display:flex; align-items:center; justify-content:center; transition: 0.2s;">
-          <i class="fa-solid fa-moon" id="dark-mode-icon"></i>
+        <button onclick="toggleDarkModeTheme()" title="Toggle Dark/Light Mode" style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25); color: white; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; display:flex; align-items:center; justify-content:center; transition: 0.2s; flex-shrink: 0;">
+          <i class="fa-solid fa-moon" id="dark-mode-icon" style="font-size: 12px;"></i>
         </button>
       </div>
     </div>
@@ -1326,22 +1330,17 @@
       </div>
       <div style="padding: 10px 0;">
 
-        <!-- ⚡ DIRECT TOP TOOL: XML & MRI READER -->
-        <button class="report-link active" id="btn-xml-reader-tool" style="border-left: 5px solid #2563eb; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); color: #1e40af; font-weight: 800; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(37,99,235,0.15);" onclick="showXmlReaderView(event)">
-          <i class="fa-solid fa-chart-line" style="color:#2563eb; font-size:15px;"></i> ⚡ XML Reader & MRI Tool
+        <!-- 📊 TOP LEVEL TOOL: ANALYTICS DASHBOARD -->
+        <button class="report-link" id="btn-analytics-dashboard" style="border-left: 5px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); color: #92400e; font-weight: 800; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(245,158,11,0.15);" onclick="showAnalyticsDashboard(event)">
+          <i class="fa-solid fa-chart-line" style="color:#d97706; font-size:15px;"></i> 📊 Analytics Dashboard
         </button>
         
-        <!-- 🏢 GROUP 1: DEPARTMENT USE (विभागीय व आधिकारिक रिपोर्ट्स) -->
+        <!-- 🏢 GROUP 1: DEPARTMENT USE -->
         <div onclick="toggleMenuSection('dept-group-container', 'dept-group-chevron')" class="reports-folder-toggle" style="background: linear-gradient(135deg, rgba(26,115,232,0.1), rgba(26,115,232,0.02)); border-left: 4px solid #1a73e8; margin-bottom: 6px;">
           <span><i class="fa-solid fa-building-columns" style="color:#1a73e8; margin-right:8px;"></i> 🏢 Department Use</span>
           <i class="fa-solid fa-chevron-down" id="dept-group-chevron" style="font-size: 11px;"></i>
         </div>
         <div id="dept-group-container" style="display: none; flex-direction: column; gap: 6px; padding-left: 4px; margin-bottom: 12px;">
-          
-          <button class="report-link" id="btn-analytics-dashboard" style="border-left: 4px solid #f59e0b; background: var(--sidebar-btn-bg);" onclick="showAnalyticsDashboard(event)">
-            <i class="fa-solid fa-chart-line" style="color:#d97706"></i> Analytics Dashboard
-          </button>
-
           <button class="report-link" id="btn-field-exception-report" style="border-left: 4px solid #e67e22; background: #fff7ed; color: #9a3412;" onclick="triggerFieldExceptionReport(event)">
             <i class="fa-solid fa-triangle-exclamation" style="color:#ea580c"></i> Field Exception & Rejection
           </button>
@@ -1359,12 +1358,16 @@
           </button>
         </div>
 
-        <!-- 📅 GROUP 2: DAILY USE (डिपार्टमेंट के पास बाहर) -->
+        <!-- 🚀 GROUP 2: UPLOADING TOOL -->
         <div onclick="toggleMenuSection('daily-use-group-container', 'daily-use-group-chevron')" class="reports-folder-toggle" style="background: linear-gradient(135deg, rgba(14,165,233,0.1), rgba(14,165,233,0.02)); border-left: 4px solid #0ea5e9; margin-bottom: 6px;">
-          <span><i class="fa-solid fa-calendar-days" style="color:#0ea5e9; margin-right:8px;"></i> 📅 Daily Use</span>
+          <span><i class="fa-solid fa-cloud-arrow-up" style="color:#0ea5e9; margin-right:8px;"></i> 🚀 Uploading Tool</span>
           <i class="fa-solid fa-chevron-down" id="daily-use-group-chevron" style="font-size: 11px;"></i>
         </div>
         <div id="daily-use-group-container" style="display: none; flex-direction: column; gap: 6px; padding-left: 4px; margin-bottom: 12px;">
+          <button class="report-link" id="btn-xml-reader-tool" style="border-left: 4px solid #2563eb; background: #eff6ff; color: #1e40af;" onclick="showXmlReaderView(event)">
+            <i class="fa-solid fa-gauge-high" style="color:#2563eb"></i> XML Reader & MRI Tool
+          </button>
+
           <button class="report-link" id="btn-data-matcher" style="border-left: 4px solid #0284c7; background: #f0f9ff; color: #0369a1;" onclick="openDataMatcherModal(event)">
             <i class="fa-solid fa-code-compare" style="color:#0284c7"></i> Matching With Data
           </button>
@@ -1394,30 +1397,21 @@
           </button>
         </div>
 
-        <!-- 💼 GROUP 3: OFFICE USE (टूल्स व रिपोर्ट्स) -->
+        <!-- 📊 GROUP 3: REPORT (OFFICE USE) -->
         <div onclick="toggleMenuSection('office-group-container', 'office-group-chevron')" class="reports-folder-toggle" style="background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.02)); border-left: 4px solid #10b981; margin-bottom: 6px;">
-          <span><i class="fa-solid fa-briefcase" style="color:#10b981; margin-right:8px;"></i> 💼 Office Use</span>
+          <span><i class="fa-solid fa-chart-column" style="color:#10b981; margin-right:8px;"></i> 📊 Report (Office Use)</span>
           <i class="fa-solid fa-chevron-down" id="office-group-chevron" style="font-size: 11px;"></i>
         </div>
         <div id="office-group-container" style="display: none; flex-direction: column; gap: 6px; padding-left: 4px; margin-bottom: 12px;">
-          
-          <!-- 📊 Unified Sub-Folder: Reports -->
-          <div onclick="toggleMenuSection('office-reports-container', 'office-reports-chevron')" class="reports-folder-toggle" style="background: var(--sidebar-btn-bg); border-left: 3px solid #6366f1; font-size: 12px; padding: 10px 12px;">
-            <span><i class="fa-solid fa-chart-column" style="color:#6366f1; margin-right:6px;"></i> 📊 Reports</span>
-            <i class="fa-solid fa-chevron-down" id="office-reports-chevron" style="font-size: 10px;"></i>
-          </div>
-          <div id="office-reports-container" style="display: none; flex-direction: column; gap: 6px; padding-left: 6px; margin-top: 4px;">
-            <p style="text-align:center;font-size:12px;color:#aaa;">Loading Reports...</p>
-          </div>
-
+          <p style="text-align:center;font-size:12px;color:#aaa;">Loading Reports...</p>
         </div>
 
       </div>
 
       <div class="dev-credit-footer">
         Developed By :-<br>
-        <span>Er. Anurag Shakya</span><br>
-        <span style="color:#a4b0be; font-size:11px; font-family:sans-serif;">Version: 20.06.26</span><br>
+        <span>Anurag Shakya</span><br>
+        <span style="color:#a4b0be; font-size:11px; font-family:sans-serif;">Version: 20260822</span><br>
         <i class="fa-solid fa-phone" style="font-size:10px; color:#27ae60;"></i> 9761414105
       </div>
     </div>
@@ -1465,7 +1459,7 @@
                   <i class="fa-solid fa-file-excel" style="color: #16a34a; font-size: 14px;"></i> Full Excel (.xlsx)
                 </div>
                 <div class="export-dropdown-item" onclick="downloadPDF(); closeUnifiedExportDropdown();">
-                  <i class="fa-solid fa-file-pdf" style="color: #dc2626; font-size: 14px;"></i> Full PDF (Summary+List)
+                  <i class="fa-solid fa-file-pdf" style="color: #dc2626; font-size: 14px;"></i> Full PDF Report
                 </div>
                 <div class="export-dropdown-item" onclick="downloadOnlySummaryPDF(); closeUnifiedExportDropdown();">
                   <i class="fa-solid fa-file-lines" style="color: #ea580c; font-size: 14px;"></i> Summary PDF Only
@@ -1473,6 +1467,15 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- 🟢 Report Updated & Source Status Bar (Placed above filters for mobile & desktop) -->
+        <div id="data-sync-capsule" style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 11.5px; margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-database" id="sync-source-icon" style="color: #2563eb; font-size: 12px;"></i>
+            <span id="update-timestamp-box" style="font-weight: 700; color: var(--text-main);">Report Updated: Checking...</span>
+          </div>
+          <span id="data-source-badge" style="background: #f59e0b; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 9.5px; font-weight: 800; text-transform: uppercase;">Checking</span>
         </div>
 
         <!-- Filters Section -->
@@ -1965,6 +1968,37 @@
         </div>
       </div>
 
+      <!-- 🟢 CONSUMER 360° INTERACTIVE PROFILE MODAL -->
+      <div id="consumer-360-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.75); z-index:9999999; justify-content:center; align-items:center; backdrop-filter:blur(4px); font-family:'Rajdhani', sans-serif;">
+        <div style="background:white; width:95%; max-width:960px; max-height:92vh; border-radius:12px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.4); border: 2px solid #1a73e8;">
+          
+          <!-- Header Banner -->
+          <div style="background:linear-gradient(135deg, #0b3c5d 0%, #1a73e8 100%); color:white; padding:12px 20px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <i class="fa-solid fa-id-card-clip" style="font-size:22px; color:#f1c40f;"></i>
+              <div>
+                <h4 style="margin:0; font-size:16px; font-weight:800; letter-spacing:0.5px;">CONSUMER 360° COMPLETE PROFILE & AUDIT DOSSIER</h4>
+                <span id="c360-header-sub" style="font-size:11px; opacity:0.85; font-weight:600;">Account: Checking...</span>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button onclick="downloadSingleConsumer360Excel()" class="btn-icon btn-excel" style="height:30px; font-size:11px; padding:0 10px;">
+                <i class="fa-solid fa-file-excel me-1"></i> Excel
+              </button>
+              <button onclick="downloadSingleConsumer360PDF()" class="btn-icon btn-pdf" style="height:30px; font-size:11px; padding:0 10px;">
+                <i class="fa-solid fa-file-pdf me-1"></i> PDF
+              </button>
+              <span onclick="closeConsumer360Modal()" style="font-size:26px; cursor:pointer; font-weight:bold; line-height:1; margin-left:8px;">&times;</span>
+            </div>
+          </div>
+
+          <!-- Body Content (Scrollable) -->
+          <div id="c360-modal-body" style="padding:16px 20px; overflow-y:auto; flex:1; background:#f8fafc; font-size:12px;">
+            <!-- Content injected dynamically via JS -->
+          </div>
+        </div>
+      </div>
+
       <!-- 🟢 BULK MISMATCH EXCEL UPDATE MODAL -->
       <div id="bulk-update-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; justify-content:center; align-items:center;">
         <div style="background:white; width:90%; max-width:500px; border-radius:10px; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.3); text-align:center;">
@@ -1988,6 +2022,70 @@
             </button>
             
             <div id="bulk-update-status-msg" style="margin-top:12px; font-size:12px; font-weight:bold; min-height:18px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🟢 CUSTOM BULK COLUMN UPDATE MODAL -->
+      <div id="custom-bulk-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:99999; justify-content:center; align-items:center; font-family:'Rajdhani', sans-serif;">
+        <div style="background:white; width:92%; max-width:680px; max-height:90vh; border-radius:14px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 15px 40px rgba(0,0,0,0.35);">
+          <div style="background:linear-gradient(135deg, #4338ca 0%, #6366f1 100%); color:white; padding:12px 20px; display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="margin:0; font-size:15px; font-weight:700;"><i class="fa-solid fa-file-pen me-1"></i> Bulk Column Update & Clear Tool</h3>
+            <span onclick="closeCustomBulkModal()" style="font-size:24px; cursor:pointer; font-weight:bold; line-height:1;">&times;</span>
+          </div>
+
+          <div style="padding:16px; overflow-y:auto; flex:1;">
+            <!-- Stepper Bar -->
+            <div class="modal-stepper-bar">
+              <div class="stepper-line"></div>
+              <div class="stepper-step">
+                <div class="step-bubble active-step" id="step-bubble-1">1</div>
+                <span class="step-label">Select Columns</span>
+              </div>
+              <div class="stepper-step">
+                <div class="step-bubble" id="step-bubble-2">2</div>
+                <span class="step-label">Upload Filled File</span>
+              </div>
+              <div class="stepper-step">
+                <div class="step-bubble" id="step-bubble-3">3</div>
+                <span class="step-label">Complete & Sync</span>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:12px; font-weight:700; color:#334155;">Step 1: Choose Columns to Update/Clear:</span>
+              <div style="display:flex; gap:8px;">
+                <button type="button" onclick="toggleAllCustomCols(true)" style="background:#f1f5f9; border:1px solid #cbd5e1; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:4px; cursor:pointer;">Select All</button>
+                <button type="button" onclick="toggleAllCustomCols(false)" style="background:#f1f5f9; border:1px solid #cbd5e1; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:4px; cursor:pointer;">Deselect All</button>
+              </div>
+            </div>
+
+            <div id="custom-cols-checkbox-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:6px; max-height:160px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; padding:8px; background:#f8fafc; margin-bottom:12px;"></div>
+
+            <div style="display:flex; justify-content:flex-end; margin-bottom:14px;">
+              <button type="button" onclick="downloadCustomBulkTemplateExcel()" style="padding:7px 14px; background:#0284c7; color:white; border:none; border-radius:6px; font-weight:700; font-size:11.5px; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-download"></i> Download Update Template (.xlsx)
+              </button>
+            </div>
+
+            <div style="border-top:1px dashed #cbd5e1; padding-top:10px;">
+              <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:6px;">Step 2: Upload Modified Template File (.xlsx / .csv):</label>
+              <input type="file" id="customBulkFileInput" accept=".xlsx, .xls, .csv" style="width:100%; border:1.5px dashed #6366f1; border-radius:8px; padding:10px; font-size:11.5px; background:#f8fafc; cursor:pointer;">
+            </div>
+
+            <div id="custom-bulk-status-box" style="margin-top:10px; font-size:12px; font-weight:700; text-align:center; min-height:18px;"></div>
+
+            <div id="bulk-audit-preview-box" style="display:none; margin-top:10px; background:#0f172a; color:#38bdf8; padding:8px 12px; border-radius:6px; font-family:monospace; font-size:11px; max-height:90px; overflow-y:auto;">
+              <div style="color:#a5b4fc; font-weight:bold; margin-bottom:3px;">Live Audit Log Preview:</div>
+              <div id="bulk-audit-log-items"></div>
+            </div>
+          </div>
+
+          <div style="padding:10px 18px; background:#f1f5f9; border-top:1px solid #cbd5e1; display:flex; justify-content:space-between; align-items:center;">
+            <button type="button" onclick="closeCustomBulkModal()" style="padding:8px 14px; border:1px solid #cbd5e1; background:white; color:#475569; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11.5px;">Cancel</button>
+            <button type="button" id="btn-run-custom-bulk" onclick="executeCustomBulkUpdate()" style="padding:8px 18px; background:linear-gradient(135deg, #10b981, #047857); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:800; font-size:12px; display:flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Apply Changes & Update Sheet
+            </button>
           </div>
         </div>
       </div>
@@ -2540,7 +2638,7 @@
 
       function renderSidebarMenus() {
         var deptContainer = document.getElementById('dept-group-container');
-        var reportsBox = document.getElementById('office-reports-container');
+        var reportsBox = document.getElementById('office-group-container');
 
         // पहले से मौजूद डायनामिक बटन्स साफ़ करें
         document.querySelectorAll('.dynamic-dept-rpt, .dynamic-office-rpt').forEach(function(el) { 
@@ -3037,7 +3135,7 @@
             row["IS MRI AVAILABLE"] = String(upperRowMap["IS MRI AVAILABLE (MAIN METER)"] || "False");
           }
 
-          // 🟢 FIELD EXCEPTION & REJECTION V131.0 EXACT ENGINE FILTER
+          // 🟢 FIELD EXCEPTION & REJECTION V131.0 EXACT ENGINE FILTER (EXACT EXCEL MATCH)
           if (activeReportMeta && activeReportMeta.id === "rpt_field_exception_rejection") {
             var expMsg = String(upperRowMap["EXPORT FAILURE MESSAGE"] || "").trim();
             var isMriM = String(upperRowMap["IS MRI AVAILABLE (MAIN METER)"] || "").toUpperCase() === "TRUE";
@@ -3054,14 +3152,14 @@
             var exCategory = "";
             var rejectionSummary = "";
 
-            // 1. Rejection After MRI
+            // 1. MRI Done But Reject (Exact Excel Match)
             var isRejAfterMri = (expMsg !== "" && expMsg !== "0") || 
                                 (isMriM && remM === "METER RTC DEFECTIVE") ||
                                 (isMriM && billStatus === "UNBILLED" && (expMsg === "" || expMsg === "0") && mismatchStatus === "MISMATCH");
             
             if (isRejAfterMri && remM !== "SMART/PREPAID METER") {
               isMatchFieldEx = true;
-              exCategory = "Rejection After MRI";
+              exCategory = "MRI Done But Reject";
               rejectionSummary = (remM === "MRI DONE" && expMsg !== "" && expMsg !== "0") ? expMsg : remM;
               if (isMriM && billStatus === "UNBILLED" && (expMsg === "" || expMsg === "0") && mismatchStatus === "MISMATCH") {
                 rejectionSummary = "METER NUMBER MISMATCH";
@@ -3073,7 +3171,7 @@
               exCategory = "Main Meter Exception";
               rejectionSummary = remM || "NO REMARK";
             }
-            // 3. Pole Meter Exception (>=10KW: Case 1 - Exception/Manual with MRI False | Case 2 - MRI with RTC Defective & MRI True)
+            // 3. Pole Meter Exception
             else if (loadVal >= 10 && (
               (["EXCEPTION", "MANUAL"].includes(exP) && !isMriP && exP !== "VISIT PENDING") ||
               (exP === "MRI" && isMriP && remP === "METER RTC DEFECTIVE")
@@ -3082,7 +3180,7 @@
               exCategory = "Pole Meter Exception";
               rejectionSummary = (exP === "MRI" && isMriP && remP === "METER RTC DEFECTIVE") ? "METER RTC DEFECTIVE" : (remP || "NO REMARK");
             }
-            // 4. Pole Meter Not Installed (>=10KW: Only EXCEPTION (NO_MTR) & MRI False)
+            // 4. Pole Meter Not Installed
             else if (loadVal >= 10 && !isMriP && (exP === "EXCEPTION (NO_MTR)" || exP.includes("NO_MTR") || exP.includes("NO_METER"))) {
               isMatchFieldEx = true;
               exCategory = "Pole Meter Not Installed";
@@ -3143,55 +3241,79 @@
         }
       }
 
-      // 🟢 Universal Dynamic Sub-Sheet Tabs Engine
       function buildUniversalSubSheetTabs() {
         var tabsBar = document.getElementById('report-subsheet-tabs-bar');
         var container = document.getElementById('dynamic-subsheet-buttons-cluster');
         if (!tabsBar || !container) return;
 
-        if (!clientRenderedRows || clientRenderedRows.length === 0) {
+        if (!clientRenderedRows || clientRenderedRows.length === 0 || !activeReportMeta) {
           tabsBar.style.display = "none";
           return;
         }
 
-        window.allReportBaseCachedRows = (window.allReportBaseCachedRows && window.activeSubTabReportId === (activeReportMeta ? activeReportMeta.id : "")) 
+        window.allReportBaseCachedRows = (window.allReportBaseCachedRows && window.activeSubTabReportId === activeReportMeta.id) 
           ? window.allReportBaseCachedRows 
           : clientRenderedRows.slice();
-        window.activeSubTabReportId = activeReportMeta ? activeReportMeta.id : "";
+        window.activeSubTabReportId = activeReportMeta.id;
 
-        // 🟢 Auto-Detect Sheet / Category Columns (Priority Order)
         var categoryColKey = "";
-        var sampleRow = window.allReportBaseCachedRows[0] || {};
-        var possibleKeys = ["EXCEPTION CATEGORY", "SHEET NAME", "CATEGORY", "PENDENCY", "SUB CATEGORY", "REPORT NAME", "DERIVED STATUS"];
-        
-        for (var k in sampleRow) {
-          var cleanK = k.toUpperCase().replace(/[^A-Z0-9]/g, "");
-          for (var p = 0; p < possibleKeys.length; p++) {
-            if (cleanK === possibleKeys[p].replace(/[^A-Z0-9]/g, "")) {
-              categoryColKey = k;
-              break;
-            }
-          }
-          if (categoryColKey) break;
-        }
-
-        if (!categoryColKey) {
-          tabsBar.style.display = "none";
-          return;
-        }
-
-        // Unique categories count karein
         var categoryCounts = {};
-        window.allReportBaseCachedRows.forEach(function(row) {
-          var val = String(row[categoryColKey] || "").trim();
-          if (val && val !== "-" && val.toUpperCase() !== "NAN") {
-            categoryCounts[val] = (categoryCounts[val] || 0) + 1;
+
+        // 🟢 1. FIELD EXCEPTION & REJECTION REPORT (Exact 4 Excel Categories)
+        if (activeReportMeta.id === "rpt_field_exception_rejection") {
+          categoryColKey = "EXCEPTION CATEGORY";
+          var standardCategories = [
+            "Rejection After MRI",
+            "Main Meter Exception",
+            "Pole Meter Exception",
+            "Pole Meter Not Installed"
+          ];
+          standardCategories.forEach(function(c) { categoryCounts[c] = 0; });
+
+          window.allReportBaseCachedRows.forEach(function(row) {
+            var val = String(row["EXCEPTION CATEGORY"] || "").trim();
+            if (categoryCounts.hasOwnProperty(val)) {
+              categoryCounts[val]++;
+            }
+          });
+        }
+        // 🟢 2. UNBILLED MASTER REPORT (No Duplicate / Random Status Tabs)
+        else if (activeReportMeta.id === "rpt_master_unbilled") {
+          categoryColKey = "UNBILLED STATUS";
+          window.allReportBaseCachedRows.forEach(function(row) {
+            var u = row._uMap || row;
+            var val = String(u["UNBILLED STATUS"] || u["DERIVED STATUS"] || u["FINAL BILLING TAG"] || "").trim();
+            if (val && val !== "-" && val.toUpperCase() !== "NAN" && val.toUpperCase() !== "NULL" && val.toUpperCase() !== "UNBILLED") {
+              categoryCounts[val] = (categoryCounts[val] || 0) + 1;
+            }
+          });
+        }
+        // 🟢 3. OTHER DYNAMIC REPORTS
+        else {
+          var sampleRow = window.allReportBaseCachedRows[0] || {};
+          var possibleKeys = ["SHEET NAME", "CATEGORY", "PENDENCY", "SUB CATEGORY", "REPORT NAME", "DIVISION"];
+          for (var p = 0; p < possibleKeys.length; p++) {
+            var matchKey = Object.keys(sampleRow).find(function(k) {
+              return k.toUpperCase().replace(/[^A-Z0-9]/g, "") === possibleKeys[p].replace(/[^A-Z0-9]/g, "");
+            });
+            if (matchKey) { categoryColKey = matchKey; break; }
           }
-        });
 
-        var categoriesList = Object.keys(categoryCounts);
+          if (!categoryColKey) {
+            tabsBar.style.display = "none";
+            return;
+          }
 
-        // Agar 1 se zyada categories hain tabhi tabs bar dikhega
+          window.allReportBaseCachedRows.forEach(function(row) {
+            var val = String(row[categoryColKey] || "").trim();
+            if (val && val !== "-" && val.toUpperCase() !== "NAN" && val.toUpperCase() !== "NULL") {
+              categoryCounts[val] = (categoryCounts[val] || 0) + 1;
+            }
+          });
+        }
+
+        var categoriesList = Object.keys(categoryCounts).filter(function(k){ return categoryCounts[k] > 0; });
+
         if (categoriesList.length <= 1) {
           tabsBar.style.display = "none";
           return;
@@ -3202,7 +3324,7 @@
 
         var tabColors = ["#1a73e8", "#0b5394", "#e69138", "#990000", "#3d85c6", "#6f42c1", "#10b981", "#0284c7"];
 
-        // 1. All Sheets Tab
+        // All Sheets Tab
         var allBtn = document.createElement("button");
         allBtn.className = "div-tab-btn active-tab";
         allBtn.innerHTML = `<i class="fa-solid fa-table-cells"></i> All Sheets (${window.allReportBaseCachedRows.length})`;
@@ -3211,7 +3333,7 @@
         };
         container.appendChild(allBtn);
 
-        // 2. Dynamic Category Tabs
+        // Individual Category Tabs
         categoriesList.forEach(function(catName, idx) {
           var btn = document.createElement("button");
           btn.className = "div-tab-btn";
@@ -3509,7 +3631,6 @@
         }
       }
 
-      var divisionChartInstance = null;
       var reportsBarChartInstance = null;
 
       function triggerFieldExceptionReport(event) {
@@ -6123,6 +6244,341 @@
         if(parsedMeterResults.length === 0) return alert("Please upload XML file(s) first.");
         parsedMeterResults.forEach((_, idx) => exportSinglePDF(idx));
       }
+      // ==========================================
+      // 🟢 CONSUMER 360° COMPLETE PROFILE DOSSIER ENGINE
+      // ==========================================
+      var active360ConsumerRecord = null;
+
+      function openConsumer360ByAccount(accountIdentifier) {
+        if (!cachedDatabase || cachedDatabase.length === 0) return;
+
+        var cleanTarget = String(accountIdentifier).trim().replace(/_P$/i, '').replace(/\.0$/, '');
+        var targetDigits = cleanTarget.replace(/[^0-9]/g, '');
+        var paddedTarget = (targetDigits.length > 0 && targetDigits.length < 10) ? ("0000000000" + targetDigits).slice(-10) : cleanTarget;
+
+        var foundRow = cachedDatabase.find(function(r) {
+          var u = r._uMap || r;
+          var acc = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || u["ACCT_ID"] || u["ACCOUNT NUMBER"] || "").trim().replace(/_P$/i, '').replace(/\.0$/, '');
+          var accDigits = acc.replace(/[^0-9]/g, '');
+          var paddedAcc = (accDigits.length > 0 && accDigits.length < 10) ? ("0000000000" + accDigits).slice(-10) : acc;
+          return paddedAcc === paddedTarget || acc === cleanTarget;
+        });
+
+        if (!foundRow) {
+          alert("उपभोक्ता खाता संख्या [" + accountIdentifier + "] का रिकॉर्ड नहीं मिला!");
+          return;
+        }
+
+        active360ConsumerRecord = foundRow;
+        renderConsumer360Dossier(foundRow);
+        document.getElementById('consumer-360-modal').style.display = 'flex';
+      }
+
+      function closeConsumer360Modal() {
+        document.getElementById('consumer-360-modal').style.display = 'none';
+      }
+
+      // 🟢 RDG Sheet & XML Reads से सटीक H1/H2 रीडिंग निकालने का एडवांस इंजन
+      function getMeterRdgsFromDatabase(meterNo) {
+        if (!meterNo || meterNo === "-" || meterNo === "N/A" || !cachedDatabase) return { kwh: "0.0", kvah: "0.0", kw: "0.0", kva: "0.0" };
+        var cleanMtr = String(meterNo).trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+        if (cleanMtr.length < 4) return { kwh: "0.0", kvah: "0.0", kw: "0.0", kva: "0.0" };
+
+        for (var i = 0; i < cachedDatabase.length; i++) {
+          var r = cachedDatabase[i];
+          var u = r._uMap || r;
+          
+          // सभी संभव मीटर कॉलम चेक करें (RDG शीट के METER_NUMBER और meter_number सहित)
+          var dbMtr = String(u["METER_NUMBER"] || u["METER_NUMBER.1"] || u["METER_NUMBER_1"] || u["METER NO."] || u["METER NO"] || u["METERNUMBER"] || u["FIELDMETERNO"] || u["SERIAL_NBR"] || u["meter_number"] || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+          
+          if (dbMtr === cleanMtr) {
+            return {
+              kwh: String(u["KWH_H1"] || u["HISTORY1 KWH"] || u["MRI KWH"] || u["KWH"] || "0.0"),
+              kvah: String(u["KVAH_H1"] || u["HISTORY1 KVAH"] || u["MRI KVAH"] || u["KVAH"] || "0.0"),
+              kw: String(u["KW_H1"] || u["HISTORY1 KW"] || u["MRI KW UHI"] || u["KW"] || "0.0"),
+              kva: String(u["KVA_H1"] || u["HISTORY1 KVA"] || u["MRI KVA UHI"] || u["KVA"] || "0.0")
+            };
+          }
+        }
+        return { kwh: "0.0", kvah: "0.0", kw: "0.0", kva: "0.0" };
+      }
+
+      function renderConsumer360Dossier(rowObj) {
+        var u = rowObj._uMap || rowObj;
+        var getV = function(keys, def) {
+          if (!Array.isArray(keys)) keys = [keys];
+          for (var i = 0; i < keys.length; i++) {
+            var k = keys[i];
+            var normK = k.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            for (var prop in u) {
+              if (prop.toUpperCase().replace(/[^A-Z0-9]/g, '') === normK) {
+                var val = u[prop];
+                if (val !== undefined && val !== null && String(val).trim() !== "") return String(val).trim();
+              }
+            }
+          }
+          return def || "-";
+        };
+
+        var toProp = function(str) {
+          if (!str || str === "-") return "-";
+          return String(str).toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+        };
+
+        var accNo = getV(["ACCOUNT NO", "ACCOUNT ID", "ACCT_ID"]).padStart(10, '0');
+        var conName = toProp(getV(["CONSUMER-NAME", "CONSUMER NAME", "NAME"]));
+        var divName = getV(["DIVISION"]);
+
+        // 🟢 मुख्य और पोल मीटर नंबर निकाल कर RDG शीट से रीडिंग फैच करें
+        var mainMtrNum = getV(["LAST MONTH FINAL MM NO.", "BILLED METER NUMBER", "METER NUMBER", "METER NO."]);
+        var poleMtrNum = getV(["LAST MONTH FINAL PM NO.", "FINAL VISITED POLE METER NO."]);
+
+        var mainRdgs = getMeterRdgsFromDatabase(mainMtrNum);
+        var poleRdgs = getMeterRdgsFromDatabase(poleMtrNum);
+
+        document.getElementById('c360-header-sub').innerText = `${conName} | Account No: ${accNo} | Division: ${divName}`;
+
+        var html = `
+          <!-- SECTION 1: CONSUMER & CONNECTION DETAILS -->
+          <div style="background:white; border-radius:8px; border:1px solid var(--border); padding:12px 16px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+            <div style="font-size:12px; font-weight:800; color:#0b3c5d; border-bottom:2px solid #1a73e8; padding-bottom:4px; margin-bottom:10px; text-transform:uppercase;">
+              <i class="fa-solid fa-user-tag me-1"></i> 1. Consumer & Connection Identity
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:8px 16px;">
+              <div><span class="detail-label">Account No:</span> <span class="highlight-box">${accNo}</span></div>
+              <div><span class="detail-label">Consumer Name:</span> <span class="detail-value text-primary">${conName}</span></div>
+              <div><span class="detail-label">Connection No:</span> <span class="detail-value">${getV(["CONNECTION NUMBER", "CONNECTION NO"])}</span></div>
+              <div><span class="detail-label">Division:</span> <span class="detail-value">${divName}</span></div>
+              <div><span class="detail-label">Sub Division:</span> <span class="detail-value">${getV(["SUB DIVISION NAME", "SUBDIVISION"])}</span></div>
+              <div><span class="detail-label">Billing Cycle:</span> <span class="detail-value">${getV(["BILLING CYCLE", "BILL CYCLE NAME"])}</span></div>
+              <div><span class="detail-label">Consumer Type:</span> <span class="badge ${getV(["CONSUMER TYPE"]).toUpperCase().includes('GOVT') ? 'bg-primary' : 'bg-secondary'}">${getV(["CONSUMER TYPE"])}</span></div>
+              <div><span class="detail-label">Consumer Category:</span> <span class="detail-value">${getV(["CONSUMER CATOGARY", "CONSUMER CATEGORY", "TARIFF"])}</span></div>
+              <div><span class="detail-label">ST / Agency Status:</span> <span class="detail-value">${getV(["ST"])} / ${getV(["AGENCY-STATUS", "AGENCY CONSUMER STATUS"])}</span></div>
+              <div><span class="detail-label">Mobile Number:</span> <span class="detail-value font-monospace">${getV(["Master Mobile Number", "MASTER MOBILE NUMBER", "PHONE"])}</span></div>
+              <div><span class="detail-label">Substation Name:</span> <span class="detail-value">${toProp(getV(["MASTER-SUBSTATION NAME", "SUBSTATION"]))}</span></div>
+              <div><span class="detail-label">Feeder Name:</span> <span class="detail-value">${toProp(getV(["MASTER-FEEDER-NAME", "FEEDER"]))}</span></div>
+              <div style="grid-column: 1 / -1;"><span class="detail-label">Complete Address:</span> <span class="detail-value">${toProp(getV(["ADDRESS", "COMPLETE ADRESS"]))}</span></div>
+            </div>
+          </div>
+
+          <!-- SECTION 2: LOAD & METER RATIO DETAILS -->
+          <div style="background:white; border-radius:8px; border:1px solid var(--border); padding:12px 16px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+            <div style="font-size:12px; font-weight:800; color:#0b3c5d; border-bottom:2px solid #10b981; padding-bottom:4px; margin-bottom:10px; text-transform:uppercase;">
+              <i class="fa-solid fa-bolt me-1"></i> 2. Contracted Load & Meter Multiplying Factors (MF)
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:8px 16px;">
+              <div><span class="detail-label">Contracted Load:</span> <span class="detail-value text-success font-monospace">${getV(["LOAD IN KW", "LOAD"])} ${getV(["LOADUNIT", "UNIT"], "KW")}</span></div>
+              <div><span class="detail-label">Load Group:</span> <span class="detail-value">${getV(["LOAD GROUP (5-10-50)", "LOAD GROUP"])}</span></div>
+              <div><span class="detail-label">Main Meter MF:</span> <span class="detail-value font-monospace">${getV(["MAIN METER MF", "METER MF"], "1.0000")}</span></div>
+              <div><span class="detail-label">Pole Meter MF:</span> <span class="detail-value font-monospace">${getV(["POLE METER MF (SAI PORTAL)", "POLE METER MF"], "1.0000")}</span></div>
+              <div><span class="detail-label">Activity By MR:</span> <span class="detail-value">${getV(["Activity By MR", "ACTIVITY NAME"])}</span></div>
+              <div><span class="detail-label">Last Visit Date:</span> <span class="detail-value">${getV(["FINAL VISIT DATE", "VISIT DATE", "VISITED DATE"])}</span></div>
+            </div>
+          </div>
+
+          <!-- SECTION 3: MAIN METER vs POLE METER STATUS & MRI READINGS (TWO COLUMNS) -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+            
+            <!-- Main Meter Box -->
+            <div style="background:#eff6ff; border-radius:8px; border:1.5px solid #bfdbfe; padding:12px 14px;">
+              <div style="font-size:12px; font-weight:800; color:#1d4ed8; border-bottom:1.5px solid #93c5fd; padding-bottom:4px; margin-bottom:8px; display:flex; justify-content:space-between;">
+                <span><i class="fa-solid fa-gauge me-1"></i> MAIN METER STATUS</span>
+                <span class="badge ${getV(["IS MRI AVAILABLE (MAIN METER)"]).toUpperCase() === 'TRUE' ? 'bg-success' : 'bg-danger'}">MRI: ${getV(["IS MRI AVAILABLE (MAIN METER)"])}</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:5px; font-size:11.5px;">
+                <div><span class="detail-label" style="width:130px;">Billed Meter No:</span> <span class="detail-value">${getV(["BILLED METER NUMBER", "MASTER METER NUMBER"])}</span></div>
+                <div><span class="detail-label" style="width:130px;">Master Meter Make:</span> <span class="detail-value">${getV(["MASTER METER MAKE"])}</span></div>
+                <div><span class="detail-label" style="width:130px;">LM Main Meter No:</span> <span class="detail-value font-monospace">${getV(["LAST MONTH FINAL MM NO."])}</span></div>
+                <div><span class="detail-label" style="width:130px;">LM Main Meter Make:</span> <span class="detail-value">${getV(["LAST MONTH FINAL MM MAKE"])}</span></div>
+                <div><span class="detail-label" style="width:130px;">Exception Type:</span> <span class="detail-value text-danger font-monospace">${getV(["EXCEPTION TYPE (MAIN METER)"])}</span></div>
+                <div><span class="detail-label" style="width:130px;">Site Observation:</span> <span class="detail-value">${getV(["FINAL_MAIN_METER_SITE_REMARK", "SITE REMARK"])}</span></div>
+                <div style="margin-top:4px; padding-top:4px; border-top:1px dashed #bfdbfe; font-weight:bold; color:#1e40af;">
+                  ⚡ MRI Readings (Main):<br>
+                  <span style="font-size:11px; font-weight:600; color:#334155;">
+                    kWh: <b>${getV(["MRI KWH", "MRIKWH"], "0.0")}</b> | kVAh: <b>${getV(["MRI KVAH", "MRIKVAH"], "0.0")}</b><br>
+                    MD (kW): <b>${getV(["MRI MD KW", "MRI KW UHI"], "0.0")}</b> | MD (kVA): <b>${getV(["MRI MD KVA", "MRI KVA UHI"], "0.0")}</b>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pole Meter Box With RDG Readings Mapping -->
+            <div style="background:#f0fdf4; border-radius:8px; border:1.5px solid #bbf7d0; padding:12px 14px;">
+              <div style="font-size:12px; font-weight:800; color:#047857; border-bottom:1.5px solid #86efac; padding-bottom:4px; margin-bottom:8px; display:flex; justify-content:space-between;">
+                <span><i class="fa-solid fa-tower-cell me-1"></i> POLE METER STATUS & RDG READINGS</span>
+                <span class="badge ${getV(["IS MRI AVAILABLE (POLE METER)"]).toUpperCase() === 'TRUE' ? 'bg-success' : 'bg-secondary'}">MRI: ${getV(["IS MRI AVAILABLE (POLE METER)"])}</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:5px; font-size:11.5px;">
+                <div><span class="detail-label" style="width:130px;">LM Pole Meter No:</span> <span class="detail-value font-monospace">${getV(["LAST MONTH FINAL PM NO."])}</span></div>
+                <div><span class="detail-label" style="width:130px;">LM Pole Make:</span> <span class="detail-value">${getV(["LAST MONTH FINAL PM MAKE"])}</span></div>
+                <div><span class="detail-label" style="width:130px;">Exception Type:</span> <span class="detail-value text-danger font-monospace">${getV(["EXCEPTION TYPE (POLE METER)"])}</span></div>
+                <div><span class="detail-label" style="width:130px;">Site Observation:</span> <span class="detail-value">${getV(["FINAL_POLE_METER_SITE_REMARK", "SITE REMARK (POLE)"])}</span></div>
+                <div><span class="detail-label" style="width:130px;">Field Remark:</span> <span class="detail-value">${getV(["REMARK", "M_REMARK"])}</span></div>
+                
+                <!-- 🟢 RDG Sheet से मैप्ड पोल मीटर रीडिंग -->
+                <div style="margin-top:4px; padding-top:4px; border-top:1px dashed #bbf7d0; font-weight:bold; color:#065f46;">
+                  🪜 Pole Meter Readings (RDG Sheet):<br>
+                  <span style="font-size:11px; font-weight:600; color:#334155;">
+                    kWh: <b>${poleRdgs.kwh}</b> | kVAh: <b>${poleRdgs.kvah}</b><br>
+                    MD (kW): <b>${poleRdgs.kw}</b> | MD (kVA): <b>${poleRdgs.kva}</b>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- SECTION 4: BILLING EXECUTION & DISPATCH STATUS -->
+          <div style="background:white; border-radius:8px; border:1px solid var(--border); padding:12px 16px; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+            <div style="font-size:12px; font-weight:800; color:#0b3c5d; border-bottom:2px solid #f59e0b; padding-bottom:4px; margin-bottom:10px; text-transform:uppercase;">
+              <i class="fa-solid fa-file-invoice-dollar me-1"></i> 4. Billing Execution, Basis & Field Remarks
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:8px 16px;">
+              <div><span class="detail-label">Billing Status:</span> <span class="badge ${getV(["BILLING STATUS", "FINAL BILLING TAG"]).toUpperCase().includes('BILLED') && !getV(["BILLING STATUS"]).toUpperCase().includes('UNBILLED') ? 'bg-success' : 'bg-danger'}">${getV(["BILLING STATUS", "FINAL BILLING TAG"])}</span></div>
+              <div><span class="detail-label">Billed Date:</span> <span class="detail-value">${getV(["BILLED DATE", "BILL_DATE"])}</span></div>
+              <div><span class="detail-label">Bill Basis:</span> <span class="detail-value font-monospace">${getV(["BILL_BASE", "BILLBASE", "BILL_BASIS"])}</span></div>
+              <div><span class="detail-label">Assigned MR Name:</span> <span class="detail-value">${toProp(getV(["MR NAME", "VISIT LAST MONTH"]))}</span></div>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('c360-modal-body').innerHTML = html;
+      }
+
+      // 🟢 Export Single Consumer 360° Profile Excel
+      function downloadSingleConsumer360Excel() {
+        if (!active360ConsumerRecord) return;
+        var u = active360ConsumerRecord._uMap || active360ConsumerRecord;
+        var accNo = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").padStart(10, '0');
+
+        var rows = [
+          ["SAI COMPUTERS LTD - CONSUMER 360° AUDIT DOSSIER", ""],
+          ["GENERATED DATE", new Date().toLocaleDateString('en-GB')],
+          ["", ""],
+          ["PARAMETER / FIELD NAME", "RECORD VALUE"]
+        ];
+
+        for (var k in u) {
+          if (!k.startsWith("_")) {
+            rows.push([k, String(u[k] !== undefined && u[k] !== null ? u[k] : "")]);
+          }
+        }
+
+        var ws = XLSX.utils.aoa_to_sheet(rows);
+        ws['!cols'] = [{ wch: 38 }, { wch: 60 }];
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Consumer_360_Profile");
+        XLSX.writeFile(wb, `Consumer_360_Profile_${accNo}.xlsx`);
+      }
+
+      // 🟢 EXACT COLORFUL UI-MATCHED SINGLE CONSUMER 360° PDF DOSSIER
+      function downloadSingleConsumer360PDF() {
+        if (!active360ConsumerRecord) return;
+        var u = active360ConsumerRecord._uMap || active360ConsumerRecord;
+        var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+        if (!jsPDFObj) return;
+
+        var doc = new jsPDFObj('p', 'pt', 'a4'); // A4 Portrait
+        var accNo = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").padStart(10, '0');
+        var name = String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "").toUpperCase();
+        var dateStr = new Date().toLocaleDateString('en-GB');
+
+        // Top Gradient Header Banner
+        doc.setFillColor(11, 60, 93);
+        doc.rect(15, 14, 565, 30, 'F');
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(255, 255, 255);
+        doc.text("SAI COMPUTERS LTD - CONSUMER 360° COMPLETE AUDIT DOSSIER", 25, 33);
+
+        // Section 1: Consumer Info
+        var conTable = [
+          ["Account No", accNo, "Consumer Name", name],
+          ["Division", String(u["DIVISION"] || "-"), "Sub Division", String(u["SUB DIVISION NAME"] || "-")],
+          ["Connection No", String(u["CONNECTION NUMBER"] || "-"), "Billing Cycle", String(u["BILLING CYCLE"] || "-")],
+          ["Consumer Type", String(u["CONSUMER TYPE"] || "-"), "Category / Tariff", String(u["CONSUMER CATOGARY"] || u["TARIFF"] || "-")],
+          ["Contracted Load", (u["LOAD IN KW"] || u["LOAD"] || "-") + " KW", "Load Group", String(u["LOAD GROUP (5-10-50)"] || "-")],
+          ["Main Meter MF", String(u["MAIN METER MF"] || "1.00"), "Pole Meter MF", String(u["POLE METER MF (SAI PORTAL)"] || "1.00")],
+          ["Substation", String(u["MASTER-SUBSTATION NAME"] || "-"), "Feeder Name", String(u["MASTER-FEEDER-NAME"] || "-")],
+          ["Address", { content: String(u["ADDRESS"] || "-"), colSpan: 3 }]
+        ];
+
+        doc.autoTable({
+          head: [[{ content: "1. CONSUMER & CONNECTION IDENTITY", colSpan: 4, styles: { fillColor: [26, 115, 232], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 } }]],
+          body: conTable,
+          startY: 48,
+          margin: { left: 15, right: 15 },
+          theme: 'grid',
+          styles: { fontSize: 7.2, cellPadding: 2.8, valign: 'middle', lineColor: [215, 225, 235], lineWidth: 0.3 },
+          columnStyles: {
+            0: { cellWidth: 95, fontStyle: 'bold', fillColor: [241, 245, 249] },
+            1: { cellWidth: 185 },
+            2: { cellWidth: 95, fontStyle: 'bold', fillColor: [241, 245, 249] },
+            3: { cellWidth: 190 }
+          }
+        });
+
+        // Section 2: Main vs Pole Meter Readings (Side by Side / Two Column Grid)
+        var meterTable = [
+          ["Meter Number", String(u["LAST MONTH FINAL MM NO."] || u["BILLED METER NUMBER"] || "-"), String(u["LAST MONTH FINAL PM NO."] || "-")],
+          ["Meter Make", String(u["LAST MONTH FINAL MM MAKE"] || u["MASTER METER MAKE"] || "-"), String(u["LAST MONTH FINAL PM MAKE"] || "-")],
+          ["Exception Type", String(u["EXCEPTION TYPE (MAIN METER)"] || "-"), String(u["EXCEPTION TYPE (POLE METER)"] || "-")],
+          ["Site Observation", String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "-"), String(u["FINAL_POLE_METER_SITE_REMARK"] || "-")],
+          ["MRI Available", String(u["IS MRI AVAILABLE (MAIN METER)"] || "False"), String(u["IS MRI AVAILABLE (POLE METER)"] || "False")],
+          ["Active Energy (kWh)", String(u["MRI KWH"] || u["KWH"] || "0.0"), String(u["KWH_H1"] || u["POLE MRI KWH"] || "0.0")],
+          ["Apparent Energy (kVAh)", String(u["MRI KVAH"] || u["KVAH"] || "0.0"), String(u["KVAH_H1"] || u["POLE MRI KVAH"] || "0.0")],
+          ["Maximum Demand (kW)", String(u["MRI MD KW"] || u["KW"] || "0.0"), String(u["KW_H1"] || u["POLE MRI MD KW"] || "0.0")],
+          ["Maximum Demand (kVA)", String(u["MRI MD KVA"] || u["KVA"] || "0.0"), String(u["KVA_H1"] || u["POLE MRI MD KVA"] || "0.0")]
+        ];
+
+        doc.autoTable({
+          head: [
+            [{ content: "2. METER READINGS & ELECTRICAL PARAMETERS (MAIN vs POLE)", colSpan: 3, styles: { fillColor: [16, 185, 129], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 } }],
+            [{ content: "Parameter / Field", styles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' } },
+             { content: "MAIN METER (Consumer)", styles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontStyle: 'bold' } },
+             { content: "POLE METER (RDG / XML)", styles: { fillColor: [5, 150, 105], textColor: [255, 255, 255], fontStyle: 'bold' } }]
+          ],
+          body: meterTable,
+          startY: doc.lastAutoTable.finalY + 8,
+          margin: { left: 15, right: 15 },
+          theme: 'grid',
+          styles: { fontSize: 7.2, cellPadding: 2.8, halign: 'center', valign: 'middle', lineColor: [215, 225, 235], lineWidth: 0.3 },
+          columnStyles: {
+            0: { cellWidth: 155, fontStyle: 'bold', halign: 'left', fillColor: [248, 250, 252] },
+            1: { cellWidth: 205, fillColor: [239, 246, 255] },
+            2: { cellWidth: 205, fillColor: [240, 253, 244] }
+          }
+        });
+
+        // Section 3: Billing Status & Field Summary
+        var billingTable = [
+          ["Billing Status", String(u["BILLING STATUS"] || u["FINAL BILLING TAG"] || "-"), "Billed Date", String(u["BILLED DATE"] || u["BILL_DATE"] || "-")],
+          ["Billing Basis", String(u["BILL_BASE"] || u["BILLBASE"] || "-"), "Meter Reader (MR)", String(u["MR NAME"] || u["VISIT LAST MONTH"] || "-")],
+          ["Field Remark", { content: String(u["REMARK"] || u["M_REMARK"] || "-"), colSpan: 3 }]
+        ];
+
+        doc.autoTable({
+          head: [[{ content: "3. BILLING EXECUTION & FIELD DISPATCH STATUS", colSpan: 4, styles: { fillColor: [230, 126, 34], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 } }]],
+          body: billingTable,
+          startY: doc.lastAutoTable.finalY + 8,
+          margin: { left: 15, right: 15 },
+          theme: 'grid',
+          styles: { fontSize: 7.2, cellPadding: 2.8, valign: 'middle', lineColor: [215, 225, 235], lineWidth: 0.3 },
+          columnStyles: {
+            0: { cellWidth: 95, fontStyle: 'bold', fillColor: [254, 243, 199] },
+            1: { cellWidth: 185 },
+            2: { cellWidth: 95, fontStyle: 'bold', fillColor: [254, 243, 199] },
+            3: { cellWidth: 190 }
+          }
+        });
+
+        // Footer note
+        doc.setFontSize(7.2);
+        doc.setTextColor(120, 120, 120);
+        doc.text("Report Generated on: " + dateStr + " | Sai Computers Ltd RMS Portal Mainpuri", 15, doc.internal.pageSize.height - 12);
+
+        doc.save(`Consumer_360_Profile_${accNo}.pdf`);
+      }
 
       function showAnalyticsDashboard(event) {
         if(event) event.stopPropagation();
@@ -7397,9 +7853,11 @@
             var isHighlighted = (isAccountCol || isMeterCol);
             var clickAttrs = ' ondblclick="copyTextToClipboard(\'' + val + '\', \'' + h + '\')" title="Double-click to copy"';
             
-            if (isHighlighted && val && val !== "-") {
-              var labelName = isAccountCol ? 'Account' : 'Meter';
-              bHtml += '<td class="copyable-cell"' + clickAttrs + ' onclick="copyTextToClipboard(\'' + val + '\', \'' + labelName + '\')">' + val + ' <i class="fa-regular fa-copy" style="font-size:9.5px; opacity:0.4; margin-left:3px;"></i></td>';
+            if (isAccountCol && val && val !== "-") {
+              bHtml += '<td class="copyable-cell" title="Click to View 360° Profile (Double-click to copy)" onclick="openConsumer360ByAccount(\'' + val + '\')" ondblclick="event.stopPropagation(); copyTextToClipboard(\'' + val + '\', \'Account\')">' +
+                '<span style="color:#1a73e8; font-weight:800; text-decoration:underline;">' + val + '</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:8.5px; opacity:0.6; margin-left:3px;"></i></td>';
+            } else if (isHighlighted && val && val !== "-") {
+              bHtml += '<td class="copyable-cell"' + clickAttrs + ' onclick="copyTextToClipboard(\'' + val + '\', \'Meter\')">' + val + ' <i class="fa-regular fa-copy" style="font-size:9.5px; opacity:0.4; margin-left:3px;"></i></td>';
             } else {
               bHtml += '<td' + clickAttrs + '>' + (val || "-") + '</td>';
             }
@@ -7641,11 +8099,6 @@ tBody.appendChild(fragment);
 
         var cols = activeReportMeta.columns.split(",").map(function(c){ return c.trim(); });
         renderClientTable(cols);
-
-        // 🟢 Auto Download Formatted Excel for Clicked Card
-        if (clientRenderedRows.length > 0) {
-          downloadKPICardDirectExcel(filterTitle, clientRenderedRows);
-        }
       }
 
       function downloadKPICardDirectExcel(cardTitle, rowsData) {
@@ -7864,325 +8317,152 @@ tBody.appendChild(fragment);
           return;
         }
 
-        var rName = document.getElementById('active-report-title') ? document.getElementById('active-report-title').innerText : "Report";
-        var reportProperName = (activeReportMeta && activeReportMeta.id === "rpt_master_unbilled") 
-          ? "EDC Mainpuri 5 KW And Above Unbilled Consumers MIS" 
-          : (rName.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); }) + " MIS");
-        var reqCols = [];
-        if (activeReportMeta && activeReportMeta.columns && activeReportMeta.columns.trim() !== "" && activeReportMeta.columns.trim().toUpperCase() !== "ALL") {
-          reqCols = activeReportMeta.columns.split(",").map(function(c){ return c.trim().toUpperCase(); });
-        } else if (originalSheetHeadersList && originalSheetHeadersList.length > 0) {
-          reqCols = originalSheetHeadersList.map(function(c){ return c.trim().toUpperCase(); });
-        } else if (clientRenderedRows.length > 0) {
-          reqCols = Object.keys(clientRenderedRows[0]).filter(function(k){ return !k.startsWith("_"); }).map(function(c){ return c.trim().toUpperCase(); });
-        }
-
         var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
-        if(!jsPDFObj) return;
+        if (!jsPDFObj) return;
 
-        var isMasterRpt = activeReportMeta && activeReportMeta.id === "rpt_master_unbilled";
-        // Master Report Summary Portrait 'p' me aayegi, baaki landscape 'l' me
-        var doc = new jsPDFObj(isMasterRpt ? 'p' : 'l', 'pt', 'a4'); 
+        var doc = new jsPDFObj('l', 'pt', 'a4'); // 842 x 595 pt
 
         var today = new Date();
         var dateString = today.toLocaleDateString('en-GB').replace(/\//g, '-');
-        var timeString = today.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}).replace(/:/g, '-');
+        var timeString = today.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).replace(/:/g, '-');
 
-        doc.setFontSize(12);
+        var rName = document.getElementById('active-report-title') ? document.getElementById('active-report-title').innerText : "Report";
+        var isFieldEx = activeReportMeta && activeReportMeta.id === "rpt_field_exception_rejection";
+        
+        var reportProperName = isFieldEx
+          ? "Field Exception & Rejection"
+          : (activeReportMeta && activeReportMeta.id === "rpt_master_unbilled"
+              ? "5 KW & Above Unbilled Master"
+              : rName.replace(/[^a-zA-Z0-9 ]/g, "").trim());
+
+        // Header Title Banner
+        doc.setFontSize(10.5);
         doc.setFont("helvetica", "bold");
-        doc.setTextColor(11, 60, 93); 
-        doc.text(reportProperName + " Summary (" + dateString + ")", 15, 22);
+        doc.setTextColor(11, 60, 93);
+        doc.text(reportProperName + " (Date: " + dateString + " | Total Records: " + clientRenderedRows.length + ")", 12, 18);
 
-        var matrixHeaders = [];
-        var matrixBodyRows = [];
-
-        var activeGCount = (activeSummaryColsMap["G1"] ? 3 : 0) + (activeSummaryColsMap["G2"] ? 3 : 0) + (activeSummaryColsMap["G3"] ? 3 : 0);
-
-        var h1 = [
-          { content: "Division/ Remarks", rowSpan: 3, styles: { fillColor: [30, 34, 43], halign: 'left', valign: 'middle' } }, 
-          { content: "Total Count", rowSpan: 3, styles: { fillColor: [11, 60, 93], halign: 'center', valign: 'middle' } }
+        // PDF के लिए केवल मुख्य और साफ़ कॉलम रखें (डुप्लीकेट और वर्टिकल टेढ़े कॉलम हटाए गए)
+        var pdfColsToExport = [
+          "DIVISION", "ACCOUNT NO", "CONSUMER TYPE", "CONSUMER-NAME", "ADDRESS",
+          "LOAD IN KW", "LOAD GROUP", "FINAL VISIT DATE", "METER NO.", "METER MAKE",
+          "EXCEPTION TYPE", "SITE REMARK", "IS MRI AVAILABLE"
         ];
-        if (activeGCount > 0) {
-          h1.push({ content: "Load Group Summary", colSpan: activeGCount, styles: { fillColor: [11, 60, 93], halign: 'center', valign: 'middle' } });
-        }
-        matrixHeaders.push(h1);
 
-        var h2 = [];
-        if (activeSummaryColsMap["G1"]) h2.push({ content: ">=5KW <10KW", colSpan: 3, styles: { fillColor: [226, 239, 218], textColor: [0, 0, 0], halign: 'center', valign: 'middle' } });
-        if (activeSummaryColsMap["G2"]) h2.push({ content: ">=10KW <50KW", colSpan: 3, styles: { fillColor: [221, 235, 247], textColor: [0, 0, 0], halign: 'center', valign: 'middle' } });
-        if (activeSummaryColsMap["G3"]) h2.push({ content: ">=50KW Above", colSpan: 3, styles: { fillColor: [252, 228, 214], textColor: [0, 0, 0], halign: 'center', valign: 'middle' } });
-        matrixHeaders.push(h2);
+        var cleanHeadLabels = [
+          "Sr.", "Division", "Account No", "Type", "Consumer Name", "Address",
+          "KW", "Group", "Visit Date", "Meter No.", "Meter Make",
+          "Exception", "Site Remark", "MRI"
+        ];
 
-        var h3 = [];
-        for (var g = 0; g < 3; g++) {
-          var gKey = ["G1", "G2", "G3"][g];
-          var fillColors = [[169, 208, 142], [155, 194, 230], [244, 176, 132]][g];
-          if (activeSummaryColsMap[gKey]) {
-            h3.push(
-              { content: "Govt", styles: { fillColor: fillColors, textColor: [0, 0, 0], halign: 'center' } }, 
-              { content: "Non-Govt", styles: { fillColor: fillColors, textColor: [0, 0, 0], halign: 'center' } }, 
-              { content: "Total", styles: { fillColor: fillColors, textColor: [0, 0, 0], halign: 'center' } }
-            );
-          }
-        }
-        matrixHeaders.push(h3);
-
-        var webTableRows = document.getElementById("data-table").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-        var activePdfRowsList = [];
-
-        for (var i = 0; i < webTableRows.length; i++) {
-          if (webTableRows[i].style.display !== "none") {
-            if (clientRenderedRows && clientRenderedRows[i]) {
-              activePdfRowsList.push(clientRenderedRows[i]);
-            }
-          }
-        }
-        if (activePdfRowsList.length === 0) activePdfRowsList = clientRenderedRows;
-
-        var pdfTreeMap = {};
-        activePdfRowsList.forEach(function(row) {
-          var div = row["DIVISION"] ? row["DIVISION"].toUpperCase().trim() : "UNKNOWN DIVISION";
-          var loadGrpRaw = row["LOAD GROUP (5-10-50)"] || row["LOAD GROUP"] || "";
-          var loadGrp = String(loadGrpRaw).toUpperCase().replace(/\s+/g, '');
-          var cType = String(row["CONSUMER TYPE"] || "").toUpperCase();
-          var isGovt = cType.includes("GOVT") && !cType.includes("NON");
-
-          function createBlankNode() { return { total:0, g1_g:0, g1_ng:0, g2_g:0, g2_ng:0, g3_g:0, g3_ng:0, children: {} }; }
-          function addMetrics(n) {
-            n.total += 1;
-            if (loadGrp.includes(">=5KW<10KW")) { if(isGovt) n.g1_g += 1; else n.g1_ng += 1; }
-            else if (loadGrp.includes(">=10KW<50KW")) { if(isGovt) n.g2_g += 1; else n.g2_ng += 1; }
-            else if (loadGrp.includes(">=50KW")) { if(isGovt) n.g3_g += 1; else n.g3_ng += 1; }
-          }
-
-          if (!pdfTreeMap[div]) pdfTreeMap[div] = createBlankNode();
-          addMetrics(pdfTreeMap[div]);
-          var currNode = pdfTreeMap[div];
-
-          selectedPivotRowKeys.forEach(function(key) {
-            var val = row[key] !== undefined && row[key] !== null ? row[key].toString().trim() : "BLANK";
-            if (val === "" || val.toUpperCase() === "NULL") val = "BLANK";
-            val = val.toUpperCase();
-            if (!currNode.children[val]) currNode.children[val] = createBlankNode();
-            currNode = currNode.children[val];
-            addMetrics(currNode);
-          });
-        });
-
-        var gt = { total:0, g1_g:0, g1_ng:0, g1_t:0, g2_g:0, g2_ng:0, g2_t:0, g3_g:0, g3_ng:0, g3_t:0 };
-        
-        function parsePdfTreeNode(label, node, depth) {
-          var displayTitle = (depth === 0) ? label.toUpperCase() : label.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
-          var indentPrefix = " ".repeat(depth * 5);
-          
-          var rowCells = [indentPrefix + displayTitle, node.total];
-          if (activeSummaryColsMap["G1"]) rowCells.push(node.g1_g, node.g1_ng, (node.g1_g + node.g1_ng));
-          if (activeSummaryColsMap["G2"]) rowCells.push(node.g2_g, node.g2_ng, (node.g2_g + node.g2_ng));
-          if (activeSummaryColsMap["G3"]) rowCells.push(node.g3_g, node.g3_ng, (node.g3_g + node.g3_ng));
-          
-          matrixBodyRows.push({ data: rowCells, type: (depth === 0 ? 'divTotal' : 'normal') });
-          
-          Object.keys(node.children).sort().forEach(function(cKey) {
-            parsePdfTreeNode(cKey, node.children[cKey], depth + 1);
-          });
+        // Address को कॉम्पैक्ट और क्लीन करें
+        function sanitizeAddressForPdf(addr) {
+          if (!addr) return "-";
+          var s = String(addr).replace(/\s+/g, ' ').trim();
+          s = s.replace(/\b(25172[0-9][A-Z0-9]+)\b/gi, '')
+               .replace(/UP-205001\s*IND/gi, '')
+               .replace(/MAINPURI\s*UP\s*IND/gi, '')
+               .replace(/MAINPURI\s*MAINPURI/gi, 'MAINPURI')
+               .replace(/166-Mainpuri/gi, '')
+               .replace(/\s{2,}/g, ' ')
+               .trim();
+          return s || "-";
         }
 
-        Object.keys(pdfTreeMap).sort().forEach(function(div) {
-          var dNode = pdfTreeMap[div];
-          gt.total += dNode.total; gt.g1_g += dNode.g1_g; gt.g1_ng += dNode.g1_ng; gt.g1_t += (dNode.g1_g + dNode.g1_ng);
-          gt.g2_g += dNode.g2_g; gt.g2_ng += dNode.g2_ng; gt.g2_t += (dNode.g2_g + dNode.g2_ng);
-          gt.g3_g += dNode.g3_g; gt.g3_ng += dNode.g3_ng; gt.g3_t += (dNode.g3_g + dNode.g3_ng);
-          parsePdfTreeNode(div, dNode, 0);
-        });
-
-        var gtCells = ["GRAND TOTAL", gt.total];
-        if (activeSummaryColsMap["G1"]) gtCells.push(gt.g1_g, gt.g1_ng, gt.g1_t);
-        if (activeSummaryColsMap["G2"]) gtCells.push(gt.g2_g, gt.g2_ng, gt.g2_t);
-        if (activeSummaryColsMap["G3"]) gtCells.push(gt.g3_g, gt.g3_ng, gt.g3_t);
-        matrixBodyRows.push({ data: gtCells, type: 'grandTotal' });
-
-        var strictMatrixStyles = {};
-        strictMatrixStyles[0] = { cellWidth: 'auto', halign: 'left' };
-        strictMatrixStyles[1] = { cellWidth: 'auto', halign: 'center' };
-
-        var colIndexTracker = 2;
-        for (var g = 0; g < 3; g++) {
-          var gKey = ["G1", "G2", "G3"][g];
-          if (activeSummaryColsMap[gKey]) {
-            strictMatrixStyles[colIndexTracker] = { halign: 'center' };
-            strictMatrixStyles[colIndexTracker + 1] = { halign: 'center' };
-            strictMatrixStyles[colIndexTracker + 2] = { halign: 'center' };
-            colIndexTracker += 3;
-          }
-        }
-
-        doc.autoTable({
-          head: matrixHeaders, body: matrixBodyRows.map(function(r){ return r.data; }), startY: 32, margin: { left: 12, right: 12 },
-          styles: { halign: 'center', valign: 'middle', fontSize: 7, cellPadding: 2.2, lineWidth: 0.4, font: 'helvetica', lineColor: [200, 200, 200], overflow: 'linebreak' },
-          columnStyles: strictMatrixStyles,
-          didParseCell: function(data) {
-            if (data.row.section === 'body') {
-              var rowMeta = matrixBodyRows[data.row.index];
-              if (rowMeta) {
-                if (rowMeta.type === 'divTotal') {
-                  data.cell.styles.fontStyle = 'bold'; data.cell.styles.fillColor = [220, 230, 242]; data.cell.styles.textColor = [30, 34, 43];
-                  if (data.column.index === 0) { data.cell.colSpan = 2; data.cell.text = [rowMeta.data[0]]; data.cell.styles.halign = 'center'; }
-                } else if (rowMeta.type === 'grandTotal') {
-                  data.cell.styles.fontStyle = 'bold'; data.cell.styles.fontSize = 9.5; data.cell.styles.fillColor = [255, 242, 204]; data.cell.styles.textColor = [0, 0, 0];
-                  if (data.column.index === 0) { data.cell.colSpan = 2; data.cell.text = ["GRAND TOTAL"]; data.cell.styles.halign = 'center'; }
-                }
-              }
-            }
-          }
-        });
-
-        doc.addPage();
-        doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.setTextColor(11, 60, 93);
-        doc.text(reportProperName + " List - " + dateString, 15, 25);
-
-        var isDeptRpt = activeReportMeta && (
-          (activeReportMeta.id && (activeReportMeta.id.includes("dept") || activeReportMeta.id.includes("master_unbilled") || activeReportMeta.id.includes("field_exception") || activeReportMeta.id.includes("indep"))) ||
-          (activeReportMeta.name && (activeReportMeta.name.toUpperCase().includes("DEPARTMENT") || activeReportMeta.name.toUpperCase().includes("UNBILLED") || activeReportMeta.name.toUpperCase().includes("FIELD EXCEPTION") || activeReportMeta.name.toUpperCase().includes("INDEPENDENT")))
-        );
-
-        var listColumns = ["Sr.No."].concat(reqCols.map(function(c) {
-          return sanitizeDeptHeader(c, isDeptRpt);
-        }));
-        
         var listBody = [];
+        clientRenderedRows.forEach(function(row, idx) {
+          var u = row._uMap || row;
+          var rowData = [idx + 1];
 
-        var sortedPdfRowsList = activePdfRowsList.slice().sort(function(a, b) {
-          var valA = ""; var valB = "";
-          Object.keys(a).forEach(function(k) { if(k.toUpperCase().trim() === "VISIT LAST MONTH") valA = String(a[k]).trim().toUpperCase(); });
-          Object.keys(b).forEach(function(k) { if(k.toUpperCase().trim() === "VISIT LAST MONTH") valB = String(b[k]).trim().toUpperCase(); });
-          return valA.localeCompare(valB);
-        });
-        
-        sortedPdfRowsList.forEach(function(row, idx) {
-          var rowCellsData = [idx + 1];
-          reqCols.forEach(function(colKey) {
-            var finalVal = "";
-            var normalizedTargetKey = colKey.replace(/[^A-Z0-9]/g, "").trim();
-            
-            Object.keys(row).forEach(function(k) {
-              var normalizedRowKey = k.toUpperCase().replace(/[^A-Z0-9]/g, "").trim();
-              if (normalizedRowKey === normalizedTargetKey) {
-                finalVal = row[k];
+          pdfColsToExport.forEach(function(col) {
+            var val = "";
+            var normTarget = col.replace(/[^A-Z0-9]/g, "");
+
+            for (var k in u) {
+              if (k.toUpperCase().replace(/[^A-Z0-9]/g, "") === normTarget) {
+                val = u[k];
+                break;
               }
-            });
-            if (colKey === "ACCOUNT NO" && finalVal) finalVal = String(finalVal).padStart(10, '0');
-            rowCellsData.push(finalVal !== undefined && finalVal !== null ? String(finalVal) : "");
+            }
+
+            if (col === "ACCOUNT NO") {
+              var digits = String(val || "").replace(/[^0-9]/g, '');
+              val = digits.length > 0 ? ("0000000000" + digits).slice(-10) : (val || "-");
+            } else if (col === "ADDRESS") {
+              val = sanitizeAddressForPdf(val);
+            } else if (col === "IS MRI AVAILABLE") {
+              var strVal = String(val || "").toUpperCase().trim();
+              val = (strVal === "TRUE" || strVal === "YES" || strVal === "1") ? "True" : "False";
+            } else if (col === "CONSUMER TYPE") {
+              var ct = String(val || "").toUpperCase();
+              val = ct.includes("GOVT") && !ct.includes("NON") ? "GOVT" : "NON-GOVT";
+            } else {
+              val = (val !== undefined && val !== null && String(val).trim() !== "") ? String(val).trim() : "-";
+            }
+
+            rowData.push(val);
           });
-          listBody.push(rowCellsData);
+
+          listBody.push(rowData);
         });
 
-        var strictColumnStyles = {};
-        var totalColCount = listColumns.length;
-        
-        // 🟢 Dynamic Responsive Font & Width Engine based on Total Columns
-        var dynamicFontSize = totalColCount > 25 ? 5.2 : (totalColCount > 18 ? 5.8 : (totalColCount > 12 ? 6.5 : 7.2));
-        var dynamicHeadSize = totalColCount > 25 ? 5.5 : (totalColCount > 18 ? 6.2 : (totalColCount > 12 ? 6.8 : 7.5));
-        var dynamicPadding = totalColCount > 20 ? 1.8 : 2.4;
-
-        listColumns.forEach(function(col, index) {
-          var upperCol = col.toUpperCase().trim();
-          var cleanName = upperCol.replace(/[^A-Z0-9]/g, "");
-
-          if (index === 0) {
-            strictColumnStyles[index] = { cellWidth: 24, halign: 'center' };
-          } 
-          // 🟢 Consumer Name: Left-aligned, readable width
-          else if (cleanName.includes("NAME") && !cleanName.includes("MRNAME") && !cleanName.includes("MAKENAME") && !cleanName.includes("FEEDER") && !cleanName.includes("SUBSTATION")) {
-            strictColumnStyles[index] = { 
-              cellWidth: totalColCount > 20 ? 95 : 125, 
-              halign: 'left', 
-              cellPadding: { left: 3, right: 2, top: dynamicPadding, bottom: dynamicPadding } 
-            };
-          } 
-          // 🟢 Address: Left-aligned with maximum priority width
-          else if (cleanName.includes("ADDRESS") || cleanName.includes("ADRESS")) {
-            strictColumnStyles[index] = { 
-              cellWidth: totalColCount > 20 ? 120 : 160, 
-              halign: 'left', 
-              cellPadding: { left: 3, right: 2, top: dynamicPadding, bottom: dynamicPadding } 
-            };
-          } 
-          // 🟢 Remarks / Failure Messages / Exception Notes: Left-aligned
-          else if (cleanName.includes("REMARK") || cleanName.includes("MESSAGE") || cleanName.includes("FAILURE") || cleanName.includes("REJECTION")) {
-            strictColumnStyles[index] = { 
-              cellWidth: totalColCount > 20 ? 75 : 100, 
-              halign: 'left', 
-              cellPadding: { left: 2.5, right: 2, top: dynamicPadding, bottom: dynamicPadding } 
-            };
-          } 
-          // 🟢 Account / CA / Connection ID
-          else if (cleanName.includes("ACCOUNT") || cleanName.includes("ACCT") || cleanName.includes("CONID")) {
-            strictColumnStyles[index] = { cellWidth: 55, halign: 'center', fontStyle: 'bold' };
-          } 
-          // 🟢 Division / Sub-division / Feeder / Substation
-          else if (cleanName.includes("DIVISION") || cleanName.includes("SUBDIVISION") || cleanName.includes("FEEDER") || cleanName.includes("SUBSTATION")) {
-            strictColumnStyles[index] = { cellWidth: 52, halign: 'center' };
-          } 
-          // 🟢 Meter Numbers & Meter Make
-          else if (cleanName.includes("METERNO") || cleanName.includes("METERNUMBER") || cleanName.includes("SERIAL") || cleanName.includes("METERMAKE")) {
-            strictColumnStyles[index] = { cellWidth: 48, halign: 'center' };
-          } 
-          // 🟢 Dates (Visit Date / RTC Date / Due Date / Billed Date)
-          else if (cleanName.includes("DATE") || cleanName.includes("DATETIME") || cleanName.includes("TIME")) {
-            strictColumnStyles[index] = { cellWidth: 42, halign: 'center' };
-          } 
-          // 🟢 Compact Load / KW / Tariffs
-          else if (cleanName.includes("LOAD") || cleanName.includes("KW") || cleanName.includes("KVA") || cleanName.includes("TARIFF") || cleanName.includes("TYPE")) {
-            strictColumnStyles[index] = { cellWidth: 35, halign: 'center' };
-          } 
-          // 🟢 Boolean / Yes-No Flags / Status
-          else if (cleanName.includes("STATUS") || cleanName.includes("FLAG") || cleanName.includes("TAG") || cleanName.includes("MRI") || cleanName.includes("AVAILABLE")) {
-            strictColumnStyles[index] = { cellWidth: 38, halign: 'center' };
-          } 
-          // 🟢 Other General Columns
-          else {
-            strictColumnStyles[index] = { cellWidth: 'auto', halign: 'center' };
-          }
-        });
+        // 🟢 822 pt चौड़ाई में प्रत्येक कॉलम का फिक्स साइज़
+        var fixedColStyles = {
+          0:  { cellWidth: 20, halign: 'center' },              // Sr.
+          1:  { cellWidth: 54, halign: 'center' },              // Division
+          2:  { cellWidth: 52, halign: 'center', fontStyle: 'bold' }, // Account No
+          3:  { cellWidth: 44, halign: 'center' },              // Type
+          4:  { cellWidth: 105, halign: 'left', fontSize: 6.2 }, // Consumer Name
+          5:  { cellWidth: 165, halign: 'left', fontSize: 5.6 }, // Address
+          6:  { cellWidth: 26, halign: 'center' },              // KW
+          7:  { cellWidth: 46, halign: 'center', fontSize: 5.8 },// Group
+          8:  { cellWidth: 44, halign: 'center' },              // Visit Date
+          9:  { cellWidth: 50, halign: 'center' },              // Meter No.
+          10: { cellWidth: 52, halign: 'center' },              // Meter Make
+          11: { cellWidth: 48, halign: 'center' },              // Exception
+          12: { cellWidth: 88, halign: 'left', fontSize: 5.8 }, // Site Remark
+          13: { cellWidth: 28, halign: 'center' }               // MRI
+        };
 
         doc.autoTable({
-          head: [listColumns], 
-          body: listBody, 
-          startY: 35, 
-          margin: { left: 10, right: 10 },
+          head: [cleanHeadLabels],
+          body: listBody,
+          startY: 24,
+          margin: { left: 10, right: 10, top: 22, bottom: 16 },
           theme: 'grid',
-          styles: { 
-            halign: 'center', 
-            valign: 'middle', 
-            fontSize: dynamicFontSize, 
-            cellPadding: dynamicPadding, 
-            overflow: 'linebreak', 
-            font: 'helvetica', 
-            lineWidth: 0.35,
-            lineColor: [210, 215, 220],
-            textColor: [20, 20, 20],
-            minCellHeight: 11
-          },
-          headStyles: { 
-            fillColor: [11, 60, 93], 
-            textColor: [255, 255, 255], 
-            fontStyle: 'bold', 
-            fontSize: dynamicHeadSize, 
-            cellPadding: dynamicPadding + 1.2, 
+          tableWidth: 822,
+          styles: {
             halign: 'center',
             valign: 'middle',
-            lineWidth: 0.45,
-            lineColor: [50, 70, 95]
-          }, 
-          columnStyles: strictColumnStyles
+            fontSize: 6.4,
+            cellPadding: { top: 2.2, bottom: 2.2, left: 1.5, right: 1.5 },
+            overflow: 'linebreak',
+            lineWidth: 0.25,
+            lineColor: [205, 212, 220],
+            textColor: [15, 23, 42]
+          },
+          headStyles: {
+            fillColor: [11, 60, 93],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            fontSize: 6.8,
+            cellPadding: { top: 3.5, bottom: 3.5, left: 1.5, right: 1.5 },
+            halign: 'center',
+            valign: 'middle'
+          },
+          columnStyles: fixedColStyles,
+          pageBreak: 'auto'
         });
 
         var pageCount = doc.internal.getNumberOfPages();
-        for (var i = 1; i <= pageCount; i++) {
-          doc.setPage(i); doc.setFontSize(8); doc.setTextColor(120, 120, 120);
-          doc.text("Page " + i + " of " + pageCount, doc.internal.pageSize.width - 60, 20);
+        for (var p = 1; p <= pageCount; p++) {
+          doc.setPage(p);
+          doc.setFontSize(7);
+          doc.setTextColor(100, 116, 139);
+          doc.text("Page " + p + " of " + pageCount, doc.internal.pageSize.width - 50, 15);
         }
-        doc.save(reportProperName + "_" + dateString + "_" + timeString + ".pdf");
+
+        var saveName = reportProperName.replace(/[^a-zA-Z0-9]/g, "_") + "_List_" + dateString + "_" + timeString + ".pdf";
+        doc.save(saveName);
       }
 
       function downloadCombinedSummaryWithListExcel() {
@@ -10571,21 +10851,164 @@ tBody.appendChild(fragment);
 
         doc.save("EDC_Mainpuri_Billing_Progressive_Summary_" + summaryDateStr + ".pdf");
       }
+      // 🟢 GLOBAL NAVBAR SEARCH ENGINE (Searches entire cachedDatabase instantly across all tabs)
+      var navbarSearchTimeout = null;
+      function syncNavbarSearchToMain(val) {
+        clearTimeout(navbarSearchTimeout);
+        var query = String(val || "").trim().toUpperCase();
 
-      var searchTimeout = null;
-      function debounceSearch() {
-        clearTimeout(searchTimeout);
-        var inputVal = document.getElementById('live-search-input').value.trim();
-        
-        // यदि यूजर ने 1 या 2 अक्षर लिखे हैं तो बेवजह भारी सर्च न चलाएं
-        if (inputVal.length > 0 && inputVal.length < 3) {
+        if (query.length === 0) {
+          // अगर सर्च बॉक्स खाली कर दिया तो वापस अपनी पुरानी रिपोर्ट पर लौटें
+          if (activeReportMeta) {
+            processClientFilterQuery();
+          } else {
+            showAnalyticsDashboard();
+          }
           return;
         }
 
+        navbarSearchTimeout = setTimeout(function() {
+          if (!cachedDatabase || cachedDatabase.length === 0) return;
+
+          // 1. पूरे डेटाबेस (cachedDatabase) में हर कॉलम में ग्लोबल मैच करें
+          var globalMatches = [];
+          var len = cachedDatabase.length;
+
+          for (var i = 0; i < len; i++) {
+            var row = cachedDatabase[i];
+            var blob = row._searchBlob || "";
+            if (!blob) {
+              for (var rk in row) {
+                if (row.hasOwnProperty(rk) && !rk.startsWith("_")) {
+                  blob += String(row[rk] || "").toUpperCase().trim() + " ";
+                }
+              }
+              row._searchBlob = blob;
+            }
+
+            if (blob.includes(query)) {
+              globalMatches.push(row);
+            }
+          }
+
+          if (globalMatches.length === 0) {
+            alert("पूरे डेटाबेस में [" + val + "] से संबंधित कोई उपभोक्ता नहीं मिला!");
+            return;
+          }
+
+          // 2. होम, एनालिटिक्स या XML ज़ोन छुपाकर सीधे टेबल व्यू खोलें
+          var homeZone = document.getElementById('home-view-zone');
+          var analyticsZone = document.getElementById('analytics-view-zone');
+          var xmlZone = document.getElementById('xml-reader-view-zone');
+          if (homeZone) homeZone.style.display = 'none';
+          if (analyticsZone) analyticsZone.style.display = 'none';
+          if (xmlZone) xmlZone.style.display = 'none';
+
+          document.getElementById('table-zone').style.display = 'flex';
+          document.getElementById('pivot-page-zone').style.display = 'none';
+
+          // 3. ग्लोबल सर्च रिजल्ट के लिए मेटा डेटा सेट करें
+          activeReportMeta = {
+            id: "global_search_results",
+            name: "Global Search Results for: '" + val + "' (" + globalMatches.length + " Found)",
+            conditions: "",
+            columns: "ALL" // पूरे कॉलम्स दिखाएगा
+          };
+
+          clientRenderedRows = globalMatches;
+          currentPageNumber = 1;
+
+          var titleHeader = document.getElementById('active-report-title');
+          if (titleHeader) {
+            titleHeader.innerText = "Global Search: '" + val + "'";
+            titleHeader.style.color = "#8e44ad";
+          }
+
+          var counterBadge = document.getElementById('report-live-counter');
+          if (counterBadge) {
+            counterBadge.innerText = "Found: " + globalMatches.length;
+            counterBadge.style.background = "#8e44ad";
+          }
+
+          // मुख्य सर्च बार को भी सिंक रखें
+          var mainSearch = document.getElementById('live-search-input');
+          if (mainSearch) mainSearch.value = val;
+
+          // 🟢 सटीक अकाउंट मैच वाले रिकॉर्ड को सबसे ऊपर (Index 0) लाने के लिए री-ऑर्डर करें
+          if (query.length >= 4) {
+            var exactMatchIndex = globalMatches.findIndex(function(row) {
+              var u = row._uMap || row;
+              var acc = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").trim().toUpperCase();
+              return acc === query || acc.endsWith(query);
+            });
+
+            if (exactMatchIndex > 0) {
+              var matchedRow = globalMatches.splice(exactMatchIndex, 1)[0];
+              globalMatches.unshift(matchedRow); // सबसे ऊपर लाएं
+            }
+          }
+
+          clientRenderedRows = globalMatches;
+          currentPageNumber = 1; // 🟢 हमेशा पहला पेज सेट करें ताकि स्क्रॉल न करना पड़े
+
+          var titleHeader = document.getElementById('active-report-title');
+          if (titleHeader) {
+            titleHeader.innerText = "Global Search: '" + val + "' (" + globalMatches.length + " Found)";
+            titleHeader.style.color = "#8e44ad";
+          }
+
+          var counterBadge = document.getElementById('report-live-counter');
+          if (counterBadge) {
+            counterBadge.innerText = "Total: " + globalMatches.length;
+            counterBadge.style.background = "#9333ea";
+          }
+
+          var mainSearch = document.getElementById('live-search-input');
+          if (mainSearch) mainSearch.value = val;
+
+          // टेबल रेंडर करें (फर्स्ट पेज से)
+          var headers = [];
+          if (originalSheetHeadersList && originalSheetHeadersList.length > 0) {
+            headers = originalSheetHeadersList.map(function(c){ return c.trim().toUpperCase(); });
+          } else {
+            headers = Object.keys(globalMatches[0]).filter(function(k){ return !k.startsWith("_"); });
+          }
+
+          renderClientTable(headers);
+          
+          // टेबल व्यू के कंटेनर को सबसे ऊपर स्क्रॉल करें
+          var tableContainer = document.getElementById('table-zone');
+          if (tableContainer) {
+            var scrollableDiv = tableContainer.querySelector('div[style*="overflow"]');
+            if (scrollableDiv) scrollableDiv.scrollTop = 0;
+          }
+        }, 300);
+      }
+
+      var searchTimeout = null;
+      // 🟢 UNIVERSAL GLOBAL SEARCH ENGINE (Searches entire database across all tabs & fields)
+      function debounceSearch() {
+        clearTimeout(searchTimeout);
+        var inputVal = document.getElementById('live-search-input').value.trim();
+
         searchTimeout = setTimeout(function() {
-          currentPageNumber = 1; // सर्च होने पर पहले पेज पर आ जाए
+          currentPageNumber = 1;
+
+          // अगर यूजर ने सर्च में कुछ लिखा है तो होम या एनालिटिक्स से सीधे टेबल व्यू पर ले आए
+          if (inputVal !== "") {
+            var homeZone = document.getElementById('home-view-zone');
+            var xmlZone = document.getElementById('xml-reader-view-zone');
+            if (homeZone && homeZone.style.display !== 'none') homeZone.style.display = 'none';
+            if (xmlZone && xmlZone.style.display !== 'none') xmlZone.style.display = 'none';
+
+            if (!activeReportMeta) {
+              activeReportMeta = codeBuiltinReports[0]; // डिफ़ॉल्ट Master अनबिल्ड रिपोर्ट सेट करें
+              document.getElementById('active-report-title').innerText = "GLOBAL DATABASE SEARCH RESULTS";
+            }
+          }
+
           processClientFilterQuery();
-        }, 600);
+        }, 350);
       }
 
       // ==========================================
@@ -11508,48 +11931,7 @@ tBody.appendChild(fragment);
         }
       }
 
-      async function uploadChunks(taskId, sheetName, headers, data, isRebuild) {
-        let total = data.length;
-        if (total === 0) return;
-        let csvString = convertToCSV(headers, data);
-        let blob = new Blob([csvString], { type: 'text/csv' });
-        const CHUNK_SIZE_BYTES = 4 * 1024 * 1024; 
-        let offset = 0;
-        let tempFileId = null;
-
-        while (offset < blob.size) {
-          let chunk = blob.slice(offset, offset + CHUNK_SIZE_BYTES);
-          let base64Data = await readChunkAsBase64(chunk);
-          let currentMB = (offset / (1024 * 1024)).toFixed(1);
-          let totalMB = (blob.size / (1024 * 1024)).toFixed(1);
-          updateUI(taskId, `Uploading (${currentMB}/${totalMB} MB)... 📥`, 60 + Math.round((offset / blob.size) * 20));
-
-          let result = await new Promise((resolve, reject) => {
-            google.script.run
-              .withSuccessHandler(res => resolve(res))
-              .withFailureHandler(err => reject(err))
-              .appendTemporaryFileChunk(sheetName + "_temp.csv", base64Data, tempFileId);
-          });
-          tempFileId = result.fileId;
-          offset += CHUNK_SIZE_BYTES;
-        }
-
-        updateUI(taskId, `Injecting into Sheet... ⚡`, 85);
-        let finalResponse = await new Promise((resolve, reject) => {
-          google.script.run
-            .withSuccessHandler(res => resolve(res))
-            .withFailureHandler(err => reject(err))
-            .processLargeFileFromDrive(tempFileId, sheetName, isRebuild);
-        });
-
-        if (finalResponse.success) {
-          updateUI(taskId, "Success! 🎉", 100);
-          addLog(`✅ [${sheetName}] Upload complete.`);
-        } else {
-          updateUI(taskId, "Failed ❌", 100, true);
-          addLog(`❌ [${sheetName}] Server Error: ${finalResponse.error}`);
-        }
-      }
+      // (Redundant uploadChunks removed - main resilient streaming engine at bottom is active)
 
       // 🎯 DRAG & DROP EVENTS ATTACHMENT
       window.addEventListener('DOMContentLoaded', function() {
@@ -12659,181 +13041,107 @@ tBody.appendChild(fragment);
           return;
         }
 
-        var meterOccurrencesMap = {};
-
+        // 🟢 1. Strict Meter Cleaning (Blocks NOPOLE, NOMTR, DUMMY, NOTINSTALLED)
         function cleanMeterNum(val) {
           if (!val) return "";
-          var s = String(val).trim().toUpperCase();
-          if (s === "" || s === "-" || s === "NAN" || s === "NULL" || s === "BLANK" || s === "0" || s === "NO_MTR" || s === "NONE" || s === "UNDEFINED") return "";
-          return s.replace(/[^A-Z0-9]/gi, "");
-        }
+          var raw = String(val).trim().toUpperCase();
+          var clean = raw.replace(/[^A-Z0-9]/gi, "");
 
-        // 1. Scan Database and classify occurrences as MAIN or POLE
-        cachedDatabase.forEach(function(row) {
-          var u = {};
-          for (var k in row) { u[k.toUpperCase().trim()] = row[k]; }
-
-          var accNo = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "UNKNOWN_ACC").trim();
-          var consumerName = String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "").trim();
-          var division = String(u["DIVISION"] || "").trim();
-
-          // Main Meter Group Columns
-          var mainFields = [
-            { col: "FINAL VISITED MAIN METER NUMBER", val: u["FINAL VISITED MAIN METER NUMBER"] },
-            { col: "LAST MONTH FINAL MM NO.", val: u["LAST MONTH FINAL MM NO."] },
-            { col: "BILLED METER NUMBER", val: u["BILLED METER NUMBER"] },
-            { col: "MASTER METER NUMBER", val: u["MASTER METER NUMBER"] },
-            { col: "SITE METER NUMBER_APPSHEET", val: u["SITE METER NUMBER_APPSHEET"] },
-            { col: "FIELD METER NUMBER", val: u["FIELD METER NUMBER"] }
+          var invalidExact = [
+            "", "0", "NAN", "NULL", "BLANK", "NONE", "NA", "UNDEFINED",
+            "NOPOLE", "NO_POLE", "NO POLE", "NOMTR", "NO_MTR", "NO MTR",
+            "NOMETER", "NO_METER", "NO METER", "NOTINSTALLED", "NOT_INSTALLED",
+            "PENDING", "DUMMY", "POLE", "MAIN"
           ];
 
-          // Helper check to filter out NO-POLE and Dummy Pole tags
-          function isNoPoleValue(val) {
-            if (!val) return true;
-            var s = String(val).trim().toUpperCase();
-            return (
-              s === "" || s === "-" || s === "NAN" || s === "NULL" || s === "BLANK" || 
-              s === "0" || s === "NONE" || s === "NO_MTR" || s === "NO_METER" || 
-              s === "NO_POLE" || s === "NOT_INSTALLED" || s === "NOT INSTALLED" || 
-              s.includes("NO_POLE") || s.includes("NO_MTR") || s.includes("NO MTR")
-            );
-          }
+          if (invalidExact.includes(clean) || invalidExact.includes(raw)) return "";
+          if (clean.includes("NOPOLE") || clean.includes("NOMTR") || clean.includes("NOMETER") || clean.includes("NOTINST")) return "";
+          if (clean.length < 4) return "";
 
-          var loadKw = parseFloat(String(u["LOAD IN KW"] || u["LOAD_KW"] || "").replace(/[^0-9.-]/g, "")) || 0;
-          var poleExType = String(u["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
+          return clean;
+        }
 
-          // Pole Meter Group Columns (Only scanned if load >= 10 kW and not an explicit NO_MTR exception)
-          var isPoleApplicable = (loadKw >= 10) && !poleExType.includes("NO_MTR") && !poleExType.includes("NO_POLE");
+        var mainCols = [
+          "FINAL VISITED MAIN METER NUMBER", "LAST MONTH FINAL MM NO.",
+          "BILLED METER NUMBER", "MASTER METER NUMBER",
+          "SITE METER NUMBER_APPSHEET", "FIELD METER NUMBER"
+        ];
 
-          var poleFields = [];
-          if (isPoleApplicable) {
-            poleFields = [
-              { col: "FINAL VISITED POLE METER NO.", val: u["FINAL VISITED POLE METER NO."] },
-              { col: "LAST MONTH FINAL PM NO.", val: u["LAST MONTH FINAL PM NO."] },
-              { col: "SAI PORTAL POLE MTR NO.", val: u["SAI PORTAL POLE MTR NO."] },
-              { col: "FIELD METER NUMBER (POLE)", val: u["FIELD METER NUMBER (POLE)"] },
-              { col: "APPSHEET VISIT POLE METER NUMBER", val: u["APPSHEET VISIT POLE METER NUMBER"] }
-            ];
-          }
+        var poleCols = [
+          "FINAL VISITED POLE METER NO.", "LAST MONTH FINAL PM NO.",
+          "SAI PORTAL POLE MTR NO.", "FIELD METER NUMBER (POLE)",
+          "APPSHEET VISIT POLE METER NUMBER"
+        ];
 
-          mainFields.forEach(function(item) {
-            var mClean = cleanMeterNum(item.val);
-            if (mClean.length > 3 && !isNoPoleValue(item.val)) {
-              if (!meterOccurrencesMap[mClean]) meterOccurrencesMap[mClean] = [];
-              meterOccurrencesMap[mClean].push({
-                acc: accNo,
-                name: consumerName,
-                div: division,
-                meterType: "MAIN",
-                colName: item.col
-              });
-            }
+        var meterRegistry = {}; // { meterNo: { accountNo: { name, div, main: Set, pole: Set } } }
+
+        // 🟢 2. Single-Pass Database Scan
+        cachedDatabase.forEach(function(row) {
+          var u = row._uMap || row;
+          var acc = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").padStart(10, '0');
+          if (!acc || acc === "0000000000") return;
+
+          var name = String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "");
+          var div = String(u["DIVISION"] || "");
+          var loadKw = parseFloat(String(u["LOAD IN KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
+
+          // Main Columns
+          mainCols.forEach(function(col) {
+            var mNo = cleanMeterNum(u[col]);
+            if (!mNo) return;
+            if (!meterRegistry[mNo]) meterRegistry[mNo] = {};
+            if (!meterRegistry[mNo][acc]) meterRegistry[mNo][acc] = { name: name, div: div, main: new Set(), pole: new Set() };
+            meterRegistry[mNo][acc].main.add(col);
           });
 
-          poleFields.forEach(function(item) {
-            var mClean = cleanMeterNum(item.val);
-            if (mClean.length > 3 && !isNoPoleValue(item.val)) {
-              if (!meterOccurrencesMap[mClean]) meterOccurrencesMap[mClean] = [];
-              meterOccurrencesMap[mClean].push({
-                acc: accNo,
-                name: consumerName,
-                div: division,
-                meterType: "POLE",
-                colName: item.col
-              });
-            }
-          });
-        });
-
-        // 2. Conflict Evaluation Filter
-        var conflictList = [];
-
-        Object.keys(meterOccurrencesMap).forEach(function(mNo) {
-          var occurrences = meterOccurrencesMap[mNo];
-          
-          // Unique Accounts for this meter
-          var accMap = {};
-          var hasMain = false;
-          var hasPole = false;
-
-          occurrences.forEach(function(occ) {
-            if (!accMap[occ.acc]) {
-              accMap[occ.acc] = {
-                acc: occ.acc,
-                name: occ.name,
-                div: occ.div,
-                mainCols: new Set(),
-                poleCols: new Set()
-              };
-            }
-            if (occ.meterType === "MAIN") {
-              accMap[occ.acc].mainCols.add(occ.colName);
-              hasMain = true;
-            } else if (occ.meterType === "POLE") {
-              accMap[occ.acc].poleCols.add(occ.colName);
-              hasPole = true;
-            }
-          });
-
-          var uniqueAccKeys = Object.keys(accMap);
-          var isConflict = false;
-          var conflictReason = "";
-
-          // Conflict Case A: Same meter used across multiple distinct accounts
-          if (uniqueAccKeys.length > 1) {
-            isConflict = true;
-            conflictReason = "⚠️ Duplicate across " + uniqueAccKeys.length + " Different Accounts";
-          }
-          // Conflict Case B: Within single account, same meter is in BOTH Main and Pole columns
-          else if (uniqueAccKeys.length === 1 && hasMain && hasPole) {
-            isConflict = true;
-            conflictReason = "⚠️ Main Meter vs Pole Meter Cross Conflict (Same Account)";
-          }
-
-          if (isConflict) {
-            var formattedAccounts = [];
-            uniqueAccKeys.forEach(function(accId) {
-              var aObj = accMap[accId];
-              var locParts = [];
-              if (aObj.mainCols.size > 0) {
-                locParts.push("Main: [" + Array.from(aObj.mainCols).join(", ") + "]");
-              }
-              if (aObj.poleCols.size > 0) {
-                locParts.push("Pole: [" + Array.from(aObj.poleCols).join(", ") + "]");
-              }
-
-              formattedAccounts.push({
-                acc: aObj.acc,
-                name: aObj.name,
-                div: aObj.div,
-                location: locParts.join(" | "),
-                reason: conflictReason
-              });
-            });
-
-            conflictList.push({
-              meterNo: mNo,
-              conflictType: conflictReason,
-              accounts: formattedAccounts
+          // Pole Columns (>= 10 KW)
+          if (loadKw >= 10) {
+            poleCols.forEach(function(col) {
+              var mNo = cleanMeterNum(u[col]);
+              if (!mNo) return;
+              if (!meterRegistry[mNo]) meterRegistry[mNo] = {};
+              if (!meterRegistry[mNo][acc]) meterRegistry[mNo][acc] = { name: name, div: div, main: new Set(), pole: new Set() };
+              meterRegistry[mNo][acc].pole.add(col);
             });
           }
         });
 
-        // 3. Build Table Output Rows
+        // 🟢 3. Conflict Detection
         var conflictRows = [];
-        conflictList.forEach(function(conf, index) {
-          conf.accounts.forEach(function(accObj, subIdx) {
-            conflictRows.push({
-              "Sr.No.": (subIdx === 0 ? (index + 1) : ""),
-              "Duplicate Meter No.": conf.meterNo,
-              "Total Conflicts": (subIdx === 0 ? conf.accounts.length + " Accounts Linked" : ""),
-              "Division": accObj.div,
-              "Account No": accObj.acc,
-              "Consumer Name": accObj.name,
-              "Found In Meter Column": accObj.location,
-              "Conflict Status": accObj.reason
-            });
+        var serialCounter = 1;
+
+        Object.keys(meterRegistry).forEach(function(mNo) {
+          var accountsMap = meterRegistry[mNo];
+          var accList = Object.keys(accountsMap);
+
+          var isCrossAccount = accList.length > 1;
+          var isMainPoleConflict = accList.some(function(a) {
+            return accountsMap[a].main.size > 0 && accountsMap[a].pole.size > 0;
           });
+
+          if (isCrossAccount || isMainPoleConflict) {
+            var reason = isCrossAccount
+              ? `Duplicate in ${accList.length} Different Accounts`
+              : `Main vs Pole Conflict (Same Account)`;
+
+            accList.forEach(function(accId, idx) {
+              var aData = accountsMap[accId];
+              var locations = [];
+              if (aData.main.size > 0) locations.push("Main: [" + Array.from(aData.main).join(", ") + "]");
+              if (aData.pole.size > 0) locations.push("Pole: [" + Array.from(aData.pole).join(", ") + "]");
+
+              conflictRows.push({
+                "Sr.No.": idx === 0 ? serialCounter++ : "",
+                "Duplicate Meter No.": mNo,
+                "Total Conflicts": idx === 0 ? accList.length + " Accounts Linked" : "",
+                "Division": aData.div,
+                "Account No": accId,
+                "Consumer Name": aData.name,
+                "Found In Meter Column": locations.join(" | "),
+                "Conflict Status": reason
+              });
+            });
+          }
         });
 
         if (conflictRows.length === 0) {
@@ -12858,7 +13166,7 @@ tBody.appendChild(fragment);
 
         var titleHeader = document.getElementById('active-report-title');
         if (titleHeader) {
-          titleHeader.innerText = "Duplicate Meter Serial & Account Conflict Report (" + conflictList.length + " Conflicts Found)";
+          titleHeader.innerText = `Duplicate Meter Conflict Report (${serialCounter - 1} Conflicts Found)`;
           titleHeader.style.color = "#9333ea";
         }
 
@@ -13105,40 +13413,61 @@ function executeCustomBulkUpdate() {
 
       statusBox.innerText = payloadUpdates.length + " रिकॉर्ड्स Google Sheet में सुरक्षित रूप से अपडेट हो रहे हैं...";
 
-      fetch(APPS_SCRIPT_WEBAPP_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "bulkUpdateColumns",
-          data: {
+      if (window.google && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btn.disabled = false;
+            if (res && res.success) {
+              statusBox.style.color = "#10b981";
+              statusBox.innerHTML = "✅ सफलतापूर्वक <b>" + res.updatedCount + "</b> रो अपडेट हो गईं! (Not Found: " + (res.notFoundCount || 0) + ")";
+              if (res.logs && res.logs.length > 0) {
+                downloadUpdateAuditLogExcel(res.logs);
+              }
+              calculateAnalyticsKPICards();
+              if (typeof processClientFilterQuery === "function") processClientFilterQuery();
+            } else {
+              statusBox.style.color = "#ef4444";
+              statusBox.innerText = "त्रुटि: " + (res ? res.error : "Update Failed");
+            }
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            statusBox.style.color = "#ef4444";
+            statusBox.innerText = "सर्वर एरर: " + err.message;
+          })
+          .bulkUpdateColumns({ targetSheetName: "VisiT_Data", updates: payloadUpdates });
+      } else {
+        fetch(APPS_SCRIPT_WEBAPP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "bulkUpdateColumns",
             targetSheetName: "VisiT_Data",
             updates: payloadUpdates
+          })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(res) {
+          btn.disabled = false;
+          if (res && res.success) {
+            statusBox.style.color = "#10b981";
+            statusBox.innerHTML = "✅ सफलतापूर्वक <b>" + res.updatedCount + "</b> रो अपडेट हो गईं! (Not Found: " + (res.notFoundCount || 0) + ")";
+            if (res.logs && res.logs.length > 0) {
+              downloadUpdateAuditLogExcel(res.logs);
+            }
+            calculateAnalyticsKPICards();
+            if (typeof processClientFilterQuery === "function") processClientFilterQuery();
+          } else {
+            statusBox.style.color = "#ef4444";
+            statusBox.innerText = "त्रुटि: " + (res ? res.error : "Update Failed");
           }
         })
-      })
-      .then(function(res) { return res.json(); })
-      .then(function(res) {
-        btn.disabled = false;
-        if (res && res.success) {
-          statusBox.style.color = "#10b981";
-          statusBox.innerHTML = "✅ सफलतापूर्वक <b>" + res.updatedCount + "</b> रो अपडेट हो गईं! (Not Found: " + res.notFoundCount + ")";
-          
-          if (res.logs && res.logs.length > 0) {
-            downloadUpdateAuditLogExcel(res.logs);
-          }
-          
-          calculateAnalyticsKPICards();
-          if (typeof processClientFilterQuery === "function") processClientFilterQuery();
-        } else {
+        .catch(function(err) {
+          btn.disabled = false;
           statusBox.style.color = "#ef4444";
-          statusBox.innerText = "त्रुटि: " + (res ? res.error : "Update Failed");
-        }
-      })
-      .catch(function(err) {
-        btn.disabled = false;
-        statusBox.style.color = "#ef4444";
-        statusBox.innerText = "सर्वर एरर: " + err.message;
-      });
-
+          statusBox.innerText = "सर्वर एरर: " + err.message;
+        });
+      }
     } catch (err) {
       btn.disabled = false;
       statusBox.style.color = "#ef4444";
