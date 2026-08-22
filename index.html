@@ -2497,6 +2497,7 @@
 
             originalSheetHeadersList = packet.headers || packet.allSheetHeaders || [];
             cachedReportsConfig = packet.reports || [];
+            if (packet.rdgMap) cachedRdgMap = packet.rdgMap;
 
             if (packet.rows && packet.headers) {
               var hdrs = packet.headers;
@@ -6278,29 +6279,39 @@
         document.getElementById('consumer-360-modal').style.display = 'none';
       }
 
-      // 🟢 RDG Sheet & XML Reads से सटीक H1/H2 रीडिंग निकालने का एडवांस इंजन
-      function getMeterRdgsFromDatabase(meterNo) {
-        if (!meterNo || meterNo === "-" || meterNo === "N/A" || !cachedDatabase) return { kwh: "0.0", kvah: "0.0", kw: "0.0", kva: "0.0" };
-        var cleanMtr = String(meterNo).trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
-        if (cleanMtr.length < 4) return { kwh: "0.0", kvah: "0.0", kw: "0.0", kva: "0.0" };
+      // 🟢 RDG Sheet Upload के METER_NUMBER से सीधा 1-टू-1 मैचिंग इंजन
+      var cachedRdgMap = {};
 
-        for (var i = 0; i < cachedDatabase.length; i++) {
-          var r = cachedDatabase[i];
-          var u = r._uMap || r;
-          
-          // सभी संभव मीटर कॉलम चेक करें (RDG शीट के METER_NUMBER और meter_number सहित)
-          var dbMtr = String(u["METER_NUMBER"] || u["METER_NUMBER.1"] || u["METER_NUMBER_1"] || u["METER NO."] || u["METER NO"] || u["METERNUMBER"] || u["FIELDMETERNO"] || u["SERIAL_NBR"] || u["meter_number"] || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
-          
-          if (dbMtr === cleanMtr) {
-            return {
-              kwh: String(u["KWH_H1"] || u["HISTORY1 KWH"] || u["MRI KWH"] || u["KWH"] || "0.0"),
-              kvah: String(u["KVAH_H1"] || u["HISTORY1 KVAH"] || u["MRI KVAH"] || u["KVAH"] || "0.0"),
-              kw: String(u["KW_H1"] || u["HISTORY1 KW"] || u["MRI KW UHI"] || u["KW"] || "0.0"),
-              kva: String(u["KVA_H1"] || u["HISTORY1 KVA"] || u["MRI KVA UHI"] || u["KVA"] || "0.0")
-            };
+      function getMeterRdgsFromDatabase(meterNo) {
+        var fallback = { kwh: "0.0", kvah: "0.0", kw: "0.0", kva: "0.0" };
+        if (!meterNo || meterNo === "-" || meterNo === "N/A" || meterNo === "NO_MTR") return fallback;
+
+        var cleanMtr = String(meterNo).trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+        if (!cleanMtr) return fallback;
+
+        // 1. RDG Direct Map से सर्च
+        if (cachedRdgMap && cachedRdgMap[cleanMtr]) {
+          return cachedRdgMap[cleanMtr];
+        }
+
+        // 2. Fallback: cachedDatabase के अंदर METER_NUMBER से मिलान
+        if (cachedDatabase && cachedDatabase.length > 0) {
+          for (var i = 0; i < cachedDatabase.length; i++) {
+            var u = cachedDatabase[i]._uMap || cachedDatabase[i];
+            var dbMtr = String(u["METER_NUMBER"] || u["meter_number"] || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+            
+            if (dbMtr === cleanMtr) {
+              return {
+                kwh: String(u["KWH_H1"] || "0.0"),
+                kvah: String(u["KVAH_H1"] || "0.0"),
+                kw: String(u["KW_H2"] || "0.0"),
+                kva: String(u["KVA_H2"] || "0.0")
+              };
+            }
           }
         }
-        return { kwh: "0.0", kvah: "0.0", kw: "0.0", kva: "0.0" };
+
+        return fallback;
       }
 
       function renderConsumer360Dossier(rowObj) {
@@ -6331,7 +6342,7 @@
 
         // 🟢 मुख्य और पोल मीटर नंबर निकाल कर RDG शीट से रीडिंग फैच करें
         var mainMtrNum = getV(["LAST MONTH FINAL MM NO.", "BILLED METER NUMBER", "METER NUMBER", "METER NO."]);
-        var poleMtrNum = getV(["LAST MONTH FINAL PM NO.", "FINAL VISITED POLE METER NO."]);
+        var poleMtrNum = getV(["LAST MONTH FINAL PM NO.", "FINAL VISITED POLE METER NO.", "POLE METER NO."]);
 
         var mainRdgs = getMeterRdgsFromDatabase(mainMtrNum);
         var poleRdgs = getMeterRdgsFromDatabase(poleMtrNum);
@@ -8320,7 +8331,8 @@ tBody.appendChild(fragment);
         var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
         if (!jsPDFObj) return;
 
-        var doc = new jsPDFObj('l', 'pt', 'a4'); // 842 x 595 pt
+        // 🟢 A3 Landscape (1191 x 842 pt) - सबसे बड़ा और चौड़ा पेज
+        var doc = new jsPDFObj('l', 'pt', 'a3'); 
 
         var today = new Date();
         var dateString = today.toLocaleDateString('en-GB').replace(/\//g, '-');
@@ -8332,109 +8344,84 @@ tBody.appendChild(fragment);
         var reportProperName = isFieldEx
           ? "Field Exception & Rejection"
           : (activeReportMeta && activeReportMeta.id === "rpt_master_unbilled"
-              ? "5 KW & Above Unbilled Master"
+              ? "5 KW & Above Unbilled Master Report"
               : rName.replace(/[^a-zA-Z0-9 ]/g, "").trim());
 
-        // Header Title Banner
-        doc.setFontSize(10.5);
+        // Header Title
+        doc.setFontSize(13);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(11, 60, 93);
-        doc.text(reportProperName + " (Date: " + dateString + " | Total Records: " + clientRenderedRows.length + ")", 12, 18);
+        doc.text(reportProperName + " (Date: " + dateString + " | Total Records: " + clientRenderedRows.length + ")", 14, 22);
 
-        // PDF के लिए केवल मुख्य और साफ़ कॉलम रखें (डुप्लीकेट और वर्टिकल टेढ़े कॉलम हटाए गए)
-        var pdfColsToExport = [
-          "DIVISION", "ACCOUNT NO", "CONSUMER TYPE", "CONSUMER-NAME", "ADDRESS",
-          "LOAD IN KW", "LOAD GROUP", "FINAL VISIT DATE", "METER NO.", "METER MAKE",
-          "EXCEPTION TYPE", "SITE REMARK", "IS MRI AVAILABLE"
-        ];
-
-        var cleanHeadLabels = [
-          "Sr.", "Division", "Account No", "Type", "Consumer Name", "Address",
-          "KW", "Group", "Visit Date", "Meter No.", "Meter Make",
-          "Exception", "Site Remark", "MRI"
-        ];
-
-        // Address को कॉम्पैक्ट और क्लीन करें
-        function sanitizeAddressForPdf(addr) {
-          if (!addr) return "-";
-          var s = String(addr).replace(/\s+/g, ' ').trim();
-          s = s.replace(/\b(25172[0-9][A-Z0-9]+)\b/gi, '')
-               .replace(/UP-205001\s*IND/gi, '')
-               .replace(/MAINPURI\s*UP\s*IND/gi, '')
-               .replace(/MAINPURI\s*MAINPURI/gi, 'MAINPURI')
-               .replace(/166-Mainpuri/gi, '')
-               .replace(/\s{2,}/g, ' ')
-               .trim();
-          return s || "-";
+        // 🟢 सभी सक्रिय कॉलम्स (No Column Hidden/Dropped)
+        var allCols = [];
+        if (activeTableHeadersList && activeTableHeadersList.length > 0) {
+          allCols = activeTableHeadersList.filter(function(c) { return !hiddenColumnsSet.has(c.toUpperCase().trim()); });
+        } else if (activeReportMeta && activeReportMeta.columns && activeReportMeta.columns !== "ALL") {
+          allCols = activeReportMeta.columns.split(",").map(function(c) { return c.trim().toUpperCase(); });
+        } else if (clientRenderedRows.length > 0) {
+          allCols = Object.keys(clientRenderedRows[0]).filter(function(k) { return !k.startsWith("_"); });
         }
+
+        var isDeptRpt = activeReportMeta && (
+          (activeReportMeta.id && (activeReportMeta.id.includes("dept") || activeReportMeta.id.includes("master_unbilled") || activeReportMeta.id.includes("field_exception") || activeReportMeta.id.includes("indep"))) ||
+          (activeReportMeta.name && (activeReportMeta.name.toUpperCase().includes("DEPARTMENT") || activeReportMeta.name.toUpperCase().includes("UNBILLED") || activeReportMeta.name.toUpperCase().includes("FIELD EXCEPTION") || activeReportMeta.name.toUpperCase().includes("INDEPENDENT")))
+        );
+
+        var cleanHeadLabels = ["Sr.No."].concat(allCols.map(function(c) {
+          return sanitizeDeptHeader(c, isDeptRpt);
+        }));
 
         var listBody = [];
         clientRenderedRows.forEach(function(row, idx) {
           var u = row._uMap || row;
           var rowData = [idx + 1];
 
-          pdfColsToExport.forEach(function(col) {
+          allCols.forEach(function(col) {
+            var normTarget = col.replace(/[^A-Z0-9]/g, "").toUpperCase();
             var val = "";
-            var normTarget = col.replace(/[^A-Z0-9]/g, "");
 
-            for (var k in u) {
-              if (k.toUpperCase().replace(/[^A-Z0-9]/g, "") === normTarget) {
-                val = u[k];
-                break;
+            if (row[col] !== undefined && row[col] !== null && String(row[col]).trim() !== "") {
+              val = row[col];
+            } else {
+              for (var k in u) {
+                if (k.replace(/[^A-Z0-9]/g, "").toUpperCase() === normTarget) {
+                  val = u[k];
+                  break;
+                }
               }
             }
 
-            if (col === "ACCOUNT NO") {
-              var digits = String(val || "").replace(/[^0-9]/g, '');
-              val = digits.length > 0 ? ("0000000000" + digits).slice(-10) : (val || "-");
-            } else if (col === "ADDRESS") {
-              val = sanitizeAddressForPdf(val);
-            } else if (col === "IS MRI AVAILABLE") {
-              var strVal = String(val || "").toUpperCase().trim();
-              val = (strVal === "TRUE" || strVal === "YES" || strVal === "1") ? "True" : "False";
-            } else if (col === "CONSUMER TYPE") {
-              var ct = String(val || "").toUpperCase();
-              val = ct.includes("GOVT") && !ct.includes("NON") ? "GOVT" : "NON-GOVT";
-            } else {
-              val = (val !== undefined && val !== null && String(val).trim() !== "") ? String(val).trim() : "-";
+            var cleanStr = (val !== undefined && val !== null) ? String(val).trim() : "";
+            
+            // 10-Digit Account Number format check
+            if (normTarget.includes("ACCOUNT") && cleanStr && /^\d+$/.test(cleanStr) && cleanStr.length < 10) {
+              cleanStr = ("0000000000" + cleanStr).slice(-10);
             }
 
-            rowData.push(val);
+            rowData.push(cleanStr || "-");
           });
 
           listBody.push(rowData);
         });
 
-        // 🟢 822 pt चौड़ाई में प्रत्येक कॉलम का फिक्स साइज़
-        var fixedColStyles = {
-          0:  { cellWidth: 20, halign: 'center' },              // Sr.
-          1:  { cellWidth: 54, halign: 'center' },              // Division
-          2:  { cellWidth: 52, halign: 'center', fontStyle: 'bold' }, // Account No
-          3:  { cellWidth: 44, halign: 'center' },              // Type
-          4:  { cellWidth: 105, halign: 'left', fontSize: 6.2 }, // Consumer Name
-          5:  { cellWidth: 165, halign: 'left', fontSize: 5.6 }, // Address
-          6:  { cellWidth: 26, halign: 'center' },              // KW
-          7:  { cellWidth: 46, halign: 'center', fontSize: 5.8 },// Group
-          8:  { cellWidth: 44, halign: 'center' },              // Visit Date
-          9:  { cellWidth: 50, halign: 'center' },              // Meter No.
-          10: { cellWidth: 52, halign: 'center' },              // Meter Make
-          11: { cellWidth: 48, halign: 'center' },              // Exception
-          12: { cellWidth: 88, halign: 'left', fontSize: 5.8 }, // Site Remark
-          13: { cellWidth: 28, halign: 'center' }               // MRI
-        };
+        // 🟢 ऑटो-स्केल्ड डायनामिक फॉन्ट (कॉलम संख्या के आधार पर)
+        var totalColsCount = cleanHeadLabels.length;
+        var dynamicFontSize = totalColsCount > 35 ? 4.5 : (totalColsCount > 25 ? 5.2 : (totalColsCount > 15 ? 6.0 : 7.0));
+        var dynamicCellPadding = totalColsCount > 30 ? 1.0 : 1.8;
 
         doc.autoTable({
           head: [cleanHeadLabels],
           body: listBody,
-          startY: 24,
-          margin: { left: 10, right: 10, top: 22, bottom: 16 },
+          startY: 30,
+          margin: { left: 12, right: 12, top: 28, bottom: 20 },
           theme: 'grid',
-          tableWidth: 822,
+          tableWidth: 1167, // Full A3 Landscape Available Width
           styles: {
             halign: 'center',
             valign: 'middle',
-            fontSize: 6.4,
-            cellPadding: { top: 2.2, bottom: 2.2, left: 1.5, right: 1.5 },
+            fontSize: dynamicFontSize,
+            cellPadding: dynamicCellPadding,
             overflow: 'linebreak',
             lineWidth: 0.25,
             lineColor: [205, 212, 220],
@@ -8444,24 +8431,23 @@ tBody.appendChild(fragment);
             fillColor: [11, 60, 93],
             textColor: [255, 255, 255],
             fontStyle: 'bold',
-            fontSize: 6.8,
-            cellPadding: { top: 3.5, bottom: 3.5, left: 1.5, right: 1.5 },
+            fontSize: dynamicFontSize + 0.5,
+            cellPadding: dynamicCellPadding + 1.0,
             halign: 'center',
             valign: 'middle'
           },
-          columnStyles: fixedColStyles,
           pageBreak: 'auto'
         });
 
         var pageCount = doc.internal.getNumberOfPages();
         for (var p = 1; p <= pageCount; p++) {
           doc.setPage(p);
-          doc.setFontSize(7);
+          doc.setFontSize(8);
           doc.setTextColor(100, 116, 139);
-          doc.text("Page " + p + " of " + pageCount, doc.internal.pageSize.width - 50, 15);
+          doc.text("Page " + p + " of " + pageCount + " | Sai Computers Ltd RMS Engine", doc.internal.pageSize.width - 150, 20);
         }
 
-        var saveName = reportProperName.replace(/[^a-zA-Z0-9]/g, "_") + "_List_" + dateString + "_" + timeString + ".pdf";
+        var saveName = reportProperName.replace(/[^a-zA-Z0-9]/g, "_") + "_Full_A3_" + dateString + "_" + timeString + ".pdf";
         doc.save(saveName);
       }
 
@@ -11976,20 +11962,34 @@ tBody.appendChild(fragment);
           if (queuedTasks.some(t => t.sheetName === "Department_Master_Data-Upload")) {
               startBtn.innerHTML = "Fetching Master DB... ⚙️";
               await new Promise(resolve => {
-                  google.script.run.withSuccessHandler(function(accList) {
-                      globalVisitAccounts = new Set(accList);
-                      resolve();
-                  }).getVisitAccounts();
+                  if (window.google && google.script && google.script.run) {
+                      google.script.run.withSuccessHandler(function(accList) {
+                          globalVisitAccounts = new Set(accList || []);
+                          resolve();
+                      }).withFailureHandler(function() { resolve(); }).getVisitAccounts();
+                  } else {
+                      fetch(APPS_SCRIPT_WEBAPP_URL + "?action=getVisitAccounts")
+                          .then(res => res.json())
+                          .then(accList => { globalVisitAccounts = new Set(accList || []); resolve(); })
+                          .catch(() => resolve());
+                  }
               });
           }
 
           if (queuedTasks.some(t => t.sheetName === "Load Survay Sheet Upload")) {
               startBtn.innerHTML = "Fetching Divisions... ⚙️";
               await new Promise(resolve => {
-                  google.script.run.withSuccessHandler(function(mapObj) {
-                      globalVisitDivisions = mapObj || {};
-                      resolve();
-                  }).getVisitMetersAndDivisions();
+                  if (window.google && google.script && google.script.run) {
+                      google.script.run.withSuccessHandler(function(mapObj) {
+                          globalVisitDivisions = mapObj || {};
+                          resolve();
+                      }).withFailureHandler(function() { resolve(); }).getVisitMetersAndDivisions();
+                  } else {
+                      fetch(APPS_SCRIPT_WEBAPP_URL + "?action=getVisitMetersAndDivisions")
+                          .then(res => res.json())
+                          .then(mapObj => { globalVisitDivisions = mapObj || {}; resolve(); })
+                          .catch(() => resolve());
+                  }
               });
           }
 
@@ -12619,110 +12619,66 @@ tBody.appendChild(fragment);
       }
 
       async function uploadChunks(taskId, sheetName, headers, data, isRebuild) {
-          let total = data.length;
-          if (total === 0) return;
+          let totalRows = data.length;
+          if (totalRows === 0) return;
 
-          let actionType = isRebuild ? "Rebuild/Replace" : "Append";
-          addLog(`📊 [${sheetName}] Compiling ${total} records for ${actionType} mode...`);
-          updateUI(taskId, `Compiling ${total} Records... ⚙️`, 55);
+          const BATCH_SIZE = 5000; // 5000 Rows per direct stream payload
+          let totalBatches = Math.ceil(totalRows / BATCH_SIZE);
 
-          let csvString = convertToCSV(headers, data);
-          let blob = new Blob([csvString], { type: 'text/csv' });
+          addLog(`📊 [${sheetName}] Streaming ${totalRows.toLocaleString()} rows in ${totalBatches} high-speed batches...`);
+          updateUI(taskId, `Starting Stream (0/${totalRows})... 🚀`, 10);
 
-          const CHUNK_SIZE_BYTES = 4 * 1024 * 1024; 
-          let savedOffset = localStorage.getItem("resume_offset_" + taskId + "_" + sheetName);
-          let offset = savedOffset ? parseInt(savedOffset) : 0;
-          let tempFileId = localStorage.getItem("resume_fileId_" + taskId + "_" + sheetName) || null;
+          for (let b = 0; b < totalBatches; b++) {
+              let startIdx = b * BATCH_SIZE;
+              let endIdx = Math.min(startIdx + BATCH_SIZE, totalRows);
+              let batchRows = data.slice(startIdx, endIdx);
 
-          if (offset > 0) {
-              addLog(`⚠️ [${sheetName}] Network Recovery: Resuming upload from ${Math.round(offset/(1024*1024))}MB...`);
-          }
+              let isFirstBatch = (b === 0);
+              let shouldClearSheet = isFirstBatch && isRebuild;
+              let includeHeaders = isFirstBatch;
 
-          while (offset < blob.size) {
-              if (isPausedGlobal) {
-                  updateUI(taskId, "Paused (Waiting for Net) ⏸️", null);
-                  await new Promise(resolve => setTimeout(resolve, 3000));
-                  continue;
-              }
+              let progressPercent = Math.min(98, Math.round(((b + 1) / totalBatches) * 100));
 
-              let chunk = blob.slice(offset, offset + CHUNK_SIZE_BYTES);
-              let base64Data = await readChunkAsBase64(chunk);
-              let currentMB = (offset / (1024 * 1024)).toFixed(1);
-              let totalMB = (blob.size / (1024 * 1024)).toFixed(1);
-              let progressPercent = 60 + Math.round((offset / blob.size) * 20);
-
-              addLog(`📤 [${sheetName}] Uploading Chunk: ${currentMB}MB / ${totalMB}MB...`);
-              updateUI(taskId, `Uploading Chunk (${currentMB}/${totalMB} MB)... 📥`, progressPercent);
+              addLog(`📤 [${sheetName}] Streaming Batch ${b + 1}/${totalBatches} (${startIdx + 1} - ${endIdx} rows)...`);
+              updateUI(taskId, `Writing ${endIdx.toLocaleString()}/${totalRows.toLocaleString()} rows... ⚡`, progressPercent);
 
               let success = false;
               let retryCount = 0;
 
               while (!success) {
                   try {
-                      if (!navigator.onLine) throw new Error("Local Network Disconnected");
+                      if (!navigator.onLine) throw new Error("Network Disconnected");
 
-                      let result = await new Promise((resolve, reject) => {
-                          google.script.run
-                              .withSuccessHandler(res => resolve(res))
-                              .withFailureHandler(err => reject(err))
-                              .appendTemporaryFileChunk(sheetName + "_temp.csv", base64Data, tempFileId);
+                      let payload = {
+                          action: "directStreamRowsBatch",
+                          sheetName: sheetName,
+                          headers: includeHeaders ? headers : [],
+                          rows: batchRows,
+                          isRebuild: shouldClearSheet
+                      };
+
+                      let response = await fetch(APPS_SCRIPT_WEBAPP_URL, {
+                          method: "POST",
+                          headers: { "Content-Type": "text/plain;charset=utf-8" },
+                          body: JSON.stringify(payload)
                       });
-                      tempFileId = result.fileId;
+
+                      let result = await response.json();
+                      if (!result.success) throw new Error(result.error || "Batch write failed");
+
                       success = true;
-                      isPausedGlobal = false;
                   } catch (err) {
                       retryCount++;
-                      isPausedGlobal = true;
-                      updateUI(taskId, `Network Error (Retry ${retryCount})... 🔌`, null, true);
-                      addLog(`🔌 [${sheetName}] Connection lost! Retry #${retryCount} in 5 seconds...`);
-
-                      localStorage.setItem("resume_offset_" + taskId + "_" + sheetName, offset);
-                      localStorage.setItem("resume_fileId_" + taskId + "_" + sheetName, tempFileId);
-
-                      await new Promise(resolve => setTimeout(resolve, 5000));
+                      updateUI(taskId, `Batch ${b + 1} Retry (${retryCount})... 🔌`, null, true);
+                      addLog(`🔌 [${sheetName}] Batch ${b + 1} error: ${err.message}. Retrying in 4s...`);
+                      await new Promise(r => setTimeout(r, 4000));
                   }
               }
-
-              offset += CHUNK_SIZE_BYTES;
-              localStorage.setItem("resume_offset_" + taskId + "_" + sheetName, offset);
-              localStorage.setItem("resume_fileId_" + taskId + "_" + sheetName, tempFileId);
           }
 
-          let modeText = isRebuild ? "REPLACING whole sheet" : "APPENDING new records";
-          updateUI(taskId, `Server Mode: ${modeText}... ⚡`, 85);
-          addLog(`⚡ [${sheetName}] All chunks uploaded. Processing server injection (${modeText})...`);
-
-          let dumpFinished = false;
-          while (!dumpFinished) {
-              try {
-                  if (!navigator.onLine) throw new Error("Network missing on final write");
-
-                  let finalResponse = await new Promise((resolve, reject) => {
-                      google.script.run
-                          .withSuccessHandler(res => resolve(res))
-                          .withFailureHandler(err => reject(err))
-                          .processLargeFileFromDrive(tempFileId, sheetName, isRebuild);
-                  });
-
-                  if (finalResponse.success) {
-                      let successMsg = isRebuild ? "Replaced Successfully! 🎉" : "Appended Successfully! 🎉";
-                      updateUI(taskId, successMsg, 100);
-                      addLog(`✅ [${sheetName}] Done! Status: ${successMsg}`);
-
-                      localStorage.removeItem("resume_offset_" + taskId + "_" + sheetName);
-                      localStorage.removeItem("resume_fileId_" + taskId + "_" + sheetName);
-                      dumpFinished = true;
-                  } else {
-                      updateUI(taskId, "Execution Failed ❌", 100, true);
-                      addLog(`❌ [${sheetName}] Server Error: ${finalResponse.error}`);
-                      dumpFinished = true;
-                  }
-              } catch (e) {
-                  updateUI(taskId, "Finalizing Write (Waiting for Net) 🔄", null, true);
-                  addLog(`🔄 [${sheetName}] Waiting for server response...`);
-                  await new Promise(resolve => setTimeout(resolve, 6000));
-              }
-          }
+          let modeText = isRebuild ? "Replaced & Uploaded" : "Appended";
+          updateUI(taskId, `${modeText} ${totalRows.toLocaleString()} Rows! 🎉`, 100);
+          addLog(`✅ [${sheetName}] 100% Completed: Total ${totalRows.toLocaleString()} rows successfully written.`);
       }
 
       function openBulkUpdateModal() {
