@@ -1331,8 +1331,13 @@
       <div style="padding: 10px 0;">
 
         <!-- 📊 TOP LEVEL TOOL: ANALYTICS DASHBOARD -->
-        <button class="report-link" id="btn-analytics-dashboard" style="border-left: 5px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); color: #92400e; font-weight: 800; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(245,158,11,0.15);" onclick="showAnalyticsDashboard(event)">
+        <button class="report-link" id="btn-analytics-dashboard" style="border-left: 5px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); color: #92400e; font-weight: 800; margin-bottom: 6px; box-shadow: 0 2px 8px rgba(245,158,11,0.15);" onclick="showAnalyticsDashboard(event)">
           <i class="fa-solid fa-chart-line" style="color:#d97706; font-size:15px;"></i> 📊 Analytics Dashboard
+        </button>
+
+        <!-- 👥 TOP LEVEL TOOL: ALL CONSUMERS MASTER LIST -->
+        <button class="report-link" id="btn-all-consumers-sidebar" style="border-left: 5px solid #1a73e8; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); color: #1e40af; font-weight: 800; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(26,115,232,0.15);" onclick="filterByKPICard('ALL_CONSUMERS', 'All Registered Consumers Base')">
+          <i class="fa-solid fa-users" style="color:#1d4ed8; font-size:15px;"></i> 👥 All Consumers Base
         </button>
         
         <!-- 🏢 GROUP 1: DEPARTMENT USE -->
@@ -3225,15 +3230,18 @@
                 rejectionSummary = "METER NUMBER MISMATCH";
               }
             }
-            // 2. Main Meter Exception
+            // 2. Main Meter Exception (Excluding MRD Corrupt)
             else if (["EXCEPTION", "EXCEPTION (NO_MTR)", "MANUAL"].includes(exM) && !isMriM && exM !== "VISIT PENDING") {
-              isMatchFieldEx = true;
-              exCategory = "Main Meter Exception";
-              rejectionSummary = remM || "NO REMARK";
+              var isMrdCorruptM = remM.includes("MRD CORRPUT") || remM.includes("MRD CORRUPT");
+              if (!isMrdCorruptM) {
+                isMatchFieldEx = true;
+                exCategory = "Main Meter Exception";
+                rejectionSummary = remM || "NO REMARK";
+              }
             }
-            // 3. Pole Meter Exception
+            // 3. Pole Meter Exception (Excluding MRD Corrupt)
             else if (loadVal >= 10 && (
-              (["EXCEPTION", "MANUAL"].includes(exP) && !isMriP && exP !== "VISIT PENDING") ||
+              (["EXCEPTION", "MANUAL"].includes(exP) && !isMriP && exP !== "VISIT PENDING" && !remP.includes("MRD CORRPUT") && !remP.includes("MRD CORRUPT")) ||
               (exP === "MRI" && isMriP && remP === "METER RTC DEFECTIVE")
             )) {
               isMatchFieldEx = true;
@@ -6541,14 +6549,14 @@
         XLSX.writeFile(wb, `Consumer_360_Profile_${accNo}.xlsx`);
       }
 
-      // 🟢 EXACT COLORFUL UI-MATCHED SINGLE CONSUMER 360° PDF DOSSIER
+      // 🟢 100% ERROR-FREE DIRECT VECTOR PDF ENGINE (CLEAN SYNTAX)
       function downloadSingleConsumer360PDF() {
         if (!active360ConsumerRecord) return;
         var u = active360ConsumerRecord._uMap || active360ConsumerRecord;
         var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
         if (!jsPDFObj) return;
 
-        var doc = new jsPDFObj('p', 'pt', 'a4'); // A4 Portrait (595 x 842 pt)
+        var doc = new jsPDFObj('p', 'pt', 'a4'); // A4 Dimensions: 595 x 842 pt
         
         var getV = function(keys, def) {
           if (!Array.isArray(keys)) keys = [keys];
@@ -6570,12 +6578,11 @@
           return String(str).toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
         };
 
-        var accNo = getV(["ACCOUNT NO", "ACCOUNT ID", "ACCT_ID"]).padStart(10, '0');
-        var name = toProp(getV(["CONSUMER-NAME", "CONSUMER NAME", "NAME"]));
+        var rawAcc = String(getV(["ACCOUNT NO", "ACCOUNT ID", "ACCT_ID"])).replace(/_P$/i, '').replace(/\.0$/, '').trim();
+        var accNo = rawAcc.padStart(10, '0');
+        var conName = toProp(getV(["CONSUMER-NAME", "CONSUMER NAME", "NAME"]));
         var divName = getV(["DIVISION"]);
-        var dateStr = new Date().toLocaleDateString('en-GB');
 
-        // 🟢 Fetch Exact RDG Sheet / Database Readings for Main & Pole
         var mainMtrNum = getV(["LAST MONTH FINAL MM NO.", "BILLED METER NUMBER", "METER NUMBER", "METER NO."]);
         var poleMtrNum = getV(["LAST MONTH FINAL PM NO.", "FINAL VISITED POLE METER NO.", "POLE METER NO."]);
 
@@ -6587,132 +6594,250 @@
         var mainKw = (getV(["MRI MD KW", "MRI KW UHI"]) !== "-" ? getV(["MRI MD KW", "MRI KW UHI"]) : mainRdgs.kw) || "0.0";
         var mainKva = (getV(["MRI MD KVA", "MRI KVA UHI"]) !== "-" ? getV(["MRI MD KVA", "MRI KVA UHI"]) : mainRdgs.kva) || "0.0";
 
-        var poleKwh = (poleRdgs.kwh !== "0.0" ? poleRdgs.kwh : getV(["POLE MRI KWH", "KWH_H1"])) || "0.0";
-        var poleKvah = (poleRdgs.kvah !== "0.0" ? poleRdgs.kvah : getV(["POLE MRI KVAH", "KVAH_H1"])) || "0.0";
-        var poleKw = (poleRdgs.kw !== "0.0" ? poleRdgs.kw : getV(["POLE MRI MD KW", "KW_H1"])) || "0.0";
-        var poleKva = (poleRdgs.kva !== "0.0" ? poleRdgs.kva : getV(["POLE MRI MD KVA", "KVA_H1"])) || "0.0";
+        var poleKwh = (poleRdgs.kwh !== "0.0" && poleRdgs.kwh !== "-") ? poleRdgs.kwh : (getV(["POLE MRI KWH", "KWH_H1"]) !== "-" ? getV(["POLE MRI KWH", "KWH_H1"]) : "0.0");
+        var poleKvah = (poleRdgs.kvah !== "0.0" && poleRdgs.kvah !== "-") ? poleRdgs.kvah : (getV(["POLE MRI KVAH", "KVAH_H1"]) !== "-" ? getV(["POLE MRI KVAH", "KVAH_H1"]) : "0.0");
+        var poleKw = (poleRdgs.kw !== "0.0" && poleRdgs.kw !== "-") ? poleRdgs.kw : (getV(["POLE MRI MD KW", "KW_H1"]) !== "-" ? getV(["POLE MRI MD KW", "KW_H1"]) : "0.0");
+        var poleKva = (poleRdgs.kva !== "0.0" && poleRdgs.kva !== "-") ? poleRdgs.kva : (getV(["POLE MRI MD KVA", "KVA_H1"]) !== "-" ? getV(["POLE MRI MD KVA", "KVA_H1"]) : "0.0");
 
-        // 1. Top Header Banner (Exact UI Match Colors)
+        var isMainMri = ["TRUE", "YES", "1"].includes(getV(["IS MRI AVAILABLE (MAIN METER)"]).toUpperCase());
+        var isPoleMri = ["TRUE", "YES", "1"].includes(getV(["IS MRI AVAILABLE (POLE METER)"]).toUpperCase());
+        var isBilled = getV(["BILLING STATUS", "FINAL BILLING TAG"]).toUpperCase().includes("BILLED") && !getV(["BILLING STATUS"]).toUpperCase().includes("UNBILLED");
+
+        // 1. Top Navbar Header Banner
         doc.setFillColor(11, 60, 93);
-        doc.rect(15, 14, 565, 34, 'F');
+        doc.roundedRect(15, 12, 565, 34, 4, 4, 'F');
         doc.setFontSize(11);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(255, 255, 255);
-        doc.text("CONSUMER 360° COMPLETE PROFILE & AUDIT DOSSIER", 25, 28);
-        doc.setFontSize(8);
+        doc.text("CONSUMER 360 DEGREE COMPLETE PROFILE & AUDIT DOSSIER", 25, 26);
+        doc.setFontSize(7.8);
         doc.setFont("helvetica", "normal");
         doc.setTextColor(220, 230, 242);
-        doc.text(`${name} | Account No: ${accNo} | Division: ${divName}`, 25, 40);
+        doc.text(conName + " | Account No: " + accNo + " | Division: " + divName, 25, 38);
 
-        // 2. Section 1: Consumer Identity (Exact UI Matching Colors & 4-Column Grid)
-        var conTable = [
-          ["Account No: " + accNo, "Consumer Name: " + name, "Connection No: " + getV(["CONNECTION NUMBER", "CONNECTION NO"])],
-          ["Division: " + divName, "Sub Division: " + getV(["SUB DIVISION NAME", "SUBDIVISION"]), "Billing Cycle: " + getV(["BILLING CYCLE", "BILL CYCLE NAME"])],
-          ["Consumer Type: " + getV(["CONSUMER TYPE"]), "Consumer Category: " + getV(["CONSUMER CATOGARY", "CONSUMER CATEGORY", "TARIFF"]), "ST / Agency Status: " + getV(["ST"]) + " / " + getV(["AGENCY-STATUS", "AGENCY CONSUMER STATUS"])],
-          ["Mobile Number: " + getV(["Master Mobile Number", "MASTER MOBILE NUMBER", "PHONE"]), "Substation Name: " + toProp(getV(["MASTER-SUBSTATION NAME", "SUBSTATION"])), "Feeder Name: " + toProp(getV(["MASTER-FEEDER-NAME", "FEEDER"]))],
-          [{ content: "Complete Address: " + toProp(getV(["ADDRESS", "COMPLETE ADRESS"])), colSpan: 3 }]
-        ];
+        var curY = 52;
 
-        doc.autoTable({
-          head: [[{ content: "1. CONSUMER & CONNECTION IDENTITY", colSpan: 3, styles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 } }]],
-          body: conTable,
-          startY: 54,
-          margin: { left: 15, right: 15 },
-          theme: 'grid',
-          styles: { fontSize: 7, cellPadding: 2.8, valign: 'middle', lineColor: [215, 225, 235], lineWidth: 0.3, textColor: [30, 41, 59] },
-          columnStyles: {
-            0: { cellWidth: 180, fontStyle: 'bold', fillColor: [248, 250, 252] },
-            1: { cellWidth: 190 },
-            2: { cellWidth: 195 }
+        // 2. Section 1: Consumer & Connection Identity (Card 1)
+        var s1H = 92;
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(203, 213, 225);
+        doc.setLineWidth(0.8);
+        doc.roundedRect(15, curY, 565, s1H, 6, 6, 'FD');
+
+        doc.setFontSize(8.5);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(11, 60, 93);
+        doc.text("1. CONSUMER & CONNECTION IDENTITY", 25, curY + 14);
+        doc.setDrawColor(26, 115, 232);
+        doc.setLineWidth(1.2);
+        doc.line(25, curY + 17, 565, curY + 17);
+
+        function drawRowItem(lbl, val, x, y, valColor, isBadge) {
+          doc.setFontSize(7.2);
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(100, 116, 139);
+          doc.text(lbl, x, y);
+          var lblW = doc.getTextWidth(lbl) + 4;
+          
+          if (isBadge) {
+            doc.setFillColor(26, 115, 232);
+            doc.roundedRect(x + lblW, y - 6.5, 46, 9, 2, 2, 'F');
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(6.2);
+            doc.setTextColor(255, 255, 255);
+            doc.text(String(val), x + lblW + 23, y - 0.5, { align: "center" });
+          } else {
+            doc.setFont("helvetica", "bold");
+            if (valColor === "blue") doc.setTextColor(26, 115, 232);
+            else if (valColor === "green") doc.setTextColor(5, 150, 105);
+            else if (valColor === "red") doc.setTextColor(220, 38, 38);
+            else doc.setTextColor(15, 23, 42);
+            doc.text(String(val), x + lblW, y);
           }
-        });
+        }
 
-        // 3. Section 2: Contracted Load & MF
-        var loadTable = [
-          ["Contracted Load: " + getV(["LOAD IN KW", "LOAD"]) + " " + getV(["LOADUNIT", "UNIT"], "KW"), "Load Group: " + getV(["LOAD GROUP (5-10-50)", "LOAD GROUP"]), "Main Meter MF: " + getV(["MAIN METER MF", "METER MF"], "1.0000")],
-          ["Pole Meter MF: " + getV(["POLE METER MF (SAI PORTAL)", "POLE METER MF"], "1.0000"), "Activity By MR: " + getV(["Activity By MR", "ACTIVITY NAME"]), "Last Visit Date: " + getV(["FINAL VISIT DATE", "VISIT DATE", "FINAL VISIT_DATE"])]
-        ];
+        var r1 = curY + 28, r2 = curY + 40, r3 = curY + 52, r4 = curY + 64, r5 = curY + 76;
+        drawRowItem("Account No:", accNo, 25, r1, "black");
+        drawRowItem("Consumer Name:", conName, 205, r1, "blue");
+        drawRowItem("Connection No:", getV(["CONNECTION NUMBER", "CONNECTION NO"]), 410, r1, "black");
 
-        doc.autoTable({
-          head: [[{ content: "2. CONTRACTED LOAD & METER MULTIPLYING FACTORS (MF)", colSpan: 3, styles: { fillColor: [16, 185, 129], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 } }]],
-          body: loadTable,
-          startY: doc.lastAutoTable.finalY + 6,
-          margin: { left: 15, right: 15 },
-          theme: 'grid',
-          styles: { fontSize: 7, cellPadding: 2.8, valign: 'middle', lineColor: [215, 225, 235], lineWidth: 0.3, textColor: [30, 41, 59] },
-          columnStyles: {
-            0: { cellWidth: 185, fontStyle: 'bold', fillColor: [240, 253, 244] },
-            1: { cellWidth: 190 },
-            2: { cellWidth: 190 }
-          }
-        });
+        drawRowItem("Division:", divName, 25, r2, "black");
+        drawRowItem("Sub Division:", getV(["SUB DIVISION NAME", "SUBDIVISION"]), 205, r2, "black");
+        drawRowItem("Billing Cycle:", getV(["BILLING CYCLE", "BILL CYCLE NAME"]), 410, r2, "black");
 
-        // 4. Section 3: Main Meter vs Pole Meter Status & Actual Readings (UI Color Matched Cards)
-        var meterTable = [
-          ["Billed Meter No", getV(["BILLED METER NUMBER", "MASTER METER NUMBER"]), "-"],
-          ["Master Meter Make", getV(["MASTER METER MAKE"]), "-"],
-          ["LM Main / Pole Meter No", getV(["LAST MONTH FINAL MM NO."]), getV(["LAST MONTH FINAL PM NO."])],
-          ["LM Main / Pole Make", getV(["LAST MONTH FINAL MM MAKE"]), getV(["LAST MONTH FINAL PM MAKE"])],
-          ["Exception Type", getV(["EXCEPTION TYPE (MAIN METER)"]), getV(["EXCEPTION TYPE (POLE METER)"])],
-          ["Site Observation", getV(["FINAL_MAIN_METER_SITE_REMARK", "SITE REMARK"]), getV(["FINAL_POLE_METER_SITE_REMARK", "SITE REMARK (POLE)"])],
-          ["Field Remark", getV(["REMARK", "M_REMARK"]), getV(["REMARK", "M_REMARK"])],
-          ["kWh Reading", mainKwh, poleKwh],
-          ["kVAh Reading", mainKvah, poleKvah],
-          ["MD (kW)", mainKw, poleKw],
-          ["MD (kVA)", mainKva, poleKva]
-        ];
+        drawRowItem("Consumer Type:", getV(["CONSUMER TYPE"]), 25, r3, "white", true);
+        drawRowItem("Consumer Category:", getV(["CONSUMER CATOGARY", "CONSUMER CATEGORY", "TARIFF"]), 205, r3, "black");
+        drawRowItem("ST / Agency Status:", getV(["ST"]) + " / " + getV(["AGENCY-STATUS", "AGENCY CONSUMER STATUS"]), 410, r3, "black");
 
-        doc.autoTable({
-          head: [
-            [
-              { content: "MAIN METER STATUS", styles: { fillColor: [239, 246, 255], textColor: [29, 78, 216], fontStyle: 'bold', fontSize: 8, halign: 'left' } },
-              { content: "", styles: { fillColor: [239, 246, 255] } },
-              { content: "POLE METER STATUS & RDG READINGS", styles: { fillColor: [240, 253, 244], textColor: [4, 120, 87], fontStyle: 'bold', fontSize: 8, halign: 'right' } }
-            ],
-            [
-              { content: "Parameter / Field", styles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' } },
-              { content: "MAIN METER (Consumer)", styles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontStyle: 'bold' } },
-              { content: "POLE METER (RDG / XML)", styles: { fillColor: [5, 150, 105], textColor: [255, 255, 255], fontStyle: 'bold' } }
-            ]
-          ],
-          body: meterTable,
-          startY: doc.lastAutoTable.finalY + 6,
-          margin: { left: 15, right: 15 },
-          theme: 'grid',
-          styles: { fontSize: 7, cellPadding: 2.6, halign: 'center', valign: 'middle', lineColor: [215, 225, 235], lineWidth: 0.3 },
-          columnStyles: {
-            0: { cellWidth: 155, fontStyle: 'bold', halign: 'left', fillColor: [248, 250, 252] },
-            1: { cellWidth: 205, fillColor: [239, 246, 255] },
-            2: { cellWidth: 205, fillColor: [240, 253, 244] }
-          }
-        });
+        drawRowItem("Mobile Number:", getV(["Master Mobile Number", "MASTER MOBILE NUMBER", "PHONE"]), 25, r4, "black");
+        drawRowItem("Substation Name:", toProp(getV(["MASTER-SUBSTATION NAME", "SUBSTATION"])), 205, r4, "black");
+        drawRowItem("Feeder Name:", toProp(getV(["MASTER-FEEDER-NAME", "FEEDER"])), 410, r4, "black");
 
-        // 5. Section 4: Billing Execution & Field Dispatch Status
-        var billingTable = [
-          ["Billing Status: " + getV(["BILLING STATUS", "FINAL BILLING TAG"]), "Billed Date: " + getV(["BILLED DATE", "BILL_DATE"]), "Billing Basis: " + getV(["BILL_BASE", "BILLBASE"])],
-          ["Assigned MR Name: " + toProp(getV(["MR NAME", "VISIT LAST MONTH"])), { content: "", colSpan: 2 }]
-        ];
-
-        doc.autoTable({
-          head: [[{ content: "4. BILLING EXECUTION & FIELD DISPATCH STATUS", colSpan: 3, styles: { fillColor: [230, 126, 34], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 } }]],
-          body: billingTable,
-          startY: doc.lastAutoTable.finalY + 6,
-          margin: { left: 15, right: 15 },
-          theme: 'grid',
-          styles: { fontSize: 7, cellPadding: 2.8, valign: 'middle', lineColor: [215, 225, 235], lineWidth: 0.3, textColor: [30, 41, 59] },
-          columnStyles: {
-            0: { cellWidth: 185, fontStyle: 'bold', fillColor: [254, 243, 199] },
-            1: { cellWidth: 190 },
-            2: { cellWidth: 190 }
-          }
-        });
-
-        // Footer Note
         doc.setFontSize(7.2);
-        doc.setTextColor(120, 120, 120);
-        doc.text("Report Generated on: " + dateStr + " | Sai Computers Ltd RMS Portal Mainpuri", 15, doc.internal.pageSize.height - 12);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100, 116, 139);
+        doc.text("Complete Address:", 25, r5);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(15, 23, 42);
+        var addrLines = doc.splitTextToSize(toProp(getV(["ADDRESS", "COMPLETE ADRESS"])), 470);
+        doc.text(addrLines, 102, r5);
 
-        doc.save(`Consumer_360_Profile_${accNo}.pdf`);
+        curY += s1H + 8;
+
+        // 3. Section 2: Contracted Load & MF (Card 2)
+        var s2H = 54;
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(203, 213, 225);
+        doc.roundedRect(15, curY, 565, s2H, 6, 6, 'FD');
+
+        doc.setFontSize(8.5);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(11, 60, 93);
+        doc.text("2. CONTRACTED LOAD & METER MULTIPLYING FACTORS (MF)", 25, curY + 14);
+        doc.setDrawColor(16, 185, 129);
+        doc.setLineWidth(1.2);
+        doc.line(25, curY + 17, 565, curY + 17);
+
+        var rL1 = curY + 28, rL2 = curY + 42;
+        drawRowItem("Contracted Load:", getV(["LOAD IN KW", "LOAD"]) + " " + getV(["LOADUNIT", "UNIT"], "KW"), 25, rL1, "green");
+        drawRowItem("Load Group:", getV(["LOAD GROUP (5-10-50)", "LOAD GROUP"]), 205, rL1, "black");
+        drawRowItem("Main Meter MF:", getV(["MAIN METER MF", "METER MF"], "1.0000"), 410, rL1, "black");
+
+        drawRowItem("Pole Meter MF:", getV(["POLE METER MF (SAI PORTAL)", "POLE METER MF"], "1.0000"), 25, rL2, "black");
+        drawRowItem("Activity By MR:", getV(["Activity By MR", "ACTIVITY NAME"]), 205, rL2, "black");
+        drawRowItem("Last Visit Date:", getV(["FINAL VISIT DATE", "VISIT DATE", "FINAL VISIT_DATE"]), 410, rL2, "black");
+
+        curY += s2H + 8;
+
+        // 4. Section 3: Side-by-Side Cards (Card 3)
+        var cardW = 276;
+        var cardH = 158;
+        var leftX = 15;
+        var rightX = 304;
+
+        // LEFT CARD: MAIN METER
+        doc.setFillColor(239, 246, 255);
+        doc.setDrawColor(191, 219, 254);
+        doc.roundedRect(leftX, curY, cardW, cardH, 6, 6, 'FD');
+
+        doc.setFontSize(8.2);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(29, 78, 216);
+        doc.text("MAIN METER STATUS", leftX + 10, curY + 14);
+
+        doc.setFillColor(isMainMri ? 22 : 220, isMainMri ? 163 : 38, isMainMri ? 74 : 38);
+        doc.roundedRect(leftX + cardW - 52, curY + 5.5, 42, 11, 2, 2, 'F');
+        doc.setFontSize(6.2); doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold");
+        doc.text("MRI: " + (isMainMri ? "True" : "False"), leftX + cardW - 31, curY + 13.5, { align: "center" });
+
+        function drawCardRow(lbl, val, x, y, isRed) {
+          doc.setFontSize(6.8);
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(100, 116, 139);
+          doc.text(lbl, x, y);
+          doc.setFont("helvetica", "bold");
+          if (isRed) doc.setTextColor(220, 38, 38); else doc.setTextColor(15, 23, 42);
+          doc.text(String(val), x + 82, y);
+        }
+
+        var mY = curY + 28, mGap = 11;
+        drawCardRow("Billed Meter No:", getV(["BILLED METER NUMBER", "MASTER METER NUMBER"]), leftX + 10, mY, false);
+        drawCardRow("Master Meter Make:", getV(["MASTER METER MAKE"]), leftX + 10, mY + mGap, false);
+        drawCardRow("LM Main Meter No:", getV(["LAST MONTH FINAL MM NO."]), leftX + 10, mY + mGap * 2, false);
+        drawCardRow("LM Main Meter Make:", getV(["LAST MONTH FINAL MM MAKE"]), leftX + 10, mY + mGap * 3, false);
+        drawCardRow("Exception Type:", getV(["EXCEPTION TYPE (MAIN METER)"]), leftX + 10, mY + mGap * 4, true);
+        drawCardRow("Site Observation:", getV(["FINAL_MAIN_METER_SITE_REMARK", "SITE REMARK"]), leftX + 10, mY + mGap * 5, false);
+
+        doc.setDrawColor(191, 219, 254);
+        doc.setLineDashPattern([2, 2], 0);
+        doc.line(leftX + 10, curY + 98, leftX + cardW - 10, curY + 98);
+        doc.setLineDashPattern([], 0);
+
+        doc.setFontSize(7.2); doc.setFont("helvetica", "bold"); doc.setTextColor(29, 78, 216);
+        doc.text("MRI Readings (Main):", leftX + 10, curY + 110);
+
+        doc.setFontSize(6.8); doc.setTextColor(15, 23, 42);
+        doc.text("kWh: " + mainKwh + " | kVAh: " + mainKvah, leftX + 10, curY + 124);
+        doc.text("MD (kW): " + mainKw + " | MD (kVA): " + mainKva, leftX + 10, curY + 138);
+
+        // RIGHT CARD: POLE METER
+        doc.setFillColor(240, 253, 244);
+        doc.setDrawColor(187, 247, 208);
+        doc.roundedRect(rightX, curY, cardW, cardH, 6, 6, 'FD');
+
+        doc.setFontSize(8.2);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(4, 120, 87);
+        doc.text("POLE METER STATUS & RDG READINGS", rightX + 10, curY + 14);
+
+        doc.setFillColor(isPoleMri ? 22 : 100, isPoleMri ? 163 : 116, isPoleMri ? 74 : 139);
+        doc.roundedRect(rightX + cardW - 52, curY + 5.5, 42, 11, 2, 2, 'F');
+        doc.setFontSize(6.2); doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold");
+        doc.text("MRI: " + (isPoleMri ? "True" : "False"), rightX + cardW - 31, curY + 13.5, { align: "center" });
+
+        var pY = curY + 28;
+        drawCardRow("LM Pole Meter No:", getV(["LAST MONTH FINAL PM NO."]), rightX + 10, pY, false);
+        drawCardRow("LM Pole Make:", getV(["LAST MONTH FINAL PM MAKE"]), rightX + 10, pY + mGap, false);
+        drawCardRow("Exception Type:", getV(["EXCEPTION TYPE (POLE METER)"]), rightX + 10, pY + mGap * 2, true);
+        drawCardRow("Site Observation:", getV(["FINAL_POLE_METER_SITE_REMARK", "SITE REMARK (POLE)"]), rightX + 10, pY + mGap * 3, false);
+        drawCardRow("Field Remark:", getV(["REMARK", "M_REMARK"]), rightX + 10, pY + mGap * 4, false);
+
+        doc.setDrawColor(187, 247, 208);
+        doc.setLineDashPattern([2, 2], 0);
+        doc.line(rightX + 10, curY + 98, rightX + cardW - 10, curY + 98);
+        doc.setLineDashPattern([], 0);
+
+        doc.setFontSize(7.2); doc.setFont("helvetica", "bold"); doc.setTextColor(4, 120, 87);
+        doc.text("Pole Meter Readings (RDG Sheet):", rightX + 10, curY + 110);
+
+        doc.setFontSize(6.8); doc.setTextColor(15, 23, 42);
+        doc.text("kWh: " + poleKwh + " | kVAh: " + poleKvah, rightX + 10, curY + 124);
+        doc.text("MD (kW): " + poleKw + " | MD (kVA): " + poleKva, rightX + 10, curY + 138);
+
+        curY += cardH + 8;
+
+        // 5. Section 4: Billing Execution (Card 4)
+        var s4H = 50;
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(203, 213, 225);
+        doc.roundedRect(15, curY, 565, s4H, 6, 6, 'FD');
+
+        doc.setFontSize(8.5);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(11, 60, 93);
+        doc.text("4. BILLING EXECUTION, BASIS & FIELD REMARKS", 25, curY + 14);
+        doc.setDrawColor(245, 158, 11);
+        doc.setLineWidth(1.2);
+        doc.line(25, curY + 17, 565, curY + 17);
+
+        var rB1 = curY + 28, rB2 = curY + 40;
+        
+        doc.setFontSize(7.2);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100, 116, 139);
+        doc.text("Billing Status:", 25, rB1);
+        
+        doc.setFillColor(isBilled ? 22 : 220, isBilled ? 163 : 38, isBilled ? 74 : 38);
+        doc.roundedRect(78, rB1 - 6.5, 38, 9, 2, 2, 'F');
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(6.2);
+        doc.setTextColor(255, 255, 255);
+        doc.text(getV(["BILLING STATUS", "FINAL BILLING TAG"]), 97, rB1 - 0.5, { align: "center" });
+
+        drawRowItem("Billed Date:", getV(["BILLED DATE", "BILL_DATE"]), 205, rB1, "black");
+        drawRowItem("Bill Basis:", getV(["BILL_BASE", "BILLBASE", "BILL_BASIS"]), 410, rB1, "black");
+        drawRowItem("Assigned MR Name:", toProp(getV(["MR NAME", "VISIT LAST MONTH"])), 25, rB2, "black");
+
+        // 6. Footer Note
+        doc.setFontSize(7);
+        doc.setTextColor(140, 140, 140);
+        doc.setFont("helvetica", "normal");
+        var now = new Date();
+        var dateStr = now.toLocaleDateString("en-GB");
+        doc.text("Report Generated on: " + dateStr + " | Sai Computers Ltd RMS Portal Mainpuri", 15, 830);
+
+        // 🟢 Exact File Name Format: Consumer_Info_[Account_ID].pdf
+        doc.save("Consumer_Info_" + accNo + ".pdf");
       }
 
       function showAnalyticsDashboard(event) {
@@ -8816,7 +8941,9 @@ tBody.appendChild(fragment);
               filterFn: function(u) {
                 var exM = String(u["EXCEPTION TYPE (MAIN METER)"] || "").toUpperCase().trim();
                 var isMriM = String(u["IS MRI AVAILABLE (MAIN METER)"] || "").toUpperCase() === "TRUE";
-                return ["EXCEPTION", "EXCEPTION (NO_MTR)", "MANUAL"].includes(exM) && !isMriM && exM !== "VISIT PENDING";
+                var remM = String(u["FINAL_MAIN_METER_SITE_REMARK"] || "").toUpperCase().trim();
+                var isMrdCorrupt = remM.includes("MRD CORRPUT") || remM.includes("MRD CORRUPT");
+                return ["EXCEPTION", "EXCEPTION (NO_MTR)", "MANUAL"].includes(exM) && !isMriM && exM !== "VISIT PENDING" && !isMrdCorrupt;
               }
             },
             { 
@@ -8827,8 +8954,9 @@ tBody.appendChild(fragment);
                 var isMriP = String(u["IS MRI AVAILABLE (POLE METER)"] || "").toUpperCase() === "TRUE";
                 var exP = String(u["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
                 var remP = String(u["FINAL_POLE_METER_SITE_REMARK"] || "").toUpperCase().trim();
+                var isMrdCorruptP = remP.includes("MRD CORRPUT") || remP.includes("MRD CORRUPT");
                 return loadVal >= 10 && (
-                  (["EXCEPTION", "MANUAL"].includes(exP) && !isMriP && exP !== "VISIT PENDING") ||
+                  (["EXCEPTION", "MANUAL"].includes(exP) && !isMriP && exP !== "VISIT PENDING" && !isMrdCorruptP) ||
                   (exP === "MRI" && isMriP && remP === "METER RTC DEFECTIVE")
                 );
               }
@@ -9141,11 +9269,12 @@ tBody.appendChild(fragment);
 
           XLSX.utils.book_append_sheet(wbFieldEx, wsSum, "📊 DETAILED SUMMARY");
 
-          // 2. Charo Sheets alag-alag populate karein
+          // 2. Charo Sheets alag-alag populate karein (Keval 1 Single 'Rejection Reason' Column)
           subCategoryConfigs.forEach(function(cfg) {
             var sheetRows = [];
-            var sheetHeaders = (cfg.sheetName === "Rejection After MRI") 
-              ? baseHeaders.concat(["Export Status", "Export Failure Message"])
+            var isRejectionSheet = (cfg.sheetName === "Rejection After MRI" || cfg.sheetName === "MRI Done But Reject");
+            var sheetHeaders = isRejectionSheet 
+              ? baseHeaders.concat(["Rejection Reason"])
               : baseHeaders;
 
             sheetRows.push(sheetHeaders);
@@ -9186,8 +9315,9 @@ tBody.appendChild(fragment);
                   String(u["MASTER MOBILE NUMBER"] || u["MR MOBILE NO."] || "")
                 ];
 
-                if (cfg.sheetName === "Rejection After MRI") {
-                  rowItem.push(String(u["EXPORT STATUS"] || ""), String(u["EXPORT FAILURE MESSAGE"] || ""));
+                if (isRejectionSheet) {
+                  var rejReason = String(row["REJECTION SUMMARY"] || u["EXPORT FAILURE MESSAGE"] || siteRem || "NO REMARK");
+                  rowItem.push(rejReason);
                 }
 
                 sheetRows.push(rowItem);
@@ -9199,7 +9329,7 @@ tBody.appendChild(fragment);
             if (wsSub['!ref']) {
               var range = XLSX.utils.decode_range(wsSub['!ref']);
               var colWidths = [{ wch: 8 }, { wch: 18 }, { wch: 14 }, { wch: 16 }, { wch: 25 }, { wch: 28 }, { wch: 12 }, { wch: 16 }, { wch: 15 }, { wch: 18 }, { wch: 16 }, { wch: 18 }, { wch: 26 }, { wch: 15 }, { wch: 18 }, { wch: 16 }];
-              if (cfg.sheetName === "Rejection After MRI") { colWidths.push({ wch: 16 }, { wch: 28 }); }
+              if (isRejectionSheet) { colWidths.push({ wch: 32 }); }
               wsSub['!cols'] = colWidths;
 
               for (var R = range.s.r; R <= range.e.r; ++R) {
@@ -9240,21 +9370,30 @@ tBody.appendChild(fragment);
         }
 
         // ==========================================
-        // 🟢 1. SUMMARY GRID SHEET (DYNAMIC EXCEL FORMULAS INTEGRATED)
+        // 🟢 1. FULLY DYNAMIC SUMMARY GRID SHEET (WITH WORKING FORMULAS & RECALCULATION)
         // ==========================================
         var matrixTable = document.getElementById('matrix-pivot-table');
-        var wsSummary = XLSX.utils.table_to_sheet(matrixTable, { raw: true });
+        var wsSummary = XLSX.utils.table_to_sheet(matrixTable, { raw: false });
 
         if (wsSummary && wsSummary['!ref']) {
           var rangeSum = XLSX.utils.decode_range(wsSummary['!ref']);
           
-          var sumCols = [{ wch: 38 }, { wch: 14 }];
+          var sumCols = [{ wch: 42 }, { wch: 15 }];
           for (var c = 2; c <= rangeSum.e.c; c++) {
-            sumCols.push({ wch: 11 });
+            sumCols.push({ wch: 12 });
           }
           wsSummary['!cols'] = sumCols;
 
-          var grandTotalRowIndex = rangeSum.e.r; // आखिरी रो Grand Total है
+          var grandTotalRowIndex = rangeSum.e.r;
+          var divisionHeaderRows = [];
+
+          for (var R = 3; R < grandTotalRowIndex; ++R) {
+            var cellA = wsSummary[XLSX.utils.encode_cell({ r: R, c: 0 })];
+            var txt = cellA ? String(cellA.v || "").toUpperCase().trim() : "";
+            if (txt.includes("EDD-") || txt.includes("DIVISION") || txt.includes("MAINPURI")) {
+              divisionHeaderRows.push(R);
+            }
+          }
 
           for (var R = rangeSum.s.r; R <= rangeSum.e.r; ++R) {
             var labelCellAddr = XLSX.utils.encode_cell({ r: R, c: 0 });
@@ -9266,47 +9405,50 @@ tBody.appendChild(fragment);
               var cellAddr = XLSX.utils.encode_cell({ r: R, c: C });
               if (!wsSummary[cellAddr]) continue;
 
-              var cellText = String(wsSummary[cellAddr].v || "").toUpperCase();
+              var excelRowNum = R + 1;
 
-              // 🟢 DYNAMIC EXCEL FORMULAS ENGINES
               if (R >= 3) {
-                var excelRowNum = R + 1;
+                // Ensure numeric default
+                var rawVal = wsSummary[cellAddr].v;
+                var numVal = (!isNaN(Number(rawVal)) && rawVal !== "") ? Number(rawVal) : 0;
 
-                // 1. Group Totals (Govt + Non-Govt = Total)
-                // Col 4 (Total) = Col 2 (Govt) + Col 3 (Non-Govt)
-                if (C === 4 && wsSummary[XLSX.utils.encode_cell({ r: R, c: 2 })]) {
-                  var cGovt = XLSX.utils.encode_col(2) + excelRowNum;
-                  var cNonGovt = XLSX.utils.encode_col(3) + excelRowNum;
-                  wsSummary[cellAddr].f = `SUM(${cGovt},${cNonGovt})`;
+                // G1 Total (Col 4 = Col 2 + Col 3)
+                if (C === 4) {
+                  var cG1_g = XLSX.utils.encode_col(2) + excelRowNum;
+                  var cG1_ng = XLSX.utils.encode_col(3) + excelRowNum;
+                  wsSummary[cellAddr] = { t: 'n', v: numVal, f: `${cG1_g}+${cG1_ng}` };
                 }
-                // Col 7 (Total) = Col 5 + Col 6
-                else if (C === 7 && wsSummary[XLSX.utils.encode_cell({ r: R, c: 5 })]) {
-                  var cGovt2 = XLSX.utils.encode_col(5) + excelRowNum;
-                  var cNonGovt2 = XLSX.utils.encode_col(6) + excelRowNum;
-                  wsSummary[cellAddr].f = `SUM(${cGovt2},${cNonGovt2})`;
+                // G2 Total (Col 7 = Col 5 + Col 6)
+                else if (C === 7) {
+                  var cG2_g = XLSX.utils.encode_col(5) + excelRowNum;
+                  var cG2_ng = XLSX.utils.encode_col(6) + excelRowNum;
+                  wsSummary[cellAddr] = { t: 'n', v: numVal, f: `${cG2_g}+${cG2_ng}` };
                 }
-                // Col 10 (Total) = Col 8 + Col 9
-                else if (C === 10 && wsSummary[XLSX.utils.encode_cell({ r: R, c: 8 })]) {
-                  var cGovt3 = XLSX.utils.encode_col(8) + excelRowNum;
-                  var cNonGovt3 = XLSX.utils.encode_col(9) + excelRowNum;
-                  wsSummary[cellAddr].f = `SUM(${cGovt3},${cNonGovt3})`;
+                // G3 Total (Col 10 = Col 8 + Col 9)
+                else if (C === 10) {
+                  var cG3_g = XLSX.utils.encode_col(8) + excelRowNum;
+                  var cG3_ng = XLSX.utils.encode_col(9) + excelRowNum;
+                  wsSummary[cellAddr] = { t: 'n', v: numVal, f: `${cG3_g}+${cG3_ng}` };
                 }
-                // Row Total (Col 1) = Col 4 + Col 7 + Col 10
+                // Row Total Count (Col 1)
                 else if (C === 1 && !isGrandTotalRow) {
                   var tG1 = XLSX.utils.encode_col(4) + excelRowNum;
                   var tG2 = XLSX.utils.encode_col(7) + excelRowNum;
                   var tG3 = XLSX.utils.encode_col(10) + excelRowNum;
-                  wsSummary[cellAddr].f = `SUM(${tG1},${tG2},${tG3})`;
+                  wsSummary[cellAddr] = { t: 'n', v: numVal, f: `${tG1}+${tG2}+${tG3}` };
                 }
-                // 2. Grand Total Row Dynamic Formula (पूरे कॉलम का जोड़)
+                // Grand Total Row Formula
                 else if (isGrandTotalRow && C >= 1) {
-                  var colLetter = XLSX.utils.encode_col(C);
-                  wsSummary[cellAddr].f = `SUM(${colLetter}4:${colLetter}${R})`;
+                  var colLtr = XLSX.utils.encode_col(C);
+                  if (divisionHeaderRows.length > 0) {
+                    var divCells = divisionHeaderRows.map(function(rIdx) { return colLtr + (rIdx + 1); });
+                    wsSummary[cellAddr] = { t: 'n', v: numVal, f: `SUM(${divCells.join(",")})` };
+                  } else {
+                    wsSummary[cellAddr] = { t: 'n', v: numVal, f: `SUM(${colLtr}4:${colLtr}${R})` };
+                  }
                 }
-                // Normal Number Cells
-                else if (!isNaN(Number(wsSummary[cellAddr].v))) {
-                  wsSummary[cellAddr].t = 'n';
-                  wsSummary[cellAddr].v = Number(wsSummary[cellAddr].v);
+                else if (C > 0) {
+                  wsSummary[cellAddr] = { t: 'n', v: numVal };
                 }
               }
 
