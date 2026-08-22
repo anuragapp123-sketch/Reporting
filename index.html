@@ -2300,7 +2300,7 @@
 
     <script>
       // 🟢 Google Apps Script का डिप्लॉयड Web App URL यहाँ पेस्ट करें
-      var APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyEgwU7CwcpXYad74svDBNpA--kbUPQVckhIfREvgUFIDILTK4MWIX4xjrgwPCs1yF4/exec";
+      var APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyiqxxAriXTw7K2i3gVrUE7bLBOGpwE3pIbNF-y9oa3ipDgYwOZwvn4FhI5EaisFhtsFQ/exec";
 
       var cachedReportsConfig = [];
       var cachedDatabase = [];
@@ -2666,6 +2666,7 @@
           "rpt_indep_consumers",
           "rpt_independent_consumers",
           "rpt_pendency_remark",
+          "rpt_mri_pending_all",
           "btn-analytics-dashboard",
           "btn-field-exception-report",
           "btn-daily-upload-tool",
@@ -3134,6 +3135,64 @@
             row["HLT"] = hltVal || "N/A";
             row["EXCEPTION TYPE"] = String(upperRowMap["EXCEPTION TYPE (MAIN METER)"] || "N/A");
             row["IS MRI AVAILABLE"] = String(upperRowMap["IS MRI AVAILABLE (MAIN METER)"] || "False");
+          }
+
+          // 🟢 INVENTIVE & SAI PORTAL POLE METER MISMATCH ENGINE (WITH MAKE COMPARISON)
+          var rptNameUpper = String(activeReportMeta.name || "").toUpperCase();
+          var isInventiveVsOur = rptNameUpper.includes("INVENTIVE") && rptNameUpper.includes("POLE");
+          var isSaiVsOur = rptNameUpper.includes("SAI PORTAL") && rptNameUpper.includes("POLE");
+
+          if (isInventiveVsOur || isSaiVsOur) {
+            function cleanMtrStr(v) {
+              if (v === undefined || v === null) return "";
+              var s = String(v).trim().toUpperCase();
+              if (s === "" || s === "NAN" || s === "NULL" || s === "BLANK" || s === "NONE" || s === "-" || s === "0" || s === "NO_MTR" || s === "NOPOLE" || s === "NOT INSTALLED") return "";
+              return s.replace(/[^A-Z0-9]/gi, "");
+            }
+
+            var exPole = String(upperRowMap["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
+            if (exPole !== "MRI") continue;
+
+            var lmPoleNo = cleanMtrStr(upperRowMap["LAST MONTH FINAL PM NO."]);
+            if (!lmPoleNo) continue; // Last month meter number blank nahi hona chahiye
+
+            var comparePoleNo = "";
+            var comparePoleMake = "";
+            var lmPoleMake = cleanMtrStr(upperRowMap["LAST MONTH FINAL PM MAKE"]);
+
+            if (isInventiveVsOur) {
+              comparePoleNo = cleanMtrStr(upperRowMap["FIELD METER NUMBER (POLE)"] || upperRowMap["INVENTIVE VISIT POLE METER NUMBER"] || upperRowMap["INENTIVE VISIT METER NUMBER"]);
+              comparePoleMake = cleanMtrStr(upperRowMap["FIELD METER MAKE (POLE)"] || upperRowMap["INVENTIVE VISIT POLE METER MAKE"]);
+            } else if (isSaiVsOur) {
+              comparePoleNo = cleanMtrStr(upperRowMap["SAI PORTAL POLE MTR NO."] || upperRowMap["FINAL VISITED POLE METER NO."]);
+              comparePoleMake = cleanMtrStr(upperRowMap["FINAL VISITED POLE METER MAKE"]);
+            }
+
+            // Mismatch condition: Compare meter hona chahiye aur Last Month se different hona chahiye
+            if (!comparePoleNo || comparePoleNo === lmPoleNo) continue;
+
+            // 🟢 Dynamic Status Calculation for Meter & Make
+            var isMtrMatch = (lmPoleNo === comparePoleNo);
+            var isMakeMatch = (lmPoleMake && comparePoleMake && lmPoleMake === comparePoleMake);
+
+            var matchStatus = "";
+            if (isMtrMatch && isMakeMatch) {
+              matchStatus = "Meter Number Match & Make Match";
+            } else if (isMtrMatch && !isMakeMatch) {
+              matchStatus = "Meter Number Match But Make Mismatch";
+            } else if (!isMtrMatch && isMakeMatch) {
+              matchStatus = "Meter Number Mismatch But Make Match";
+            } else {
+              matchStatus = "Meter Number & Make Mismatch";
+            }
+
+            row["METER & MAKE MATCH STATUS"] = matchStatus;
+            row["STATUS SUMMARY"] = matchStatus;
+
+            // Agar columns list me yeh naya column nahi hai to add karein
+            if (!configCols.includes("METER & MAKE MATCH STATUS")) {
+              configCols.push("METER & MAKE MATCH STATUS");
+            }
           }
 
           // 🟢 FIELD EXCEPTION & REJECTION V131.0 EXACT ENGINE FILTER (EXACT EXCEL MATCH)
@@ -6489,71 +6548,138 @@
         var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
         if (!jsPDFObj) return;
 
-        var doc = new jsPDFObj('p', 'pt', 'a4'); // A4 Portrait
-        var accNo = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").padStart(10, '0');
-        var name = String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "").toUpperCase();
+        var doc = new jsPDFObj('p', 'pt', 'a4'); // A4 Portrait (595 x 842 pt)
+        
+        var getV = function(keys, def) {
+          if (!Array.isArray(keys)) keys = [keys];
+          for (var i = 0; i < keys.length; i++) {
+            var k = keys[i];
+            var normK = k.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            for (var prop in u) {
+              if (prop.toUpperCase().replace(/[^A-Z0-9]/g, '') === normK) {
+                var val = u[prop];
+                if (val !== undefined && val !== null && String(val).trim() !== "") return String(val).trim();
+              }
+            }
+          }
+          return def || "-";
+        };
+
+        var toProp = function(str) {
+          if (!str || str === "-") return "-";
+          return String(str).toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+        };
+
+        var accNo = getV(["ACCOUNT NO", "ACCOUNT ID", "ACCT_ID"]).padStart(10, '0');
+        var name = toProp(getV(["CONSUMER-NAME", "CONSUMER NAME", "NAME"]));
+        var divName = getV(["DIVISION"]);
         var dateStr = new Date().toLocaleDateString('en-GB');
 
-        // Top Gradient Header Banner
+        // 🟢 Fetch Exact RDG Sheet / Database Readings for Main & Pole
+        var mainMtrNum = getV(["LAST MONTH FINAL MM NO.", "BILLED METER NUMBER", "METER NUMBER", "METER NO."]);
+        var poleMtrNum = getV(["LAST MONTH FINAL PM NO.", "FINAL VISITED POLE METER NO.", "POLE METER NO."]);
+
+        var mainRdgs = (typeof getMeterRdgsFromDatabase === "function") ? getMeterRdgsFromDatabase(mainMtrNum) : { kwh: "0.0", kvah: "0.0", kw: "0.0", kva: "0.0" };
+        var poleRdgs = (typeof getMeterRdgsFromDatabase === "function") ? getMeterRdgsFromDatabase(poleMtrNum) : { kwh: "0.0", kvah: "0.0", kw: "0.0", kva: "0.0" };
+
+        var mainKwh = (getV(["MRI KWH", "MRIKWH"]) !== "-" ? getV(["MRI KWH", "MRIKWH"]) : mainRdgs.kwh) || "0.0";
+        var mainKvah = (getV(["MRI KVAH", "MRIKVAH"]) !== "-" ? getV(["MRI KVAH", "MRIKVAH"]) : mainRdgs.kvah) || "0.0";
+        var mainKw = (getV(["MRI MD KW", "MRI KW UHI"]) !== "-" ? getV(["MRI MD KW", "MRI KW UHI"]) : mainRdgs.kw) || "0.0";
+        var mainKva = (getV(["MRI MD KVA", "MRI KVA UHI"]) !== "-" ? getV(["MRI MD KVA", "MRI KVA UHI"]) : mainRdgs.kva) || "0.0";
+
+        var poleKwh = (poleRdgs.kwh !== "0.0" ? poleRdgs.kwh : getV(["POLE MRI KWH", "KWH_H1"])) || "0.0";
+        var poleKvah = (poleRdgs.kvah !== "0.0" ? poleRdgs.kvah : getV(["POLE MRI KVAH", "KVAH_H1"])) || "0.0";
+        var poleKw = (poleRdgs.kw !== "0.0" ? poleRdgs.kw : getV(["POLE MRI MD KW", "KW_H1"])) || "0.0";
+        var poleKva = (poleRdgs.kva !== "0.0" ? poleRdgs.kva : getV(["POLE MRI MD KVA", "KVA_H1"])) || "0.0";
+
+        // 1. Top Header Banner (Exact UI Match Colors)
         doc.setFillColor(11, 60, 93);
-        doc.rect(15, 14, 565, 30, 'F');
+        doc.rect(15, 14, 565, 34, 'F');
         doc.setFontSize(11);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(255, 255, 255);
-        doc.text("SAI COMPUTERS LTD - CONSUMER 360° COMPLETE AUDIT DOSSIER", 25, 33);
+        doc.text("CONSUMER 360° COMPLETE PROFILE & AUDIT DOSSIER", 25, 28);
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(220, 230, 242);
+        doc.text(`${name} | Account No: ${accNo} | Division: ${divName}`, 25, 40);
 
-        // Section 1: Consumer Info
+        // 2. Section 1: Consumer Identity (Exact UI Matching Colors & 4-Column Grid)
         var conTable = [
-          ["Account No", accNo, "Consumer Name", name],
-          ["Division", String(u["DIVISION"] || "-"), "Sub Division", String(u["SUB DIVISION NAME"] || "-")],
-          ["Connection No", String(u["CONNECTION NUMBER"] || "-"), "Billing Cycle", String(u["BILLING CYCLE"] || "-")],
-          ["Consumer Type", String(u["CONSUMER TYPE"] || "-"), "Category / Tariff", String(u["CONSUMER CATOGARY"] || u["TARIFF"] || "-")],
-          ["Contracted Load", (u["LOAD IN KW"] || u["LOAD"] || "-") + " KW", "Load Group", String(u["LOAD GROUP (5-10-50)"] || "-")],
-          ["Main Meter MF", String(u["MAIN METER MF"] || "1.00"), "Pole Meter MF", String(u["POLE METER MF (SAI PORTAL)"] || "1.00")],
-          ["Substation", String(u["MASTER-SUBSTATION NAME"] || "-"), "Feeder Name", String(u["MASTER-FEEDER-NAME"] || "-")],
-          ["Address", { content: String(u["ADDRESS"] || "-"), colSpan: 3 }]
+          ["Account No: " + accNo, "Consumer Name: " + name, "Connection No: " + getV(["CONNECTION NUMBER", "CONNECTION NO"])],
+          ["Division: " + divName, "Sub Division: " + getV(["SUB DIVISION NAME", "SUBDIVISION"]), "Billing Cycle: " + getV(["BILLING CYCLE", "BILL CYCLE NAME"])],
+          ["Consumer Type: " + getV(["CONSUMER TYPE"]), "Consumer Category: " + getV(["CONSUMER CATOGARY", "CONSUMER CATEGORY", "TARIFF"]), "ST / Agency Status: " + getV(["ST"]) + " / " + getV(["AGENCY-STATUS", "AGENCY CONSUMER STATUS"])],
+          ["Mobile Number: " + getV(["Master Mobile Number", "MASTER MOBILE NUMBER", "PHONE"]), "Substation Name: " + toProp(getV(["MASTER-SUBSTATION NAME", "SUBSTATION"])), "Feeder Name: " + toProp(getV(["MASTER-FEEDER-NAME", "FEEDER"]))],
+          [{ content: "Complete Address: " + toProp(getV(["ADDRESS", "COMPLETE ADRESS"])), colSpan: 3 }]
         ];
 
         doc.autoTable({
-          head: [[{ content: "1. CONSUMER & CONNECTION IDENTITY", colSpan: 4, styles: { fillColor: [26, 115, 232], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 } }]],
+          head: [[{ content: "1. CONSUMER & CONNECTION IDENTITY", colSpan: 3, styles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 } }]],
           body: conTable,
-          startY: 48,
+          startY: 54,
           margin: { left: 15, right: 15 },
           theme: 'grid',
-          styles: { fontSize: 7.2, cellPadding: 2.8, valign: 'middle', lineColor: [215, 225, 235], lineWidth: 0.3 },
+          styles: { fontSize: 7, cellPadding: 2.8, valign: 'middle', lineColor: [215, 225, 235], lineWidth: 0.3, textColor: [30, 41, 59] },
           columnStyles: {
-            0: { cellWidth: 95, fontStyle: 'bold', fillColor: [241, 245, 249] },
-            1: { cellWidth: 185 },
-            2: { cellWidth: 95, fontStyle: 'bold', fillColor: [241, 245, 249] },
-            3: { cellWidth: 190 }
+            0: { cellWidth: 180, fontStyle: 'bold', fillColor: [248, 250, 252] },
+            1: { cellWidth: 190 },
+            2: { cellWidth: 195 }
           }
         });
 
-        // Section 2: Main vs Pole Meter Readings (Side by Side / Two Column Grid)
+        // 3. Section 2: Contracted Load & MF
+        var loadTable = [
+          ["Contracted Load: " + getV(["LOAD IN KW", "LOAD"]) + " " + getV(["LOADUNIT", "UNIT"], "KW"), "Load Group: " + getV(["LOAD GROUP (5-10-50)", "LOAD GROUP"]), "Main Meter MF: " + getV(["MAIN METER MF", "METER MF"], "1.0000")],
+          ["Pole Meter MF: " + getV(["POLE METER MF (SAI PORTAL)", "POLE METER MF"], "1.0000"), "Activity By MR: " + getV(["Activity By MR", "ACTIVITY NAME"]), "Last Visit Date: " + getV(["FINAL VISIT DATE", "VISIT DATE", "FINAL VISIT_DATE"])]
+        ];
+
+        doc.autoTable({
+          head: [[{ content: "2. CONTRACTED LOAD & METER MULTIPLYING FACTORS (MF)", colSpan: 3, styles: { fillColor: [16, 185, 129], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 } }]],
+          body: loadTable,
+          startY: doc.lastAutoTable.finalY + 6,
+          margin: { left: 15, right: 15 },
+          theme: 'grid',
+          styles: { fontSize: 7, cellPadding: 2.8, valign: 'middle', lineColor: [215, 225, 235], lineWidth: 0.3, textColor: [30, 41, 59] },
+          columnStyles: {
+            0: { cellWidth: 185, fontStyle: 'bold', fillColor: [240, 253, 244] },
+            1: { cellWidth: 190 },
+            2: { cellWidth: 190 }
+          }
+        });
+
+        // 4. Section 3: Main Meter vs Pole Meter Status & Actual Readings (UI Color Matched Cards)
         var meterTable = [
-          ["Meter Number", String(u["LAST MONTH FINAL MM NO."] || u["BILLED METER NUMBER"] || "-"), String(u["LAST MONTH FINAL PM NO."] || "-")],
-          ["Meter Make", String(u["LAST MONTH FINAL MM MAKE"] || u["MASTER METER MAKE"] || "-"), String(u["LAST MONTH FINAL PM MAKE"] || "-")],
-          ["Exception Type", String(u["EXCEPTION TYPE (MAIN METER)"] || "-"), String(u["EXCEPTION TYPE (POLE METER)"] || "-")],
-          ["Site Observation", String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "-"), String(u["FINAL_POLE_METER_SITE_REMARK"] || "-")],
-          ["MRI Available", String(u["IS MRI AVAILABLE (MAIN METER)"] || "False"), String(u["IS MRI AVAILABLE (POLE METER)"] || "False")],
-          ["Active Energy (kWh)", String(u["MRI KWH"] || u["KWH"] || "0.0"), String(u["KWH_H1"] || u["POLE MRI KWH"] || "0.0")],
-          ["Apparent Energy (kVAh)", String(u["MRI KVAH"] || u["KVAH"] || "0.0"), String(u["KVAH_H1"] || u["POLE MRI KVAH"] || "0.0")],
-          ["Maximum Demand (kW)", String(u["MRI MD KW"] || u["KW"] || "0.0"), String(u["KW_H1"] || u["POLE MRI MD KW"] || "0.0")],
-          ["Maximum Demand (kVA)", String(u["MRI MD KVA"] || u["KVA"] || "0.0"), String(u["KVA_H1"] || u["POLE MRI MD KVA"] || "0.0")]
+          ["Billed Meter No", getV(["BILLED METER NUMBER", "MASTER METER NUMBER"]), "-"],
+          ["Master Meter Make", getV(["MASTER METER MAKE"]), "-"],
+          ["LM Main / Pole Meter No", getV(["LAST MONTH FINAL MM NO."]), getV(["LAST MONTH FINAL PM NO."])],
+          ["LM Main / Pole Make", getV(["LAST MONTH FINAL MM MAKE"]), getV(["LAST MONTH FINAL PM MAKE"])],
+          ["Exception Type", getV(["EXCEPTION TYPE (MAIN METER)"]), getV(["EXCEPTION TYPE (POLE METER)"])],
+          ["Site Observation", getV(["FINAL_MAIN_METER_SITE_REMARK", "SITE REMARK"]), getV(["FINAL_POLE_METER_SITE_REMARK", "SITE REMARK (POLE)"])],
+          ["Field Remark", getV(["REMARK", "M_REMARK"]), getV(["REMARK", "M_REMARK"])],
+          ["kWh Reading", mainKwh, poleKwh],
+          ["kVAh Reading", mainKvah, poleKvah],
+          ["MD (kW)", mainKw, poleKw],
+          ["MD (kVA)", mainKva, poleKva]
         ];
 
         doc.autoTable({
           head: [
-            [{ content: "2. METER READINGS & ELECTRICAL PARAMETERS (MAIN vs POLE)", colSpan: 3, styles: { fillColor: [16, 185, 129], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 } }],
-            [{ content: "Parameter / Field", styles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' } },
-             { content: "MAIN METER (Consumer)", styles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontStyle: 'bold' } },
-             { content: "POLE METER (RDG / XML)", styles: { fillColor: [5, 150, 105], textColor: [255, 255, 255], fontStyle: 'bold' } }]
+            [
+              { content: "MAIN METER STATUS", styles: { fillColor: [239, 246, 255], textColor: [29, 78, 216], fontStyle: 'bold', fontSize: 8, halign: 'left' } },
+              { content: "", styles: { fillColor: [239, 246, 255] } },
+              { content: "POLE METER STATUS & RDG READINGS", styles: { fillColor: [240, 253, 244], textColor: [4, 120, 87], fontStyle: 'bold', fontSize: 8, halign: 'right' } }
+            ],
+            [
+              { content: "Parameter / Field", styles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' } },
+              { content: "MAIN METER (Consumer)", styles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontStyle: 'bold' } },
+              { content: "POLE METER (RDG / XML)", styles: { fillColor: [5, 150, 105], textColor: [255, 255, 255], fontStyle: 'bold' } }
+            ]
           ],
           body: meterTable,
-          startY: doc.lastAutoTable.finalY + 8,
+          startY: doc.lastAutoTable.finalY + 6,
           margin: { left: 15, right: 15 },
           theme: 'grid',
-          styles: { fontSize: 7.2, cellPadding: 2.8, halign: 'center', valign: 'middle', lineColor: [215, 225, 235], lineWidth: 0.3 },
+          styles: { fontSize: 7, cellPadding: 2.6, halign: 'center', valign: 'middle', lineColor: [215, 225, 235], lineWidth: 0.3 },
           columnStyles: {
             0: { cellWidth: 155, fontStyle: 'bold', halign: 'left', fillColor: [248, 250, 252] },
             1: { cellWidth: 205, fillColor: [239, 246, 255] },
@@ -6561,29 +6687,27 @@
           }
         });
 
-        // Section 3: Billing Status & Field Summary
+        // 5. Section 4: Billing Execution & Field Dispatch Status
         var billingTable = [
-          ["Billing Status", String(u["BILLING STATUS"] || u["FINAL BILLING TAG"] || "-"), "Billed Date", String(u["BILLED DATE"] || u["BILL_DATE"] || "-")],
-          ["Billing Basis", String(u["BILL_BASE"] || u["BILLBASE"] || "-"), "Meter Reader (MR)", String(u["MR NAME"] || u["VISIT LAST MONTH"] || "-")],
-          ["Field Remark", { content: String(u["REMARK"] || u["M_REMARK"] || "-"), colSpan: 3 }]
+          ["Billing Status: " + getV(["BILLING STATUS", "FINAL BILLING TAG"]), "Billed Date: " + getV(["BILLED DATE", "BILL_DATE"]), "Billing Basis: " + getV(["BILL_BASE", "BILLBASE"])],
+          ["Assigned MR Name: " + toProp(getV(["MR NAME", "VISIT LAST MONTH"])), { content: "", colSpan: 2 }]
         ];
 
         doc.autoTable({
-          head: [[{ content: "3. BILLING EXECUTION & FIELD DISPATCH STATUS", colSpan: 4, styles: { fillColor: [230, 126, 34], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 } }]],
+          head: [[{ content: "4. BILLING EXECUTION & FIELD DISPATCH STATUS", colSpan: 3, styles: { fillColor: [230, 126, 34], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 } }]],
           body: billingTable,
-          startY: doc.lastAutoTable.finalY + 8,
+          startY: doc.lastAutoTable.finalY + 6,
           margin: { left: 15, right: 15 },
           theme: 'grid',
-          styles: { fontSize: 7.2, cellPadding: 2.8, valign: 'middle', lineColor: [215, 225, 235], lineWidth: 0.3 },
+          styles: { fontSize: 7, cellPadding: 2.8, valign: 'middle', lineColor: [215, 225, 235], lineWidth: 0.3, textColor: [30, 41, 59] },
           columnStyles: {
-            0: { cellWidth: 95, fontStyle: 'bold', fillColor: [254, 243, 199] },
-            1: { cellWidth: 185 },
-            2: { cellWidth: 95, fontStyle: 'bold', fillColor: [254, 243, 199] },
-            3: { cellWidth: 190 }
+            0: { cellWidth: 185, fontStyle: 'bold', fillColor: [254, 243, 199] },
+            1: { cellWidth: 190 },
+            2: { cellWidth: 190 }
           }
         });
 
-        // Footer note
+        // Footer Note
         doc.setFontSize(7.2);
         doc.setTextColor(120, 120, 120);
         doc.text("Report Generated on: " + dateStr + " | Sai Computers Ltd RMS Portal Mainpuri", 15, doc.internal.pageSize.height - 12);
@@ -6726,6 +6850,29 @@
           if (!v) return "";
           var s = String(v).trim().toUpperCase();
           if (s === "" || s === "NAN" || s === "NULL" || s === "BLANK" || s === "NONE" || s === "UNDEFINED") return "";
+          return s.replace(/[^A-Z0-9]/g, "");
+        }
+
+        // 🟢 Master Meter Make Standardizer & Short Name Mapper
+        function normalizeMeterMake(val) {
+          if (!val) return "";
+          var s = String(val).toUpperCase().trim();
+          if (s === "" || s === "NAN" || s === "NULL" || s === "BLANK" || s === "NONE" || s === "-") return "";
+
+          // Explicit Name Matches & Keyword Detection
+          if (s.includes("AEW") || s.includes("AMTL") || s.includes("ARON") || s.includes("UNKNOWN")) return "OTHER";
+          if (s.includes("AVON")) return "AVON";
+          if (s.includes("BENTEC")) return "BENTEC";
+          if (s.includes("CAPITAL")) return "CAPITAL";
+          if (s.includes("EPPELTONE") || s.includes("EPPLE")) return "EPPELTONE";
+          if (s.includes("GENUS")) return "GENUS";
+          if (s.includes("HPL")) return "HPL";
+          if (s.includes("L AND G") || s.includes("L&G") || s.includes("LNG") || s.includes("LANDIS")) return "LNG";
+          if (s.includes("L AND T") || s.includes("L&T") || s.includes("LNT") || s.includes("LAN ENGINEERING") || s.includes("SCHNEIDER")) return "LNT";
+          if (s.includes("LINKWELL") || s.includes("VISIONTEK") || s.includes("VESIONTECH")) return "VISIONTEK";
+          if (s.includes("MODERN TRANSFORMERS") || s.includes("MTPL")) return "MTPL";
+          if (s.includes("SECURE")) return "SECURE";
+
           return s.replace(/[^A-Z0-9]/g, "");
         }
 
@@ -6883,8 +7030,14 @@
               mainBilledVsFvNoMismatch++;
             }
 
-            var billedMtrMake = fastClean(u["BILLED METER MAKE"] || u["MASTER METER MAKE"]);
-            if (billedMtrMake && fvMainMake && billedMtrMake !== fvMainMake && isBillable) mainBilledVsFvMakeMismatch++;
+            // 🟢 Normalized Short Make Comparison
+            var rawBilledMake = u["BILLED METER MAKE"] || u["MASTER METER MAKE"] || "";
+            var billedMtrMake = normalizeMeterMake(rawBilledMake);
+            var visitedMainMakeNorm = normalizeMeterMake(u["FINAL VISITED MAIN METER MAKE"] || u["SITE METER MAKE"] || "");
+
+            if (billedMtrMake && visitedMainMakeNorm && billedMtrMake !== visitedMainMakeNorm && isBillable) {
+              mainBilledVsFvMakeMismatch++;
+            }
 
             var fvPoleNo = fastClean(u["FINAL VISITED POLE METER NO."]);
             if (fvMainNo && fvPoleNo && fvMainNo === fvPoleNo) mainFmVsFpMismatch++;
@@ -8062,7 +8215,11 @@ tBody.appendChild(fragment);
               var fvNo = u["FINAL VISITED MAIN METER NUMBER"] || u["FINAL VISITED METER NUMBER"] || u["SITE METER NO."];
               match = (!mExCl.includes("VISITPENDING") && isDiff(bNo, fvNo));
             }
-            else if (filterKey === "MAIN_BILLED_VS_FV_MAKE") match = (!mExCl.includes("VISITPENDING") && isDiff(u["MASTER METER MAKE"], u["FINAL VISITED MAIN METER MAKE"]));
+            else if (filterKey === "MAIN_BILLED_VS_FV_MAKE") {
+              var bMakeNorm = normalizeMeterMake(u["MASTER METER MAKE"] || u["BILLED METER MAKE"]);
+              var fvMakeNorm = normalizeMeterMake(u["FINAL VISITED MAIN METER MAKE"] || u["SITE METER MAKE"]);
+              match = (!mExCl.includes("VISITPENDING") && bMakeNorm !== "" && fvMakeNorm !== "" && bMakeNorm !== fvMakeNorm);
+            }
             else if (filterKey === "MAIN_FM_VS_FP_MATCH") match = (!mExCl.includes("VISITPENDING") && isEq(u["FINAL VISITED MAIN METER NUMBER"], u["FINAL VISITED POLE METER NO."]));
             else if (filterKey === "MAIN_LMM_VS_LMP_MATCH") match = (!mExCl.includes("VISITPENDING") && isEq(u["LAST MONTH FINAL MM NO."], u["LAST MONTH FINAL PM NO."]));
 
@@ -11527,7 +11684,48 @@ tBody.appendChild(fragment);
         if(event) event.stopPropagation();
         var modal = document.getElementById('daily-upload-modal');
         if (modal) modal.style.display = 'flex';
-        document.getElementById('mainSidebar').classList.remove('open');
+        
+        var sidebar = document.getElementById('mainSidebar');
+        if (sidebar && sidebar.classList) sidebar.classList.remove('open');
+
+        // 🟢 Har baar modal khulne par puraane logs aur task cards ko fresh reset karein
+        var logWindow = document.getElementById('logWindow');
+        if (logWindow) {
+          logWindow.innerHTML = '<div>> System Stream Pipeline Active...</div>';
+        }
+
+        var tasksWrapper = document.getElementById('tasksWrapper');
+        if (tasksWrapper) {
+          tasksWrapper.innerHTML = '';
+        }
+
+        var queueContainer = document.getElementById('queueContainer');
+        if (queueContainer) {
+          queueContainer.style.display = 'none';
+        }
+
+        queuedTasks = [];
+        if (typeof updateStats === 'function') {
+          updateStats();
+        }
+
+        var startBtn = document.getElementById('startAllBtn');
+        if (startBtn) {
+          startBtn.disabled = false;
+          startBtn.innerHTML = '🚀 START ALL UPLOADS';
+        }
+
+        var uploadForm = document.getElementById('uploadForm');
+        if (uploadForm) uploadForm.reset();
+
+        var fileInput = document.getElementById('fileUpload');
+        if (fileInput) fileInput.value = '';
+
+        var fileMsg = document.getElementById('fileMsg');
+        if (fileMsg) {
+          fileMsg.innerHTML = '📁 Tap or Drag & Drop File(s) Here';
+          fileMsg.style.color = '#64748b';
+        }
       }
 
       function closeDailyUploadModal() {
@@ -12064,7 +12262,7 @@ tBody.appendChild(fragment);
           for (let f = 0; f < files.length; f++) {
               updateUI(taskId, `Parsing File ${f+1}/${files.length} ⚙️`, Math.round((f/files.length)*40));
               let arrBuf = await readFileAsArrayBuffer(files[f]);
-              let wb = XLSX.read(arrBuf, { type: 'array', dense: true });
+              let wb = XLSX.read(arrBuf, { type: 'array', dense: true, cellFormula: false, cellHTML: false, cellText: false });
               let parsedData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1, defval: ""});
               if (parsedData.length < 2) continue;
 
@@ -12408,6 +12606,7 @@ tBody.appendChild(fragment);
           let allData = [];
 
           for (let f = 0; f < files.length; f++) {
+              updateUI(taskId, `Processing ${f+1}/${files.length} ⚙️`, Math.round((f/files.length)*40));
               let arrBuf = await readFileAsArrayBuffer(files[f]);
               let parsedData = XLSX.utils.sheet_to_json(XLSX.read(arrBuf, {type: 'array'}).Sheets[XLSX.read(arrBuf, {type: 'array'}).SheetNames[0]], {header: 1, defval: ""});
               if(parsedData.length < 2) continue;
@@ -12439,12 +12638,10 @@ tBody.appendChild(fragment);
                   let row = parsedData[i];
                   let newRow = mappedIndices.map((idx, pos) => {
                       let colName = POLE_HEADERS[pos];
+                      if (colName === "ACCOUNT ID NEW" && accIdx !== -1 && row[accIdx] !== undefined) {
+                          return row[accIdx].toString().replace(/_P$/i, ''); 
+                      }
                       let val = (idx !== -1 && row[idx] !== undefined) ? row[idx] : "";
-                      if ((colName === "ACCOUNT ID NEW" || colName === "ACCOUNT NO") && accIdx !== -1 && row[accIdx] !== undefined) {
-                       let cleanA = row[accIdx].toString().replace(/_P$/i, '').replace(/\.0$/, '').trim();
-                       let d = cleanA.replace(/[^0-9]/g, '');
-                       val = (d.length > 0 && d.length < 10) ? d.padStart(10, '0') : cleanA;
-                   }
                       if (MANUAL_COLS.includes(colName) && isJunkManualValue(val)) return "";
                       return val;
                   });
@@ -12461,6 +12658,7 @@ tBody.appendChild(fragment);
           let allData = [];
 
           for (let f = 0; f < files.length; f++) {
+              updateUI(taskId, `Processing ${f+1}/${files.length} ⚙️`, Math.round((f/files.length)*40));
               let arrBuf = await readFileAsArrayBuffer(files[f]);
               let parsedData = XLSX.utils.sheet_to_json(XLSX.read(arrBuf, {type: 'array'}).Sheets[XLSX.read(arrBuf, {type: 'array'}).SheetNames[0]], {header: 1, defval: ""});
               if(parsedData.length < 2) continue;
@@ -12492,12 +12690,10 @@ tBody.appendChild(fragment);
                   let row = parsedData[i];
                   let newRow = mappedIndices.map((idx, pos) => {
                       let colName = MAIN_HEADERS[pos];
+                      if (colName === "ACCOUNT ID TRIM" && accIdx !== -1 && row[accIdx] !== undefined) {
+                          return row[accIdx].toString().trim(); 
+                      }
                       let val = (idx !== -1 && row[idx] !== undefined) ? row[idx] : "";
-                      if ((colName === "ACCOUNT ID TRIM" || colName === "ACCOUNT NO") && accIdx !== -1 && row[accIdx] !== undefined) {
-                       let cleanA = row[accIdx].toString().replace(/_P$/i, '').replace(/\.0$/, '').trim();
-                       let d = cleanA.replace(/[^0-9]/g, '');
-                       val = (d.length > 0 && d.length < 10) ? d.padStart(10, '0') : cleanA;
-                   }
                       if (MANUAL_COLS.includes(colName) && isJunkManualValue(val)) return "";
                       return val;
                   });
@@ -12619,66 +12815,126 @@ tBody.appendChild(fragment);
       }
 
       async function uploadChunks(taskId, sheetName, headers, data, isRebuild) {
-          let totalRows = data.length;
-          if (totalRows === 0) return;
+          let total = data.length;
+          if (total === 0) return;
 
-          const BATCH_SIZE = 5000; // 5000 Rows per direct stream payload
-          let totalBatches = Math.ceil(totalRows / BATCH_SIZE);
+          let actionType = isRebuild ? "Rebuild/Replace" : "Append";
+          addLog(`📊 [${sheetName}] Compiling ${total} records for ${actionType} mode...`);
+          updateUI(taskId, `Compiling ${total} Records... ⚙️`, 55);
 
-          addLog(`📊 [${sheetName}] Streaming ${totalRows.toLocaleString()} rows in ${totalBatches} high-speed batches...`);
-          updateUI(taskId, `Starting Stream (0/${totalRows})... 🚀`, 10);
+          let csvString = convertToCSV(headers, data);
+          let blob = new Blob([csvString], { type: 'text/csv' });
 
-          for (let b = 0; b < totalBatches; b++) {
-              let startIdx = b * BATCH_SIZE;
-              let endIdx = Math.min(startIdx + BATCH_SIZE, totalRows);
-              let batchRows = data.slice(startIdx, endIdx);
+          const CHUNK_SIZE_BYTES = 4 * 1024 * 1024; // 🟢 4 MB High-Performance Chunk
+          let savedOffset = localStorage.getItem("resume_offset_" + taskId + "_" + sheetName);
+          let offset = savedOffset ? parseInt(savedOffset) : 0;
+          let tempFileId = localStorage.getItem("resume_fileId_" + taskId + "_" + sheetName) || null;
 
-              let isFirstBatch = (b === 0);
-              let shouldClearSheet = isFirstBatch && isRebuild;
-              let includeHeaders = isFirstBatch;
+          if (offset > 0) {
+              addLog(`⚠️ [${sheetName}] Network Recovery: Resuming upload from ${Math.round(offset/(1024*1024))}MB...`);
+          }
 
-              let progressPercent = Math.min(98, Math.round(((b + 1) / totalBatches) * 100));
+          while (offset < blob.size) {
+              if (isPausedGlobal) {
+                  updateUI(taskId, "Paused (Waiting for Net) ⏸️", null);
+                  await new Promise(resolve => setTimeout(resolve, 3000));
+                  continue;
+              }
 
-              addLog(`📤 [${sheetName}] Streaming Batch ${b + 1}/${totalBatches} (${startIdx + 1} - ${endIdx} rows)...`);
-              updateUI(taskId, `Writing ${endIdx.toLocaleString()}/${totalRows.toLocaleString()} rows... ⚡`, progressPercent);
+              let chunk = blob.slice(offset, offset + CHUNK_SIZE_BYTES);
+              let base64Data = await readChunkAsBase64(chunk);
+              let currentMB = (offset / (1024 * 1024)).toFixed(1);
+              let totalMB = (blob.size / (1024 * 1024)).toFixed(1);
+              let progressPercent = 50 + Math.round((offset / blob.size) * 35);
+
+              addLog(`📤 [${sheetName}] Uploading Chunk: ${currentMB}MB / ${totalMB}MB...`);
+              updateUI(taskId, `Uploading Chunk (${currentMB}/${totalMB} MB)... 📥`, progressPercent);
 
               let success = false;
               let retryCount = 0;
 
               while (!success) {
                   try {
-                      if (!navigator.onLine) throw new Error("Network Disconnected");
-
-                      let payload = {
-                          action: "directStreamRowsBatch",
-                          sheetName: sheetName,
-                          headers: includeHeaders ? headers : [],
-                          rows: batchRows,
-                          isRebuild: shouldClearSheet
-                      };
+                      if (!navigator.onLine) throw new Error("Local Network Disconnected");
 
                       let response = await fetch(APPS_SCRIPT_WEBAPP_URL, {
                           method: "POST",
                           headers: { "Content-Type": "text/plain;charset=utf-8" },
-                          body: JSON.stringify(payload)
+                          body: JSON.stringify({
+                              action: "appendTemporaryFileChunk",
+                              fileName: sheetName + "_temp.csv",
+                              base64Data: base64Data,
+                              fileId: tempFileId
+                          })
                       });
-
+                      
                       let result = await response.json();
-                      if (!result.success) throw new Error(result.error || "Batch write failed");
+                      if (result.error) throw new Error(result.error);
 
+                      tempFileId = result.fileId;
                       success = true;
+                      isPausedGlobal = false;
                   } catch (err) {
                       retryCount++;
-                      updateUI(taskId, `Batch ${b + 1} Retry (${retryCount})... 🔌`, null, true);
-                      addLog(`🔌 [${sheetName}] Batch ${b + 1} error: ${err.message}. Retrying in 4s...`);
-                      await new Promise(r => setTimeout(r, 4000));
+                      isPausedGlobal = true;
+                      updateUI(taskId, `Network Error (Retry ${retryCount})... 🔌`, null, true);
+                      addLog(`🔌 [${sheetName}] Connection issue: ${err.message}. Retry #${retryCount} in 4s...`);
+
+                      localStorage.setItem("resume_offset_" + taskId + "_" + sheetName, offset);
+                      localStorage.setItem("resume_fileId_" + taskId + "_" + sheetName, tempFileId);
+
+                      await new Promise(resolve => setTimeout(resolve, 4000));
                   }
               }
+
+              offset += CHUNK_SIZE_BYTES;
+              localStorage.setItem("resume_offset_" + taskId + "_" + sheetName, offset);
+              localStorage.setItem("resume_fileId_" + taskId + "_" + sheetName, tempFileId);
           }
 
-          let modeText = isRebuild ? "Replaced & Uploaded" : "Appended";
-          updateUI(taskId, `${modeText} ${totalRows.toLocaleString()} Rows! 🎉`, 100);
-          addLog(`✅ [${sheetName}] 100% Completed: Total ${totalRows.toLocaleString()} rows successfully written.`);
+          let modeText = isRebuild ? "REPLACING whole sheet" : "APPENDING new records";
+          updateUI(taskId, `Server Mode: ${modeText}... ⚡`, 90);
+          addLog(`⚡ [${sheetName}] All chunks uploaded. Processing server injection (${modeText})...`);
+
+          let dumpFinished = false;
+          let dumpRetry = 0;
+          while (!dumpFinished) {
+              try {
+                  if (!navigator.onLine) throw new Error("Network missing on final write");
+
+                  let response = await fetch(APPS_SCRIPT_WEBAPP_URL, {
+                      method: "POST",
+                      headers: { "Content-Type": "text/plain;charset=utf-8" },
+                      body: JSON.stringify({
+                          action: "processLargeFileFromDrive",
+                          fileId: tempFileId,
+                          sheetName: sheetName,
+                          isRebuild: isRebuild
+                      })
+                  });
+                  
+                  let finalResponse = await response.json();
+
+                  if (finalResponse.success) {
+                      let successMsg = isRebuild ? "Replaced Successfully! 🎉" : "Appended Successfully! 🎉";
+                      updateUI(taskId, successMsg, 100);
+                      addLog(`✅ [${sheetName}] Done! Status: ${successMsg}`);
+
+                      localStorage.removeItem("resume_offset_" + taskId + "_" + sheetName);
+                      localStorage.removeItem("resume_fileId_" + taskId + "_" + sheetName);
+                      dumpFinished = true;
+                  } else {
+                      updateUI(taskId, "Execution Failed ❌", 100, true);
+                      addLog(`❌ [${sheetName}] Server Error: ${finalResponse.error || "Execution failed"}`);
+                      dumpFinished = true;
+                  }
+              } catch (e) {
+                  dumpRetry++;
+                  updateUI(taskId, `Writing Sheet (Waiting Server ${dumpRetry})... 🔄`, null, true);
+                  addLog(`🔄 [${sheetName}] Waiting for server response (${e.message})...`);
+                  await new Promise(resolve => setTimeout(resolve, 5000));
+              }
+          }
       }
 
       function openBulkUpdateModal() {
