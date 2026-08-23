@@ -2632,7 +2632,7 @@
           id: "rpt_dept_master_data",
           name: "Master Data For Department",
           conditions: "",
-          columns: "DIVISION, ACCOUNT NO, SUB DIVISION NAME, CONSUMER TYPE, ST, CONSUMER CATOGARY, MASTER-SUBSTATION NAME, MASTER-FEEDER-NAME, PROCESS, CONSUMER-NAME, ADDRESS, MASTER MOBILE NUMBER, LOAD IN KW, LOAD CATOGERY, MAIN METER MF, BILLED METER NUMBER, MASTER METER NUMBER, MASTER METER MAKE, SITE METER NO. (MAIN), SITE METER MAKE (MAIN), VISIT DATE, EXCEPTION TYPE (MAIN METER), SITE STATUS (MAIN METER), POLE METER MF, SITE METER NO. (POLE), SITE METER MAKE (POLE), EXCEPTION TYPE (POLE METER), SITE STATUS (POLE METER), BILLING STATUS, BILLED DATE, BILL BASE, MR NAME, MR MOBILE NO."
+          columns: "DIVISION, ACCOUNT NO, SUB DIVISION NAME, CONSUMER TYPE, ST, CONSUMER CATOGARY, MASTER-SUBSTATION NAME, MASTER-FEEDER-NAME, PROCESS, CONSUMER-NAME, ADDRESS, MASTER MOBILE NUMBER, LOAD IN KW, LOAD GROUP (5-10-50), MAIN METER MF, BILLED METER NUMBER, MASTER METER NUMBER, MASTER METER MAKE, LAST MONTH FINAL MM NO., LAST MONTH FINAL MM MAKE, FINAL VISIT DATE, EXCEPTION TYPE (MAIN METER), FINAL_MAIN_METER_SITE_REMARK, POLE METER MF (SAI PORTAL), LAST MONTH FINAL PM NO., LAST MONTH FINAL PM MAKE, EXCEPTION TYPE (POLE METER), FINAL_POLE_METER_SITE_REMARK, BILLING STATUS, BILLED DATE, BILL_BASE, MR NAME, MR MOBILE NO."
         },
         {
           id: "rpt_independent_consumers",
@@ -8129,6 +8129,40 @@
                   break;
                 }
               }
+              if ((matchedVal === undefined || matchedVal === "") && row._uMap) {
+                for (var uk in row._uMap) {
+                  if (uk.replace(/[^A-Z0-9]/gi, '').toUpperCase() === targetClean) {
+                    matchedVal = row._uMap[uk];
+                    break;
+                  }
+                }
+              }
+            }
+
+            // 3. Department Specific Aliases Fallback for Screen Table
+            if (matchedVal === undefined || matchedVal === "" || matchedVal === null) {
+              var uM = row._uMap || row;
+              if (targetClean === "SITEMETERNOMAIN" || targetClean === "LASTMONTHFINALMMNO") {
+                matchedVal = uM["LAST MONTH FINAL MM NO."] || uM["FINAL VISITED MAIN METER NUMBER"] || "";
+              } else if (targetClean === "SITEMETERMAKEMAIN" || targetClean === "LASTMONTHFINALMMMAKE") {
+                matchedVal = uM["LAST MONTH FINAL MM MAKE"] || uM["FINAL VISITED MAIN METER MAKE"] || "";
+              } else if (targetClean === "SITEMETERNOPOLE" || targetClean === "LASTMONTHFINALPMNO") {
+                matchedVal = uM["LAST MONTH FINAL PM NO."] || uM["FINAL VISITED POLE METER NO."] || "";
+              } else if (targetClean === "SITEMETERMAKEPOLE" || targetClean === "LASTMONTHFINALPMMAKE") {
+                matchedVal = uM["LAST MONTH FINAL PM MAKE"] || uM["FINAL VISITED POLE METER MAKE"] || "";
+              } else if (targetClean === "POLEMETERMF" || targetClean === "POLEMETERMFSAIPORTAL") {
+                matchedVal = uM["POLE METER MF (SAI PORTAL)"] || uM["POLE METER MF"] || "";
+              } else if (targetClean === "SITESTATUSMAINMETER" || targetClean === "FINALMAINMETERSITEREMARK") {
+                matchedVal = uM["FINAL_MAIN_METER_SITE_REMARK"] || uM["SITE REMARK"] || "";
+              } else if (targetClean === "SITESTATUSPOLEMETER" || targetClean === "FINALPOLEMETERSITEREMARK") {
+                matchedVal = uM["FINAL_POLE_METER_SITE_REMARK"] || uM["SITE REMARK (POLE)"] || "";
+              } else if (targetClean === "LOADCATOGERY" || targetClean === "LOADCATEGORY" || targetClean === "LOADGROUP51050") {
+                matchedVal = uM["LOAD GROUP (5-10-50)"] || uM["LOAD GROUP"] || "";
+              } else if (targetClean === "BILLINGSTATUS" || targetClean === "FINALBILLINGTAG") {
+                matchedVal = uM["BILLING STATUS"] || uM["BILLING  STATUS"] || uM["FINAL BILLING TAG"] || "";
+              } else if (targetClean === "BILLBASE" || targetClean === "BILL_BASE") {
+                matchedVal = uM["BILL_BASE"] || uM["BILLBASE"] || "";
+              }
             }
 
             var val = (matchedVal !== undefined && matchedVal !== null) ? String(matchedVal).trim() : "";
@@ -9463,12 +9497,14 @@ tBody.appendChild(fragment);
                 }
               };
 
+              var curCellVal = wsSummary[cellAddr] ? String(wsSummary[cellAddr].v || "").toUpperCase().trim() : "";
+
               if (R < 3) {
                 // Header rows
                 baseStyle.fill = { fgColor: { rgb: "0B3C5D" } };
                 baseStyle.font = { name: "Segoe UI", sz: 9.5, bold: true, color: { rgb: "FFFFFF" } };
                 baseStyle.alignment.horizontal = "center";
-              } else if (cellText.includes("GRAND TOTAL") || upperLabel.includes("GRAND TOTAL")) {
+              } else if (isGrandTotalRow || curCellVal.includes("GRAND TOTAL") || upperLabel.includes("GRAND TOTAL")) {
                 baseStyle.fill = { fgColor: { rgb: "FFF2CC" } };
                 baseStyle.font = { name: "Segoe UI", sz: 10, bold: true, color: { rgb: "000000" } };
               } else if (upperLabel.includes("EDD-") || upperLabel.includes("DIVISION") || upperLabel.includes("MAINPURI")) {
@@ -9524,15 +9560,70 @@ tBody.appendChild(fragment);
 
         sortedExcelRowsList.forEach(function(targetRowObj, idx) {
           var rowData = [idx + 1];
+          var uMap = targetRowObj._uMap || targetRowObj;
+
           reqCols.forEach(function(col) {
             var cellVal = "";
             var targetK = col.toUpperCase().trim();
-            Object.keys(targetRowObj).forEach(function(k) {
-              if (k.toUpperCase().trim() === targetK) { cellVal = targetRowObj[k]; }
-            });
-            if ((col === "ACCOUNT NO" || col === "ACCOUNT ID") && cellVal) {
-              cellVal = String(cellVal).padStart(10, '0');
+            var targetClean = targetK.replace(/[^A-Z0-9]/gi, '');
+
+            // 1. Direct Object Property Lookup
+            if (targetRowObj[col] !== undefined && targetRowObj[col] !== null && String(targetRowObj[col]).trim() !== "") {
+              cellVal = targetRowObj[col];
+            } 
+            // 2. Normalized Deep Key Matching
+            else {
+              for (var k in targetRowObj) {
+                if (k.replace(/[^A-Z0-9]/gi, '').toUpperCase() === targetClean) {
+                  cellVal = targetRowObj[k];
+                  break;
+                }
+              }
+              if ((cellVal === "" || cellVal === undefined) && uMap) {
+                for (var uk in uMap) {
+                  if (uk.replace(/[^A-Z0-9]/gi, '').toUpperCase() === targetClean) {
+                    cellVal = uMap[uk];
+                    break;
+                  }
+                }
+              }
             }
+
+            // 3. Exact Specified Department Fallback Mapping
+            if (cellVal === "" || cellVal === undefined || cellVal === null) {
+              if (targetClean === "SITEMETERNOMAIN" || targetClean === "LASTMONTHFINALMMNO" || targetClean === "FINALVISITEDMAINMETERNUMBER") {
+                cellVal = uMap["LAST MONTH FINAL MM NO."] || uMap["FINAL VISITED MAIN METER NUMBER"] || uMap["FIELD METER NUMBER"] || "";
+              } else if (targetClean === "SITEMETERMAKEMAIN" || targetClean === "LASTMONTHFINALMMMAKE" || targetClean === "FINALVISITEDMAINMETERMAKE") {
+                cellVal = uMap["LAST MONTH FINAL MM MAKE"] || uMap["FINAL VISITED MAIN METER MAKE"] || uMap["FIELD METER MAKE"] || "";
+              } else if (targetClean === "SITEMETERNOPOLE" || targetClean === "LASTMONTHFINALPMNO" || targetClean === "FINALVISITEDPOLEMETERNO") {
+                cellVal = uMap["LAST MONTH FINAL PM NO."] || uMap["FINAL VISITED POLE METER NO."] || uMap["FIELD METER NUMBER (POLE)"] || "";
+              } else if (targetClean === "SITEMETERMAKEPOLE" || targetClean === "LASTMONTHFINALPMMAKE" || targetClean === "FINALVISITEDPOLEMETERMAKE") {
+                cellVal = uMap["LAST MONTH FINAL PM MAKE"] || uMap["FINAL VISITED POLE METER MAKE"] || uMap["FIELD METER MAKE (POLE)"] || "";
+              } else if (targetClean === "POLEMETERMF" || targetClean === "POLEMETERMFSAIPORTAL") {
+                cellVal = uMap["POLE METER MF (SAI PORTAL)"] || uMap["POLE METER MF"] || "";
+              } else if (targetClean === "SITESTATUSMAINMETER" || targetClean === "FINALMAINMETERSITEREMARK") {
+                cellVal = uMap["FINAL_MAIN_METER_SITE_REMARK"] || uMap["SITE REMARK"] || "";
+              } else if (targetClean === "SITESTATUSPOLEMETER" || targetClean === "FINALPOLEMETERSITEREMARK") {
+                cellVal = uMap["FINAL_POLE_METER_SITE_REMARK"] || uMap["SITE REMARK (POLE)"] || "";
+              } else if (targetClean === "LOADCATOGERY" || targetClean === "LOADCATEGORY" || targetClean === "LOADGROUP51050") {
+                cellVal = uMap["LOAD GROUP (5-10-50)"] || uMap["LOAD GROUP"] || "";
+              } else if (targetClean === "BILLINGSTATUS" || targetClean === "FINALBILLINGTAG") {
+                cellVal = uMap["BILLING STATUS"] || uMap["BILLING  STATUS"] || uMap["FINAL BILLING TAG"] || "";
+              } else if (targetClean === "BILLBASE" || targetClean === "BILL_BASE" || targetClean === "BILLBASIS") {
+                cellVal = uMap["BILL_BASE"] || uMap["BILLBASE"] || uMap["BILL_BASIS"] || "";
+              } else if (targetClean === "VISITDATE" || targetClean === "FINALVISITDATE") {
+                cellVal = uMap["FINAL VISIT DATE"] || uMap["VISIT DATE"] || uMap["VISITED DATE"] || "";
+              }
+            }
+
+            // 10-Digit Account Number Padding
+            if ((targetClean.includes("ACCOUNT") || targetClean.includes("ACCTID")) && cellVal) {
+              var cleanStr = String(cellVal).trim();
+              if (/^\d+$/.test(cleanStr) && cleanStr.length < 10) {
+                cellVal = ("0000000000" + cleanStr).slice(-10);
+              }
+            }
+
             rowData.push(cellVal !== undefined && cellVal !== null ? String(cellVal) : "");
           });
           listSheetData.push(rowData);
@@ -10477,28 +10568,47 @@ tBody.appendChild(fragment);
         XLSX.writeFile(wb, "EDC_Mainpuri_Bulletin_Matched_List_" + dateStr + ".xlsx");
       }
 
-      // 🟢 Global Helper: Sanitize Department Header (Fixes ReferenceError)
       function sanitizeDeptHeader(headerText, isDeptReport) {
         if (!headerText) return "";
         var cleanKey = String(headerText).trim().toUpperCase();
+        var targetClean = cleanKey.replace(/[^A-Z0-9]/gi, '');
 
-        if (typeof deptProfessionalGlossary !== "undefined" && isDeptReport && deptProfessionalGlossary[cleanKey]) {
-          return deptProfessionalGlossary[cleanKey];
+        // 🟢 Exact Header Formatting for Main & Pole Meters
+        if (targetClean === "LASTMONTHFINALMMNO" || targetClean === "FINALVISITEDMAINMETERNUMBER" || targetClean === "SITEMETERNOMAIN") {
+          return "Site Meter No. (Main)";
+        }
+        if (targetClean === "LASTMONTHFINALMMMAKE" || targetClean === "FINALVISITEDMAINMETERMAKE" || targetClean === "SITEMETERMAKEMAIN") {
+          return "Site Meter Make (Main)";
+        }
+        if (targetClean === "LASTMONTHFINALPMNO" || targetClean === "FINALVISITEDPOLEMETERNO" || targetClean === "SITEMETERNOPOLE") {
+          return "Site Meter No. (Pole)";
+        }
+        if (targetClean === "LASTMONTHFINALPMMAKE" || targetClean === "FINALVISITEDPOLEMETERMAKE" || targetClean === "SITEMETERMAKEPOLE") {
+          return "Site Meter Make (Pole)";
+        }
+        if (targetClean === "POLEMETERMFSAIPORTAL" || targetClean === "POLEMETERMF") {
+          return "Pole Meter Mf";
+        }
+        if (targetClean === "FINALMAINMETERSITEREMARK" || targetClean === "SITESTATUSMAINMETER") {
+          return "Site Status (Main Meter)";
+        }
+        if (targetClean === "FINALPOLEMETERSITEREMARK" || targetClean === "SITESTATUSPOLEMETER") {
+          return "Site Status (Pole Meter)";
+        }
+        if (targetClean === "LOADGROUP51050" || targetClean === "LOADCATOGERY" || targetClean === "LOADCATEGORY") {
+          return "Load Catogery";
+        }
+        if (targetClean === "BILLINGSTATUS") {
+          return "Billing Status";
+        }
+        if (targetClean === "BILLBASE" || targetClean === "BILLBASIS") {
+          return "Bill Base";
+        }
+        if (targetClean === "FINALVISITDATE") {
+          return "Visit Date";
         }
 
         var str = String(headerText);
-        if (isDeptReport) {
-          str = str.replace(/LAST\s*MONTH\s*FINAL\s*MM/gi, 'Previous Main Meter')
-                   .replace(/LAST\s*MONTH\s*FINAL\s*PM/gi, 'Previous Pole Meter')
-                   .replace(/LAST\s*MONTH/gi, 'Previous Billing Cycle')
-                   .replace(/\bLM\s+/gi, 'Previous ')
-                   .replace(/\bLM\b/gi, 'Previous')
-                   .replace(/\bMM\b/gi, 'Main Meter')
-                   .replace(/\bPM\b/gi, 'Pole Meter')
-                   .replace(/MRD\s*CORRPUT/gi, 'Corrupted Data File')
-                   .replace(/MRD\s*CORRUPT/gi, 'Corrupted Data File');
-        }
-
         str = str.replace(/[_]/g, ' ').replace(/\s+/g, ' ').trim();
         return str.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
       }
@@ -10543,62 +10653,67 @@ tBody.appendChild(fragment);
 
       // 🟢 Professional Official Glossary Dictionary for Department Use
       var deptProfessionalGlossary = {
-        "VISIT LAST MONTH": "Meter Reader Name",
-        "MR NAME": "Meter Reader Name",
-        "MR MOBILE NO.": "Reader Contact Number",
-        "MASTER MOBILE NUMBER": "Registered Mobile Number",
-        "LAST MONTH FINAL MM NO.": "Main Meter No.",
-        "LAST MONTH FINAL MM MAKE": "Main Meter Make",
-        "LAST MONTH FINAL PM NO.": "Pole Meter No.",
-        "LAST MONTH FINAL PM MAKE": "Pole Meter Make",
-        "FINAL VISITED MAIN METER NUMBER": "Current Visited Meter No. (Main)",
-        "FINAL VISITED MAIN METER MAKE": "Current Visited Meter Make (Main)",
-        "FINAL VISITED POLE METER NO.": "Current Visited Meter No. (Pole)",
-        "FINAL VISITED POLE METER MAKE": "Current Visited Meter Make (Pole)",
-        "FINAL_MAIN_METER_SITE_REMARK": "Main Meter Site Observation",
-        "FINAL_POLE_METER_SITE_REMARK": "Pole Meter Site Observation",
-        "SITE REMARK": "Field Site Observation",
-        "EXCEPTION TYPE (MAIN METER)": "Main Meter Status Category",
-        "EXCEPTION TYPE (POLE METER)": "Pole Meter Status Category",
-        "IS MRI AVAILABLE (MAIN METER)": "MRI Data Available (Main)",
-        "IS MRI AVAILABLE (POLE METER)": "MRI Data Available (Pole)",
-        "IS LOAD SURVAY AVAILBLE (MAIN MTR)": "Load Survey Status (Main)",
-        "IS LOAD SURVAY AVAILBLE (POLE MTR)": "Load Survey Status (Pole)",
-        "BILLED METER NUMBER": "Billing System Meter No.",
-        "MASTER METER NUMBER": "Master Record Meter No.",
-        "MASTER METER MAKE": "Master Record Meter Make",
-        "CONSUMER CATOGARY": "Consumer Category",
-        "MASTER-SUBSTATION NAME": "Substation Name",
-        "MASTER-FEEDER-NAME": "Feeder Name",
-        "FINAL BILLING TAG": "Billing Execution Status",
-        "UNBILLED STATUS": "Pendency Reason",
-        "EXPORT FAILURE MESSAGE": "Billing Rejection Remark",
-        "RTC DATE (XML)": "Meter Clock Date (XML)",
-        "RTC DATE (VISIT)": "Meter Clock Date (Visit)"
+        "VISIT LAST MONTH": "Mr Name",
+        "MR NAME": "Mr Name",
+        "MR MOBILE NO.": "Mr Mobile No.",
+        "MASTER MOBILE NUMBER": "Master Mobile Number",
+        "LAST MONTH FINAL MM NO.": "Site Meter No. (Main)",
+        "LAST MONTH FINAL MM MAKE": "Site Meter Make (Main)",
+        "LAST MONTH FINAL PM NO.": "Site Meter No. (Pole)",
+        "LAST MONTH FINAL PM MAKE": "Site Meter Make (Pole)",
+        "FINAL VISITED MAIN METER NUMBER": "Site Meter No. (Main)",
+        "FINAL VISITED MAIN METER MAKE": "Site Meter Make (Main)",
+        "FINAL VISITED POLE METER NO.": "Site Meter No. (Pole)",
+        "FINAL VISITED POLE METER MAKE": "Site Meter Make (Pole)",
+        "POLE METER MF (SAI PORTAL)": "Pole Meter Mf",
+        "POLE METER MF": "Pole Meter Mf",
+        "FINAL_MAIN_METER_SITE_REMARK": "Site Status (Main Meter)",
+        "FINAL_POLE_METER_SITE_REMARK": "Site Status (Pole Meter)",
+        "SITE REMARK": "Site Status (Main Meter)",
+        "SITE REMARK (POLE)": "Site Status (Pole Meter)",
+        "EXCEPTION TYPE (MAIN METER)": "Exception Type (Main Meter)",
+        "EXCEPTION TYPE (POLE METER)": "Exception Type (Pole Meter)",
+        "IS MRI AVAILABLE (MAIN METER)": "Is MRI Available (Main)",
+        "IS MRI AVAILABLE (POLE METER)": "Is MRI Available (Pole)",
+        "IS LOAD SURVAY AVAILBLE (MAIN MTR)": "Load Survey (Main)",
+        "IS LOAD SURVAY AVAILBLE (POLE MTR)": "Load Survey (Pole)",
+        "BILLED METER NUMBER": "Billed Meter Number",
+        "MASTER METER NUMBER": "Master Meter Number",
+        "MASTER METER MAKE": "Master Meter Make",
+        "CONSUMER CATOGARY": "Consumer Catogary",
+        "MASTER-SUBSTATION NAME": "Master-Substation Name",
+        "MASTER-FEEDER-NAME": "Master-Feeder-Name",
+        "LOAD GROUP (5-10-50)": "Load Catogery",
+        "LOAD GROUP": "Load Catogery",
+        "BILLING STATUS": "Billing Status",
+        "BILL_BASE": "Bill Base",
+        "BILLBASE": "Bill Base",
+        "FINAL VISIT DATE": "Visit Date",
+        "VISIT DATE": "Visit Date"
       };
 
       function sanitizeDeptHeader(headerText, isDeptReport) {
         if (!headerText) return "";
         var cleanKey = String(headerText).trim().toUpperCase();
 
-        if (isDeptReport && deptProfessionalGlossary[cleanKey]) {
+        if (typeof deptProfessionalGlossary !== "undefined" && deptProfessionalGlossary[cleanKey]) {
           return deptProfessionalGlossary[cleanKey];
         }
 
-        var str = String(headerText);
-        if (isDeptReport) {
-          str = str.replace(/LAST\s*MONTH\s*FINAL\s*MM/gi, 'Previous Main Meter')
-                   .replace(/LAST\s*MONTH\s*FINAL\s*PM/gi, 'Previous Pole Meter')
-                   .replace(/LAST\s*MONTH/gi, 'Previous Billing Cycle')
-                   .replace(/\bLM\s+/gi, 'Previous ')
-                   .replace(/\bLM\b/gi, 'Previous')
-                   .replace(/\bMM\b/gi, 'Main Meter')
-                   .replace(/\bPM\b/gi, 'Pole Meter')
-                   .replace(/MRD\s*CORRPUT/gi, 'Corrupted Data File')
-                   .replace(/MRD\s*CORRUPT/gi, 'Corrupted Data File');
-        }
+        var targetClean = cleanKey.replace(/[^A-Z0-9]/gi, '');
+        if (targetClean === "LASTMONTHFINALMMNO" || targetClean === "FINALVISITEDMAINMETERNUMBER") return "Site Meter No. (Main)";
+        if (targetClean === "LASTMONTHFINALMMMAKE" || targetClean === "FINALVISITEDMAINMETERMAKE") return "Site Meter Make (Main)";
+        if (targetClean === "LASTMONTHFINALPMNO" || targetClean === "FINALVISITEDPOLEMETERNO") return "Site Meter No. (Pole)";
+        if (targetClean === "LASTMONTHFINALPMMAKE" || targetClean === "FINALVISITEDPOLEMETERMAKE") return "Site Meter Make (Pole)";
+        if (targetClean === "POLEMETERMFSAIPORTAL" || targetClean === "POLEMETERMF") return "Pole Meter Mf";
+        if (targetClean === "FINALMAINMETERSITEREMARK") return "Site Status (Main Meter)";
+        if (targetClean === "FINALPOLEMETERSITEREMARK") return "Site Status (Pole Meter)";
+        if (targetClean === "LOADGROUP51050") return "Load Catogery";
+        if (targetClean === "BILLINGSTATUS") return "Billing Status";
+        if (targetClean === "BILLBASE" || targetClean === "BILLBASIS") return "Bill Base";
+        if (targetClean === "FINALVISITDATE") return "Visit Date";
 
-        // Remove underscores and dashes, clean up spacing
+        var str = String(headerText);
         str = str.replace(/[_]/g, ' ').replace(/\s+/g, ' ').trim();
         return str.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
       }
