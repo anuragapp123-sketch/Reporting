@@ -624,41 +624,7 @@
         box-sizing: border-box;
       }
 
-      /* Desktop Layout */
-      .app-container { 
-        margin-left: 280px; 
-        margin-top: 50px; 
-        padding: 15px; 
-        width: calc(100% - 280px); 
-        max-width: calc(100% - 280px); 
-        box-sizing: border-box; 
-        height: calc(100vh - 50px); 
-        display: flex; 
-        flex-direction: column; 
-        overflow-y: auto; 
-        overflow-x: hidden; 
-        transition: all 0.3s ease; 
-      }
-      .app-container.full-width {
-        margin-left: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-      }
-
-      .top-control-wrapper {
-        background: white !important;
-        border: 1px solid var(--border) !important;
-        border-radius: 8px !important;
-        padding: 12px 15px !important;
-        margin-bottom: 15px !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 12px !important;
-        width: 100% !important; /* कंट्रोल पैनल को पूरा चौड़ा करेगा */
-        box-sizing: border-box !important;
-        flex-shrink: 0 !important;
-      }
+      /* Clean Layout Structure */
 
       .table-wrapper { 
         background: white; 
@@ -1336,8 +1302,13 @@
         </button>
 
         <!-- 👥 TOP LEVEL TOOL: ALL CONSUMERS MASTER LIST -->
-        <button class="report-link" id="btn-all-consumers-sidebar" style="border-left: 5px solid #1a73e8; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); color: #1e40af; font-weight: 800; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(26,115,232,0.15);" onclick="filterByKPICard('ALL_CONSUMERS', 'All Registered Consumers Base')">
+        <button class="report-link" id="btn-all-consumers-sidebar" style="border-left: 5px solid #1a73e8; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); color: #1e40af; font-weight: 800; margin-bottom: 6px; box-shadow: 0 2px 8px rgba(26,115,232,0.15);" onclick="filterByKPICard('ALL_CONSUMERS', 'All Registered Consumers Base')">
           <i class="fa-solid fa-users" style="color:#1d4ed8; font-size:15px;"></i> 👥 All Consumers Base
+        </button>
+
+        <!-- 🚀 EXTERNAL APP INTEGRATION LINK -->
+        <button class="report-link" id="btn-external-portal" style="border-left: 5px solid #8b5cf6; background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); color: #6d28d9; font-weight: 800; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(139,92,246,0.15);" onclick="openExternalApp('https://script.google.com/macros/s/AKfycbzDoVORCwEJ9UJrA70xlzBpZsBZOqJuc-m6O4rBSzWMtEmaBOV75-54kURsmpPWkrJ3xQ/exec', 'Secondary Management Portal', event)">
+          <i class="fa-solid fa-window-maximize" style="color:#7c3aed; font-size:15px;"></i> 🌐 Daily Report Uploading Portal
         </button>
         
         <!-- 🏢 GROUP 1: DEPARTMENT USE -->
@@ -1375,10 +1346,6 @@
 
           <button class="report-link" id="btn-data-matcher" style="border-left: 4px solid #0284c7; background: #f0f9ff; color: #0369a1;" onclick="openDataMatcherModal(event)">
             <i class="fa-solid fa-code-compare" style="color:#0284c7"></i> Matching With Data
-          </button>
-
-          <button class="report-link" id="btn-daily-upload-tool" style="border-left: 4px solid #10b981; background: #ecfdf5; color: #065f46;" onclick="openDailyUploadModal(event)">
-            <i class="fa-solid fa-cloud-arrow-up" style="color:#10b981"></i> Daily Report Upload Tool
           </button>
 
           <button class="report-link" id="btn-custom-bulk-col" style="border-left: 4px solid #6366f1; background: #eef2ff; color: #4338ca;" onclick="openCustomBulkModal()">
@@ -1644,6 +1611,11 @@
         <div class="stats-badge" id="reports-count-badge">Loading local templates...</div>
       </div>
 
+      <!-- 🟢 External Embedded Web App Container -->
+      <div id="external-app-view-zone" style="display:none; width:100%; height:100%; flex:1; overflow:hidden; border-radius:8px; border:1px solid var(--border); background:white;">
+        <iframe id="external-app-iframe" src="" style="width:100%; height:calc(100vh - 120px); border:none; border-radius:8px;" allowfullscreen></iframe>
+      </div>
+
       <div id="analytics-view-zone" class="summary-card-panel" style="display:none; font-family:'Rajdhani', sans-serif;">
 
         <!-- 🔴 Red-Flag Critical Alert Ticker (>50KW & High Risk) -->
@@ -1900,78 +1872,7 @@
         </div>
       </div>
 
-      <!-- 🚀 DAILY REPORT UPLOAD FLOATING WIDGET PANEL -->
-      <div id="daily-upload-modal" style="display:none; position:fixed; bottom:20px; right:20px; width:460px; max-width:92vw; max-height:85vh; background:#f1f5f9; z-index:999999; border-radius:18px; display:none; flex-direction:column; overflow:hidden; box-shadow:0 12px 35px rgba(0,0,0,0.35); border: 2px solid #2563eb;">
-        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color:white; padding:10px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #2563eb; cursor:move;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="background:linear-gradient(135deg, #2563eb, #1d4ed8); padding:2px 8px; border-radius:20px; font-size:10px; font-weight:800;">v3.7</span>
-            <h3 style="margin:0; font-size:14px; font-weight:800; letter-spacing:0.3px;"><i class="fa-solid fa-cloud-arrow-up" style="color:#10b981; margin-right:4px;"></i> Daily Report Upload Tool</h3>
-          </div>
-          <div style="display:flex; gap:6px;">
-            <button onclick="minimizeUploadWidget()" title="Minimize" style="background:rgba(255,255,255,0.1); border:none; color:white; width:26px; height:26px; border-radius:50%; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center;">_</button>
-            <button onclick="closeDailyUploadModal()" title="Close" style="background:rgba(255,255,255,0.1); border:none; color:white; width:26px; height:26px; border-radius:50%; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center;">&times;</button>
-          </div>
-        </div>
-        
-        <div id="upload-widget-body" style="padding:14px; overflow-y:auto; flex:1; max-height: calc(85vh - 45px);">
-          <div class="app-wrapper" style="width:100%; display:flex; flex-direction:column; gap:14px;">
-            
-            <!-- FORM CARD -->
-            <div class="container" style="background:#ffffff; padding:16px; border-radius:14px; border-top:4px solid #2563eb; box-shadow:0 2px 10px rgba(0,0,0,0.04);">
-              <div class="stats-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:12px;">
-                <div class="stat-card blue" style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:6px; text-align:center;">
-                  <div class="stat-val" id="statFiles" style="font-size:14px; font-weight:800; color:#1d4ed8;">0</div>
-                  <div class="stat-lbl" style="font-size:8px; font-weight:800; color:#475569;">Queued</div>
-                </div>
-                <div class="stat-card amber" style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:6px; text-align:center;">
-                  <div class="stat-val" id="statStatus" style="font-size:14px; font-weight:800; color:#d97706;">Idle</div>
-                  <div class="stat-lbl" style="font-size:8px; font-weight:800; color:#475569;">Status</div>
-                </div>
-                <div class="stat-card emerald" style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:10px; padding:6px; text-align:center;">
-                  <div class="stat-val" id="statSuccess" style="font-size:14px; font-weight:800; color:#047857;">0</div>
-                  <div class="stat-lbl" style="font-size:8px; font-weight:800; color:#475569;">Completed</div>
-                </div>
-              </div>
-
-              <form id="uploadForm">
-                <label for="sheetSelection" style="font-size:10.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Select Target Sheet</label>
-                <select id="sheetSelection" required onchange="toggleFileMode()" style="width:100%; padding:10px; margin-bottom:10px; border:1.5px solid #cbd5e1; border-radius:10px; font-size:12px; font-weight:600; background:#f8fafc;">
-                  <option value="">-- Choose Report Type --</option>
-                  <option value="XML & Reads Sheet Upload">📊 XML & Reads Sheet Upload</option>
-                  <option value="Load Survay Sheet Upload">📈 Load Survay Sheet Upload</option>
-                  <option value="BILLED_LIST_UPLOAD">💵 BILLED_LIST_UPLOAD</option>
-                  <option value="Department_Master_Data-Upload">🏢 Department_Master_Data-Upload</option>
-                  <option value="RDG Sheet Upload">📋 RDG Sheet Upload</option>
-                  <option value="Isspl VisiT-Upload (Main_Mtr)">🏠 Isspl VisiT-Upload (Main_Mtr)</option>
-                  <option value="Isspl VisiT-Upload (Pole_Mtr)">🪜 Isspl VisiT-Upload (Pole_Mtr)</option>
-                  <option value="BILL DIST. _UPLOAD">🚚 BILL DIST. _UPLOAD</option>
-                </select>
-
-                <label id="fileLabel" style="font-size:10.5px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Select Excel/CSV File</label>
-                <div class="file-drop-area" id="dropArea" onclick="document.getElementById('fileUpload').click()" style="border:2px dashed #93c5fd; background:#f8fafc; border-radius:12px; padding:12px 8px; text-align:center; cursor:pointer; margin-bottom:10px;">
-                  <div class="file-msg" id="fileMsg" style="font-size:11px; color:#64748b; font-weight:600;">📁 Tap or Drag & Drop File(s) Here</div>
-                  <input type="file" id="fileUpload" accept=".xlsx, .xls, .csv" style="display:none;" onchange="updateFileName()">
-                </div>
-                <button type="button" id="addBtn" class="add-btn" onclick="addToQueue()" style="width:100%; padding:10px; background:linear-gradient(135deg, #2563eb, #1d4ed8); color:white; border:none; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; box-shadow:0 2px 8px rgba(37,99,235,0.2);">➕ Add to Queue</button>
-              </form>
-            </div>
-
-            <!-- DASHBOARD QUEUE & LOGS -->
-            <div class="queue-container" id="queueContainer" style="background:#ffffff; padding:16px; border-radius:14px; border-top:4px solid #10b981; box-shadow:0 2px 10px rgba(0,0,0,0.04); display:none;">
-              <button type="button" id="startAllBtn" class="upload-btn" onclick="startAllUploads()" style="width:100%; padding:11px; background:linear-gradient(135deg, #10b981, #047857); color:white; border:none; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; margin-bottom:10px; box-shadow:0 2px 8px rgba(16,185,129,0.2);">🚀 START ALL UPLOADS</button>
-              <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin-bottom:8px;">
-                <span style="font-size:12px; font-weight:800; color:#1e293b;"><i class="fa-solid fa-terminal"></i> Live Log Console</span>
-                <button type="button" class="clear-queue-btn" onclick="clearAllQueue()" style="background:#f1f5f9; color:#ef4444; border:1px solid #cbd5e1; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:700; cursor:pointer;">🗑️ Clear Queue</button>
-              </div>
-              <div id="logWindow" style="background:#0f172a; color:#38bdf8; padding:10px; border-radius:10px; height:110px; overflow-y:auto; font-family:monospace; font-size:10.5px; margin-bottom:10px; line-height:1.4;">
-                <div>> System Stream Pipeline Active...</div>
-              </div>
-              <div id="tasksWrapper"></div>
-            </div>
-
-          </div>
-        </div>
-      </div>
+      
 
       <!-- 🟢 CONSUMER 360° INTERACTIVE PROFILE MODAL -->
       <div id="consumer-360-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.75); z-index:9999999; justify-content:center; align-items:center; backdrop-filter:blur(4px); font-family:'Rajdhani', sans-serif;">
@@ -2309,6 +2210,7 @@
 
       var cachedReportsConfig = [];
       var cachedDatabase = [];
+      var cachedRdgMap = {}; // 🟢 RDG Map Definition Added
       var originalSheetHeadersList = [];
       var activeReportMeta = null;
       var clientRenderedRows = [];
@@ -2412,7 +2314,6 @@
             closeMismatchModal();
             closeBulkUpdateModal();
             closePendencyFinderModal();
-            closeDailyUploadModal();
           }
           // Ctrl+F / Cmd+F: Focus Live Search Input
           if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
@@ -2442,6 +2343,8 @@
                 cachedReportsConfig = localPacket.reports || [];
                 cachedDatabase = localPacket.rawDatabase || []; 
                 originalSheetHeadersList = localPacket.allSheetHeaders || [];
+                cachedRdgMap = localPacket.rdgMap || {};
+                window.cachedRdgMap = cachedRdgMap;
 
                 // 🟢 Speed Engine: Pre-index and flatten database in memory
                 window.fastSearchCache = [];
@@ -2502,7 +2405,9 @@
 
             originalSheetHeadersList = packet.headers || packet.allSheetHeaders || [];
             cachedReportsConfig = packet.reports || [];
-            if (packet.rdgMap) cachedRdgMap = packet.rdgMap;
+            cachedRdgMap = packet.rdgMap || {};
+            window.cachedRdgMap = packet.rdgMap || {};
+            localStorage.setItem("RMS_RDG_MAP", JSON.stringify(window.cachedRdgMap));
 
             if (packet.rows && packet.headers) {
               var hdrs = packet.headers;
@@ -2584,6 +2489,12 @@
           name: "5 KW & Above Unbilled Master Report (v153.0)",
           conditions: "FINAL BILLING TAG = UNBILLED",
           columns: "DIVISION, SUBDIVISION, ACCOUNT ID, CONSUMER_TYPE, TARIFF, CONSUMER NAME, ADDRESS, LOAD IN KW, LOAD GROUP, METER NO., METER_MAKE, SITE METER NO., SITE METER MAKE, VISIT DATE, STATUS, FINAL_STATUS, SITE REMARK, FINAL REJECTION, IS MRI AVAILABLE, READING TYPE, RTC DATE (XML), RTC DATE (VISIT), KWH, KVAH, MD KW, MD KVA, ATR, COMPLAINT NO., UNBILLED STATUS, MRI KWH, MRI KVAH, MRI MD KW, MRI MD KVA, MANUAL KWH, MANUAL KVAH, MANUAL KW, MANUAL KVA, XML KWH, XML KVAH, XML KW, XML KVA"
+        },
+        {
+          id: "rpt_mri_done_read_missing",
+          name: "MRI Done But Read Missing (Main/Pole)",
+          conditions: "",
+          columns: "DIVISION, VISIT LAST MONTH, ACCOUNT NO, CONSUMER-NAME, LAST MONTH FINAL MM NO., IS MRI AVAILABLE (MAIN METER), LAST MONTH FINAL PM NO., IS MRI AVAILABLE (POLE METER)"
         },
         {
           id: "rpt_mri_not_upload",
@@ -2798,7 +2709,12 @@
         var topCtrlWrapper = document.getElementById('main-top-control-wrapper');
         if (topCtrlWrapper) topCtrlWrapper.style.setProperty('display', 'flex', 'important');
         if (document.getElementById('filters-panel-wrapper')) document.getElementById('filters-panel-wrapper').style.display = 'grid';
+        
+        // सभी अन्य व्यूज़ और टूल्स को साफ़ तौर पर छुपाएं ताकि पिछला व्यू ओवरलैप न हो
         if (document.getElementById('xml-reader-view-zone')) document.getElementById('xml-reader-view-zone').style.display = 'none';
+        if (document.getElementById('external-app-view-zone')) document.getElementById('external-app-view-zone').style.display = 'none';
+        if (document.getElementById('home-view-zone')) document.getElementById('home-view-zone').style.display = 'none';
+        if (document.getElementById('analytics-view-zone')) document.getElementById('analytics-view-zone').style.display = 'none';
 
         var backBtn = document.getElementById('btn-back-to-analytics');
         if (backBtn) backBtn.style.display = "none";
@@ -3033,7 +2949,50 @@
 
           if (!isMatch) continue;
 
-          // 🟢 MRI Done But Not Upload रिपोर्ट के लिए स्पेशल फ़िल्टर
+         // 🟢 MRI Done But Read Missing Matcher
+          var isMriReadMissingRpt = activeReportMeta && (activeReportMeta.id === "rpt_mri_done_read_missing" || activeReportMeta.name.toLowerCase().includes("read missing"));
+          if (isMriReadMissingRpt) {
+            function getCol(keys) {
+              if (!Array.isArray(keys)) keys = [keys];
+              for (var k = 0; k < keys.length; k++) {
+                var search = keys[k].replace(/[^A-Z0-9]/gi, "").toUpperCase();
+                for (var prop in upperRowMap) {
+                  if (prop.replace(/[^A-Z0-9]/gi, "").toUpperCase() === search) {
+                    var v = upperRowMap[prop];
+                    if (v !== undefined && v !== null && String(v).trim() !== "") return String(v).trim();
+                  }
+                }
+              }
+              return "";
+            }
+
+            var mriMainVal = getCol(["IS MRI AVAILABLE (MAIN METER)", "IS_MRI_AVAILABLE_(MAIN_METER)", "IS MRI AVAILABLE MAIN", "MAIN MRI AVAILABLE"]).toUpperCase();
+            var mriPoleVal = getCol(["IS MRI AVAILABLE (POLE METER)", "IS_MRI_AVAILABLE_(POLE_METER)", "IS MRI AVAILABLE POLE", "POLE MRI AVAILABLE"]).toUpperCase();
+            
+            var isMainMri = ["TRUE", "YES", "1"].includes(mriMainVal);
+            var isPoleMri = ["TRUE", "YES", "1"].includes(mriPoleVal);
+
+            var mainMtr = getCol(["LAST MONTH FINAL MM NO.", "LAST MONTH FINAL MM NO", "FINAL VISITED MAIN METER NUMBER"]).toUpperCase().replace(/[^A-Z0-9]/g, "");
+            var poleMtr = getCol(["LAST MONTH FINAL PM NO.", "LAST MONTH FINAL PM NO", "FINAL VISITED POLE METER NO."]).toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+            var rdg = window.cachedRdgMap || cachedRdgMap || {};
+
+            function checkInRdg(m) {
+              if (!m) return true;
+              var noZ = m.replace(/^0+/, "");
+              return !!(rdg[m] || (noZ && rdg[noZ]));
+            }
+
+            var isMainMissing = (isMainMri && mainMtr !== "" && !checkInRdg(mainMtr));
+            var isPoleMissing = (isPoleMri && poleMtr !== "" && !checkInRdg(poleMtr));
+
+            if (!isMainMissing && !isPoleMissing) continue;
+
+            row["MISSING TYPE"] = (isMainMissing && isPoleMissing) ? "Both Main & Pole Missing" : (isMainMissing ? "Main Meter Read Missing" : "Pole Meter Read Missing");
+          }
+
+          // 🟢 MRI Done But Not Upload रिपोर्ट के लिए स्पेशल फ़िल्टर (Fixed Conflict)
+          var isMriNotUploadRpt = activeReportMeta && (activeReportMeta.id === "rpt_mri_not_upload" || (activeReportMeta.name.toLowerCase().includes("not upload") && !activeReportMeta.name.toLowerCase().includes("read missing")));
           if (isMriNotUploadRpt) {
             function checkMriTrue(v) {
               var s = String(v || "").trim().toUpperCase();
@@ -3701,6 +3660,40 @@
 
       var reportsBarChartInstance = null;
 
+      // 🟢 Master Data Review Modal Handlers
+      var reviewedMasterDataset = null;
+
+      function closeMasterReviewModal(status) {
+        var modal = document.getElementById('master-review-modal');
+        if (modal) modal.style.display = 'none';
+      }
+
+      function downloadReviewedMasterExcel() {
+        if (!cachedDatabase || cachedDatabase.length === 0) {
+          alert("डाउनलोड करने के लिए डेटा उपलब्ध नहीं है!");
+          return;
+        }
+        var wb = XLSX.utils.book_new();
+        var ws = XLSX.utils.json_to_sheet(cachedDatabase);
+        XLSX.utils.book_append_sheet(wb, ws, "Master_Data_Review");
+        XLSX.writeFile(wb, "Merged_Master_Data_Review.xlsx");
+      }
+
+      function confirmMasterDataUpload() {
+        var toast = document.getElementById("global-copy-toast");
+        if (toast) {
+          toast.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="color:#f1c40f; margin-right:6px;"></i> Google Sheet में डेटा अपलोड हो रहा है...';
+          toast.style.display = "block";
+        }
+        closeMasterReviewModal(true);
+        setTimeout(function() {
+          if (toast) {
+            toast.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#2ecc71; margin-right:6px;"></i> Master Data सफलतापूर्वक सिंक हो गया!';
+            setTimeout(function() { toast.style.display = "none"; }, 3000);
+          }
+        }, 1500);
+      }
+
       function triggerFieldExceptionReport(event) {
         if(event) event.stopPropagation();
         document.getElementById('mainSidebar').classList.remove('open');
@@ -3744,6 +3737,42 @@
         worksheet['!cols'] = colWidths;
       }
 
+      function openExternalApp(appUrl, appTitle, event) {
+        if (event) event.stopPropagation();
+        activeReportMeta = null;
+        isSummaryViewPageOpen = false;
+
+        document.querySelectorAll('.report-link').forEach(function(b) {
+          b.classList.remove('active');
+        });
+        var actBtn = document.getElementById('btn-external-portal');
+        if (actBtn) actBtn.classList.add('active');
+
+        var topCtrlWrapper = document.getElementById('main-top-control-wrapper');
+        if (topCtrlWrapper) topCtrlWrapper.style.setProperty('display', 'none', 'important');
+
+        if (document.getElementById('home-view-zone')) document.getElementById('home-view-zone').style.display = 'none';
+        if (document.getElementById('analytics-view-zone')) document.getElementById('analytics-view-zone').style.display = 'none';
+        if (document.getElementById('table-zone')) document.getElementById('table-zone').style.display = 'none';
+        if (document.getElementById('pivot-page-zone')) document.getElementById('pivot-page-zone').style.display = 'none';
+        if (document.getElementById('xml-reader-view-zone')) document.getElementById('xml-reader-view-zone').style.display = 'none';
+        if (document.getElementById('table-loader')) document.getElementById('table-loader').style.display = 'none';
+
+        var iframe = document.getElementById('external-app-iframe');
+        var extZone = document.getElementById('external-app-view-zone');
+        if (iframe && extZone) {
+          if (iframe.src !== appUrl) {
+            iframe.src = appUrl;
+          }
+          extZone.style.display = 'block';
+        }
+
+        if (window.innerWidth <= 850) {
+          var sb = document.getElementById('mainSidebar');
+          if (sb) sb.classList.remove('open');
+        }
+      }
+
       function showXmlReaderView(event) {
         if(event) event.stopPropagation();
         activeReportMeta = null;
@@ -3764,6 +3793,7 @@
         if (document.getElementById('table-zone')) document.getElementById('table-zone').style.display = 'none';
         if (document.getElementById('pivot-page-zone')) document.getElementById('pivot-page-zone').style.display = 'none';
         if (document.getElementById('table-loader')) document.getElementById('table-loader').style.display = 'none';
+        if (document.getElementById('external-app-view-zone')) document.getElementById('external-app-view-zone').style.display = 'none';
 
         var xmlZone = document.getElementById('xml-reader-view-zone');
         if (xmlZone) xmlZone.style.display = 'block';
@@ -6846,11 +6876,16 @@
         activeReportMeta = null;
         isSummaryViewPageOpen = false;
 
-        // 🟢 Analytics पर जाने पर Top Controls दिखाएं और XML ज़ोन छुपाएं
         var topCtrlWrapper = document.getElementById('main-top-control-wrapper');
         if (topCtrlWrapper) topCtrlWrapper.style.setProperty('display', 'flex', 'important');
         if (document.getElementById('filters-panel-wrapper')) document.getElementById('filters-panel-wrapper').style.display = 'grid';
+        
+        // एनालिटिक्स डैशबोर्ड पर आते समय सभी स्पेशल व्यूज़ बंद करें
         if (document.getElementById('xml-reader-view-zone')) document.getElementById('xml-reader-view-zone').style.display = 'none';
+        if (document.getElementById('external-app-view-zone')) document.getElementById('external-app-view-zone').style.display = 'none';
+        if (document.getElementById('home-view-zone')) document.getElementById('home-view-zone').style.display = 'none';
+        if (document.getElementById('table-zone')) document.getElementById('table-zone').style.display = 'none';
+        if (document.getElementById('pivot-page-zone')) document.getElementById('pivot-page-zone').style.display = 'none';
         
         document.querySelectorAll('.report-link').forEach(function(b) {
           b.classList.remove('active');
@@ -8000,7 +8035,7 @@
         var tBody = document.getElementById('table-body');
         tHead.innerHTML = ""; tBody.innerHTML = "";
         
-        if(clientRenderedRows.length === 0) { 
+        if(!clientRenderedRows || clientRenderedRows.length === 0) { 
           tHead.innerHTML = "<tr><th>इस फ़िल्टर सिलेक्शन पर डेटा रो उपलब्ध नहीं है।</th></tr>"; 
           document.getElementById('table-pagination-bar').style.display = "none";
           return; 
@@ -8012,39 +8047,35 @@
         var isMismatchRpt = activeReportMeta && (activeReportMeta.id.includes("mismatch") || activeReportMeta.name.toLowerCase().includes("mismatch"));
         
         var isDeptRpt = activeReportMeta && (
-          (activeReportMeta.id && (activeReportMeta.id.includes("dept") || activeReportMeta.id.includes("master_unbilled") || activeReportMeta.id.includes("field_exception") || activeReportMeta.id.includes("indep"))) ||
-          (activeReportMeta.name && (activeReportMeta.name.toUpperCase().includes("DEPARTMENT") || activeReportMeta.name.toUpperCase().includes("UNBILLED") || activeReportMeta.name.toUpperCase().includes("FIELD EXCEPTION") || activeReportMeta.name.toUpperCase().includes("INDEPENDENT")))
+          (activeReportMeta.type && String(activeReportMeta.type).toUpperCase() === "DEPARTMENT") ||
+          (activeReportMeta.id && (activeReportMeta.id === "rpt_dept_master" || activeReportMeta.id === "rpt_dept_master_data" || activeReportMeta.id === "rpt_field_exception_rejection" || activeReportMeta.id === "rpt_master_unbilled" || activeReportMeta.id === "rpt_independent_consumers"))
         );
 
-        // Sticky Header Build with Column Visibility check
+        // 🟢 High Speed Header Render (Only Sample Top 80 Rows for Filter Options to Prevent Freezing)
         var headHtml = "<tr><th class='sticky-col' style='width:45px; min-width:45px;'>Sr.No.</th>";
         if (isMismatchRpt) {
           headHtml += "<th style='background:#d35400; color:white;'>Action</th>";
         }
         
+        var scanLimit = Math.min(clientRenderedRows.length, 80);
+
         headers.forEach(function(h, idx) {
           var colKey = h.toUpperCase().trim();
-          if (hiddenColumnsSet.has(colKey)) return; // Hidden Column Skip
+          if (hiddenColumnsSet.has(colKey)) return;
 
           var formattedTitle = sanitizeDeptHeader(h, isDeptRpt);
           var colDataIdx = idx + 1;
-          var stickyClass = "";
 
           var uniqueValsSet = new Set();
-          var scanLen = Math.min(clientRenderedRows.length, 1000);
-          for (var r = 0; r < scanLen; r++) {
+          for (var r = 0; r < scanLimit; r++) {
             var row = clientRenderedRows[r];
-            var finalVal = "Blank";
-            Object.keys(row).forEach(function(k) {
-              if (k.toUpperCase().trim() === colKey) {
-                var cellRaw = row[k];
-                if (cellRaw !== undefined && cellRaw !== null && String(cellRaw).trim() !== "") {
-                  finalVal = String(cellRaw).trim();
-                }
-              }
-            });
-            uniqueValsSet.add(finalVal);
+            var u = row._uMap || row;
+            var cellRaw = u[colKey] !== undefined ? u[colKey] : row[h];
+            if (cellRaw !== undefined && cellRaw !== null && String(cellRaw).trim() !== "") {
+              uniqueValsSet.add(String(cellRaw).trim());
+            }
           }
+          if (uniqueValsSet.size === 0) uniqueValsSet.add("Blank");
           
           var uniqueValsArr = Array.from(uniqueValsSet).sort();
 
@@ -8065,12 +8096,12 @@
           popupContentHtml += '</div>' +
             '<div style="padding: 6px 10px; background: #f1f3f4; border-top: 1px solid #bfc4ca; text-align: right; display: flex; justify-content: space-between; align-items: center;">' +
             '<span style="font-size: 10px; color: #5f6368; font-weight: bold;">RMS Engine</span>' +
-            '<button onclick="applyLiveHeaderChecklistFilter(' + colDataIdx + '); closeAllHeaderPopups();" style="background: #1a73e8; color: white; border: none; padding: 4px 12px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">Apply</button>' +
+            '<button onclick="applyLiveHeaderChecklistFilter(' + colDataIdx + '); closeAllHeaderPopups();" style="background: #1a73e8; color: white; border: none; padding: 4px 12px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer;">Apply</button>' +
             '</div></div>';
 
           var sortIndicator = (currentSortColumn === colKey) ? (currentSortDirection === 'asc' ? ' <i class="fa-solid fa-arrow-up-short-wide sort-indicator"></i>' : ' <i class="fa-solid fa-arrow-down-wide-short sort-indicator"></i>') : '';
           
-          headHtml += '<th class="sortable-th ' + stickyClass + '" onclick="handleTableSortColumn(\'' + colKey + '\')" style="position: relative; white-space: nowrap; padding-right: 22px !important;">' +
+          headHtml += '<th class="sortable-th" onclick="handleTableSortColumn(\'' + colKey + '\')" style="position: relative; white-space: nowrap; padding-right: 22px !important;">' +
             formattedTitle + sortIndicator +
             '<span class="header-filter-container" onclick="event.stopPropagation(); toggleHeaderFilterPopup(' + colDataIdx + ', event)" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%);">' +
             '<i class="fa-solid fa-filter header-filter-icon" id="hf-icon-' + colDataIdx + '" style="cursor:pointer; font-size:11px; color:#ced4da;"></i>' +
@@ -8835,11 +8866,13 @@ tBody.appendChild(fragment);
           XLSX.writeFile(wbConflict, "Duplicate_Meter_Conflicts_" + dateString + "_" + timeString + ".xlsx");
           return;
         }
-        var isMriNotUploadRpt = activeReportMeta && (activeReportMeta.id === "rpt_mri_not_upload" || activeReportMeta.name.toLowerCase().includes("mri done but"));
+        var isMriReadMissingRpt = activeReportMeta && (activeReportMeta.id === "rpt_mri_done_read_missing" || activeReportMeta.name.toLowerCase().includes("read missing"));
+        var isMriNotUploadRpt = activeReportMeta && (activeReportMeta.id === "rpt_mri_not_upload" || activeReportMeta.name.toLowerCase().includes("mri done but file not upload"));
         var isSurveyNotFoundRpt = activeReportMeta && (activeReportMeta.id === "rpt_survey_not_found" || activeReportMeta.name.toLowerCase().includes("load survey not found") || activeReportMeta.name.toLowerCase().includes("load survay not found"));
+        var isMasterUnbilledRpt = activeReportMeta && (activeReportMeta.id === "rpt_master_unbilled" || activeReportMeta.name.toLowerCase().includes("unbilled master"));
         
-        var reportProperName = (activeReportMeta && activeReportMeta.id === "rpt_master_unbilled") 
-          ? "EDC Mainpuri 5 KW And Above Unbilled Consumers MIS" 
+        var reportProperName = isMasterUnbilledRpt 
+          ? "EDC Mainpuri 5 KW And Above Unbilled Consumers Report" 
           : (rName.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); }) + " MIS");
         
         var today = new Date();
@@ -8850,7 +8883,7 @@ tBody.appendChild(fragment);
         var activeExcelRowsList = (window.clientRenderedRows && window.clientRenderedRows.length > 0) ? window.clientRenderedRows : [];
 
         // 🟢 SPECIAL CASE: केवल Meter_No (पहले Main फिर Pole) सिंगल कॉलम डाउनलोड
-        if (isMriNotUploadRpt || isSurveyNotFoundRpt) {
+        if (isMriReadMissingRpt || isMriNotUploadRpt || isSurveyNotFoundRpt) {
           var wbSpecial = XLSX.utils.book_new();
           var meterRowsData = [["Meter_No"]];
           var mainMetersList = [];
@@ -8860,24 +8893,43 @@ tBody.appendChild(fragment);
             var s = String(v || "").trim().toUpperCase();
             return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
           }
+          function cleanMtrStr(v) {
+            if (!v) return "";
+            var s = String(v).trim().toUpperCase();
+            if (s === "" || s === "NAN" || s === "NULL" || s === "BLANK" || s === "NONE" || s === "-") return "";
+            return s.replace(/[^A-Z0-9]/g, "");
+          }
 
           activeExcelRowsList.forEach(function(row) {
             var u = {};
             for (var k in row) { u[k.toUpperCase().trim()] = row[k]; }
 
-            var mainMtrNo = String(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"] || "").trim();
-            var poleMtrNo = String(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."] || "").trim();
+            var mainMtrNo = cleanMtrStr(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"] || "");
+            var poleMtrNo = cleanMtrStr(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."] || "");
 
-            if (isMriNotUploadRpt) {
+            if (isMriReadMissingRpt) {
+              var mMriAvail = u["IS MRI AVAILABLE (MAIN METER)"];
+              var pMriAvail = u["IS MRI AVAILABLE (POLE METER)"];
+
+              var isMainInRdg = mainMtrNo && cachedRdgMap && cachedRdgMap.hasOwnProperty(mainMtrNo);
+              var isPoleInRdg = poleMtrNo && cachedRdgMap && cachedRdgMap.hasOwnProperty(poleMtrNo);
+
+              if (isCheckTrue(mMriAvail) && mainMtrNo && !isMainInRdg) {
+                if (!mainMetersList.includes(mainMtrNo)) mainMetersList.push(mainMtrNo);
+              }
+              if (isCheckTrue(pMriAvail) && poleMtrNo && !isPoleInRdg) {
+                if (!poleMetersList.includes(poleMtrNo)) poleMetersList.push(poleMtrNo);
+              }
+            } else if (isMriNotUploadRpt) {
               var mainEx = String(u["EXCEPTION TYPE (MAIN METER)"] || "").trim().toUpperCase();
               var mainMriAvail = u["IS MRI AVAILABLE (MAIN METER)"];
               var poleEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").trim().toUpperCase();
               var poleMriAvail = u["IS MRI AVAILABLE (POLE METER)"];
 
-              if (mainEx === "MRI" && !isCheckTrue(mainMriAvail) && mainMtrNo && mainMtrNo !== "-" && mainMtrNo !== "NAN") {
+              if (mainEx === "MRI" && !isCheckTrue(mainMriAvail) && mainMtrNo) {
                 if (!mainMetersList.includes(mainMtrNo)) mainMetersList.push(mainMtrNo);
               }
-              if (poleEx === "MRI" && !isCheckTrue(poleMriAvail) && poleMtrNo && poleMtrNo !== "-" && poleMtrNo !== "NAN") {
+              if (poleEx === "MRI" && !isCheckTrue(poleMriAvail) && poleMtrNo) {
                 if (!poleMetersList.includes(poleMtrNo)) poleMetersList.push(poleMtrNo);
               }
             } else if (isSurveyNotFoundRpt) {
@@ -8886,58 +8938,26 @@ tBody.appendChild(fragment);
               var pMriAvail = u["IS MRI AVAILABLE (POLE METER)"];
               var pSurvey = u["IS LOAD SURVAY AVAILBLE (POLE MTR)"] || u["IS LOAD SURVEY AVAILABLE (POLE METER)"];
 
-              if (isCheckTrue(mMriAvail) && !isCheckTrue(mSurvey) && mainMtrNo && mainMtrNo !== "-" && mainMtrNo !== "NAN") {
+              if (isCheckTrue(mMriAvail) && !isCheckTrue(mSurvey) && mainMtrNo) {
                 if (!mainMetersList.includes(mainMtrNo)) mainMetersList.push(mainMtrNo);
               }
-              if (isCheckTrue(pMriAvail) && !isCheckTrue(pSurvey) && poleMtrNo && poleMtrNo !== "-" && poleMtrNo !== "NAN") {
+              if (isCheckTrue(pMriAvail) && !isCheckTrue(pSurvey) && poleMtrNo) {
                 if (!poleMetersList.includes(poleMtrNo)) poleMetersList.push(poleMtrNo);
               }
             }
           });
 
-          // पहले Main Meter Numbers
-          mainMetersList.forEach(function(m) {
-            meterRowsData.push([m]);
-          });
-
-          // उसके नीचे Pole Meter Numbers
-          poleMetersList.forEach(function(p) {
-            meterRowsData.push([p]);
-          });
+          // Pehle Main Meters, fir Pole Meters
+          mainMetersList.forEach(function(m) { meterRowsData.push([m]); });
+          poleMetersList.forEach(function(p) { meterRowsData.push([p]); });
 
           var wsSpecial = XLSX.utils.aoa_to_sheet(meterRowsData);
           wsSpecial['!cols'] = [{ wch: 26 }];
 
-          if (wsSpecial['!ref']) {
-            var rangeSp = XLSX.utils.decode_range(wsSpecial['!ref']);
-            for (var R = rangeSp.s.r; R <= rangeSp.e.r; ++R) {
-              var cAddr = XLSX.utils.encode_cell({ r: R, c: 0 });
-              if (!wsSpecial[cAddr]) continue;
-              wsSpecial[cAddr].t = 's';
-              wsSpecial[cAddr].z = '@';
+          var outFileName = isMriReadMissingRpt 
+            ? ("MRI_Done_Read_Missing_Meters_" + dateString + "_" + timeString + ".xlsx")
+            : ((isMriNotUploadRpt ? "Meter_No_Pending_Upload_" : "Meter_No_Load_Survey_Pending_") + dateString + "_" + timeString + ".xlsx");
 
-              if (R === 0) {
-                wsSpecial[cAddr].s = {
-                  fill: { fgColor: { rgb: "0B3C5D" } },
-                  font: { name: "Segoe UI", sz: 10, bold: true, color: { rgb: "FFFFFF" } },
-                  alignment: { horizontal: "center", vertical: "center" }
-                };
-              } else {
-                wsSpecial[cAddr].s = {
-                  font: { name: "Segoe UI", sz: 9 },
-                  alignment: { horizontal: "center", vertical: "center" },
-                  border: {
-                    top: { style: "thin", color: { rgb: "E0E0E0" } },
-                    bottom: { style: "thin", color: { rgb: "E0E0E0" } },
-                    left: { style: "thin", color: { rgb: "E0E0E0" } },
-                    right: { style: "thin", color: { rgb: "E0E0E0" } }
-                  }
-                };
-              }
-            }
-          }
-
-          var outFileName = (isMriNotUploadRpt ? "Meter_No_Pending_Upload_" : "Meter_No_Load_Survey_Pending_") + dateString + "_" + timeString + ".xlsx";
           XLSX.utils.book_append_sheet(wbSpecial, wsSpecial, "Meter_Numbers");
           XLSX.writeFile(wbSpecial, outFileName);
           return;
@@ -10568,48 +10588,69 @@ tBody.appendChild(fragment);
         XLSX.writeFile(wb, "EDC_Mainpuri_Bulletin_Matched_List_" + dateStr + ".xlsx");
       }
 
+      // 🟢 Unified Professional Glossary & Header Sanitizer
+      var deptProfessionalGlossary = {
+        "VISIT LAST MONTH": "Mr Name",
+        "MR NAME": "Mr Name",
+        "MR MOBILE NO.": "Mr Mobile No.",
+        "MASTER MOBILE NUMBER": "Master Mobile Number",
+        "LAST MONTH FINAL MM NO.": "Site Meter No. (Main)",
+        "LAST MONTH FINAL MM MAKE": "Site Meter Make (Main)",
+        "LAST MONTH FINAL PM NO.": "Site Meter No. (Pole)",
+        "LAST MONTH FINAL PM MAKE": "Site Meter Make (Pole)",
+        "FINAL VISITED MAIN METER NUMBER": "Site Meter No. (Main)",
+        "FINAL VISITED MAIN METER MAKE": "Site Meter Make (Main)",
+        "FINAL VISITED POLE METER NO.": "Site Meter No. (Pole)",
+        "FINAL VISITED POLE METER MAKE": "Site Meter Make (Pole)",
+        "POLE METER MF (SAI PORTAL)": "Pole Meter Mf",
+        "POLE METER MF": "Pole Meter Mf",
+        "FINAL_MAIN_METER_SITE_REMARK": "Site Status (Main Meter)",
+        "FINAL_POLE_METER_SITE_REMARK": "Site Status (Pole Meter)",
+        "SITE REMARK": "Site Status (Main Meter)",
+        "SITE REMARK (POLE)": "Site Status (Pole Meter)",
+        "EXCEPTION TYPE (MAIN METER)": "Exception Type (Main Meter)",
+        "EXCEPTION TYPE (POLE METER)": "Exception Type (Pole Meter)",
+        "IS MRI AVAILABLE (MAIN METER)": "Is MRI Available (Main)",
+        "IS MRI AVAILABLE (POLE METER)": "Is MRI Available (Pole)",
+        "IS LOAD SURVAY AVAILBLE (MAIN MTR)": "Load Survey (Main)",
+        "IS LOAD SURVAY AVAILBLE (POLE MTR)": "Load Survey (Pole)",
+        "BILLED METER NUMBER": "Billed Meter Number",
+        "MASTER METER NUMBER": "Master Meter Number",
+        "MASTER METER MAKE": "Master Meter Make",
+        "CONSUMER CATOGARY": "Consumer Catogary",
+        "MASTER-SUBSTATION NAME": "Master-Substation Name",
+        "MASTER-FEEDER-NAME": "Master-Feeder-Name",
+        "LOAD GROUP (5-10-50)": "Load Catogery",
+        "LOAD GROUP": "Load Catogery",
+        "BILLING STATUS": "Billing Status",
+        "BILL_BASE": "Bill Base",
+        "BILLBASE": "Bill Base",
+        "FINAL VISIT DATE": "Visit Date",
+        "VISIT DATE": "Visit Date"
+      };
+
       function sanitizeDeptHeader(headerText, isDeptReport) {
         if (!headerText) return "";
         var cleanKey = String(headerText).trim().toUpperCase();
+
+        if (deptProfessionalGlossary[cleanKey]) {
+          return deptProfessionalGlossary[cleanKey];
+        }
+
         var targetClean = cleanKey.replace(/[^A-Z0-9]/gi, '');
+        if (targetClean === "LASTMONTHFINALMMNO" || targetClean === "FINALVISITEDMAINMETERNUMBER" || targetClean === "SITEMETERNOMAIN") return "Site Meter No. (Main)";
+        if (targetClean === "LASTMONTHFINALMMMAKE" || targetClean === "FINALVISITEDMAINMETERMAKE" || targetClean === "SITEMETERMAKEMAIN") return "Site Meter Make (Main)";
+        if (targetClean === "LASTMONTHFINALPMNO" || targetClean === "FINALVISITEDPOLEMETERNO" || targetClean === "SITEMETERNOPOLE") return "Site Meter No. (Pole)";
+        if (targetClean === "LASTMONTHFINALPMMAKE" || targetClean === "FINALVISITEDPOLEMETERMAKE" || targetClean === "SITEMETERMAKEPOLE") return "Site Meter Make (Pole)";
+        if (targetClean === "POLEMETERMFSAIPORTAL" || targetClean === "POLEMETERMF") return "Pole Meter Mf";
+        if (targetClean === "FINALMAINMETERSITEREMARK" || targetClean === "SITESTATUSMAINMETER") return "Site Status (Main Meter)";
+        if (targetClean === "FINALPOLEMETERSITEREMARK" || targetClean === "SITESTATUSPOLEMETER") return "Site Status (Pole Meter)";
+        if (targetClean === "LOADGROUP51050" || targetClean === "LOADCATOGERY" || targetClean === "LOADCATEGORY") return "Load Catogery";
+        if (targetClean === "BILLINGSTATUS" || targetClean === "FINALBILLINGTAG") return "Billing Status";
+        if (targetClean === "BILLBASE" || targetClean === "BILLBASIS") return "Bill Base";
+        if (targetClean === "FINALVISITDATE" || targetClean === "VISITDATE") return "Visit Date";
 
-        // 🟢 Exact Header Formatting for Main & Pole Meters
-        if (targetClean === "LASTMONTHFINALMMNO" || targetClean === "FINALVISITEDMAINMETERNUMBER" || targetClean === "SITEMETERNOMAIN") {
-          return "Site Meter No. (Main)";
-        }
-        if (targetClean === "LASTMONTHFINALMMMAKE" || targetClean === "FINALVISITEDMAINMETERMAKE" || targetClean === "SITEMETERMAKEMAIN") {
-          return "Site Meter Make (Main)";
-        }
-        if (targetClean === "LASTMONTHFINALPMNO" || targetClean === "FINALVISITEDPOLEMETERNO" || targetClean === "SITEMETERNOPOLE") {
-          return "Site Meter No. (Pole)";
-        }
-        if (targetClean === "LASTMONTHFINALPMMAKE" || targetClean === "FINALVISITEDPOLEMETERMAKE" || targetClean === "SITEMETERMAKEPOLE") {
-          return "Site Meter Make (Pole)";
-        }
-        if (targetClean === "POLEMETERMFSAIPORTAL" || targetClean === "POLEMETERMF") {
-          return "Pole Meter Mf";
-        }
-        if (targetClean === "FINALMAINMETERSITEREMARK" || targetClean === "SITESTATUSMAINMETER") {
-          return "Site Status (Main Meter)";
-        }
-        if (targetClean === "FINALPOLEMETERSITEREMARK" || targetClean === "SITESTATUSPOLEMETER") {
-          return "Site Status (Pole Meter)";
-        }
-        if (targetClean === "LOADGROUP51050" || targetClean === "LOADCATOGERY" || targetClean === "LOADCATEGORY") {
-          return "Load Catogery";
-        }
-        if (targetClean === "BILLINGSTATUS") {
-          return "Billing Status";
-        }
-        if (targetClean === "BILLBASE" || targetClean === "BILLBASIS") {
-          return "Bill Base";
-        }
-        if (targetClean === "FINALVISITDATE") {
-          return "Visit Date";
-        }
-
-        var str = String(headerText);
-        str = str.replace(/[_]/g, ' ').replace(/\s+/g, ' ').trim();
+        var str = String(headerText).replace(/[_]/g, ' ').replace(/\s+/g, ' ').trim();
         return str.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
       }
 
@@ -10694,6 +10735,9 @@ tBody.appendChild(fragment);
 
       function sanitizeDeptHeader(headerText, isDeptReport) {
         if (!headerText) return "";
+        // 🟢 केवल Department रिपोर्ट होने पर ही नाम बदलें, बाकी Office Use में शीट का ओरिजिनल नाम रखें
+        if (!isDeptReport) return headerText;
+
         var cleanKey = String(headerText).trim().toUpperCase();
 
         if (typeof deptProfessionalGlossary !== "undefined" && deptProfessionalGlossary[cleanKey]) {
@@ -10701,17 +10745,17 @@ tBody.appendChild(fragment);
         }
 
         var targetClean = cleanKey.replace(/[^A-Z0-9]/gi, '');
-        if (targetClean === "LASTMONTHFINALMMNO" || targetClean === "FINALVISITEDMAINMETERNUMBER") return "Site Meter No. (Main)";
-        if (targetClean === "LASTMONTHFINALMMMAKE" || targetClean === "FINALVISITEDMAINMETERMAKE") return "Site Meter Make (Main)";
-        if (targetClean === "LASTMONTHFINALPMNO" || targetClean === "FINALVISITEDPOLEMETERNO") return "Site Meter No. (Pole)";
-        if (targetClean === "LASTMONTHFINALPMMAKE" || targetClean === "FINALVISITEDPOLEMETERMAKE") return "Site Meter Make (Pole)";
+        if (targetClean === "LASTMONTHFINALMMNO" || targetClean === "FINALVISITEDMAINMETERNUMBER" || targetClean === "SITEMETERNOMAIN") return "Site Meter No. (Main)";
+        if (targetClean === "LASTMONTHFINALMMMAKE" || targetClean === "FINALVISITEDMAINMETERMAKE" || targetClean === "SITEMETERMAKEMAIN") return "Site Meter Make (Main)";
+        if (targetClean === "LASTMONTHFINALPMNO" || targetClean === "FINALVISITEDPOLEMETERNO" || targetClean === "SITEMETERNOPOLE") return "Site Meter No. (Pole)";
+        if (targetClean === "LASTMONTHFINALPMMAKE" || targetClean === "FINALVISITEDPOLEMETERMAKE" || targetClean === "SITEMETERMAKEPOLE") return "Site Meter Make (Pole)";
         if (targetClean === "POLEMETERMFSAIPORTAL" || targetClean === "POLEMETERMF") return "Pole Meter Mf";
-        if (targetClean === "FINALMAINMETERSITEREMARK") return "Site Status (Main Meter)";
-        if (targetClean === "FINALPOLEMETERSITEREMARK") return "Site Status (Pole Meter)";
-        if (targetClean === "LOADGROUP51050") return "Load Catogery";
-        if (targetClean === "BILLINGSTATUS") return "Billing Status";
+        if (targetClean === "FINALMAINMETERSITEREMARK" || targetClean === "SITESTATUSMAINMETER") return "Site Status (Main Meter)";
+        if (targetClean === "FINALPOLEMETERSITEREMARK" || targetClean === "SITESTATUSPOLEMETER") return "Site Status (Pole Meter)";
+        if (targetClean === "LOADGROUP51050" || targetClean === "LOADCATOGERY" || targetClean === "LOADCATEGORY") return "Load Catogery";
+        if (targetClean === "BILLINGSTATUS" || targetClean === "FINALBILLINGTAG") return "Billing Status";
         if (targetClean === "BILLBASE" || targetClean === "BILLBASIS") return "Bill Base";
-        if (targetClean === "FINALVISITDATE") return "Visit Date";
+        if (targetClean === "FINALVISITDATE" || targetClean === "VISITDATE") return "Visit Date";
 
         var str = String(headerText);
         str = str.replace(/[_]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -11315,26 +11359,7 @@ tBody.appendChild(fragment);
             columns: "ALL" // पूरे कॉलम्स दिखाएगा
           };
 
-          clientRenderedRows = globalMatches;
-          currentPageNumber = 1;
-
-          var titleHeader = document.getElementById('active-report-title');
-          if (titleHeader) {
-            titleHeader.innerText = "Global Search: '" + val + "'";
-            titleHeader.style.color = "#8e44ad";
-          }
-
-          var counterBadge = document.getElementById('report-live-counter');
-          if (counterBadge) {
-            counterBadge.innerText = "Found: " + globalMatches.length;
-            counterBadge.style.background = "#8e44ad";
-          }
-
-          // मुख्य सर्च बार को भी सिंक रखें
-          var mainSearch = document.getElementById('live-search-input');
-          if (mainSearch) mainSearch.value = val;
-
-          // 🟢 सटीक अकाउंट मैच वाले रिकॉर्ड को सबसे ऊपर (Index 0) लाने के लिए री-ऑर्डर करें
+          // 🟢 सटीक अकाउंट मैच वाले रिकॉर्ड को सबसे ऊपर (Index 0) लाएँ
           if (query.length >= 4) {
             var exactMatchIndex = globalMatches.findIndex(function(row) {
               var u = row._uMap || row;
@@ -11344,12 +11369,12 @@ tBody.appendChild(fragment);
 
             if (exactMatchIndex > 0) {
               var matchedRow = globalMatches.splice(exactMatchIndex, 1)[0];
-              globalMatches.unshift(matchedRow); // सबसे ऊपर लाएं
+              globalMatches.unshift(matchedRow);
             }
           }
 
           clientRenderedRows = globalMatches;
-          currentPageNumber = 1; // 🟢 हमेशा पहला पेज सेट करें ताकि स्क्रॉल न करना पड़े
+          currentPageNumber = 1;
 
           var titleHeader = document.getElementById('active-report-title');
           if (titleHeader) {
@@ -11630,19 +11655,79 @@ tBody.appendChild(fragment);
               return;
             }
 
-            // 3. Generate Styled Excel of Matched Primary Data
+            // 3. Generate Official Styled Excel of Matched Primary Data (8pt Font, Center Aligned, Bold Header)
             var wb = XLSX.utils.book_new();
             var ws = XLSX.utils.json_to_sheet(matchedRows);
             ws['!autofilter'] = { ref: ws['!ref'] };
+            ws['!views'] = [{ state: 'frozen', ySplit: 1, xSplit: 0, activeCell: 'A2' }];
 
+            if (ws['!ref']) {
+              var range = XLSX.utils.decode_range(ws['!ref']);
+              var colWidths = [];
+
+              // Auto-fit Column Widths Calculation
+              for (var C = range.s.c; C <= range.e.c; ++C) {
+                var maxLen = 0;
+                for (var R = range.s.r; R <= range.e.r; ++R) {
+                  var cellAddr = XLSX.utils.encode_cell({ r: R, c: C });
+                  if (ws[cellAddr] && ws[cellAddr].v !== undefined && ws[cellAddr].v !== null) {
+                    var cellLen = String(ws[cellAddr].v).length;
+                    if (cellLen > maxLen) maxLen = cellLen;
+                  }
+                }
+                colWidths.push({ wch: Math.min(Math.max(maxLen + 4, 12), 45) });
+              }
+              ws['!cols'] = colWidths;
+
+              // Official Styling: Header (Navy/Bold 9pt) & Data (8pt Center Aligned)
+              for (var R = range.s.r; R <= range.e.r; ++R) {
+                for (var C = range.s.c; C <= range.e.c; ++C) {
+                  var cellAddr = XLSX.utils.encode_cell({ r: R, c: C });
+                  if (!ws[cellAddr]) continue;
+
+                  ws[cellAddr].t = 's';
+                  ws[cellAddr].z = '@'; // Force text format so 10-digit zeros are preserved
+
+                  if (R === 0) {
+                    ws[cellAddr].s = {
+                      fill: { fgColor: { rgb: "0B3C5D" } },
+                      font: { name: "Segoe UI", sz: 9, bold: true, color: { rgb: "FFFFFF" } },
+                      alignment: { horizontal: "center", vertical: "center", wrapText: true },
+                      border: {
+                        top: { style: "thin", color: { rgb: "333333" } },
+                        bottom: { style: "thin", color: { rgb: "333333" } },
+                        left: { style: "thin", color: { rgb: "4F5B66" } },
+                        right: { style: "thin", color: { rgb: "4F5B66" } }
+                      }
+                    };
+                  } else {
+                    ws[cellAddr].s = {
+                      font: { name: "Segoe UI", sz: 8, color: { rgb: "202124" } },
+                      alignment: { horizontal: "center", vertical: "center" },
+                      border: {
+                        top: { style: "thin", color: { rgb: "E0E0E0" } },
+                        bottom: { style: "thin", color: { rgb: "E0E0E0" } },
+                        left: { style: "thin", color: { rgb: "E0E0E0" } },
+                        right: { style: "thin", color: { rgb: "E0E0E0" } }
+                      }
+                    };
+                  }
+                }
+              }
+            }
+
+            // File Name Formatting: Pendecy Againest UnBilled Consumers Remark DD-MM-YYYY HH-MM-SS.xlsx
             var now = new Date();
             var day = String(now.getDate()).padStart(2, '0');
             var month = String(now.getMonth() + 1).padStart(2, '0');
             var year = now.getFullYear();
             var dateStr = day + "-" + month + "-" + year;
+            var timeStr = String(now.getHours()).padStart(2, '0') + "-" + String(now.getMinutes()).padStart(2, '0') + "-" + String(now.getSeconds()).padStart(2, '0');
+
+            var finalFileName = "Pendecy Againest UnBilled Consumers Remark " + dateStr + " " + timeStr + ".xlsx";
 
             XLSX.utils.book_append_sheet(wb, ws, "Matched_Data");
-            XLSX.writeFile(wb, "Matched_Primary_Data_" + dateStr + ".xlsx");
+            XLSX.writeFile(wb, finalFileName);
 
             btn.disabled = false;
             statusDiv.style.color = "#10b981";
@@ -11936,1264 +12021,6 @@ tBody.appendChild(fragment);
           statusDiv.innerText = "Processing Error: " + err.message;
         }
       }
-
-      function openDailyUploadModal(event) {
-        if(event) event.stopPropagation();
-        var modal = document.getElementById('daily-upload-modal');
-        if (modal) modal.style.display = 'flex';
-        
-        var sidebar = document.getElementById('mainSidebar');
-        if (sidebar && sidebar.classList) sidebar.classList.remove('open');
-
-        // 🟢 Har baar modal khulne par puraane logs aur task cards ko fresh reset karein
-        var logWindow = document.getElementById('logWindow');
-        if (logWindow) {
-          logWindow.innerHTML = '<div>> System Stream Pipeline Active...</div>';
-        }
-
-        var tasksWrapper = document.getElementById('tasksWrapper');
-        if (tasksWrapper) {
-          tasksWrapper.innerHTML = '';
-        }
-
-        var queueContainer = document.getElementById('queueContainer');
-        if (queueContainer) {
-          queueContainer.style.display = 'none';
-        }
-
-        queuedTasks = [];
-        if (typeof updateStats === 'function') {
-          updateStats();
-        }
-
-        var startBtn = document.getElementById('startAllBtn');
-        if (startBtn) {
-          startBtn.disabled = false;
-          startBtn.innerHTML = '🚀 START ALL UPLOADS';
-        }
-
-        var uploadForm = document.getElementById('uploadForm');
-        if (uploadForm) uploadForm.reset();
-
-        var fileInput = document.getElementById('fileUpload');
-        if (fileInput) fileInput.value = '';
-
-        var fileMsg = document.getElementById('fileMsg');
-        if (fileMsg) {
-          fileMsg.innerHTML = '📁 Tap or Drag & Drop File(s) Here';
-          fileMsg.style.color = '#64748b';
-        }
-      }
-
-      function closeDailyUploadModal() {
-        var modal = document.getElementById('daily-upload-modal');
-        if (modal) modal.style.display = 'none';
-
-        // 🟢 Form aur File inputs ko poori tarah reset karein
-        var uploadForm = document.getElementById('uploadForm');
-        if (uploadForm) uploadForm.reset();
-
-        var fileInput = document.getElementById('fileUpload');
-        if (fileInput) fileInput.value = '';
-
-        var fileMsg = document.getElementById('fileMsg');
-        if (fileMsg) {
-          fileMsg.innerHTML = '📁 Tap or Drag & Drop File(s) Here';
-          fileMsg.style.color = '#64748b';
-        }
-
-        // 🟢 Queue, Logs aur Task Cards ko completely clear karein
-        queuedTasks = [];
-        var queueContainer = document.getElementById('queueContainer');
-        if (queueContainer) queueContainer.style.display = 'none';
-
-        var tasksWrapper = document.getElementById('tasksWrapper');
-        if (tasksWrapper) tasksWrapper.innerHTML = '';
-
-        var logWindow = document.getElementById('logWindow');
-        if (logWindow) {
-          logWindow.innerHTML = '<div>> System Stream Pipeline Active...</div>';
-        }
-
-        // 🟢 Stats aur Start Button ko Default state me layein
-        updateStats();
-        var startBtn = document.getElementById('startAllBtn');
-        if (startBtn) {
-          startBtn.disabled = false;
-          startBtn.innerHTML = '🚀 START ALL UPLOADS';
-        }
-
-        // 🟢 Agar minimized tha to widget body ko wapas open state me set karein
-        var widgetBody = document.getElementById('upload-widget-body');
-        if (widgetBody) widgetBody.style.display = 'block';
-      }
-
-      // Drag and drop attachment
-      document.addEventListener('DOMContentLoaded', function() {
-        var dropArea = document.getElementById('dropArea');
-        var fileInput = document.getElementById('fileUpload');
-        if (dropArea && fileInput) {
-          ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, function(e) {
-              e.preventDefault(); e.stopPropagation();
-              dropArea.style.borderColor = '#2563eb';
-              dropArea.style.backgroundColor = '#dbeafe';
-            }, false);
-          });
-          ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, function(e) {
-              e.preventDefault(); e.stopPropagation();
-              dropArea.style.borderColor = '#93c5fd';
-              dropArea.style.backgroundColor = '#f8fafc';
-            }, false);
-          });
-          dropArea.addEventListener('drop', function(e) {
-            var files = e.dataTransfer.files;
-            if (files && files.length > 0) {
-              fileInput.files = files;
-              updateFileName();
-            }
-          }, false);
-        }
-      });
-
-      var taskIdCounter = 0;
-      var queuedTasks = []; 
-      var globalVisitAccounts = new Set(); 
-      var globalVisitDivisions = {}; 
-      var isPausedGlobal = false;
-
-      var multiFileSheets = [
-        "BILLED_LIST_UPLOAD", "Department_Master_Data-Upload", "Load Survay Sheet Upload",
-        "RDG Sheet Upload", "XML & Reads Sheet Upload", "Isspl VisiT-Upload (Pole_Mtr)",
-        "Isspl VisiT-Upload (Main_Mtr)", "BILL DIST. _UPLOAD"
-      ];
-
-      function toggleFileMode() {
-        var sheetName = document.getElementById('sheetSelection').value;
-        var fileInput = document.getElementById('fileUpload');
-        var fileLabel = document.getElementById('fileLabel');
-        if (multiFileSheets.includes(sheetName)) {
-          fileInput.multiple = true;
-          fileLabel.innerHTML = "Select Files (Multiple Allowed 🌟)";
-          fileLabel.style.color = "#ef4444";
-        } else {
-          fileInput.multiple = false;
-          fileLabel.innerHTML = "Select Excel/CSV File";
-          fileLabel.style.color = "#334155";
-        }
-      }
-
-      function updateFileName() {
-        var input = document.getElementById('fileUpload');
-        var msg = document.getElementById('fileMsg');
-        if (input.files.length > 0) {
-          msg.innerHTML = "✅ " + input.files.length + " File(s) Selected";
-          msg.style.color = "#10b981";
-        } else {
-          msg.innerHTML = "📁 Tap or Drag & Drop File(s) Here";
-          msg.style.color = "#64748b";
-        }
-      }
-
-      function updateStats() {
-        var pending = queuedTasks.filter(t => t.status === 'pending').length;
-        var completed = queuedTasks.filter(t => t.status === 'completed').length;
-        document.getElementById('statFiles').innerText = queuedTasks.length;
-        document.getElementById('statSuccess').innerText = completed;
-        document.getElementById('statStatus').innerText = pending > 0 ? 'Ready' : (completed > 0 ? 'Done' : 'Idle');
-      }
-
-      function addLog(msg) {
-        var logWin = document.getElementById('logWindow');
-        if (logWin) {
-          logWin.style.display = 'block';
-          var newLog = document.createElement('div');
-          newLog.innerHTML = "> " + msg;
-          logWin.appendChild(newLog);
-          logWin.scrollTop = logWin.scrollHeight;
-        }
-      }
-
-      function cleanText(str) { return str ? str.toString().replace(/[^A-Z0-9]/ig, '').toUpperCase() : ""; }
-
-      function isJunkManualValue(val) {
-        if (val === undefined || val === null) return false;
-        let str = val.toString().trim();
-        if (str === "") return false;
-        if (['0', '1', '2'].includes(str)) return true;
-        if (['12', '123', '1234', '12345', '123456', '1234567', '12345678', '123456789'].includes(str)) return true;
-        if (str.length >= 2 && /^(\d)\1+$/.test(str)) return true;
-        return false;
-      }
-
-      function removeTask(taskId) {
-        queuedTasks = queuedTasks.filter(t => t.id !== taskId);
-        var taskElem = document.getElementById(taskId);
-        if (taskElem) taskElem.remove();
-        if (queuedTasks.length === 0) document.getElementById('queueContainer').style.display = 'none';
-        updateStats();
-        addLog(`🗑️ Task Removed: ${taskId}`);
-      }
-
-      function clearAllQueue() {
-        var pendingTasks = queuedTasks.filter(t => t.status === 'pending');
-        if (pendingTasks.length === 0) { alert("कोई Pending Task उपलब्ध नहीं है!"); return; }
-        if (confirm("क्या आप सभी Pending Tasks को क्यू से हटाना चाहते हैं?")) {
-          pendingTasks.forEach(t => {
-            var elem = document.getElementById(t.id);
-            if (elem) elem.remove();
-          });
-          queuedTasks = queuedTasks.filter(t => t.status !== 'pending');
-          if (queuedTasks.length === 0) document.getElementById('queueContainer').style.display = 'none';
-          updateStats();
-          addLog(`🗑️ All Pending Tasks cleared.`);
-        }
-      }
-
-      function addToQueue() {
-        var sheetName = document.getElementById('sheetSelection').value;
-        var fileInput = document.getElementById('fileUpload');
-        var filesArray = Array.from(fileInput.files);
-        if (!sheetName || filesArray.length === 0) { alert("⚠️ कृपया पहले रिपोर्ट और फ़ाइल चुनें!"); return; }
-
-        // 🟢 Pre-Upload Integrity & Extension Validator
-        var invalidFiles = filesArray.filter(function(f) {
-          var ext = f.name.split('.').pop().toLowerCase();
-          return !['xlsx', 'xls', 'csv'].includes(ext) || f.size === 0;
-        });
-
-        if (invalidFiles.length > 0) {
-          alert("⚠️ अमान्य या खाली फ़ाइल पाई गई! केवल .xlsx, .xls या .csv फ़ाइलें ही मान्य हैं।");
-          return;
-        }
-
-        taskIdCounter++;
-        var taskId = 'task_' + taskIdCounter;
-        queuedTasks.push({ id: taskId, sheetName: sheetName, files: filesArray, status: 'pending' });
-
-        var taskHtml = `
-          <div class="task-item" id="${taskId}" style="border:1px solid #e2e8f0; border-radius:12px; padding:10px; margin-bottom:10px; background:#ffffff;">
-            <div style="display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:12px; margin-bottom:6px;">
-              <span style="color:#1d4ed8;">📄 ${sheetName}</span>
-              <div style="display:flex; align-items:center; gap:6px;">
-                <button type="button" id="btnDownloadProcessed_${taskId}" onclick="downloadTaskProcessedExcel('${taskId}')" style="display:none; background:#059669; color:white; border:none; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer;">
-                  <i class="fa-solid fa-download"></i> Download Excel
-                </button>
-                <span id="statusText_${taskId}" style="color:#d97706; font-weight:800;">Pending... ⏳</span>
-                <button type="button" onclick="removeTask('${taskId}')" style="background:transparent; border:none; color:#ef4444; font-weight:800; cursor:pointer; margin-left:4px;">✖</button>
-              </div>
-            </div>
-            <div class="progress-bg" style="width:100%; background:#f1f5f9; border-radius:20px; overflow:hidden; height:16px; position:relative;">
-              <div class="progress-bar" id="progressBar_${taskId}" style="height:100%; background:linear-gradient(135deg, #10b981, #047857); width:0%;"></div>
-              <div class="progress-text" id="progressText_${taskId}" style="position:absolute; width:100%; text-align:center; font-size:9px; font-weight:800; line-height:16px; top:0;">Ready</div>
-            </div>
-          </div>
-        `;
-        document.getElementById('tasksWrapper').insertAdjacentHTML('beforeend', taskHtml);
-        document.getElementById('queueContainer').style.display = 'block';
-        updateStats();
-        addLog(`📋 Task Added: ${sheetName} (${filesArray.length} files)`);
-        document.getElementById('uploadForm').reset();
-        updateFileName();
-        toggleFileMode();
-      }
-
-      function parseExcelDate(val) {
-        if(!val) return null;
-        let strVal = val.toString().trim();
-        if(strVal === "") return null;
-        if(!isNaN(strVal) && !strVal.includes("-") && !strVal.includes("/")) {
-          return new Date(Math.round((parseFloat(strVal) - 25569) * 86400 * 1000));
-        }
-        let datePart = strVal.split(" ")[0]; 
-        let parts = datePart.split(/[-/]/);
-        if (parts.length === 3) {
-          let day = parts[0].padStart(2, '0');
-          let month = parts[1].padStart(2, '0');
-          let year = parts[2].length === 2 ? '20' + parts[2] : parts[2];
-          if (day.length === 2 && year.length === 4) {
-            let parsedD = new Date(`${year}-${month}-${day}T00:00:00`);
-            if(!isNaN(parsedD.getTime())) return parsedD;
-          }
-        }
-        let d = new Date(datePart);
-        return isNaN(d.getTime()) ? null : d;
-      }
-
-      function formatDate(dateObj) {
-        if (!dateObj || isNaN(dateObj.getTime())) return "";
-        let d = dateObj.getDate().toString().padStart(2, '0');
-        let m = (dateObj.getMonth() + 1).toString().padStart(2, '0');
-        return `${d}-${m}-${dateObj.getFullYear()}`;
-      }
-
-      function extractStrictDate(val) {
-        if (!val) return "";
-        let strVal = val.toString().trim();
-        if (strVal === "") return "";
-        if (!isNaN(strVal) && !strVal.includes("-") && !strVal.includes("/")) {
-          let excelEpoch = new Date(Math.round((parseFloat(strVal) - 25569) * 86400 * 1000));
-          return formatDate(excelEpoch);
-        }
-        let datePart = strVal.split(" ")[0]; 
-        let parts = datePart.split(/[-/]/);
-        if (parts.length === 3) {
-          if (parts[0].length === 4) return `${parts[2].padStart(2,'0')}-${parts[1].padStart(2,'0')}-${parts[0]}`;
-          let yr = parts[2].length === 2 ? '20' + parts[2] : parts[2];
-          return `${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}-${yr}`;
-        }
-        return datePart;
-      }
-
-      function getColVal(row, headers, aliases) {
-        for (let i = 0; i < aliases.length; i++) {
-          let idx = headers.indexOf(aliases[i]);
-          if (idx !== -1 && row[idx] !== undefined && row[idx].toString().trim() !== "") return row[idx].toString().trim();
-        }
-        return "";
-      }
-
-      function updateUI(taskId, msg, progPercent = null, isError = false) {
-        var stat = document.getElementById(`statusText_${taskId}`);
-        if (stat) {
-          stat.innerHTML = msg;
-          stat.style.color = isError ? "#ef4444" : "#2563eb";
-        }
-        if (progPercent !== null) {
-          var pBar = document.getElementById(`progressBar_${taskId}`);
-          var pTxt = document.getElementById(`progressText_${taskId}`);
-          if (pBar) pBar.style.width = progPercent + "%";
-          if (pTxt) pTxt.innerHTML = progPercent + "%";
-        }
-      }
-
-      function readFileAsArrayBuffer(file) {
-        return new Promise(res => { let rd = new FileReader(); rd.onload = () => res(rd.result); rd.readAsArrayBuffer(file); });
-      }
-
-      function readChunkAsBase64(fileSlice) {
-        return new Promise((resolve, reject) => {
-          let reader = new FileReader();
-          reader.onload = () => {
-            let bytes = new Uint8Array(reader.result);
-            let binary = '';
-            for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
-            resolve(btoa(binary));
-          };
-          reader.onerror = err => reject(err);
-          reader.readAsArrayBuffer(fileSlice);
-        });
-      }
-
-      function convertToCSV(headers, data) {
-        const escapeCell = cell => {
-          if (cell === null || cell === undefined) return '""';
-          let str = cell.toString().trim();
-          
-          // 🟢 अगर कोई वैल्यू 0 से शुरू हो रही है और केवल अंक हैं (जैसे Account/Meter No), तो स्ट्रिंग लॉक करें
-          if (/^0\d+$/.test(str)) {
-            return `"'${str}"`;
-          }
-          
-          return str.includes('"') || str.includes(',') || str.includes('\n')
-            ? `"${str.replace(/"/g, '""')}"`
-            : `"${str}"`;
-        };
-        const headerRow = headers.map(escapeCell).join(",");
-        const dataRows = data.map(row => row.map(escapeCell).join(","));
-        return [headerRow, ...dataRows].join("\r\n") + "\r\n";
-      }
-
-      // 🟢 Processed Files Cached Store for Instant Download
-      var processedTaskCache = {};
-      var pendingMasterApprovalResolver = null;
-
-      function cacheProcessedTaskData(taskId, sheetName, headers, data) {
-        processedTaskCache[taskId] = {
-          sheetName: sheetName,
-          headers: headers,
-          data: data
-        };
-        var btn = document.getElementById(`btnDownloadProcessed_${taskId}`);
-        if (btn) btn.style.display = "inline-flex";
-      }
-
-      function downloadTaskProcessedExcel(taskId) {
-        var item = processedTaskCache[taskId];
-        if (!item || !item.data || item.data.length === 0) {
-          alert("डाउनलोड करने के लिए प्रोसेस किया गया डेटा उपलब्ध नहीं है!");
-          return;
-        }
-
-        var fullRows = [item.headers].concat(item.data);
-        var wb = XLSX.utils.book_new();
-        var ws = XLSX.utils.aoa_to_sheet(fullRows);
-        autoFitColumns(ws, fullRows);
-        
-        var cleanName = item.sheetName.replace(/[^a-zA-Z0-9]/g, "_");
-        var now = new Date();
-        var timeStamp = now.toLocaleDateString('en-GB').replace(/\//g, '-') + "_" + now.getHours() + "-" + now.getMinutes();
-        
-        XLSX.utils.book_append_sheet(wb, ws, "Processed_Data");
-        XLSX.writeFile(wb, `${cleanName}_Processed_${timeStamp}.xlsx`);
-      }
-
-      function openMasterReviewModal(totalRows, totalCols) {
-        document.getElementById('review-total-rows').innerText = totalRows;
-        document.getElementById('review-total-cols').innerText = totalCols;
-        document.getElementById('master-review-modal').style.display = 'flex';
-        
-        return new Promise(function(resolve) {
-          pendingMasterApprovalResolver = resolve;
-        });
-      }
-
-      function closeMasterReviewModal(isApproved) {
-        document.getElementById('master-review-modal').style.display = 'none';
-        if (pendingMasterApprovalResolver) {
-          pendingMasterApprovalResolver(isApproved);
-          pendingMasterApprovalResolver = null;
-        }
-      }
-
-      function confirmMasterDataUpload() {
-        closeMasterReviewModal(true);
-      }
-
-      function downloadReviewedMasterExcel() {
-        var masterTaskId = Object.keys(processedTaskCache).find(function(k) {
-          return processedTaskCache[k].sheetName === "Department_Master_Data-Upload";
-        });
-        if (masterTaskId) {
-          downloadTaskProcessedExcel(masterTaskId);
-        } else {
-          alert("Master Data अभी तैयार नहीं है!");
-        }
-      }
-
-      // (Redundant uploadChunks removed - main resilient streaming engine at bottom is active)
-
-      // 🎯 DRAG & DROP EVENTS ATTACHMENT
-      window.addEventListener('DOMContentLoaded', function() {
-          var dropArea = document.getElementById('dropArea');
-          var fileInput = document.getElementById('fileUpload');
-
-          if (dropArea) {
-              ['dragenter', 'dragover'].forEach(eventName => {
-                  dropArea.addEventListener(eventName, function(e) {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      dropArea.style.borderColor = '#2563eb';
-                      dropArea.style.backgroundColor = '#dbeafe';
-                  }, false);
-              });
-
-              ['dragleave', 'drop'].forEach(eventName => {
-                  dropArea.addEventListener(eventName, function(e) {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      dropArea.style.borderColor = '#93c5fd';
-                      dropArea.style.backgroundColor = '#f8fafc';
-                  }, false);
-              });
-
-              dropArea.addEventListener('drop', function(e) {
-                  var dt = e.dataTransfer;
-                  var files = dt.files;
-                  if (files && files.length > 0) {
-                      fileInput.files = files;
-                      updateFileName();
-                  }
-              }, false);
-          }
-      });
-
-      async function startAllUploads() {
-          var startBtn = document.getElementById('startAllBtn');
-          startBtn.disabled = true;
-          startBtn.innerHTML = "Initializing Systems... ⚙️";
-
-          if (queuedTasks.some(t => t.sheetName === "Department_Master_Data-Upload")) {
-              startBtn.innerHTML = "Fetching Master DB... ⚙️";
-              await new Promise(resolve => {
-                  if (window.google && google.script && google.script.run) {
-                      google.script.run.withSuccessHandler(function(accList) {
-                          globalVisitAccounts = new Set(accList || []);
-                          resolve();
-                      }).withFailureHandler(function() { resolve(); }).getVisitAccounts();
-                  } else {
-                      fetch(APPS_SCRIPT_WEBAPP_URL + "?action=getVisitAccounts")
-                          .then(res => res.json())
-                          .then(accList => { globalVisitAccounts = new Set(accList || []); resolve(); })
-                          .catch(() => resolve());
-                  }
-              });
-          }
-
-          if (queuedTasks.some(t => t.sheetName === "Load Survay Sheet Upload")) {
-              startBtn.innerHTML = "Fetching Divisions... ⚙️";
-              await new Promise(resolve => {
-                  if (window.google && google.script && google.script.run) {
-                      google.script.run.withSuccessHandler(function(mapObj) {
-                          globalVisitDivisions = mapObj || {};
-                          resolve();
-                      }).withFailureHandler(function() { resolve(); }).getVisitMetersAndDivisions();
-                  } else {
-                      fetch(APPS_SCRIPT_WEBAPP_URL + "?action=getVisitMetersAndDivisions")
-                          .then(res => res.json())
-                          .then(mapObj => { globalVisitDivisions = mapObj || {}; resolve(); })
-                          .catch(() => resolve());
-                  }
-              });
-          }
-
-          startBtn.innerHTML = "Processing Uploads... 🚀";
-
-          for (let task of queuedTasks) {
-              if (task.status === 'pending') {
-                  task.status = 'processing'; 
-                  var pBar = document.getElementById(`progressBar_${task.id}`);
-                  if (pBar) pBar.style.backgroundColor = "#2563eb";
-                  try { 
-                      await processRouter(task); 
-                  } catch(err) { 
-                      console.error(err); 
-                      updateUI(task.id, "Error Occurred ❌", null, true);
-                  }
-                  task.status = 'completed';
-              }
-          }
-
-          startBtn.innerHTML = "🚀 START ALL UPLOADS";
-          startBtn.disabled = false;
-          // loadCoreDatabasePacket(true); // ❌ ऑटोमैटिक पूरा डेटा दोबारा डाउनलोड होना बंद किया गया
-      }
-
-      async function processRouter(task) {
-          addLog(`🚀 System: Starting ${task.sheetName}...`);
-          try {
-              if (task.sheetName === "XML & Reads Sheet Upload") {
-                  await processXMLReads(task.id, task.sheetName, task.files);
-              } else if (task.sheetName === "Load Survay Sheet Upload") {
-                  await processLoadSurvey(task.id, task.sheetName, task.files);
-              } else if (task.sheetName === "BILLED_LIST_UPLOAD") {
-                  await processBilledList(task.id, task.sheetName, task.files);
-              } else if (task.sheetName === "Department_Master_Data-Upload") {
-                  await processMasterData(task.id, task.sheetName, task.files);
-              } else if (task.sheetName === "Isspl VisiT-Upload (Pole_Mtr)") {
-                  await processPoleMtr(task.id, task.sheetName, task.files); 
-              } else if (task.sheetName === "Isspl VisiT-Upload (Main_Mtr)") {
-                  await processMainMtr(task.id, task.sheetName, task.files); 
-              } else if (task.sheetName === "BILL DIST. _UPLOAD") {
-                  await processBillDist(task.id, task.sheetName, task.files);
-              } else if (task.sheetName === "RDG Sheet Upload") {
-                  await processRDGSheet(task.id, task.sheetName, task.files); 
-              }
-              addLog(`✅ System: ${task.sheetName} process finished.`);
-          } catch (err) {
-              addLog(`❌ System: Error in ${task.sheetName}: ${err.message}`);
-              throw err; 
-          }
-      }
-
-      // CORE PARSING FUNCTIONS
-      async function processXMLReads(taskId, sheetName, files) {
-          const mapCols = {
-            'meter': ['METERNUMBER', 'MRDMETERNUMBER', 'FIELDMETERNO', 'SERIALNBR'],
-            'acc_id': ['ACCOUNTNO', 'ACCOUNTID', 'ACCTID'],
-            'rtc': ['RTCDATE', 'BILLINGDATEH0'],
-            'visit': ['VISITEDDATE', 'MRIDATE', 'CREATEDON', 'PROCESSINGDATE'],
-            'make': ['METERMAKENAME', 'MRDMETERMAKE', 'METERMAKE', 'MTRMAKE'],
-            'load': ['LOADSURVEYAVAILABLE', 'ISLOADSURVEYAVAILABLE', 'LOADSURVEYFLAG'],
-            'kwh': ['HISTORYKWHIMPORT', 'H1KWHEXPORT', 'CURRENTKWH', 'KWH', 'KWHH0', 'MRIKWH', 'CONSUMPTIONKWH'],
-            'kvah': ['HISTORYKVAHIMPORT', 'H1KVAHEXPORT', 'CURRENTKVAH', 'KVAH', 'KVAHH0', 'MRIKVAH', 'CONSUMPTIONKVAH'],
-            'mdkw': ['HISTORYKW', 'H1KWDEMAND', 'CURRENTKW', 'KW', 'KWH0', 'MRIKWUHI'],
-            'mdkva': ['HISTORYKVA', 'H1KVADEMAND', 'CURRENTKVA', 'KVA', 'KVAH0', 'MRIKVAUHI'],
-            'site_remark': ['SITEREMARK'], 'export_fail': ['EXPORTFAILUREMESSAGE'],
-            'rejection': ['MRIERRORREMARK', 'EXPORTFAILUREMESSAGE', 'REMARK', 'REMARKS', 'METERREADREMARK']
-          };
-          var masterMap = {};
-          var today = new Date();
-
-          for (let f = 0; f < files.length; f++) {
-              updateUI(taskId, `Parsing File ${f+1}/${files.length} ⚙️`, Math.round((f/files.length)*40));
-              let arrBuf = await readFileAsArrayBuffer(files[f]);
-              let wb = XLSX.read(arrBuf, { type: 'array', dense: true, cellFormula: false, cellHTML: false, cellText: false });
-              let parsedData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1, defval: ""});
-              if (parsedData.length < 2) continue;
-
-              let headers = []; let headerIdx = 0;
-              for (let r = 0; r < Math.min(15, parsedData.length); r++) {
-                  let tempH = parsedData[r].map(h => cleanText(h));
-                  if (tempH.some(h => mapCols['meter'].includes(h))) { headerIdx = r; headers = tempH; break; }
-              }
-              if(headers.length === 0) headers = parsedData[0].map(h => cleanText(h));
-
-              let isMeterWise = files[f].name.toLowerCase().includes("meter number wise");
-
-              for (let i = headerIdx + 1; i < parsedData.length; i++) {
-                  let row = parsedData[i];
-                  let mNo = getColVal(row, headers, mapCols['meter']);
-                  if (!mNo) continue;
-
-                  let kwh_val = getColVal(row, headers, mapCols['kwh']);
-                  let kvah_val = getColVal(row, headers, mapCols['kvah']);
-
-                  if (isMeterWise) {
-                      let kwh_sum = 0, kvah_sum = 0, found = false;
-                      for (let j = 1; j <= 8; j++) {
-                          let ikwh = headers.indexOf(`H1TOD${j}KWH`), ikvah = headers.indexOf(`H1TOD${j}KVAH`);
-                          if (ikwh !== -1 && row[ikwh] !== "") { kwh_sum += parseFloat(row[ikwh])||0; found = true; }
-                          if (ikvah !== -1 && row[ikvah] !== "") { kvah_sum += parseFloat(row[ikvah])||0; found = true; }
-                      }
-                      if(found){ kwh_val = kwh_sum; kvah_val = kvah_sum; }
-                  }
-
-                  let siteRem = getColVal(row, headers, mapCols['site_remark']);
-                  let expFail = getColVal(row, headers, mapCols['export_fail']);
-                  let rej = getColVal(row, headers, mapCols['rejection']);
-                  if (siteRem === 'MRI DONE' && expFail !== "") rej = expFail;
-                  else if (rej === "" && kwh_val === "" && kvah_val === "") rej = "Read Missing";
-
-                  let rtcRaw = getColVal(row, headers, mapCols['rtc']);
-                  let visitRaw = getColVal(row, headers, mapCols['visit']);
-                  let rtcD = parseExcelDate(rtcRaw);
-                  let visitD = parseExcelDate(visitRaw);
-
-                  let stat = "N/A", dayDiff = "";
-                  if (rtcD) {
-                      stat = (rtcD.getMonth()===today.getMonth() && rtcD.getFullYear()===today.getFullYear()) ? "MRI" : "RTC Defective";
-                      dayDiff = Math.floor((today - rtcD) / (1000 * 60 * 60 * 24));
-                  }
-
-                  let rawAccId = getColVal(row, headers, mapCols['acc_id']).replace(/_P$/i, '').replace(/\.0$/, '').trim();
-                  let accDigits = rawAccId.replace(/[^0-9]/g, '');
-                  let formattedAccId = (accDigits.length > 0 && accDigits.length < 10) ? accDigits.padStart(10, '0') : rawAccId;
-
-                  let record = [
-                      mNo, stat, getColVal(row, headers, mapCols['load']), getColVal(row, headers, mapCols['make']), 
-                      formatDate(rtcD), formatDate(visitD), 
-                      kwh_val, kvah_val, getColVal(row, headers, mapCols['mdkw']), getColVal(row, headers, mapCols['mdkva']), 
-                      dayDiff, formattedAccId, rej, files[f].name 
-                  ];
-
-                  if (!masterMap[mNo] || (kwh_val !== "" && parseFloat(kwh_val) > (parseFloat(masterMap[mNo][6])||-1))) {
-                      masterMap[mNo] = record;
-                  }
-              }
-          }
-          let finalHeaders = ["Meter No.", "Status", "IS Load Survay", "Meter Make", "RTC Date", "Visit Date", "KWH", "KVAH", "MD KW", "MD KVA", "Day Diff", "Account Id", "Rejection", "Report Source"];
-          let finalData = Object.values(masterMap);
-       if (finalData.length === 0) return updateUI(taskId, "No Data Found ❌", 100, true);
-       cacheProcessedTaskData(taskId, sheetName, finalHeaders, finalData);
-       await uploadChunks(taskId, sheetName, finalHeaders, finalData, true);
-   }
-
-      async function processLoadSurvey(taskId, sheetName, files) {
-          let finalData = [];
-          let uniqueMeters = new Set();
-          
-          let existingMeters = await new Promise(resolve => {
-              google.script.run.withSuccessHandler(list => resolve(new Set(list))).getExistingMetersFromLoadSurvey();
-          });
-
-          for (let f = 0; f < files.length; f++) {
-              let fileName = files[f].name.trim().toUpperCase();
-              updateUI(taskId, `Reading File ${f + 1}/${files.length} ⚙️`, Math.round((f / files.length) * 40));
-
-              try {
-                  let arrBuf = await readFileAsArrayBuffer(files[f]);
-                  let workbook = XLSX.read(arrBuf, { type: 'array' });
-
-                  for (let s = 0; s < workbook.SheetNames.length; s++) {
-                      let currentSheetName = workbook.SheetNames[s];
-                      let parsedData = XLSX.utils.sheet_to_json(workbook.Sheets[currentSheetName], { header: 1, defval: "" });
-                      if (parsedData.length < 2) continue;
-
-                      let headers = parsedData[0].map(h => cleanText(h));
-
-                      if (fileName.startsWith("LOAD SURVEY") && currentSheetName === "Meter Data") {
-                          let meterIdx = headers.indexOf('METERNUMBER'); 
-                          if (meterIdx !== -1) {
-                              for (let i = 1; i < parsedData.length; i++) {
-                                  let mNo = parsedData[i][meterIdx] ? parsedData[i][meterIdx].toString().trim() : "";
-                                  if (mNo && !uniqueMeters.has(mNo) && !existingMeters.has(mNo)) {
-                                      uniqueMeters.add(mNo);
-                                      let divVal = globalVisitDivisions[mNo] || "No division match";
-                                      finalData.push([mNo, "TRUE", divVal]); 
-                                  }
-                              }
-                          }
-                      } else {
-                          let meterIdx = headers.indexOf('FIELDMETERNO');
-                          let statusIdx = headers.indexOf('ISLOADSURVEYAVAILABLE');
-
-                          if (meterIdx !== -1 && statusIdx !== -1) {
-                              for (let i = 1; i < parsedData.length; i++) {
-                                  let mNo = parsedData[i][meterIdx] ? parsedData[i][meterIdx].toString().trim() : "";
-                                  let statusVal = parsedData[i][statusIdx] ? parsedData[i][statusIdx].toString().trim().toUpperCase() : "";
-                                  if (mNo && statusVal === "TRUE" && !uniqueMeters.has(mNo) && !existingMeters.has(mNo)) {
-                                      uniqueMeters.add(mNo);
-                                      let divVal = globalVisitDivisions[mNo] || "No division match";
-                                      finalData.push([mNo, "TRUE", divVal]);
-                                  }
-                              }
-                          }
-                      }
-                  }
-              } catch (err) {
-                  console.error(err);
-              }
-          }
-
-          let finalHeaders = ["Meter No.", "Load Survay Tag", "DIVISION NAME"];
-       if (finalData.length === 0) return updateUI(taskId, "No New Data Found ❌", 100, true);
-       cacheProcessedTaskData(taskId, sheetName, finalHeaders, finalData);
-       await uploadChunks(taskId, sheetName, finalHeaders, finalData, false); 
-   }
-
-      async function processBilledList(taskId, sheetName, files) {
-          const TARGET_COLS = ['ACCT_ID', 'METER_SERIAL_NBR', 'METER_READ_REMARK', 'MR_SOURCE_CD', 'BILL_BASIS', 'DUE_DATE', 'LAST_PAY_DATE', 'AMOUNT_PAYABLE', 'BILL_TYP', 'BILL_DATE', 'STATUS'];
-          let finalData = [];
-
-          for (let f = 0; f < files.length; f++) {
-              let fileObj = files[f];
-              let sizeMB = (fileObj.size / (1024 * 1024)).toFixed(1);
-              addLog(`📂 [${sheetName}] Reading File ${f+1}/${files.length}: ${fileObj.name} (${sizeMB} MB)...`);
-              updateUI(taskId, `Reading File ${f+1}/${files.length} (${sizeMB} MB)... ⚙️`, Math.round((f/files.length)*30));
-
-              let arrBuf = await readFileAsArrayBuffer(fileObj);
-              let workbook = XLSX.read(arrBuf, { type: 'array', dense: true, cellDates: false });
-              let sheet = workbook.Sheets[workbook.SheetNames[0]];
-              
-              let parsedData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "", raw: false });
-              sheet = null; 
-              workbook = null;
-
-              if (parsedData.length < 2) continue;
-
-              let headers = parsedData[0].map(h => cleanText(h));
-              let isUnbilled = fileObj.name.toUpperCase().includes("UNBILLED");
-
-              // 🟢 Flexible column matcher (supports spaces, underscores & variations)
-              function getIdx(aliases) {
-                  for (let alias of aliases) {
-                      let cleanAlias = cleanText(alias);
-                      let idx = headers.indexOf(cleanAlias);
-                      if (idx !== -1) return idx;
-                  }
-                  return -1;
-              }
-
-              let cirIdx = getIdx(["CIRCLENAME", "CIRCLE NAME", "CIRCLE"]);
-              let sLoadIdx = getIdx(["SANCTIONLOAD", "SANCTION LOAD", "LOAD", "CONNECTED LOAD"]);
-              let tIdx = getIdx(["TARIFFTYPE", "TARIFF TYPE", "TARIFF"]);
-              let aIdx = getIdx(["ACCTID", "ACCOUNTNO", "ACCOUNT ID", "ACC NO", "ACCOUNT NUMBER"]);
-              let mIdx = getIdx(["METERSERIALNBR", "MTRSRLNO", "METER SERIAL NO", "METER NUMBER", "METER NO"]);
-
-              let colCleanMap = {};
-              TARGET_COLS.forEach(c => {
-                  colCleanMap[c] = getIdx([c, c.replace(/_/g, " "), c.replace(/_/g, "")]);
-              });
-
-              let totalRows = parsedData.length;
-              addLog(`📊 [${sheetName}] Processing ${totalRows} rows from ${fileObj.name}...`);
-
-              for (let i = 1; i < totalRows; i++) {
-                  let row = parsedData[i];
-                  if (!row || row.length === 0) continue;
-
-                  // 🟢 Safe Filtering Rules
-                  if (cirIdx !== -1 && row[cirIdx] && !row[cirIdx].toString().toUpperCase().includes("MAINPURI")) continue;
-                  if (sLoadIdx !== -1 && row[sLoadIdx] !== "" && (parseFloat(row[sLoadIdx]) || 0) < 5) continue;
-                  if (tIdx !== -1 && row[tIdx] && row[tIdx].toString().toUpperCase().replace("-","").includes("LMV5")) continue;
-
-                  let newRow = [];
-                  for (let k = 0; k < TARGET_COLS.length; k++) {
-                      let c = TARGET_COLS[k];
-                      if (c === 'STATUS') {
-                          newRow.push(isUnbilled ? "UNBILLED" : "BILLED");
-                      } else if (isUnbilled && (c === 'LAST_PAY_DATE' || c === 'AMOUNT_PAYABLE' || c === 'BILL_DATE' || c === 'DUE_DATE')) {
-                          newRow.push("");
-                      } else if (c === 'ACCT_ID') {
-                          let val = (aIdx !== -1 && row[aIdx] !== undefined) ? row[aIdx].toString().replace(/_P$/i, '').replace(/\.0$/, '').trim() : "";
-                          if (val !== "") {
-                              let digits = val.replace(/[^0-9]/g, '');
-                              val = (digits.length > 0 && digits.length < 10) ? digits.padStart(10, '0') : val;
-                          }
-                          newRow.push(val);
-                      } else if (c === 'METER_SERIAL_NBR') {
-                          let val = (mIdx !== -1 && row[mIdx] !== undefined) ? row[mIdx].toString().trim() : "";
-                          newRow.push(val);
-                      } else {
-                          let idx = colCleanMap[c];
-                          let val = (idx !== -1 && row[idx] !== undefined) ? row[idx].toString().trim() : "";
-                          if ((c === 'DUE_DATE' || c === 'LAST_PAY_DATE' || c === 'BILL_DATE') && val !== "") {
-                              val = extractStrictDate(val);
-                          }
-                          newRow.push(val);
-                      }
-                  }
-                  finalData.push(newRow);
-
-                  if (i % 25000 === 0) {
-                      addLog(`⏳ [${sheetName}] Processed ${i}/${totalRows} rows...`);
-                      await new Promise(r => setTimeout(r, 0)); 
-                  }
-              }
-              parsedData = null; 
-          }
-
-          if (finalData.length === 0) return updateUI(taskId, "No Valid Billed Data ❌", 100, true);
-       cacheProcessedTaskData(taskId, sheetName, TARGET_COLS, finalData);
-       addLog(`✅ [${sheetName}] Total ${finalData.length} filtered rows prepared. Starting chunk streaming...`);
-       await uploadChunks(taskId, sheetName, TARGET_COLS, finalData, true);
-   }
-      async function processMasterData(taskId, sheetName, files) {
-          let allData = [];
-          let templateHeaders = [];
-          
-          let dt = new Date();
-          dt.setDate(1); 
-          dt.setMonth(dt.getMonth() - 1);
-          let mNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-          let newConnText = `New Consumer add in ${mNames[dt.getMonth()]} ${dt.getFullYear()}`;
-
-          for (let f = 0; f < files.length; f++) {
-              let arrBuf = await readFileAsArrayBuffer(files[f]);
-              let wb = XLSX.read(arrBuf, {type: 'array'});
-              let parsedData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1, defval: ""});
-              if(parsedData.length < 2) continue;
-
-              let headers = parsedData[0].map(h => h.toString().trim().toUpperCase());
-              let cHeaders = headers.map(h => cleanText(h));
-              
-              if(templateHeaders.length === 0) {
-                  templateHeaders = [...headers];
-                  if(!templateHeaders.includes("LOAD IN KW")) templateHeaders.push("LOAD IN KW");
-                  if(!templateHeaders.includes("COMPLETE ADRESS")) templateHeaders.push("COMPLETE ADRESS");
-                  if(!templateHeaders.includes("Name And Adress")) templateHeaders.push("Name And Adress");
-                  if(!templateHeaders.includes("New Connnection Tag")) templateHeaders.push("New Connnection Tag");
-              }
-
-              for (let i = 1; i < parsedData.length; i++) {
-                  let row = parsedData[i];
-                  let supIdx = cHeaders.indexOf("SUPPLYTYPE");
-                  if (supIdx !== -1 && row[supIdx]) {
-                      if (/^5[0-9]/.test(row[supIdx].toString().trim())) continue; 
-                  }
-
-                  let loadV = 0; let unit = "KW";
-                  let lIdx = cHeaders.indexOf("LOAD"); let luIdx = cHeaders.indexOf("LOADUNIT");
-                  if (lIdx !== -1 && row[lIdx]) loadV = parseFloat(row[lIdx]) || 0;
-                  if (luIdx !== -1 && row[luIdx]) unit = row[luIdx].toString().toUpperCase();
-                  
-                  let loadKw = loadV;
-                  if (unit.includes('KVA')) loadKw = Math.round(loadKw * 0.9 * 100) / 100;
-                  else if (unit.includes('HP')) loadKw = Math.round(loadKw * 0.746 * 100) / 100;
-                  
-                  if (loadKw < 5) continue;
-
-                  let rowObj = {};
-                  for(let h=0; h<headers.length; h++) rowObj[headers[h]] = row[h];
-
-                  let div = (rowObj['DIV_CODE'] || "").toString().trim();
-                  if (['251721', '281721'].includes(div)) rowObj['DIV_CODE'] = 'EDD-I MAINPURI';
-                  else if (['251722', '281722'].includes(div)) rowObj['DIV_CODE'] = 'EDD-II MAINPURI';
-                  else if (['251723', '281723'].includes(div)) rowObj['DIV_CODE'] = 'EDD-III MAINPURI';
-
-                  let p = [];
-                  if(rowObj['FATHER_NAME']) p.push(rowObj['FATHER_NAME'].toString().trim());
-                  if(rowObj['ADDRESS']) p.push(rowObj['ADDRESS'].toString().trim());
-                  let base = p.join(", ");
-                  let ex = "";
-                  if (rowObj['SUBSTATION'] || rowObj['FEEDER']) {
-                      ex = " - " + (rowObj['SUBSTATION'] ? rowObj['SUBSTATION'].toString().trim() : "");
-                      if (rowObj['FEEDER']) ex += ` (${rowObj['FEEDER'].toString().trim()})`;
-                  }
-                  if (rowObj['SERIAL_NBR']) rowObj['SERIAL_NBR'] = rowObj['SERIAL_NBR'].toString().replace(/`/g, "").trim();
-
-                  let completeAddr = (base + ex).toUpperCase().replace(/^[ ,-]+|[ ,-]+$/g, '');
-                  let nameC = rowObj['NAME'] || rowObj['CONSUMER_NAME'] || "";
-                  
-                  rowObj['COMPLETE ADRESS'] = completeAddr;
-                  rowObj['Name And Adress'] = (nameC.toString().trim() + " " + completeAddr).toUpperCase();
-                  rowObj['LOAD IN KW'] = loadKw.toFixed(2);
-                  rowObj['New Connnection Tag'] = "";
-                  
-                  let accRaw = (rowObj['ACCT_ID'] || rowObj['ACCOUNT_ID'] || "").toString().replace(/_P$/i, '').replace(/\.0$/, '').trim();
-                  let accDigits = accRaw.replace(/[^0-9]/g, '');
-                  let formattedAcc = (accDigits.length > 0 && accDigits.length < 10) ? accDigits.padStart(10, '0') : accRaw;
-                  
-                  if (rowObj['ACCT_ID']) rowObj['ACCT_ID'] = formattedAcc;
-                  if (rowObj['ACCOUNT_ID']) rowObj['ACCOUNT_ID'] = formattedAcc;
-
-                  if (formattedAcc !== "" && !globalVisitAccounts.has(formattedAcc) && !globalVisitAccounts.has(accRaw)) {
-                      rowObj['New Connnection Tag'] = newConnText;
-                  }
-
-                  let finalRow = templateHeaders.map(th => rowObj[th] !== undefined ? rowObj[th] : "");
-                  allData.push(finalRow);
-              }
-          }
-          if (allData.length === 0) return updateUI(taskId, "No Master Data Found ❌", 100, true);
-          
-          // 🟢 1. Cache processed data & enable download button
-          cacheProcessedTaskData(taskId, sheetName, templateHeaders, allData);
-
-          // 🟢 2. Open Review & Approval Modal before uploading
-          updateUI(taskId, "Waiting for Approval ⏳", 50);
-          addLog(`✋ [${sheetName}] Data merged (${allData.length} rows). Waiting for User Approval...`);
-          
-          var isApproved = await openMasterReviewModal(allData.length, templateHeaders.length);
-          if (!isApproved) {
-            updateUI(taskId, "Upload Cancelled 🛑", 0, true);
-            addLog(`🛑 [${sheetName}] Upload cancelled by user. Excel is ready for download.`);
-            return;
-          }
-
-          addLog(`✅ [${sheetName}] Approved by user. Starting upload...`);
-          await uploadChunks(taskId, sheetName, templateHeaders, allData, true);
-      }
-
-      async function processPoleMtr(taskId, sheetName, files) {
-          const POLE_HEADERS = ["ZONE", "CIRCLE", "DIVISION", "SUB_DIVISION", "LEVEL5", "AGENCY DIVISION CODE", "ACCOUNT NO", "AGENCY NAME", "NAME", "FATHER NAME", "ADDRESS", "PHONE", "FIELD PHONE", "EMAIL", "FIELD EMAIL", "BOOK NO", "CONNECTION NO", "MIGRATION ID", "MIGRATION DATE", "ACTIVITY NAME", "VISITED ACTIVITY NAME", "AMR FLAG", "HV CELL FLAG", "BILL CYCLE NAME", "BILLING FREQ NAME", "CYCLE READING START DATE", "CYCLE READING END DATE", "GROUP NO", "GROUP READING START DATE", "GROUP READING END DATE", "LATITUDE", "LONGITUDE", "SERVICE TYPE", "CONNECTION STATUS NAME", "CONNECTION TYPE NAME", "LOAD CATEGORY NAME", "RURAL FLAG", "SUPPLY TYPE", "TARIFF NAME", "AGENCY CONSUMER STATUS", "MR NAME", "MR EMP CODE", "CONSUMER STATUS", "VISITED DATE", "REVISIT FLAG", "VISIT COUNT", "ACKNOWLEDGEMENT BY", "VISITED EMAIL", "VISITED PHONE", "CONTRACT LOAD", "CONTRACT LOAD UNIT", "SUPPLY VOLTAGE", "VISITED MR NAME", "VISITED MR EMP CODE", "REMARKS", "METER NUMBER", "METER MAKE NAME", "METER MF", "FIELD METER NO", "FIELD METER MAKE", "DLMS FLAG", "NET METERING FLAG", "DEPT METER NO", "PHASE FLAG", "PORT TYPE", "PRODUCT TYPE", "LOAD SURVEY FLAG", "MOBILE MRI SUCCESS", "GENERAL REMARK", "MRI AVAILABLE", "MAIN MRD AVAILABLE", "VISIT STATUS", "VISITED METER NUMBER", "VISITED METER MAKE", "METER STATUS NAME", "NEW SEAL NUMBER", "OLD SEAL NUMBER", "PARSE DATE", "MRI DATE", "RTC DATE", "MAIN RTC CORRECT", "MRI KWH", "MRI KVAH", "MRI KW UHI", "MRI KVA UHI", "H1 TOD1 KVAH", "H1 TOD2 KVAH", "H1 TOD3 KVAH", "H1 TOD4 KVAH", "H1 TOD5 KVAH", "H1 TOD6 KVAH", "H1 TOD7 KVAH", "H1 TOD8 KVAH", "TOD MISMATCH", "IS BILLING AVAILABLE", "IS LOAD SURVEY AVAILABLE", "IS TAMPER AVAILABLE", "SERVICE CYC CD", "BILL CYC CD", "BILLED STATUS", "BILLED DATE", "MRI BILL DUE DATE", "BILL INF FLG", "BILLED TYPE", "BILLBASE", "BILLED SOURCE CODE", "BILLED METER NUMBER", "BILLED METER MAKE", "MRI AVAILABLE VISITED", "MOBILE SYNC TIME", "IMEI NO", "MANUAL KWH VALUE", "MANUAL KVAH VALUE", "MANUAL KVA VALUE", "MANUAL KW VALUE", "MANUAL PF", "NET CURR BILL", "TOTAL BILL", "LAST PAID AMT", "LAST PAID DATE", "AMOUNT PAID IN BILLMONTH", "AMOUNTPAID CNT IN BILLMONTH", "OUTSTANDING ARREAR", "BILL TYPE", "BILLED METER READ REMARK", "METERED FLAG", "OPENING READING DATE", "CLOSING READING DATE", "PREV KVAH", "PREV KWH", "BILL DISTRIBUTION ASSIGNED NAME", "BILL DISTRIBUTION ASSIGNED USER CODE", "BILL DISTRIBUTOR USER NAME", "BILL DISTRIBUTOR USER CODE", "BILL DISTRIBUTION DATE", "BILL AVAILABLE", "DEPT METER NO.1", "LOAD SURVEY DAYS COUNT MONTHLY", "HISTORY1 KWH", "history1 kvah", "HISTORY1 KVA", "HISTORY1 PF", "HISTORY1 KWH EXPORT", "HISTORY1 KVAH EXPORT", "HISTORY1 KVA EXPORT", "CONNECTION TYPE NAME1", "REMARK", "BILL DATA SOURCE NAME", "FEEDER CODE", "FEEDER NAME", "FEEDER METER NUMBER", "SUB STATION CODE", "SUB STATION NAME", "CURRENT KWH EXPORT", "CURRENT KVAH EXPORT", "CURRENT KW EXPORT", "CURRENT KVA EXPORT", "CONTRACT LOAD IN KW1", "Meter Type", "DATA SOURCE NAME", "READING SOURCE TYPE", "PROCESSING DATE", "EXPORT STATUS", "EXPORT FAILURE MESSAGE", "METER NUMBER.1", "METER MAKE NAME.1", "ACCOUNT ID NEW"];
-          const MANUAL_COLS = ["MANUAL KWH VALUE", "MANUAL KVAH VALUE", "MANUAL KVA VALUE", "MANUAL KW VALUE"]; 
-          let allData = [];
-
-          for (let f = 0; f < files.length; f++) {
-              updateUI(taskId, `Processing ${f+1}/${files.length} ⚙️`, Math.round((f/files.length)*40));
-              let arrBuf = await readFileAsArrayBuffer(files[f]);
-              let parsedData = XLSX.utils.sheet_to_json(XLSX.read(arrBuf, {type: 'array'}).Sheets[XLSX.read(arrBuf, {type: 'array'}).SheetNames[0]], {header: 1, defval: ""});
-              if(parsedData.length < 2) continue;
-
-              let hIdx = 0;
-              for (let r = 0; r < Math.min(15, parsedData.length); r++) {
-                  if (parsedData[r].filter(h => h !== "").length >= 3) { hIdx = r; break; }
-              }
-              let fileHeaders = parsedData[hIdx].map(h => h.toString().trim().toUpperCase());
-              
-              let accIdx = fileHeaders.findIndex(h => {
-                  let cleanH = h.replace(/[^A-Z0-9]/ig, '');
-                  return cleanH === "ACCOUNTNO" || cleanH === "ACCTID" || cleanH === "ACCOUNTNUMBER";
-              });
-
-              let usedIndices = new Set();
-              let mappedIndices = POLE_HEADERS.map(th => {
-                  let cleanTH = th.toUpperCase().replace(/\.1$/, '').trim();
-                  for(let j = 0; j < fileHeaders.length; j++) {
-                      let fh = fileHeaders[j].toUpperCase().replace(/\.1$/, '').trim();
-                      if(fh === cleanTH && !usedIndices.has(j)) {
-                          usedIndices.add(j); return j;
-                      }
-                  }
-                  return -1;
-              });
-
-              for (let i = hIdx + 1; i < parsedData.length; i++) {
-                  let row = parsedData[i];
-                  let newRow = mappedIndices.map((idx, pos) => {
-                      let colName = POLE_HEADERS[pos];
-                      if (colName === "ACCOUNT ID NEW" && accIdx !== -1 && row[accIdx] !== undefined) {
-                          return row[accIdx].toString().replace(/_P$/i, ''); 
-                      }
-                      let val = (idx !== -1 && row[idx] !== undefined) ? row[idx] : "";
-                      if (MANUAL_COLS.includes(colName) && isJunkManualValue(val)) return "";
-                      return val;
-                  });
-                  allData.push(newRow);
-              }
-          }
-          if (allData.length === 0) return updateUI(taskId, "No Data Found ❌", 100, true);
-          await uploadChunks(taskId, sheetName, POLE_HEADERS, allData, true); 
-      }
-
-      async function processMainMtr(taskId, sheetName, files) {
-          const MAIN_HEADERS = ["ZONE", "CIRCLE", "DIVISION", "SUB_DIVISION", "LEVEL5", "AGENCY DIVISION CODE", "ACCOUNT NO", "AGENCY NAME", "NAME", "FATHER NAME", "ADDRESS", "PHONE", "FIELD PHONE", "EMAIL", "FIELD EMAIL", "BOOK NO", "CONNECTION NO", "MIGRATION ID", "MIGRATION DATE", "ACTIVITY NAME", "VISITED ACTIVITY NAME", "AMR FLAG", "HV CELL FLAG", "BILL CYCLE NAME", "BILLING FREQ NAME", "CYCLE READING START DATE", "CYCLE READING END DATE", "GROUP NO", "GROUP READING START DATE", "GROUP READING END DATE", "LATITUDE", "LONGITUDE", "SERVICE TYPE", "CONNECTION STATUS NAME", "CONNECTION TYPE NAME", "LOAD CATEGORY NAME", "RURAL FLAG", "SUPPLY TYPE", "TARIFF NAME", "AGENCY CONSUMER STATUS", "MR NAME", "MR EMP CODE", "CONSUMER STATUS", "VISITED DATE", "REVISIT FLAG", "VISIT COUNT", "ACKNOWLEDGEMENT BY", "VISITED EMAIL", "VISITED PHONE", "CONTRACT LOAD", "CONTRACT LOAD UNIT", "SUPPLY VOLTAGE", "VISITED MR NAME", "VISITED MR EMP CODE", "REMARKS", "METER NUMBER", "METER MAKE NAME", "METER MF", "FIELD METER NO", "FIELD METER MAKE", "DLMS FLAG", "NET METERING FLAG", "DEPT METER NO", "PHASE FLAG", "PORT TYPE", "PRODUCT TYPE", "LOAD SURVEY FLAG", "MOBILE MRI SUCCESS", "MRI ATTEMPT FLAG", "GENERAL REMARK", "MRI AVAILABLE", "MAIN MRD AVAILABLE", "VISIT STATUS", "VISITED METER NUMBER", "VISITED METER MAKE", "METER STATUS NAME", "NEW SEAL NUMBER", "OLD SEAL NUMBER", "PARSE DATE", "MRI DATE", "RTC DATE", "MAIN RTC CORRECT", "MRI KWH", "MRI KVAH", "MRI KW UHI", "MRI KVA UHI", "H1 TOD1 KVAH", "H1 TOD2 KVAH", "H1 TOD3 KVAH", "H1 TOD4 KVAH", "H1 TOD5 KVAH", "H1 TOD6 KVAH", "H1 TOD7 KVAH", "H1 TOD8 KVAH", "TOD MISMATCH", "IS BILLING AVAILABLE", "IS LOAD SURVEY AVAILABLE", "IS TAMPER AVAILABLE", "SERVICE CYC CD", "BILL CYC CD", "BILLED STATUS", "BILLED DATE", "MRI BILL DUE DATE", "BILL INF FLG", "BILLED TYPE", "BILLBASE", "BILLED SOURCE CODE", "BILLED METER NUMBER", "BILLED METER MAKE", "MRI AVAILABLE VISITED", "MOBILE SYNC TIME", "IMEI NO", "MANUAL KWH VALUE", "MANUAL KVAH VALUE", "MANUAL KVA VALUE", "MANUAL KW VALUE", "MANUAL PF", "NET CURR BILL", "TOTAL BILL", "LAST PAID AMT", "LAST PAID DATE", "AMOUNT PAID IN BILLMONTH", "AMOUNTPAID CNT IN BILLMONTH", "OUTSTANDING ARREAR", "BILL TYPE", "BILLED METER READ REMARK", "METERED FLAG", "OPENING READING DATE", "CLOSING READING DATE", "PREV KVAH", "PREV KWH", "BILL DISTRIBUTION ASSIGNED NAME", "BILL DISTRIBUTION ASSIGNED USER CODE", "BILL DISTRIBUTOR USER NAME", "BILL DISTRIBUTOR USER CODE", "BILL DISTRIBUTION DATE", "BILL AVAILABLE", "DEPT METER NO.1", "LOAD SURVEY DAYS COUNT MONTHLY", "HISTORY1 KWH", "history1 kvah", "HISTORY1 KVA", "HISTORY1 PF", "HISTORY1 KWH EXPORT", "HISTORY1 KVAH EXPORT", "HISTORY1 KVA EXPORT", "CONNECTION TYPE NAME1", "REMARK", "BILL DATA SOURCE NAME", "FEEDER CODE", "FEEDER NAME", "FEEDER METER NUMBER", "SUB STATION CODE", "SUB STATION NAME", "CURRENT KWH EXPORT", "CURRENT KVAH EXPORT", "CURRENT KW EXPORT", "CURRENT KVA EXPORT", "CONTRACT LOAD IN KW1", "Meter Type", "DATA SOURCE NAME", "READING SOURCE TYPE", "PROCESSING DATE", "EXPORT STATUS", "EXPORT FAILURE MESSAGE", "METER NUMBER.1", "METER MAKE NAME.1", "ACCOUNT ID TRIM"];
-          const MANUAL_COLS = ["MANUAL KWH VALUE", "MANUAL KVAH VALUE", "MANUAL KVA VALUE", "MANUAL KW VALUE"]; 
-          let allData = [];
-
-          for (let f = 0; f < files.length; f++) {
-              updateUI(taskId, `Processing ${f+1}/${files.length} ⚙️`, Math.round((f/files.length)*40));
-              let arrBuf = await readFileAsArrayBuffer(files[f]);
-              let parsedData = XLSX.utils.sheet_to_json(XLSX.read(arrBuf, {type: 'array'}).Sheets[XLSX.read(arrBuf, {type: 'array'}).SheetNames[0]], {header: 1, defval: ""});
-              if(parsedData.length < 2) continue;
-
-              let hIdx = 0;
-              for (let r = 0; r < Math.min(15, parsedData.length); r++) {
-                  if (parsedData[r].filter(h => h !== "").length >= 3) { hIdx = r; break; }
-              }
-              let fileHeaders = parsedData[hIdx].map(h => h.toString().trim().toUpperCase());
-              
-              let accIdx = fileHeaders.findIndex(h => {
-                  let cleanH = h.replace(/[^A-Z0-9]/ig, '');
-                  return cleanH === "ACCOUNTNO" || cleanH === "ACCTID" || cleanH === "ACCOUNTNUMBER";
-              });
-
-              let usedIndices = new Set();
-              let mappedIndices = MAIN_HEADERS.map(th => {
-                  let cleanTH = th.toUpperCase().replace(/\.1$/, '').trim();
-                  for(let j = 0; j < fileHeaders.length; j++) {
-                      let fh = fileHeaders[j].toUpperCase().replace(/\.1$/, '').trim();
-                      if(fh === cleanTH && !usedIndices.has(j)) {
-                          usedIndices.add(j); return j;
-                      }
-                  }
-                  return -1;
-              });
-
-              for (let i = hIdx + 1; i < parsedData.length; i++) {
-                  let row = parsedData[i];
-                  let newRow = mappedIndices.map((idx, pos) => {
-                      let colName = MAIN_HEADERS[pos];
-                      if (colName === "ACCOUNT ID TRIM" && accIdx !== -1 && row[accIdx] !== undefined) {
-                          return row[accIdx].toString().trim(); 
-                      }
-                      let val = (idx !== -1 && row[idx] !== undefined) ? row[idx] : "";
-                      if (MANUAL_COLS.includes(colName) && isJunkManualValue(val)) return "";
-                      return val;
-                  });
-                  allData.push(newRow);
-              }
-          }
-          if (allData.length === 0) return updateUI(taskId, "No Data Found ❌", 100, true);
-          await uploadChunks(taskId, sheetName, MAIN_HEADERS, allData, true); 
-      }
-
-      async function processBillDist(taskId, sheetName, files) {
-          const TARGET_HEADERS = ["ACCOUNT NO", "BILL DISTRIBUTION DATE", "DISTRIBUTION_METER_STATUS_NAME", "ACKNOWLEDGEMENT BY", "BILL DISTRIBUTION"];
-          let allData = [];
-
-          for (let f = 0; f < files.length; f++) {
-              let arrBuf = await readFileAsArrayBuffer(files[f]);
-              let workbook = XLSX.read(arrBuf, {type: 'array'});
-              
-              for (let s = 0; s < workbook.SheetNames.length; s++) {
-                  let parsedData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[s]], {header: 1, defval: "", raw: false});
-                  if(parsedData.length < 2) continue;
-
-                  let hIdx = 0;
-                  for (let r = 0; r < Math.min(15, parsedData.length); r++) {
-                      if (parsedData[r].filter(h => h !== "").length >= 3) { hIdx = r; break; }
-                  }
-                  let fileHeaders = parsedData[hIdx].map(h => h.toString().trim().toUpperCase());
-
-                  for (let i = hIdx + 1; i < parsedData.length; i++) {
-                      let row = parsedData[i];
-                      if (row.join("").trim() === "") continue;
-
-                      let newRow = [];
-                      for (let c of TARGET_HEADERS) {
-                          let cleanC = c.toUpperCase().replace(/[^A-Z0-9]/ig, ''); 
-                          let idx = fileHeaders.findIndex(h => h.replace(/[^A-Z0-9]/ig, '') === cleanC);
-                          let val = (idx !== -1 && row[idx] !== undefined) ? row[idx].toString().trim() : "";
-
-                          if (c === "ACCOUNT NO" && val !== "") {
-                              let cleanA = val.replace(/_P$/i, '').replace(/\.0$/, '').trim();
-                              let digits = cleanA.replace(/[^0-9]/g, '');
-                              val = (digits.length > 0 && digits.length < 10) ? digits.padStart(10, '0') : cleanA;
-                          }
-                          if (c === "BILL DISTRIBUTION DATE" && val !== "") {
-                              val = extractStrictDate(val);
-                          }
-                          newRow.push(val);
-                      }
-                      allData.push(newRow);
-                  }
-              }
-          }
-          if (allData.length === 0) return updateUI(taskId, "No Data Found ❌", 100, true);
-          await uploadChunks(taskId, sheetName, TARGET_HEADERS, allData, true);
-      }
-
-      async function processRDGSheet(taskId, sheetName, files) {
-          const TARGET_HEADERS = ["METER_NUMBER", "BILLINGDATE_H1", "KWH_H1", "KVAH_H1", "KW_H1", "KVA_H1", "BILLINGDATE_H2", "KWH_H2", "KVAH_H2", "KW_H2", "KVA_H2"];
-          const FINAL_HEADERS = [...TARGET_HEADERS, "VISITED/RTC DATE", "meter_number"];
-          
-          let existingMeters = await new Promise(resolve => {
-              google.script.run.withSuccessHandler(list => resolve(new Set(list))).getExistingMetersFromRDG();
-          });
-
-          let masterMap = {}; 
-          let skippedExistingCount = 0;
-
-          for (let f = 0; f < files.length; f++) {
-              let arrBuf = await readFileAsArrayBuffer(files[f]);
-              let wb = XLSX.read(arrBuf, {type: 'array'});
-              let parsedData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1, defval: ""});
-              wb = null;
-
-              if (parsedData.length < 2) continue;
-
-              let hIdx = 0;
-              for (let r = 0; r < Math.min(15, parsedData.length); r++) {
-                  if (parsedData[r].filter(h => h !== "").length >= 3) { hIdx = r; break; }
-              }
-              let fileHeaders = parsedData[hIdx].map(h => h.toString().trim().toUpperCase());
-
-              let mtrIdx = fileHeaders.indexOf("METER_NUMBER");
-              let kwhIdx = fileHeaders.indexOf("KWH_H1");
-              let h1Idx = fileHeaders.indexOf("BILLINGDATE_H1");
-
-              for (let i = hIdx + 1; i < parsedData.length; i++) {
-                  let row = parsedData[i];
-                  if (!row || row.length === 0) continue;
-
-                  let mNo = mtrIdx !== -1 && row[mtrIdx] ? row[mtrIdx].toString().trim() : "";
-                  if (!mNo) continue;
-
-                  if (existingMeters.has(mNo)) {
-                      skippedExistingCount++;
-                      continue;
-                  }
-
-                  let rawKwh = kwhIdx !== -1 && row[kwhIdx] !== undefined ? row[kwhIdx].toString().trim() : "0";
-                  let currentKwhVal = parseFloat(rawKwh) || 0;
-
-                  let newRow = [];
-                  for (let c of TARGET_HEADERS) {
-                      let idx = fileHeaders.indexOf(c);
-                      newRow.push(idx !== -1 && row[idx] !== undefined ? row[idx] : "");
-                  }
-                  newRow.push(h1Idx !== -1 && row[h1Idx] !== undefined ? row[h1Idx] : "");
-                  newRow.push(mNo);
-
-                  if (!masterMap[mNo] || currentKwhVal > masterMap[mNo].maxKwh) {
-                      masterMap[mNo] = { rowData: newRow, maxKwh: currentKwhVal };
-                  }
-              }
-              parsedData = null;
-          }
-
-          let finalData = Object.values(masterMap).map(item => item.rowData);
-          if (finalData.length === 0) return updateUI(taskId, "No New Data Found ❌", 100, true);
-          await uploadChunks(taskId, sheetName, FINAL_HEADERS, finalData, false); 
-      }
-
-      async function uploadChunks(taskId, sheetName, headers, data, isRebuild) {
-          let total = data.length;
-          if (total === 0) return;
-
-          let actionType = isRebuild ? "Rebuild/Replace" : "Append";
-          addLog(`📊 [${sheetName}] Compiling ${total} records for ${actionType} mode...`);
-          updateUI(taskId, `Compiling ${total} Records... ⚙️`, 55);
-
-          let csvString = convertToCSV(headers, data);
-          let blob = new Blob([csvString], { type: 'text/csv' });
-
-          const CHUNK_SIZE_BYTES = 4 * 1024 * 1024; // 🟢 4 MB High-Performance Chunk
-          let savedOffset = localStorage.getItem("resume_offset_" + taskId + "_" + sheetName);
-          let offset = savedOffset ? parseInt(savedOffset) : 0;
-          let tempFileId = localStorage.getItem("resume_fileId_" + taskId + "_" + sheetName) || null;
-
-          if (offset > 0) {
-              addLog(`⚠️ [${sheetName}] Network Recovery: Resuming upload from ${Math.round(offset/(1024*1024))}MB...`);
-          }
-
-          while (offset < blob.size) {
-              if (isPausedGlobal) {
-                  updateUI(taskId, "Paused (Waiting for Net) ⏸️", null);
-                  await new Promise(resolve => setTimeout(resolve, 3000));
-                  continue;
-              }
-
-              let chunk = blob.slice(offset, offset + CHUNK_SIZE_BYTES);
-              let base64Data = await readChunkAsBase64(chunk);
-              let currentMB = (offset / (1024 * 1024)).toFixed(1);
-              let totalMB = (blob.size / (1024 * 1024)).toFixed(1);
-              let progressPercent = 50 + Math.round((offset / blob.size) * 35);
-
-              addLog(`📤 [${sheetName}] Uploading Chunk: ${currentMB}MB / ${totalMB}MB...`);
-              updateUI(taskId, `Uploading Chunk (${currentMB}/${totalMB} MB)... 📥`, progressPercent);
-
-              let success = false;
-              let retryCount = 0;
-
-              while (!success) {
-                  try {
-                      if (!navigator.onLine) throw new Error("Local Network Disconnected");
-
-                      let response = await fetch(APPS_SCRIPT_WEBAPP_URL, {
-                          method: "POST",
-                          headers: { "Content-Type": "text/plain;charset=utf-8" },
-                          body: JSON.stringify({
-                              action: "appendTemporaryFileChunk",
-                              fileName: sheetName + "_temp.csv",
-                              base64Data: base64Data,
-                              fileId: tempFileId
-                          })
-                      });
-                      
-                      let result = await response.json();
-                      if (result.error) throw new Error(result.error);
-
-                      tempFileId = result.fileId;
-                      success = true;
-                      isPausedGlobal = false;
-                  } catch (err) {
-                      retryCount++;
-                      isPausedGlobal = true;
-                      updateUI(taskId, `Network Error (Retry ${retryCount})... 🔌`, null, true);
-                      addLog(`🔌 [${sheetName}] Connection issue: ${err.message}. Retry #${retryCount} in 4s...`);
-
-                      localStorage.setItem("resume_offset_" + taskId + "_" + sheetName, offset);
-                      localStorage.setItem("resume_fileId_" + taskId + "_" + sheetName, tempFileId);
-
-                      await new Promise(resolve => setTimeout(resolve, 4000));
-                  }
-              }
-
-              offset += CHUNK_SIZE_BYTES;
-              localStorage.setItem("resume_offset_" + taskId + "_" + sheetName, offset);
-              localStorage.setItem("resume_fileId_" + taskId + "_" + sheetName, tempFileId);
-          }
-
-          let modeText = isRebuild ? "REPLACING whole sheet" : "APPENDING new records";
-          updateUI(taskId, `Server Mode: ${modeText}... ⚡`, 90);
-          addLog(`⚡ [${sheetName}] All chunks uploaded. Processing server injection (${modeText})...`);
-
-          let dumpFinished = false;
-          let dumpRetry = 0;
-          while (!dumpFinished) {
-              try {
-                  if (!navigator.onLine) throw new Error("Network missing on final write");
-
-                  let response = await fetch(APPS_SCRIPT_WEBAPP_URL, {
-                      method: "POST",
-                      headers: { "Content-Type": "text/plain;charset=utf-8" },
-                      body: JSON.stringify({
-                          action: "processLargeFileFromDrive",
-                          fileId: tempFileId,
-                          sheetName: sheetName,
-                          isRebuild: isRebuild
-                      })
-                  });
-                  
-                  let finalResponse = await response.json();
-
-                  if (finalResponse.success) {
-                      let successMsg = isRebuild ? "Replaced Successfully! 🎉" : "Appended Successfully! 🎉";
-                      updateUI(taskId, successMsg, 100);
-                      addLog(`✅ [${sheetName}] Done! Status: ${successMsg}`);
-
-                      localStorage.removeItem("resume_offset_" + taskId + "_" + sheetName);
-                      localStorage.removeItem("resume_fileId_" + taskId + "_" + sheetName);
-                      dumpFinished = true;
-                  } else {
-                      updateUI(taskId, "Execution Failed ❌", 100, true);
-                      addLog(`❌ [${sheetName}] Server Error: ${finalResponse.error || "Execution failed"}`);
-                      dumpFinished = true;
-                  }
-              } catch (e) {
-                  dumpRetry++;
-                  updateUI(taskId, `Writing Sheet (Waiting Server ${dumpRetry})... 🔄`, null, true);
-                  addLog(`🔄 [${sheetName}] Waiting for server response (${e.message})...`);
-                  await new Promise(resolve => setTimeout(resolve, 5000));
-              }
-          }
-      }
-
       function openBulkUpdateModal() {
         var modal = document.getElementById('bulk-update-modal');
         if (modal) modal.style.display = 'flex';
@@ -13430,34 +12257,18 @@ tBody.appendChild(fragment);
         element.classList.add('active');
         document.getElementById('home-view-zone').style.display = 'none';
         document.getElementById('analytics-view-zone').style.display = 'none';
-        document.getElementById('table-zone').style.display = 'none';
         document.getElementById('pivot-page-zone').style.display = 'none';
-        document.getElementById('table-loader').style.display = 'block';
 
         var titleHeader = document.getElementById('active-report-title');
-        titleHeader.innerText = rpt.name;
-        titleHeader.style.color = borderCol;
-        activeReportMeta = rpt;
+        if (titleHeader) {
+          titleHeader.innerText = rpt.name;
+          titleHeader.style.color = borderCol;
+        }
 
-        fetch(APPS_SCRIPT_WEBAPP_URL + "?action=getMrMismatch")
-          .then(function(res) { return res.json(); })
-          .then(function(res) {
-            document.getElementById('table-loader').style.display = 'none';
-            if (res && res.rows) {
-              clientRenderedRows = res.rows;
-              var counterBadge = document.getElementById('report-live-counter');
-              if (counterBadge) counterBadge.innerText = "Total: " + clientRenderedRows.length;
-              document.getElementById('table-zone').style.display = 'flex';
-              var cols = rpt.columns.split(",").map(function(c){ return c.trim(); });
-              renderClientTable(cols);
-            } else {
-              alert("Data fetch nahi ho saka: " + (res.error || "Unknown Error"));
-            }
-          })
-          .catch(function(err) {
-            document.getElementById('table-loader').style.display = 'none';
-            alert("Server Error: " + err.message);
-          });
+        activeReportMeta = rpt;
+        
+        // 🟢 लोकल मेमोरी से डायरेक्ट फ़िल्टर चलाएँ (बिना दोबारा नेटवर्क कॉल किए)
+        processClientFilterQuery();
       }
       // 🟢 DIRECT 1-CLICK EXACT GOOGLE SHEET CLONE EXCEL DOWNLOAD ENGINE
       function downloadIndependentConsumersDirectExcel(rpt, element, borderCol) {
@@ -13689,16 +12500,7 @@ tBody.appendChild(fragment);
     });
 }
 
-function minimizeUploadWidget() {
-        var body = document.getElementById('upload-widget-body');
-        if (body) {
-          if (body.style.display === "none") {
-            body.style.display = "block";
-          } else {
-            body.style.display = "none";
-          }
-        }
-      }
+
       // 🟢 आपके द्वारा बताए गए सभी 40 विशिष्ट कॉलमों की अधिकृत सूची
 var customBulkAllowedColumns = [
   "CONSUMER REMARK", "SUB REMARK", "IS MAIN METER VISIT", "VISIT BY", "VISIT LAST MONTH",
@@ -13882,29 +12684,33 @@ function executeCustomBulkUpdate() {
 
       statusBox.innerText = payloadUpdates.length + " रिकॉर्ड्स Google Sheet में सुरक्षित रूप से अपडेट हो रहे हैं...";
 
-      if (window.google && google.script && google.script.run) {
+      var handleBulkSuccess = function(res) {
+        btn.disabled = false;
+        if (res && res.success) {
+          statusBox.style.color = "#10b981";
+          statusBox.innerHTML = "✅ सफलतापूर्वक <b>" + (res.updatedCount || payloadUpdates.length) + "</b> रो अपडेट हो गईं! (Not Found: " + (res.notFoundCount || 0) + ")";
+          if (res.logs && res.logs.length > 0) {
+            downloadUpdateAuditLogExcel(res.logs);
+          }
+          calculateAnalyticsKPICards();
+          if (typeof processClientFilterQuery === "function") processClientFilterQuery();
+        } else {
+          statusBox.style.color = "#ef4444";
+          statusBox.innerText = "त्रुटि: " + (res ? res.error : "Update Failed");
+        }
+      };
+
+      var handleBulkError = function(err) {
+        btn.disabled = false;
+        statusBox.style.color = "#ef4444";
+        statusBox.innerText = "सर्वर एरर: " + (err.message || err);
+      };
+
+      if (window.google && google.script && google.script.run && typeof google.script.run.processAdvancedBulkColumnUpdate === "function") {
         google.script.run
-          .withSuccessHandler(function(res) {
-            btn.disabled = false;
-            if (res && res.success) {
-              statusBox.style.color = "#10b981";
-              statusBox.innerHTML = "✅ सफलतापूर्वक <b>" + res.updatedCount + "</b> रो अपडेट हो गईं! (Not Found: " + (res.notFoundCount || 0) + ")";
-              if (res.logs && res.logs.length > 0) {
-                downloadUpdateAuditLogExcel(res.logs);
-              }
-              calculateAnalyticsKPICards();
-              if (typeof processClientFilterQuery === "function") processClientFilterQuery();
-            } else {
-              statusBox.style.color = "#ef4444";
-              statusBox.innerText = "त्रुटि: " + (res ? res.error : "Update Failed");
-            }
-          })
-          .withFailureHandler(function(err) {
-            btn.disabled = false;
-            statusBox.style.color = "#ef4444";
-            statusBox.innerText = "सर्वर एरर: " + err.message;
-          })
-          .bulkUpdateColumns({ targetSheetName: "VisiT_Data", updates: payloadUpdates });
+          .withSuccessHandler(handleBulkSuccess)
+          .withFailureHandler(handleBulkError)
+          .processAdvancedBulkColumnUpdate({ targetSheetName: "VisiT_Data", updates: payloadUpdates });
       } else {
         fetch(APPS_SCRIPT_WEBAPP_URL, {
           method: "POST",
@@ -13916,26 +12722,8 @@ function executeCustomBulkUpdate() {
           })
         })
         .then(function(res) { return res.json(); })
-        .then(function(res) {
-          btn.disabled = false;
-          if (res && res.success) {
-            statusBox.style.color = "#10b981";
-            statusBox.innerHTML = "✅ सफलतापूर्वक <b>" + res.updatedCount + "</b> रो अपडेट हो गईं! (Not Found: " + (res.notFoundCount || 0) + ")";
-            if (res.logs && res.logs.length > 0) {
-              downloadUpdateAuditLogExcel(res.logs);
-            }
-            calculateAnalyticsKPICards();
-            if (typeof processClientFilterQuery === "function") processClientFilterQuery();
-          } else {
-            statusBox.style.color = "#ef4444";
-            statusBox.innerText = "त्रुटि: " + (res ? res.error : "Update Failed");
-          }
-        })
-        .catch(function(err) {
-          btn.disabled = false;
-          statusBox.style.color = "#ef4444";
-          statusBox.innerText = "सर्वर एरर: " + err.message;
-        });
+        .then(handleBulkSuccess)
+        .catch(handleBulkError);
       }
     } catch (err) {
       btn.disabled = false;
