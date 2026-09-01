@@ -1198,6 +1198,88 @@
           display: none !important;
         }
       }
+      /* 🟢 Modern Segmented Tab Controller */
+.dashboard-view-switcher {
+  display: inline-flex;
+  background: #e2e8f0;
+  padding: 4px;
+  border-radius: 8px;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.view-tab-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #475569;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.view-tab-btn:hover {
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.view-tab-btn.active-view-tab {
+  background: #ffffff !important;
+  color: #1a73e8 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .dashboard-view-switcher {
+  background: #1e2430;
+}
+
+body.dark-mode .view-tab-btn {
+  color: #94a3b8;
+}
+
+body.dark-mode .view-tab-btn.active-view-tab {
+  background: #2d3748 !important;
+  color: #60a5fa !important;
+}
+
+/* 🟢 Compact Modern Filter Bar */
+.filter-bar {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(4, 1fr);
+  gap: 10px;
+  background: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+  align-items: flex-end;
+}
+
+.filter-group label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.filter-group input,
+.multiselect-anchor {
+  height: 34px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .filter-bar {
+    grid-template-columns: 1fr;
+  }
+}
     </style>
   </head>
   <body>
@@ -1329,7 +1411,7 @@
             <i class="fa-solid fa-table-list" style="color:#3b82f6"></i> Department Master Data
           </button>
 
-          <button class="report-link" id="btn-rpt-indep-consumers" style="border-left: 4px solid #8b5cf6; background: #f5f3ff; color: #5b21b6;" onclick="downloadIndependentConsumersDirectExcel(codeBuiltinReports[9], this, '#8b5cf6')">
+          <button class="report-link" id="btn-rpt-indep-consumers" style="border-left: 4px solid #8b5cf6; background: #f5f3ff; color: #5b21b6;" onclick="showIndependentConsumersReport(codeBuiltinReports[9], this, '#8b5cf6')">
             <i class="fa-solid fa-file-excel" style="color:#8b5cf6"></i> Independent Consumers List
           </button>
         </div>
@@ -1627,55 +1709,180 @@
           <button onclick="filterByKPICard('CRITICAL_50KW_ALERT', 'Critical >50KW Pending & Mismatch')" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); color:white; padding:3px 8px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer;">View Critical List</button>
         </div>
 
-        <!-- 📊 Interactive Comparison Chart & Target vs Achievement Gauges -->
-        <div class="analytics-charts-grid">
-          <div class="chart-card-box">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <span style="font-size:12px; font-weight:800; color:#1e293b;"><i class="fa-solid fa-chart-column" style="color:#2563eb; margin-right:5px;"></i> Division Performance Comparison</span>
-              <span style="font-size:10px; color:#64748b; font-weight:700;">Billing % vs MRI Upload %</span>
+        <!-- 🔀 Navigation Switcher: Summary Matrix vs KPI Cards vs Rejection After MRI -->
+        <div class="dashboard-view-switcher">
+          <button type="button" class="view-tab-btn active-view-tab" id="btn-tab-scorecard" onclick="switchAnalyticsSubTab('scorecard')">
+            <i class="fa-solid fa-table-list"></i> Operations Scorecard
+          </button>
+          <button type="button" class="view-tab-btn" id="btn-tab-cards" onclick="switchAnalyticsSubTab('cards')">
+            <i class="fa-solid fa-grip"></i> KPI Metrics Cards
+          </button>
+          <button type="button" class="view-tab-btn" id="btn-tab-mri-rejection" onclick="switchAnalyticsSubTab('mri-rejection')">
+            <i class="fa-solid fa-triangle-exclamation" style="color:#dc2626;"></i> Rejection After MRI & Other Irregularities
+          </button>
+        </div>
+
+        <!-- 📑 TAB 1: OPERATIONS SCORECARD & SIGNALS -->
+        <div id="analytics-tab-scorecard" style="display: block;">
+          <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 10px; margin-bottom: 12px;">
+          
+          <!-- Left: Division-Wise Live Performance Scorecard -->
+          <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px;">
+              <span style="font-size: 12px; font-weight: 800; color: #0f172a;">
+                <i class="fa-solid fa-layer-group" style="color: #2563eb; margin-right: 5px;"></i> Division-Wise Operations Scorecard
+              </span>
+              <span style="font-size: 10px; font-weight: 700; color: #64748b;">(Click row to filter table)</span>
             </div>
-            <div style="position:relative; height:160px; width:100%;">
-              <canvas id="divisionComparisonChart"></canvas>
+            
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; max-width: 100%;">
+              <table style="width: 100%; min-width: 680px; border-collapse: collapse; font-size: 11px; text-align: center;">
+                <thead>
+                  <tr style="background: #0b3c5d; color: white; font-weight: 800; font-size: 10.5px;">
+                    <th rowspan="2" style="padding: 6px 8px; text-align: left; vertical-align: middle; border-right: 1px solid rgba(255,255,255,0.15);">Division Name</th>
+                    <th rowspan="2" style="padding: 6px 6px; vertical-align: middle; border-right: 1px solid rgba(255,255,255,0.15);">Total Base</th>
+                    <th colspan="3" style="padding: 4px 6px; background: #1a73e8; border-right: 1px solid rgba(255,255,255,0.15);"><i class="fa-solid fa-gauge me-1"></i> Main Meter</th>
+                    <th colspan="3" style="padding: 4px 6px; background: #0284c7; border-right: 1px solid rgba(255,255,255,0.15);"><i class="fa-solid fa-tower-cell me-1"></i> Pole Meter (>=10KW)</th>
+                    <th colspan="2" style="padding: 4px 6px; background: #059669; border-right: 1px solid rgba(255,255,255,0.15);"><i class="fa-solid fa-file-invoice-dollar me-1"></i> Billing</th>
+                    <th colspan="3" style="padding: 4px 6px; background: #7c3aed;"><i class="fa-solid fa-truck-ramp-box me-1"></i> Bill Distribution</th>
+                  </tr>
+                  <tr style="background: #f1f5f9; color: #334155; font-weight: 800; font-size: 10px; border-bottom: 1.5px solid #cbd5e1;">
+                    <!-- Main -->
+                    <th style="padding: 4px 5px;">Visit Done</th>
+                    <th style="padding: 4px 5px;">MRI Done</th>
+                    <th style="padding: 4px 6px; border-right: 1px solid #cbd5e1;">MRI Up %</th>
+                    <!-- Pole -->
+                    <th style="padding: 4px 5px;">Visit Done</th>
+                    <th style="padding: 4px 5px;">MRI Done</th>
+                    <th style="padding: 4px 6px; border-right: 1px solid #cbd5e1;">MRI Up %</th>
+                    <!-- Billing -->
+                    <th style="padding: 4px 5px;">Billed</th>
+                    <th style="padding: 4px 6px; border-right: 1px solid #cbd5e1;">Billing %</th>
+                    <!-- Distribution -->
+                    <th style="padding: 4px 5px;">Delivered</th>
+                    <th style="padding: 4px 5px;">Pending</th>
+                    <th style="padding: 4px 6px;">Dist %</th>
+                  </tr>
+                </thead>
+                <tbody id="division-scorecard-tbody">
+                  <!-- Injected via JavaScript -->
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <div class="chart-card-box">
-            <div style="margin-bottom:8px;">
-              <span style="font-size:12px; font-weight:800; color:#1e293b;"><i class="fa-solid fa-gauge-high" style="color:#10b981; margin-right:5px;"></i> Target vs Achievement</span>
+          <!-- Right: Key Critical Bottlenecks Widget -->
+          <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+            <div style="font-size: 12px; font-weight: 800; color: #0f172a; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; margin-bottom: 6px;">
+              <i class="fa-solid fa-shield-halved" style="color: #ea580c; margin-right: 5px;"></i> Priority Action Signals
             </div>
-            <div class="gauge-meter-wrapper">
-              <!-- Gauge 1: Visit Achievement -->
-              <div class="gauge-item">
-                <div class="gauge-header">
-                  <span style="color:#1e293b;">Field Visit Done</span>
-                  <span id="gauge-visit-val" style="color:#2563eb;">0%</span>
+            
+            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px;">
+              <div onclick="filterByKPICard('MAIN_MRI_NOT_UPLOAD', 'Main MRI Not Uploaded')" style="cursor: pointer; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;">
+                <span style="font-weight: 700; color: #991b1b;"><i class="fa-solid fa-cloud-arrow-up" style="margin-right: 5px;"></i> MRI Pending Upload</span>
+                <span id="signal-mri-not-upload" style="background: #ef4444; color: white; padding: 1px 8px; border-radius: 10px; font-weight: 800; font-size: 10.5px;">0</span>
+              </div>
+
+              <div onclick="filterByKPICard('MAIN_SURVEY_NOT_FOUND', 'Main Load Survey Missing')" style="cursor: pointer; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;">
+                <span style="font-weight: 700; color: #92400e;"><i class="fa-solid fa-chart-simple" style="margin-right: 5px;"></i> Load Survey Missing</span>
+                <span id="signal-survey-missing" style="background: #f59e0b; color: white; padding: 1px 8px; border-radius: 10px; font-weight: 800; font-size: 10.5px;">0</span>
+              </div>
+
+              <div onclick="filterByKPICard('MAIN_BILLED_VS_FV_NO', 'Billed vs Visited Meter Mismatch')" style="cursor: pointer; background: #faf5ff; border: 1px solid #f3e8ff; border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;">
+                <span style="font-weight: 700; color: #6b21a8;"><i class="fa-solid fa-arrows-rotate" style="margin-right: 5px;"></i> Meter No. Mismatches</span>
+                <span id="signal-mismatch-count" style="background: #a855f7; color: white; padding: 1px 8px; border-radius: 10px; font-weight: 800; font-size: 10.5px;">0</span>
+              </div>
+            </div>
+
+            <div style="text-align: right; margin-top: 4px;">
+              <span style="font-size: 9.5px; color: #64748b; font-weight: 700;"><i class="fa-solid fa-circle-info me-1"></i>Live computed from cache</span>
+            </div>
+          </div>
+
+        </div>
+        </div> <!-- End of #analytics-tab-scorecard -->
+
+        <!-- 📑 TAB 3: REJECTION AFTER MRI SECTION -->
+          <div id="analytics-tab-mri-rejection" style="display: none;">
+            <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #ef4444; padding-bottom: 8px; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                <div>
+                  <h4 style="margin: 0; font-size: 13.5px; font-weight: 800; color: #991b1b; text-transform: uppercase;">
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i> Rejection After MRI & Other Irregularities (Meter Mismatch, RTC Failure, Billing History Missing Etc.) Report
+                  </h4>
+                  <span id="mri-rejection-sub-count" style="font-size: 11px; color: #64748b; font-weight: 700;">Total Found: 0</span>
                 </div>
-                <div class="gauge-bar-outer">
-                  <div id="gauge-visit-bar" class="gauge-bar-inner" style="width:0%; background:linear-gradient(90deg, #3b82f6, #1d4ed8);"></div>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:9px; color:#64748b; margin-top:3px; font-weight:600;">
-                  <span>Target: 100%</span>
-                  <span id="gauge-visit-counts">0 / 0</span>
+                <div style="display: flex; gap: 8px;">
+                  <button onclick="downloadRejectionAfterMriExcel()" class="btn-icon btn-excel" style="height: 32px; padding: 0 12px; font-size: 11.5px; background: #059669;">
+                    <i class="fa-solid fa-file-excel me-1"></i> Export Excel (.xlsx)
+                  </button>
+                  <button onclick="downloadRejectionAfterMriPDF()" class="btn-icon btn-pdf" style="height: 32px; padding: 0 12px; font-size: 11.5px; background: #dc2626;">
+                    <i class="fa-solid fa-file-pdf me-1"></i> Export PDF (.pdf)
+                  </button>
                 </div>
               </div>
 
-              <!-- Gauge 2: MRI Achievement -->
-              <div class="gauge-item">
-                <div class="gauge-header">
-                  <span style="color:#1e293b;">MRI Upload %</span>
-                  <span id="gauge-mri-val" style="color:#059669;">0%</span>
-                </div>
-                <div class="gauge-bar-outer">
-                  <div id="gauge-mri-bar" class="gauge-bar-inner" style="width:0%; background:linear-gradient(90deg, #10b981, #047857);"></div>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:9px; color:#64748b; margin-top:3px; font-weight:600;">
-                  <span>Target: 95%</span>
-                  <span id="gauge-mri-counts">0 / 0</span>
-                </div>
+            <!-- Summary Counter Pills (6 Cards) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-bottom: 14px;">
+              <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 8px 10px; text-align: center;">
+                <div style="font-size: 10px; font-weight: 800; color: #991b1b;">RTC DEFECTIVE</div>
+                <div id="count-rej-rtc" style="font-size: 16px; font-weight: 900; color: #dc2626;">0</div>
               </div>
+              <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 6px; padding: 8px 10px; text-align: center;">
+                <div style="font-size: 10px; font-weight: 800; color: #92400e;">REJECT BY INFINITE</div>
+                <div id="count-rej-failure" style="font-size: 16px; font-weight: 900; color: #d97706;">0</div>
+              </div>
+              <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 8px 10px; text-align: center;">
+                <div style="font-size: 10px; font-weight: 800; color: #1e40af;">METER NO. MISMATCH</div>
+                <div id="count-rej-mismatch-no" style="font-size: 16px; font-weight: 900; color: #2563eb;">0</div>
+              </div>
+              <div style="background: #faf5ff; border: 1px solid #f3e8ff; border-radius: 6px; padding: 8px 10px; text-align: center;">
+                <div style="font-size: 10px; font-weight: 800; color: #6b21a8;">METER MAKE MISMATCH</div>
+                <div id="count-rej-mismatch-make" style="font-size: 16px; font-weight: 900; color: #7c3aed;">0</div>
+              </div>
+              <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 6px; padding: 8px 10px; text-align: center;">
+                <div style="font-size: 10px; font-weight: 800; color: #be123c;">METER NO. & MAKE MISMATCH</div>
+                <div id="count-rej-mismatch-both" style="font-size: 16px; font-weight: 900; color: #e11d48;">0</div>
+              </div>
+              <div style="background: #ecfdf5; border: 1.5px solid #10b981; border-radius: 6px; padding: 8px 10px; text-align: center; box-shadow: 0 1px 4px rgba(16,185,129,0.15);">
+                <div style="font-size: 10px; font-weight: 800; color: #065f46;">MRI DONE READS MISSING</div>
+                <div id="count-rej-read-missing" style="font-size: 16px; font-weight: 900; color: #059669;">0</div>
+              </div>
+            </div>
+
+            <!-- Table View -->
+            <div style="overflow-x: auto; max-height: 480px;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: center;">
+                <thead style="position: sticky; top: 0; z-index: 2;">
+                  <tr style="background: #0f172a; color: white; font-weight: 800; font-size: 10.5px;">
+                    <th style="padding: 7px 6px;">Sr.</th>
+                    <th style="padding: 7px 8px;">Division</th>
+                    <th style="padding: 7px 8px;">Account No</th>
+                    <th style="padding: 7px 8px;">Consumer Type</th>
+                    <th style="padding: 7px 8px;">Tariff</th>
+                    <th style="padding: 7px 8px; text-align: left;">Consumer Name</th>
+                    <th style="padding: 7px 8px; text-align: left;">Address</th>
+                    <th style="padding: 7px 8px;">Load</th>
+                    <th style="padding: 7px 8px;">Billed Mtr</th>
+                    <th style="padding: 7px 8px;">Field Mtr</th>
+                    <th style="padding: 7px 8px;">Field Make</th>
+                    <th style="padding: 7px 8px;">Visited Mtr</th>
+                    <th style="padding: 7px 8px;">Visited Make</th>
+                    <th style="padding: 7px 10px; text-align: left; background: #991b1b; color: white;">Failure Message / Rejection Reason</th>
+                    <th style="padding: 7px 8px;">MR Name</th>
+                    <th style="padding: 7px 8px;">MR Mobile</th>
+                  </tr>
+                </thead>
+                <tbody id="mri-rejection-tbody">
+                  <!-- Injected via JavaScript -->
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
+
+        <!-- 📑 TAB 2: KPI CARDS SECTION -->
+        <div id="analytics-tab-cards" style="display: none;">
 
         <!-- SECTION 1: TOTAL CONSUMERS STATUS -->
         <h3 class="kpi-section-heading"><i class="fa-solid fa-users"></i> Total Consumers Status</h3>
@@ -1776,6 +1983,8 @@
           <div class="kpi-card card-teal clickable-kpi" onclick="filterByKPICard('POLE_LM_FP_VS_INV_MTR_MAKE', 'Last Month Final Pole Meter Vs Inventive Portal Meter Make')"><span class="kpi-title">Last Month Final Pole Meter Vs Inventive Portal Meter Make</span><span class="kpi-value" id="val-pole-lm-fp-vs-inv-mtr-make">0</span></div>
           <div class="kpi-card card-pink clickable-kpi" onclick="filterByKPICard('POLE_APPSHEET_VS_FV_MTR_NO', 'AppSheet Vs Final Visited Pole Meter No.')"><span class="kpi-title">AppSheet Vs Final Visited Pole Meter No.</span><span class="kpi-value" id="val-pole-appsheet-vs-fv-mtr-no">0</span></div>
         </div>
+
+        </div> <!-- End of #analytics-tab-cards -->
 
       </div>
 
@@ -2208,9 +2417,32 @@
       // 🟢 Google Apps Script का डिप्लॉयड Web App URL यहाँ पेस्ट करें
       var APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyiqxxAriXTw7K2i3gVrUE7bLBOGpwE3pIbNF-y9oa3ipDgYwOZwvn4FhI5EaisFhtsFQ/exec";
 
+      // 🟢 XSS & HTML Safe Escaper
+      function escapeHtml(str) {
+        if (str === undefined || str === null) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      // 🟢 Universal 10-Digit Zero Padding (Handles string, prefixes & numbers)
+      function safePadTo10(val) {
+        if (val === undefined || val === null) return "";
+        var clean = String(val).trim().replace(/_P$/i, '').replace(/\.0$/, '');
+        var digits = clean.replace(/[^0-9]/g, '');
+        if (digits.length > 0 && digits.length < 10) {
+          return ("0000000000" + digits).slice(-10);
+        }
+        return clean;
+      }
+
       var cachedReportsConfig = [];
       var cachedDatabase = [];
-      var cachedRdgMap = {}; // 🟢 RDG Map Definition Added
+      window.cachedRdgMap = window.cachedRdgMap || {};
+      var cachedRdgMap = window.cachedRdgMap;
       var originalSheetHeadersList = [];
       var activeReportMeta = null;
       var clientRenderedRows = [];
@@ -2845,8 +3077,6 @@
         }
         clientRenderedRows = [];
 
-        var isMriNotUploadRpt = activeReportMeta && (activeReportMeta.id === "rpt_mri_not_upload" || activeReportMeta.name.toLowerCase().includes("mri done but"));
-
         var searchInputEl = document.getElementById('live-search-input');
         var searchQuery = searchInputEl ? searchInputEl.value.trim().toUpperCase() : "";
 
@@ -3057,11 +3287,20 @@
             row["MR NAME"] = toProper(upperRowMap["MR NAME"] || upperRowMap["VISIT LAST MONTH"]);
           }
 
-          // 🟢 MR NAME MISMATCH REPORT ENGINE (Exact Code 17 Logic)
+          // 🟢 MR NAME MISMATCH REPORT ENGINE (Sanitized Case & Space-Insensitive Comparison)
           if (activeReportMeta && activeReportMeta.id === "rpt_mr_name_mismatch") {
+            function cleanMrName(str) {
+              if (!str) return "";
+              return String(str)
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+            }
+
             function checkMrMismatch(visitMr, uploadMr) {
-              var v = String(visitMr || "").toUpperCase().trim();
-              var u = String(uploadMr || "").toUpperCase().trim();
+              var v = cleanMrName(visitMr);
+              var u = cleanMrName(uploadMr);
               if (!v || !u) return true;
               if (v === u) return false;
               if (v === "ATUL KUMAR" && u === "SHIV KUMAR") return false;
@@ -3101,12 +3340,16 @@
             row["IS MRI AVAILABLE"] = String(upperRowMap["IS MRI AVAILABLE (MAIN METER)"] || "False");
           }
 
-          // 🟢 INVENTIVE & SAI PORTAL POLE METER MISMATCH ENGINE (WITH MAKE COMPARISON)
+          // 🟢 INVENTIVE & SAI PORTAL POLE METER MISMATCH ENGINE (WITH SANITIZED LOAD & MAKE COMPARISON)
           var rptNameUpper = String(activeReportMeta.name || "").toUpperCase();
           var isInventiveVsOur = rptNameUpper.includes("INVENTIVE") && rptNameUpper.includes("POLE");
           var isSaiVsOur = rptNameUpper.includes("SAI PORTAL") && rptNameUpper.includes("POLE");
 
-          if (isInventiveVsOur || isSaiVsOur) {
+          if (isInventiveVsOur || isSaiVsOur || (activeReportMeta && activeReportMeta.id === "rpt_mismatch_pole")) {
+            var rawLoadVal = upperRowMap["LOAD IN KW"] || upperRowMap["LOAD_KW"] || upperRowMap["LOAD"] || "0";
+            var sanitizedLoadKw = parseFloat(String(rawLoadVal).replace(/[^0-9.-]/g, "")) || 0;
+            if (sanitizedLoadKw < 10) continue;
+
             function cleanMtrStr(v) {
               if (v === undefined || v === null) return "";
               var s = String(v).trim().toUpperCase();
@@ -3115,7 +3358,7 @@
             }
 
             var exPole = String(upperRowMap["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
-            if (exPole !== "MRI") continue;
+            if (exPole !== "MRI" && (isInventiveVsOur || isSaiVsOur)) continue;
 
             var lmPoleNo = cleanMtrStr(upperRowMap["LAST MONTH FINAL PM NO."]);
             if (!lmPoleNo) continue; // Last month meter number blank nahi hona chahiye
@@ -3304,15 +3547,26 @@
             }
           });
         }
-        // 🟢 2. UNBILLED MASTER REPORT (No Duplicate / Random Status Tabs)
+        // 🟢 2. UNBILLED MASTER REPORT (No Duplicate / Random Status Tabs - Standardized Alias Mapping)
         else if (activeReportMeta.id === "rpt_master_unbilled") {
-          categoryColKey = "UNBILLED STATUS";
+          categoryColKey = "_STANDARD_UNBILLED_STATUS";
           window.allReportBaseCachedRows.forEach(function(row) {
             var u = row._uMap || row;
-            var val = String(u["UNBILLED STATUS"] || u["DERIVED STATUS"] || u["FINAL BILLING TAG"] || "").trim();
-            if (val && val !== "-" && val.toUpperCase() !== "NAN" && val.toUpperCase() !== "NULL" && val.toUpperCase() !== "UNBILLED") {
-              categoryCounts[val] = (categoryCounts[val] || 0) + 1;
+            var val = "";
+            var possibleStatusKeys = [
+              "UNBILLED STATUS", "UNBILLED_STATUS", "DERIVED STATUS", "DERIVED_STATUS",
+              "STATUS", "FINAL_STATUS", "BREAKDOWN REMARK", "SITE REMARK", "FINAL BILLING TAG"
+            ];
+            for (var k = 0; k < possibleStatusKeys.length; k++) {
+              var sVal = String(u[possibleStatusKeys[k]] || "").trim();
+              if (sVal && sVal !== "-" && sVal.toUpperCase() !== "NAN" && sVal.toUpperCase() !== "NULL" && sVal.toUpperCase() !== "UNBILLED") {
+                val = sVal;
+                break;
+              }
             }
+            if (!val) val = "Other Unbilled";
+            row["_STANDARD_UNBILLED_STATUS"] = val;
+            categoryCounts[val] = (categoryCounts[val] || 0) + 1;
           });
         }
         // 🟢 3. OTHER DYNAMIC REPORTS
@@ -3932,12 +4186,33 @@
             contractedLoad = !isNaN(pLoad) ? pLoad.toFixed(3) + ' KW' : String(loadVal).trim();
           }
 
-          let mainMeterCandidates = [row['FINAL VISITED MAIN METER NUMBER'], row['BILLED METER NUMBER'], row['FIELD METER NUMBER'], row['SITE METER NUMBER_APPSHEET'], row['METER NO']];
+          let address = String(row['ADDRESS'] || row['COMPLETE ADRESS'] || '').trim();
+          let feederName = String(row['MASTER-FEEDER-NAME'] || row['FEEDER'] || row['FEEDER NAME'] || '-').trim();
+          let substation = String(row['MASTER-SUBSTATION NAME'] || row['SUBSTATION'] || '-').trim();
+          let division = String(row['DIVISION'] || '').trim();
+          let subDivision = String(row['SUB DIVISION NAME'] || row['SUBDIVISION'] || '').trim();
+          let connectionNo = String(row['CONNECTION NUMBER'] || row['CONNECTION NO'] || mainAccountNo).trim();
+          let tariff = String(row['CONSUMER CATOGARY'] || row['TARIFF'] || 'LM-2').trim();
+
+          let mainMeterCandidates = [row['FINAL VISITED MAIN METER NUMBER'], row['BILLED METER NUMBER'], row['FIELD METER NUMBER'], row['SITE METER NUMBER_APPSHEET'], row['METER NO'], row['LAST MONTH FINAL MM NO.']];
           mainMeterCandidates.forEach(m => {
             if (m) {
               let meterNo = String(m).trim().toUpperCase();
               if (meterNo && meterNo !== 'NAN' && meterNo !== 'N/A') {
-                masterConsumerMap[meterNo] = { accountNo: mainAccountNo, consumerName, contractedLoad, meterType: 'MAIN', meterMf: mainMf };
+                masterConsumerMap[meterNo] = {
+                  accountNo: mainAccountNo,
+                  consumerName: consumerName,
+                  contractedLoad: contractedLoad,
+                  meterType: 'MAIN',
+                  meterMf: mainMf,
+                  address: address,
+                  feederName: feederName,
+                  substation: substation,
+                  division: division,
+                  subDivision: subDivision,
+                  connectionNo: connectionNo,
+                  tariff: tariff
+                };
               }
             }
           });
@@ -3957,12 +4232,53 @@
       function applyConsumerMapping(meterData) {
         if (!meterData || !meterData.serialNo) return;
         let mNo = String(meterData.serialNo).trim().toUpperCase();
+
+        // 1. Check in masterConsumerMap
         if (masterConsumerMap[mNo]) {
-          meterData.accountNo = masterConsumerMap[mNo].accountNo;
-          meterData.consumerName = masterConsumerMap[mNo].consumerName;
-          meterData.contractedLoad = masterConsumerMap[mNo].contractedLoad;
-          meterData.meterType = masterConsumerMap[mNo].meterType || "MAIN";
-          meterData.meterMf = masterConsumerMap[mNo].meterMf || "1.0000";
+          let c = masterConsumerMap[mNo];
+          meterData.accountNo = c.accountNo || meterData.accountNo;
+          meterData.consumerName = c.consumerName || meterData.consumerName;
+          meterData.contractedLoad = c.contractedLoad || meterData.contractedLoad;
+          meterData.meterType = c.meterType || "MAIN";
+          meterData.meterMf = c.meterMf || "1.0000";
+          meterData.address = c.address || meterData.address;
+          meterData.feederName = c.feederName || meterData.feederName;
+          meterData.substation = c.substation || meterData.substation;
+          meterData.division = c.division || meterData.division;
+          meterData.subDivision = c.subDivision || meterData.subDivision;
+          meterData.connectionNo = c.connectionNo || meterData.connectionNo;
+          meterData.tariff = c.tariff || meterData.tariff;
+          return;
+        }
+
+        // 2. Fallback search in cachedDatabase
+        if (cachedDatabase && cachedDatabase.length > 0) {
+          let cleanM = mNo.replace(/[^A-Z0-9]/gi, '');
+          for (let i = 0; i < cachedDatabase.length; i++) {
+            let u = cachedDatabase[i]._uMap || cachedDatabase[i];
+            let mm = String(u['LAST MONTH FINAL MM NO.'] || u['FINAL VISITED MAIN METER NUMBER'] || u['BILLED METER NUMBER'] || '').replace(/[^A-Z0-9]/gi, '');
+            let pm = String(u['LAST MONTH FINAL PM NO.'] || u['FINAL VISITED POLE METER NO.'] || '').replace(/[^A-Z0-9]/gi, '');
+
+            if (mm === cleanM || pm === cleanM) {
+              let isPole = (pm === cleanM);
+              let rawLoad = u['LOAD IN KW'] || u['LOAD_KW'] || '';
+              let loadStr = rawLoad ? (parseFloat(rawLoad) ? parseFloat(rawLoad).toFixed(3) + ' KW' : String(rawLoad)) : '7.000 KW';
+
+              meterData.accountNo = String(u['ACCOUNT NO'] || u['ACCOUNT ID'] || 'N/A').padStart(10, '0');
+              meterData.consumerName = String(u['CONSUMER-NAME'] || u['CONSUMER NAME'] || 'N/A');
+              meterData.contractedLoad = loadStr;
+              meterData.meterType = isPole ? 'POLE' : 'MAIN';
+              meterData.meterMf = isPole ? (u['POLE METER MF (SAI PORTAL)'] || '1.0000') : (u['MAIN METER MF'] || '1.0000');
+              meterData.address = String(u['ADDRESS'] || u['COMPLETE ADRESS'] || '-');
+              meterData.feederName = String(u['MASTER-FEEDER-NAME'] || u['FEEDER'] || '-');
+              meterData.substation = String(u['MASTER-SUBSTATION NAME'] || u['SUBSTATION'] || '-');
+              meterData.division = String(u['DIVISION'] || '-');
+              meterData.subDivision = String(u['SUB DIVISION NAME'] || u['SUBDIVISION'] || '-');
+              meterData.connectionNo = String(u['CONNECTION NUMBER'] || u['CONNECTION NO'] || meterData.accountNo);
+              meterData.tariff = String(u['CONSUMER CATOGARY'] || u['TARIFF'] || 'LM-2');
+              break;
+            }
+          }
         }
       }
 
@@ -4071,20 +4387,26 @@
             let kwhI = "0", kvahI = "0", kwhE = "0", kvahE = "0", mdKw = "0", mdKwTime = "-", mdKva = "0";
 
             d3Node.querySelectorAll("B3").forEach(b3 => {
-              let code = b3.getAttribute("PARAMCODE"), val = b3.getAttribute("VALUE") || "0";
-              if (code === "P7-1-5-2-0" || code === "1.8.0") kwhI = val;
-              if (code === "P7-3-5-2-0" || code === "9.8.0") kvahI = val;
-              if (code === "P7-1-6-2-0" || code === "2.8.0") kwhE = val;
-              if (code === "P7-3-6-2-0" || code === "10.8.0") kvahE = val;
+              let code = b3.getAttribute("PARAMCODE"), val = parseFloat(b3.getAttribute("VALUE") || "0");
+              let formattedVal = isNaN(val) ? "0.00" : val.toFixed(2);
+              if (code === "P7-1-5-2-0" || code === "1.8.0") kwhI = formattedVal;
+              if (code === "P7-3-5-2-0" || code === "9.8.0") kvahI = formattedVal;
+              if (code === "P7-1-6-2-0" || code === "2.8.0") kwhE = formattedVal;
+              if (code === "P7-3-6-2-0" || code === "10.8.0") kvahE = formattedVal;
             });
 
             d3Node.querySelectorAll("B5").forEach(b5 => {
               let code = b5.getAttribute("PARAMCODE");
-              if (code === "P7-4-5-2-0" || code === "1.6.0") { mdKw = b5.getAttribute("VALUE"); mdKwTime = b5.getAttribute("OCCDATE") || "-"; }
-              if (code === "P7-6-5-2-0" || code === "9.6.0") mdKva = b5.getAttribute("VALUE");
+              let val = parseFloat(b5.getAttribute("VALUE") || "0");
+              let formattedVal = isNaN(val) ? "0.00" : val.toFixed(2);
+              if (code === "P7-4-5-2-0" || code === "1.6.0") { mdKw = formattedVal; mdKwTime = b5.getAttribute("OCCDATE") || "-"; }
+              if (code === "P7-6-5-2-0" || code === "9.6.0") mdKva = formattedVal;
             });
 
-            if (!bDate) bDate = d3Node.getAttribute("DATETIME") || d3Node.querySelector("B2")?.getAttribute("DATETIME") || meterData.readDate || "01-08-2026 00:00:00";
+            if (!bDate) {
+              var b2Node = d3Node.querySelector("B2");
+              bDate = d3Node.getAttribute("DATETIME") || (b2Node ? b2Node.getAttribute("DATETIME") : null) || meterData.readDate || "01-08-2026 00:00:00";
+            }
 
             if (bDate) {
               meterData.monthlyBilling.push({ billingDate: bDate, kwhI, kvahI, kwhE, kvahE, mdKw, mdKwTime, mdKva });
@@ -4482,7 +4804,7 @@
           targetPane.style.display = 'block';
         }
 
-        // कंपैरिजन टैब पर क्लिक होने पर चार्ट को तुरंत री-रेंडर करें
+        // कंपैरिजन टैब पर क्लिक होने पर चार्ट को मेमोरी-सेफ री-रेंडर करें
         if (tabName === 'comp') {
           setTimeout(() => {
             let meter = parsedMeterResults[meterIdx];
@@ -4497,17 +4819,21 @@
                 let mb = main.monthlyBilling[i] || {};
                 let pb = pole.monthlyBilling[i] || {};
                 let dt = mb.billingDate || pb.billingDate || "";
-                months.push(dt ? dt.split('-')[1] + '-' + dt.split('-')[2]?.substring(0,4) : `M-${i+1}`);
+                months.push(dt ? dt.split('-')[1] + '-' + (dt.split('-')[2] ? dt.split('-')[2].substring(0,4) : '') : `M-${i+1}`);
                 mainKwh.push(parseFloat(mb.consmKwhI || 0));
                 poleKwh.push(parseFloat(pb.consmKwhI || 0));
               }
 
-              let ctx = document.getElementById(`compChartCanvas_${meterIdx}`);
-              if (ctx && typeof Chart !== 'undefined') {
-                let existingChart = Chart.getChart(ctx);
-                if (existingChart) existingChart.destroy();
+              let canvasElem = document.getElementById(`compChartCanvas_${meterIdx}`);
+              if (canvasElem && typeof Chart !== 'undefined') {
+                try {
+                  var oldChart = Chart.getChart(canvasElem);
+                  if (oldChart) {
+                    oldChart.destroy();
+                  }
+                } catch(e) { console.warn("Chart destroy fallback", e); }
 
-                new Chart(ctx, {
+                window[`chartInstance_${meterIdx}`] = new Chart(canvasElem, {
                   type: 'line',
                   data: {
                     labels: [...months].reverse(),
@@ -4651,34 +4977,54 @@
 
       function generateReadingAsPerLoadSurvey(meterData) {
         meterData.readingAsPerLoadSurvey = [];
-        if (!meterData.monthlyBilling || meterData.monthlyBilling.length === 0 || !meterData.dailyProfile || meterData.dailyProfile.length === 0) return;
+        if (!meterData.dailyProfile || meterData.dailyProfile.length === 0) return;
 
-        let sortedBilling = [...meterData.monthlyBilling].sort((a, b) => parseDateStr(a.billingDate) - parseDateStr(b.billingDate));
-        let lastBilling = sortedBilling[sortedBilling.length - 1];
-        let lastBillingTime = parseDateStr(lastBilling.billingDate);
+        // 1. बिलिंग डेटा को क्रमबद्ध करें (Oldest to Newest)
+        let sortedBilling = (meterData.monthlyBilling || []).slice().sort((a, b) => parseDateStr(a.billingDate) - parseDateStr(b.billingDate));
+        
+        // Base billing cutoff सेट करें (Dump date छोड़कर सही 01 तारीख का बिल)
+        let cycleBills = sortedBilling.filter(b => {
+          let dt = b.billingDate || "";
+          return dt.includes(" 00:00") || dt.startsWith("01-") || dt.startsWith("1-");
+        });
+        let baseBilling = (cycleBills.length > 0 ? cycleBills[cycleBills.length - 1] : sortedBilling[sortedBilling.length - 1]) || {};
+        
+        let runningKwh = parseFloat(baseBilling.kwhI || baseBilling.kwh || 0);
+        let runningKvah = parseFloat(baseBilling.kvahI || baseBilling.kvah || 0);
 
-        let runningKwh = parseFloat(lastBilling.kwhI || lastBilling.kwh) || 0;
-        let runningKvah = parseFloat(lastBilling.kvahI || lastBilling.kvah) || 0;
-
-        let sortedProfile = [...meterData.dailyProfile].sort((a, b) => parseDateStr(a.date) - parseDateStr(b.date));
+        // 2. Daily Profile को तारीख के अनुसार सॉर्ट करें (Ascending)
+        let sortedProfile = meterData.dailyProfile.slice().sort((a, b) => parseDateStr(a.date) - parseDateStr(b.date));
 
         sortedProfile.forEach(day => {
-          let profileTime = parseDateStr(day.date);
-          if (profileTime >= lastBillingTime) {
-            let dayKwh = parseFloat(day.activeConsumption) || 0;
-            let dayKvah = parseFloat(day.apparentConsumption) || 0;
+          let dayKwh = parseFloat(day.activeConsumption) || 0;
+          let dayKvah = parseFloat(day.apparentConsumption) || 0;
+
+          let finalCumKwh = 0;
+          let finalCumKvah = 0;
+
+          // 🟢 नियम 1: अगर Midnight Snapshot मौजूद है तो सीधे वहां से रीडिंग लें
+          if (day.autoCumKwh && parseFloat(day.autoCumKwh) > 0) {
+            finalCumKwh = parseFloat(day.autoCumKwh);
+            finalCumKvah = parseFloat(day.autoCumKvah || day.autoCumKwh);
+            runningKwh = finalCumKwh;
+            runningKvah = finalCumKvah;
+          } 
+          // 🟢 नियम 2: अगर Snapshot नहीं है तो Base Reading में दैनिक खपत जोड़कर बनाएं
+          else {
             runningKwh += dayKwh;
             runningKvah += dayKvah;
-
-            meterData.readingAsPerLoadSurvey.push({
-              date: day.date,
-              dailyKwhConsumption: dayKwh.toFixed(2),
-              dailyKvahConsumption: dayKvah.toFixed(2),
-              calculatedCumKwh: runningKwh.toFixed(2),
-              calculatedCumKvah: runningKvah.toFixed(2),
-              baseBillingDate: lastBilling.billingDate
-            });
+            finalCumKwh = runningKwh;
+            finalCumKvah = runningKvah;
           }
+
+          meterData.readingAsPerLoadSurvey.push({
+            date: day.date,
+            dailyKwhConsumption: dayKwh.toFixed(2),
+            dailyKvahConsumption: dayKvah.toFixed(2),
+            calculatedCumKwh: finalCumKwh.toFixed(2),
+            calculatedCumKvah: finalCumKvah.toFixed(2),
+            baseBillingDate: baseBilling.billingDate || "Daily Snapshot/Base"
+          });
         });
       }
 
@@ -4686,18 +5032,52 @@
         let pairs = getSmartMatchedPairs();
         let currentPair = pairs.find(p => p.main.serialNo === meter.serialNo || p.pole.serialNo === meter.serialNo);
 
-        let main = currentPair ? currentPair.main : meter;
-        let pole = currentPair ? currentPair.pole : (parsedMeterResults.find(m => m.serialNo !== meter.serialNo) || meter);
-        let index = parsedMeterResults.indexOf(meter);
+        let isSingleMeterMode = false;
+        let isPoleType = String(meter.meterType || '').toUpperCase() === 'POLE';
 
-        if (main.serialNo === pole.serialNo) {
-          return `
-            <div class="alert alert-warning py-2 px-3 my-2" style="font-size: 11px;">
-              <i class="fa-solid fa-triangle-exclamation me-2"></i><strong>Comparison Standby:</strong> Main vs Pole Comparison के लिए कम से कम 2 अलग-अलग मीटर्स (Main & Pole XML) की फ़ाइल अपलोड करें।
-            </div>
-          `;
+        // डमी ऑब्जेक्ट अगर दूसरा मीटर अपलोड न हुआ हो
+        let createDummyMeter = function(typeLabel) {
+          return {
+            serialNo: "Not Uploaded",
+            make: "N/A",
+            meterType: typeLabel,
+            accountNo: meter.accountNo || "-",
+            consumerName: meter.consumerName || "-",
+            contractedLoad: meter.contractedLoad || "-",
+            readDate: "-",
+            instantaneous: { vr: "0", vy: "0", vb: "0", ir: "0", iy: "0", ib: "0", importAct: "0", importKvah: "0" },
+            monthlyBilling: [],
+            todMatrix: [],
+            dailyProfile: [],
+            loadSurvey30Min: [],
+            eventLogs: [],
+            avgDailySupplyHrs: "0.0",
+            avgDailyConsumptionKwh: "0.00"
+          };
+        };
+
+        let main, pole;
+        if (currentPair) {
+          main = currentPair.main;
+          pole = currentPair.pole;
+        } else {
+          let otherMeter = parsedMeterResults.find(m => m.serialNo !== meter.serialNo);
+          if (otherMeter) {
+            main = isPoleType ? otherMeter : meter;
+            pole = isPoleType ? meter : otherMeter;
+          } else {
+            isSingleMeterMode = true;
+            main = isPoleType ? createDummyMeter('MAIN') : meter;
+            pole = isPoleType ? meter : createDummyMeter('POLE');
+          }
         }
 
+        let index = parsedMeterResults.indexOf(meter);
+
+        applyConsumerMapping(main);
+        applyConsumerMapping(pole);
+
+        // 1. Monthly Consumption Arrays
         let months = [];
         let mainKvah = [], poleKvah = [], mainKwh = [], poleKwh = [], diffPct = [];
         let mainMDKva = [], poleMDKva = [], mainMDKw = [], poleMDKw = [];
@@ -4707,7 +5087,7 @@
           let mb = main.monthlyBilling[i] || {};
           let pb = pole.monthlyBilling[i] || {};
           let dt = mb.billingDate || pb.billingDate || "";
-          let mLabel = dt ? dt.split('-')[1] + '-' + dt.split('-')[2]?.substring(0,4) : `M-${i+1}`;
+          let mLabel = dt ? dt.split('-')[1] + '-' + dt.split('-')[2]?.substring(0, 4) : `M-${i + 1}`;
           months.push(mLabel);
 
           let mKvah = parseFloat(mb.consmKvahI || 0);
@@ -4732,62 +5112,99 @@
           polePF.push(parseFloat(pb.monthlyPf || 1).toFixed(2));
         }
 
+        // 🟢 Point 2: TOD Slot-Wise Variance Analysis
+        let mainTod = main.todMatrix[0] || {};
+        let poleTod = pole.todMatrix[0] || {};
+        let todRowsHTML = "";
+        for (let z = 1; z <= 8; z++) {
+          let mVal = parseFloat(mainTod["t" + z] || 0);
+          let pVal = parseFloat(poleTod["t" + z] || 0);
+          let delta = (pVal - mVal).toFixed(2);
+          let deltaPct = mVal > 0 ? (((pVal - mVal) / mVal) * 100).toFixed(2) + "%" : "0.00%";
+          todRowsHTML += `
+            <tr>
+              <td class="fw-bold">TOD-${z}</td>
+              <td class="text-primary fw-bold">${mVal.toFixed(2)}</td>
+              <td class="text-success fw-bold">${pVal.toFixed(2)}</td>
+              <td class="fw-bold ${parseFloat(delta) !== 0 ? (parseFloat(delta) > 0 ? 'text-danger' : 'text-primary') : 'text-muted'}">${delta}</td>
+              <td><span class="badge ${Math.abs(parseFloat(deltaPct)) > 5 ? 'bg-danger' : 'bg-secondary'}">${deltaPct}</span></td>
+            </tr>
+          `;
+        }
+
+        // 🟢 Point 4: Voltage Drop & Power Quality Index (Line Loss & Health)
+        let vDropR = (parseFloat(pole.instantaneous.vr || 0) - parseFloat(main.instantaneous.vr || 0)).toFixed(1);
+        let vDropY = (parseFloat(pole.instantaneous.vy || 0) - parseFloat(main.instantaneous.vy || 0)).toFixed(1);
+        let vDropB = (parseFloat(pole.instantaneous.vb || 0) - parseFloat(main.instantaneous.vb || 0)).toFixed(1);
+        let maxVDrop = Math.max(Math.abs(vDropR), Math.abs(vDropY), Math.abs(vDropB));
+        let cableHealth = maxVDrop <= 3.0 ? "EXCELLENT (Low Resistance)" : (maxVDrop <= 6.0 ? "MODERATE (Normal Drop)" : "CRITICAL (High Drop / Potential Tap)");
+
+        // 🟢 Point 3: Tamper Event Log Cross-Audit
+        let mainEvents = main.eventLogs || [];
+        let poleEvents = pole.eventLogs || [];
+        let crossEventsHTML = "";
+        let maxEventsCount = Math.max(mainEvents.length, poleEvents.length);
+
+        if (maxEventsCount === 0) {
+          crossEventsHTML = `<tr><td colspan="6" class="text-center text-success py-2 fw-bold">✓ Both meters have clean event records (No active tampers logged).</td></tr>`;
+        } else {
+          for (let e = 0; e < Math.min(maxEventsCount, 6); e++) {
+            let mEv = mainEvents[e] || { datetime: "-", description: "No Event", status: "-" };
+            let pEv = poleEvents[e] || { datetime: "-", description: "No Event", status: "-" };
+            crossEventsHTML += `
+              <tr>
+                <td class="fw-bold text-dark">${mEv.datetime}</td>
+                <td class="text-start">${mEv.description}</td>
+                <td><span class="badge ${mEv.status.toLowerCase().includes('occ') ? 'bg-danger' : 'bg-success'}">${mEv.status}</span></td>
+                <td class="fw-bold text-dark">${pEv.datetime}</td>
+                <td class="text-start">${pEv.description}</td>
+                <td><span class="badge ${pEv.status.toLowerCase().includes('occ') ? 'bg-danger' : 'bg-success'}">${pEv.status}</span></td>
+              </tr>
+            `;
+          }
+        }
+
+        // 🟢 Point 1: 30-Minute Load Survey Block Comparison (Top 10 Blocks)
+        let mainLS = main.loadSurvey30Min || [];
+        let poleLSMap = {};
+        (pole.loadSurvey30Min || []).forEach(p => { poleLSMap[p.date + "_" + p.time] = p; });
+
+        let lsBlockHTML = "";
+        let sampleLS = mainLS.slice(0, 10);
+
+        if (sampleLS.length === 0) {
+          lsBlockHTML = `<tr><td colspan="7" class="text-center text-muted py-2">Load Survey 30-Minute Interval Data Not Available</td></tr>`;
+        } else {
+          sampleLS.forEach(mls => {
+            let pls = poleLSMap[mls.date + "_" + mls.time] || { kwhI: 0, vr: 0, ir: 0 };
+            let deltaKwh = (parseFloat(pls.kwhI || 0) - parseFloat(mls.kwhI || 0)).toFixed(3);
+            let deltaV = (parseFloat(pls.vr || 0) - parseFloat(mls.vr || 0)).toFixed(1);
+            let isAnomaly = Math.abs(parseFloat(deltaKwh)) > 0.05 || Math.abs(parseFloat(deltaV)) > 5.0;
+
+            lsBlockHTML += `
+              <tr class="${isAnomaly ? 'table-warning' : ''}">
+                <td class="fw-bold">${mls.date}</td>
+                <td class="fw-bold">${mls.time}</td>
+                <td class="text-primary fw-bold">${mls.kwhI}</td>
+                <td class="text-success fw-bold">${pls.kwhI || '0.000'}</td>
+                <td class="fw-bold ${parseFloat(deltaKwh) !== 0 ? (parseFloat(deltaKwh) > 0 ? 'text-danger' : 'text-primary') : 'text-muted'}">${deltaKwh}</td>
+                <td>${mls.vr} V / ${pls.vr || 0} V (<span class="fw-bold">${deltaV}V</span>)</td>
+                <td><span class="badge ${isAnomaly ? 'bg-danger' : 'bg-success'}">${isAnomaly ? 'Variance Flagged' : 'Synchronous'}</span></td>
+              </tr>
+            `;
+          });
+        }
+
         let hasAbnormality = diffPct.some(d => Math.abs(parseFloat(d)) > 10.0);
         let abnormalityDesc = hasAbnormality 
           ? "Pole Energy Consumption is greater than 10% from Main Meter, Need to check Pole Meter" 
-          : "No Significant Deviation Recorded";
-
-        setTimeout(() => {
-          let ctx = document.getElementById(`compChartCanvas_${index}`);
-          if (ctx && typeof Chart !== 'undefined') {
-            let existingChart = Chart.getChart(ctx);
-            if (existingChart) existingChart.destroy();
-
-            new Chart(ctx, {
-              type: 'line',
-              data: {
-                labels: [...months].reverse(),
-                datasets: [
-                  {
-                    label: `Main Meter (${main.serialNo}) kWh`,
-                    data: [...mainKwh].reverse(),
-                    borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.3
-                  },
-                  {
-                    label: `Pole Meter (${pole.serialNo}) kWh`,
-                    data: [...poleKwh].reverse(),
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.3
-                  }
-                ]
-              },
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: { position: 'top' },
-                  title: { display: true, text: '6-Month Consumption Trend Comparison (kWh)' }
-                },
-                scales: {
-                  y: { beginAtZero: true, title: { display: true, text: 'Energy (kWh)' } }
-                }
-              }
-            });
-          }
-        }, 200);
+          : "Both meters operating synchronously within permissible accuracy limits.";
 
         return `
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-scale-balanced text-primary me-2"></i>Analysis & Comparison Report</h6>
+            <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-scale-balanced text-primary me-2"></i>Comprehensive Main vs Pole Audit & Comparison Suite</h6>
             <button class="btn btn-sm btn-pdf py-1 px-3" onclick="exportMainVsPolePDF(${index})">
-              <i class="fa-solid fa-file-pdf me-1"></i>Download Perfect Comparison PDF
+              <i class="fa-solid fa-file-pdf me-1"></i>Download Complete Comparison PDF
             </button>
           </div>
 
@@ -4798,74 +5215,53 @@
               <div class="col-md-6"><strong>Name:</strong> ${main.consumerName}</div>
               <div class="col-md-6"><strong>Account Id:</strong> ${main.accountNo}</div>
               <div class="col-md-6"><strong>Contracted Load:</strong> ${main.contractedLoad}</div>
-              <div class="col-md-6"><strong>Tariff Group / Activity:</strong> LM-2 / Tower</div>
+              <div class="col-md-6"><strong>Tariff Group / Activity:</strong> ${main.tariff || 'LMV-6'} / Tower</div>
               <div class="col-md-6"><strong>Main Meter No:</strong> ${main.serialNo} (${main.make})</div>
               <div class="col-md-6"><strong>Pole Meter No:</strong> ${pole.serialNo} (${pole.make})</div>
             </div>
           </div>
 
-          <!-- VISUAL COMPARISON CHART -->
+          <!-- 2. VOLTAGE DROP & POWER QUALITY INDEX -->
           <div class="report-card">
-            <div class="section-title"><i class="fa-solid fa-chart-line me-2"></i>Main vs Pole Consumption Graph</div>
-            <div style="height: 230px; position: relative;">
-              <canvas id="compChartCanvas_${index}"></canvas>
+            <div class="section-title"><i class="fa-solid fa-bolt me-1 text-warning"></i> 2. Voltage Drop & Power Quality Index (Line Loss & Cable Health)</div>
+            <div class="row g-2" style="font-size: 11px;">
+              <div class="col-md-3">
+                <div class="p-2 border rounded bg-light text-center">
+                  <div class="text-muted fw-bold">R-PHASE DROP (ΔV)</div>
+                  <h6 class="mb-0 fw-bold ${Math.abs(vDropR) > 5 ? 'text-danger' : 'text-primary'}">${vDropR} V</h6>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-2 border rounded bg-light text-center">
+                  <div class="text-muted fw-bold">Y-PHASE DROP (ΔV)</div>
+                  <h6 class="mb-0 fw-bold ${Math.abs(vDropY) > 5 ? 'text-danger' : 'text-primary'}">${vDropY} V</h6>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-2 border rounded bg-light text-center">
+                  <div class="text-muted fw-bold">B-PHASE DROP (ΔV)</div>
+                  <h6 class="mb-0 fw-bold ${Math.abs(vDropB) > 5 ? 'text-danger' : 'text-primary'}">${vDropB} V</h6>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-2 border rounded bg-light text-center">
+                  <div class="text-muted fw-bold">SERVICE CABLE STATUS</div>
+                  <span class="badge ${maxVDrop > 6 ? 'bg-danger' : (maxVDrop > 3 ? 'bg-warning text-dark' : 'bg-success')} mt-1">${cableHealth}</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- 2. INSTANTANEOUS PARAMETERS & READINGS -->
+          <!-- 3. MONTHLY CONSUMPTION & DEMAND -->
           <div class="report-card">
-            <div class="section-title">2. Instantaneous Parameter (w.r.t Neutral) & Current Readings</div>
-            <div class="table-responsive">
-              <table class="report-table">
-                <thead>
-                  <tr><th>Meter Type</th><th>Date-Time</th><th>Voltage-R</th><th>Voltage-Y</th><th>Voltage-B</th><th>Current-R</th><th>Current-Y</th><th>Current-B</th><th>MD(KVA)</th><th>MD(KW)</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td class="fw-bold text-primary">Main</td><td>${main.readDate || '-'}</td><td>${main.instantaneous.vr}</td><td>${main.instantaneous.vy}</td><td>${main.instantaneous.vb}</td><td>${main.instantaneous.ir}</td><td>${main.instantaneous.iy}</td><td>${main.instantaneous.ib}</td><td>${main.monthlyBilling[0]?.mdKva || '0'}</td><td>${main.monthlyBilling[0]?.mdKw || '0'}</td></tr>
-                  <tr><td class="fw-bold text-success">Pole</td><td>${pole.readDate || '-'}</td><td>${pole.instantaneous.vr}</td><td>${pole.instantaneous.vy}</td><td>${pole.instantaneous.vb}</td><td>${pole.instantaneous.ir}</td><td>${pole.instantaneous.iy}</td><td>${pole.instantaneous.ib}</td><td>${pole.monthlyBilling[0]?.mdKva || '0'}</td><td>${pole.monthlyBilling[0]?.mdKw || '0'}</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="table-responsive mt-2">
-              <table class="report-table">
-                <thead>
-                  <tr><th>Meter Type</th><th>Date-Time</th><th>KVAH Cum</th><th>KWH Cum</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td class="fw-bold text-primary">Main</td><td>${main.readDate || '-'}</td><td>${main.monthlyBilling[0]?.kvahI || main.instantaneous.importKvah || '0'}</td><td>${main.monthlyBilling[0]?.kwhI || main.instantaneous.importAct || '0'}</td></tr>
-                  <tr><td class="fw-bold text-success">Pole</td><td>${pole.readDate || '-'}</td><td>${pole.monthlyBilling[0]?.kvahI || pole.instantaneous.importKvah || '0'}</td><td>${pole.monthlyBilling[0]?.kwhI || pole.instantaneous.importAct || '0'}</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- 3. POWER FACTOR (PHASE) -->
-          <div class="report-card">
-            <div class="section-title">3. Power Factor (Phase)</div>
-            <div class="table-responsive">
-              <table class="report-table">
-                <thead>
-                  <tr><th>Meter Type</th><th>Phase-R</th><th>Phase-Y</th><th>Phase-B</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td class="fw-bold text-primary">Main</td><td>-1.00</td><td>-1.00</td><td>-1.00</td></tr>
-                  <tr><td class="fw-bold text-success">Pole</td><td>1.00</td><td>-1.00</td><td>-1.00</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- 4. MONTHLY CONSUMPTION COMPARISON -->
-          <div class="report-card">
-            <div class="section-title">4. Monthly Consumption Comparison (Last 6 Months)</div>
+            <div class="section-title">3. Monthly Consumption Comparison (Last 6 Months)</div>
             <div class="table-responsive">
               <table class="report-table">
                 <thead>
                   <tr>
                     <th>Meter Type</th>
-                    ${months.map(m => `<th>${m} (KVAH)</th>`).join('')}
-                    ${months.map(m => `<th>${m} (KWH)</th>`).join('')}
+                    ${months.map(m => `<th>${m} (kVAh)</th>`).join('')}
+                    ${months.map(m => `<th>${m} (kWh)</th>`).join('')}
                   </tr>
                 </thead>
                 <tbody>
@@ -4877,59 +5273,62 @@
             </div>
           </div>
 
-          <!-- 5. POWER FACTOR -->
-          <div class="report-card">
-            <div class="section-title">5. Power Factor</div>
-            <div class="table-responsive">
-              <table class="report-table">
-                <thead>
-                  <tr><th>Meter Type</th>${months.map(m => `<th>${m}</th>`).join('')}</tr>
-                </thead>
-                <tbody>
-                  <tr><td class="fw-bold text-primary">Main</td>${mainPF.map(v => `<td>${v}</td>`).join('')}</tr>
-                  <tr><td class="fw-bold text-success">Pole</td>${polePF.map(v => `<td>${v}</td>`).join('')}</tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          
 
-          <!-- 6. MONTHLY MAXIMUM DEMAND -->
+          <!-- 5. 30-MIN LOAD SURVEY BLOCK COMPARISON -->
           <div class="report-card">
-            <div class="section-title">6. Monthly Maximum Demand</div>
-            <div class="table-responsive">
+            <div class="section-title"><i class="fa-solid fa-sliders me-1 text-primary"></i> 5. 30-Minute Interval Load Survey Block Comparison (Recent Blocks)</div>
+            <div class="table-responsive" style="max-height: 240px; overflow-y: auto;">
               <table class="report-table">
-                <thead>
+                <thead style="position: sticky; top: 0;">
                   <tr>
-                    <th>Meter Type</th>
-                    ${months.map(m => `<th>${m} (KVA)</th>`).join('')}
-                    ${months.map(m => `<th>${m} (KW)</th>`).join('')}
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Main Block (kWh)</th>
+                    <th>Pole Block (kWh)</th>
+                    <th>Δ kWh Diff</th>
+                    <th>Voltage Drop (R-Ph)</th>
+                    <th>Block Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr><td class="fw-bold text-primary">Main</td>${mainMDKva.map(v => `<td>${v}</td>`).join('')}${mainMDKw.map(v => `<td>${v}</td>`).join('')}</tr>
-                  <tr><td class="fw-bold text-success">Pole</td>${poleMDKva.map(v => `<td>${v}</td>`).join('')}${poleMDKw.map(v => `<td>${v}</td>`).join('')}</tr>
+                  ${lsBlockHTML}
                 </tbody>
               </table>
             </div>
           </div>
 
-          <!-- 7. MONTHLY AVERAGE CONSUMPTION & DEMAND ANALYSIS -->
+          <!-- 6. TAMPER & HARDWARE EVENT LOG CROSS-AUDIT -->
           <div class="report-card">
-            <div class="section-title">7. Monthly Average Consumption & Demand Analysis</div>
+            <div class="section-title"><i class="fa-solid fa-shield-halved me-1 text-danger"></i> 6. Tamper & Hardware Event Log Cross-Audit</div>
             <div class="table-responsive">
               <table class="report-table">
                 <thead>
-                  <tr><th>Meter Type</th><th>Demand Factor</th><th>Load Factor</th><th>Avg Consumption (Per Day)</th><th>Avg Demand (Per Hour)</th><th>Avg Running Hour (Per Day)</th></tr>
+                  <tr style="background: #0f172a; color: white;">
+                    <th colspan="3">Main Meter Events (${main.serialNo})</th>
+                    <th colspan="3">Pole Meter Events (${pole.serialNo})</th>
+                  </tr>
+                  <tr>
+                    <th>Timestamp</th><th>Description</th><th>Status</th>
+                    <th>Timestamp</th><th>Description</th><th>Status</th>
+                  </tr>
                 </thead>
                 <tbody>
-                  <tr><td class="fw-bold text-primary">Main</td><td>0.96</td><td>0.33</td><td>${main.avgDailyConsumptionKwh} kWh</td><td>8.45 kW</td><td>${main.avgDailySupplyHrs} Hrs</td></tr>
-                  <tr><td class="fw-bold text-success">Pole</td><td>0.94</td><td>0.83</td><td>${pole.avgDailyConsumptionKwh} kWh</td><td>20.85 kW</td><td>${pole.avgDailySupplyHrs} Hrs</td></tr>
+                  ${crossEventsHTML}
                 </tbody>
               </table>
             </div>
           </div>
 
-          <!-- 8-11. ABNORMALITY & AUDIT REMARKS -->
+          <!-- 7. VISUAL COMPARISON GRAPH -->
+          <div class="report-card">
+            <div class="section-title"><i class="fa-solid fa-chart-line me-2 text-primary"></i> 7. Main vs Pole Consumption Graph (kWh)</div>
+            <div style="height: 210px; position: relative;">
+              <canvas id="compChartCanvas_${index}"></canvas>
+            </div>
+          </div>
+
+          <!-- 8-11. AUDIT REMARKS & OBSERVATIONS -->
           <div class="note-box ${hasAbnormality ? 'border-danger bg-light-danger' : 'border-success'}">
             <p class="mb-1"><strong>8. Abnormality (YES/NO):</strong> <span class="badge ${hasAbnormality ? 'bg-danger' : 'bg-success'}">${hasAbnormality ? 'YES' : 'NO'}</span></p>
             <p class="mb-1"><strong>9. Description (If Suspected):</strong> ${abnormalityDesc}</p>
@@ -4938,6 +5337,7 @@
           </div>
         `;
       }
+      
 
       function updateKPIWidgets() {
         let container = document.getElementById("kpiSummaryContainer");
@@ -4977,9 +5377,22 @@
         let compContainer = document.getElementById("comparisonContainer");
         if (!compContainer) return;
 
-        if (!pairs || pairs.length === 0) {
+        if ((!pairs || pairs.length === 0) && parsedMeterResults.length === 0) {
           compContainer.style.display = "none";
           return;
+        }
+
+        // सिंगल मीटर होने पर भी लिस्ट बनाएं
+        if ((!pairs || pairs.length === 0) && parsedMeterResults.length > 0) {
+          pairs = parsedMeterResults.map(function(m) {
+            let isPole = String(m.meterType || '').toUpperCase() === 'POLE';
+            let dummy = { serialNo: "Not Uploaded", monthlyBilling: [], instantaneous: { importAct: 0 } };
+            return {
+              accNo: m.accountNo || "-",
+              main: isPole ? dummy : m,
+              pole: isPole ? m : dummy
+            };
+          });
         }
 
         let pairRows = [];
@@ -5624,23 +6037,23 @@
             headStyles: { fillColor: [19, 43, 80], textColor: [255, 255, 255], fontStyle: 'bold' },
             head: [['Voltage-R', 'Voltage-Y', 'Voltage-B', 'Current-R', 'Current-Y', 'Current-B', 'Import Act (kWh)', 'Import Act (kVAh)', 'Import Act (kW)', 'Import Act (kVA)']],
             body: [[
-              `${inst.vr || '0'} V`, `${inst.vy || '0'} V`, `${inst.vb || '0'} V`,
-              `${inst.ir || '0'} A`, `${inst.iy || '0'} A`, `${inst.ib || '0'} A`,
-              `${inst.importAct || '0.0'}`, `${inst.importKvah || '0.0'}`,
-              `${inst.importKw || '0.00'}`, `${inst.importKva || '0.00'}`
+              `${(parseFloat(inst.vr) || 0).toFixed(2)} V`, `${(parseFloat(inst.vy) || 0).toFixed(2)} V`, `${(parseFloat(inst.vb) || 0).toFixed(2)} V`,
+              `${(parseFloat(inst.ir) || 0).toFixed(2)} A`, `${(parseFloat(inst.iy) || 0).toFixed(2)} A`, `${(parseFloat(inst.ib) || 0).toFixed(2)} A`,
+              `${(parseFloat(inst.importAct) || 0).toFixed(2)}`, `${(parseFloat(inst.importKvah) || 0).toFixed(2)}`,
+              `${(parseFloat(inst.importKw) || 0).toFixed(2)}`, `${(parseFloat(inst.importKva) || 0).toFixed(2)}`
             ]]
           });
 
           nextY = doc.lastAutoTable.finalY + 3;
           let billingData = (meter.monthlyBilling || []).map(b => [
             b.billingDate || '-',
-            b.kwhI || '0',
-            b.kvahI || '0',
-            b.consmKwhI || '0.00',
-            b.consmKvahI || '0.00',
-            `${b.mdKva || '0'}/${b.mdKw || '0'}`,
+            (parseFloat(b.kwhI) || 0).toFixed(2),
+            (parseFloat(b.kvahI) || 0).toFixed(2),
+            (parseFloat(b.consmKwhI) || 0).toFixed(2),
+            (parseFloat(b.consmKvahI) || 0).toFixed(2),
+            `${(parseFloat(b.mdKva) || 0).toFixed(2)} / ${(parseFloat(b.mdKw) || 0).toFixed(2)}`,
             b.mdKwTime || '-',
-            b.monthlyPf || '1.000'
+            (parseFloat(b.monthlyPf) || 1).toFixed(3)
           ]);
 
           doc.autoTable({
@@ -5929,64 +6342,103 @@
 
       function exportEventLogsPDF(index) {
         let meter = parsedMeterResults[index];
-        if (!meter || !meter.eventLogs || meter.eventLogs.length === 0) return alert("No Tamper Logs available!");
-
-        const { jsPDF } = window.jspdf;
-        let doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-        doc.setFillColor(15, 23, 42);
-        doc.rect(5, 5, 200, 12, 'F');
-        doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.setTextColor(255, 255, 255);
-        doc.text(`METER TAMPER & EVENT LOGS REPORT`, 8, 11);
-
-        doc.setFontSize(7); doc.setFont("helvetica", "normal"); doc.setTextColor(255, 255, 255);
-        doc.text(`Meter No: ${meter.serialNo} | Account No: ${meter.accountNo} | Consumer: ${meter.consumerName}`, 8, 15);
-
-        let logsCount = meter.eventLogs.length;
-        let dynamicFontSize = 7;
-        let dynamicPadding = 1.2;
-
-        if (logsCount > 40) {
-          dynamicFontSize = 5;
-          dynamicPadding = 0.4;
-        } else if (logsCount > 25) {
-          dynamicFontSize = 5.5;
-          dynamicPadding = 0.6;
-        } else if (logsCount > 15) {
-          dynamicFontSize = 6;
-          dynamicPadding = 0.8;
+        if (!meter || !meter.eventLogs || meter.eventLogs.length === 0) {
+          alert("इस मीटर में कोई Tamper/Event Logs उपलब्ध नहीं हैं!");
+          return;
         }
 
-        let bodyData = meter.eventLogs.map(e => [
-          String(e.eventCode),
-          String(e.datetime),
-          cleanJunkText(e.description),
-          cleanJunkText(e.status)
+        applyConsumerMapping(meter);
+
+        const { jsPDF } = window.jspdf;
+        // Standard A4 Portrait in pt (595.28 x 841.89 pt)
+        let doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+        let marginX = 18;
+        let pageWidth = 595.28;
+        let tableW = pageWidth - (marginX * 2);
+
+        // Header Banner Drawer (Repeats on every new page)
+        function drawHeader(docInstance, meterObj) {
+          docInstance.setFillColor(15, 23, 42);
+          docInstance.rect(marginX, 12, tableW, 26, 'F');
+          
+          docInstance.setFontSize(10.5);
+          docInstance.setFont("helvetica", "bold");
+          docInstance.setTextColor(255, 255, 255);
+          docInstance.text("METER TAMPER & HARDWARE EVENT LOGS REPORT", marginX + 8, 26);
+
+          let accStr = meterObj.accountNo && meterObj.accountNo !== 'N/A' ? meterObj.accountNo : "-";
+          let conStr = meterObj.consumerName && meterObj.consumerName !== 'N/A' ? meterObj.consumerName : "-";
+
+          docInstance.setFontSize(7.2);
+          docInstance.setFont("helvetica", "normal");
+          docInstance.setTextColor(203, 213, 225);
+          docInstance.text(`Meter No: ${meterObj.serialNo} (${meterObj.make || 'N/A'}) | Account No: ${accStr} | Consumer: ${conStr} | Total Events: ${meterObj.eventLogs.length}`, marginX + 8, 34);
+        }
+
+        let bodyData = meter.eventLogs.map((e, idx) => [
+          idx + 1,
+          String(e.eventCode || '-'),
+          String(e.datetime || '-'),
+          cleanJunkText(e.description || `Event Anomaly (Code: ${e.eventCode})`),
+          cleanJunkText(e.status || 'Occurred')
         ]);
 
         doc.autoTable({
-          startY: 19,
-          margin: { left: 5, right: 5, bottom: 5 },
+          startY: 44,
+          margin: { left: marginX, right: marginX, top: 44, bottom: 20 },
           theme: 'grid',
+          pageBreak: 'auto', // 🟢 Auto page break enables multi-page logs without blank screen
           styles: { 
-            fontSize: dynamicFontSize, 
+            fontSize: 7.2, 
             halign: 'center', 
-            cellPadding: dynamicPadding, 
+            valign: 'middle',
+            cellPadding: 2.5, 
             overflow: 'linebreak',
-            lineColor: [226, 232, 240],
-            lineWidth: 0.1
+            lineColor: [203, 213, 225],
+            lineWidth: 0.35,
+            textColor: [15, 23, 42]
           },
-          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: dynamicFontSize + 0.5 },
+          headStyles: { 
+            fillColor: [30, 41, 59], 
+            textColor: [255, 255, 255], 
+            fontStyle: 'bold', 
+            fontSize: 7.8,
+            cellPadding: 3
+          },
           columnStyles: {
-            0: { cellWidth: 20 },
-            1: { cellWidth: 40 },
-            2: { cellWidth: 110, halign: 'left' },
-            3: { cellWidth: 30 }
+            0: { cellWidth: 28 },
+            1: { cellWidth: 50, fontStyle: 'bold', textColor: [220, 38, 38] },
+            2: { cellWidth: 105, fontStyle: 'bold' },
+            3: { cellWidth: 295, halign: 'left' },
+            4: { cellWidth: 81.28, fontStyle: 'bold' }
           },
-          head: [['Event Code', 'Exact Date & Time', 'Tamper Details / Description', 'Status']],
+          head: [['S.No.', 'Event Code', 'Exact Date & Time', 'Tamper Details / Description', 'Status']],
           body: bodyData,
-          pageBreak: 'avoid'
+          didParseCell: function(data) {
+            if (data.row.section === 'body') {
+              if (data.column.index === 4) {
+                let st = String(data.cell.raw || '').toLowerCase();
+                if (st.includes('occ') || st.includes('gadbad') || st.includes('alert')) {
+                  data.cell.styles.textColor = [220, 38, 38]; // Red for occurred tampers
+                } else {
+                  data.cell.styles.textColor = [5, 150, 105]; // Green for restored
+                }
+              }
+            }
+          },
+          didDrawPage: function() {
+            drawHeader(doc, meter);
+          }
         });
+
+        // Page Numbering in Footer
+        let totalPages = doc.internal.getNumberOfPages();
+        for (let p = 1; p <= totalPages; p++) {
+          doc.setPage(p);
+          doc.setFontSize(7.5);
+          doc.setTextColor(100, 116, 139);
+          doc.text(`Page ${p} of ${totalPages} | Sai Computers Ltd RMS Engine`, pageWidth - 140, 830);
+        }
 
         doc.save(`${meter.serialNo}_Tamper_Event_Logs.pdf`);
       }
@@ -6092,112 +6544,190 @@
         let pairs = getSmartMatchedPairs();
         let currentPair = pairs.find(p => p.main.serialNo === meter.serialNo || p.pole.serialNo === meter.serialNo);
 
-        let main = currentPair ? currentPair.main : meter;
-        let pole = currentPair ? currentPair.pole : (parsedMeterResults.find(m => m.serialNo !== meter.serialNo) || meter);
+        let isPoleType = String(meter.meterType || '').toUpperCase() === 'POLE';
+        let createDummyMeter = function(typeLabel) {
+          return {
+            serialNo: "Not Uploaded",
+            make: "N/A",
+            meterType: typeLabel,
+            accountNo: meter.accountNo || "-",
+            consumerName: meter.consumerName || "-",
+            contractedLoad: meter.contractedLoad || "-",
+            readDate: "-",
+            instantaneous: { vr: "0", vy: "0", vb: "0", ir: "0", iy: "0", ib: "0", importAct: "0", importKvah: "0" },
+            monthlyBilling: [],
+            todMatrix: [],
+            dailyProfile: [],
+            loadSurvey30Min: [],
+            eventLogs: [],
+            avgDailySupplyHrs: "0.0",
+            avgDailyConsumptionKwh: "0.00"
+          };
+        };
 
-        if (main.serialNo === pole.serialNo) {
-          return alert("Main vs Pole PDF Comparison के लिए कम से कम 2 अलग-अलग मीटर्स (Main & Pole XML) की फ़ाइल अपलोड करें।");
-        }
-
-        const { jsPDF } = window.jspdf;
-        let doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-        doc.setFillColor(15, 23, 42);
-        doc.rect(5, 5, 200, 9, 'F');
-        doc.setFontSize(10); doc.setFont("helvetica", "bold"); doc.setTextColor(255, 255, 255);
-        doc.text("Analysis & Comparison Report (Jul-2026)", 105, 11, { align: "center" });
-
-        doc.autoTable({
-          startY: 15,
-          margin: { left: 5, right: 5 },
-          theme: 'grid',
-          styles: { fontSize: 6.5, cellPadding: 0.8 },
-          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
-          head: [['1. Consumer Detail', '', '', '']],
-          body: [
-            [`Zone/EDC: FROZABAD ZONE/EDC-MAINPURI/EDD-II MAINPURI`, `Book No: -`, `Connection No: ${main.accountNo}`, `Service No: ${main.accountNo}`],
-            [`Name: ${main.consumerName}`, `Contracted Load: ${main.contractedLoad}`, `Tariff Group: LM-2`, `Activity: Tower`],
-            [`Address: VANGOTHAP ANGOTHA HCL MAINPURI UP IND`, `Cycle No: DVMN`, `Account Id: ${main.accountNo}`, `Feeder Name: -`],
-            [`Main Meter No: ${main.serialNo}`, `Main Make/MF: ${main.make}/1.00`, `Pole Meter No: ${pole.serialNo}`, `Pole Make/MF: ${pole.make}/1.00`]
-          ]
-        });
-
-        let startNextY = doc.lastAutoTable.finalY + 2;
-        let chartCanvas = document.getElementById(`compChartCanvas_${index}`);
-        if (chartCanvas) {
-          try {
-            let chartImgData = chartCanvas.toDataURL("image/png");
-            doc.addImage(chartImgData, 'PNG', 5, startNextY, 200, 42);
-            startNextY += 44;
-          } catch (err) {
-            console.error("Chart image add error:", err);
+        let main, pole;
+        if (currentPair) {
+          main = currentPair.main;
+          pole = currentPair.pole;
+        } else {
+          let otherMeter = parsedMeterResults.find(m => m.serialNo !== meter.serialNo);
+          if (otherMeter) {
+            main = isPoleType ? otherMeter : meter;
+            pole = isPoleType ? meter : otherMeter;
+          } else {
+            main = isPoleType ? createDummyMeter('MAIN') : meter;
+            pole = isPoleType ? meter : createDummyMeter('POLE');
           }
         }
 
+        applyConsumerMapping(main);
+        applyConsumerMapping(pole);
+
+        const { jsPDF } = window.jspdf;
+        // 🟢 A4 Landscape (841.89 x 595.28 pt)
+        let doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+        let pageWidth = 841.89;
+        let marginX = 14;
+        let tableWidth = pageWidth - (marginX * 2); // 813.89 pt
+
+        let myStr = getMonthYearStr(main.readDate || pole.readDate || "");
+
+        // 1. Top Header Banner
+        doc.setFillColor(15, 23, 42);
+        doc.roundedRect(marginX, 10, tableWidth, 18, 2, 2, 'F');
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(255, 255, 255);
+        doc.text("Analysis & Comparison Report (" + myStr.replace('_', '-') + ")", pageWidth / 2, 22.5, { align: "center" });
+
+        // Consumer Data Variables
+        let zoneDiv = (main.division && main.division !== '-') 
+          ? "AGRA ZONE / EDC-MAINPURI / " + main.division.toUpperCase()
+          : (pole.division && pole.division !== '-' ? "AGRA ZONE / EDC-MAINPURI / " + pole.division.toUpperCase() : "AGRA ZONE / EDC-MAINPURI / EDD-II MAINPURI");
+
+        let cName = (main.consumerName && main.consumerName !== 'N/A' && main.consumerName !== '-') ? main.consumerName : (pole.consumerName || "-");
+        let accId = (main.accountNo && main.accountNo !== 'N/A' && main.accountNo !== '-') ? main.accountNo : (pole.accountNo || "-");
+        let connNo = main.connectionNo || pole.connectionNo || accId;
+        let addr = (main.address && main.address !== '-') ? main.address : (pole.address || "-");
+        let feeder = (main.feederName && main.feederName !== '-') ? main.feederName : (pole.feederName || "-");
+        let loadKw = main.contractedLoad || pole.contractedLoad || "10.000 KW";
+        let tariffGrp = main.tariff || pole.tariff || "LMV-6";
+
+        // 2. Table 1: Consumer Detail
         doc.autoTable({
-          startY: startNextY,
-          margin: { left: 5, right: 5 },
+          startY: 32,
+          margin: { left: marginX, right: marginX },
           theme: 'grid',
-          styles: { fontSize: 6, halign: 'center', cellPadding: 0.6 },
-          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
-          head: [['Meter Type', 'Date-Time', 'Voltage-R', 'Voltage-Y', 'Voltage-B', 'Current-R', 'Current-Y', 'Current-B', 'CMD', 'N', 'MD(KVA)', 'MD(KW)']],
+          styles: { fontSize: 6.2, cellPadding: 1.5, lineColor: [203, 213, 225], lineWidth: 0.35, textColor: [15, 23, 42], overflow: 'linebreak' },
+          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 6.8, cellPadding: 2 },
+          head: [[{ content: '1. CONSUMER DETAIL', colSpan: 4 }]],
+          columnStyles: {
+            0: { cellWidth: 260 },
+            1: { cellWidth: 150 },
+            2: { cellWidth: 200 },
+            3: { cellWidth: 203.89 }
+          },
           body: [
-            ['Main', main.readDate || '-', main.instantaneous.vr, main.instantaneous.vy, main.instantaneous.vb, main.instantaneous.ir, main.instantaneous.iy, main.instantaneous.ib, '-', '-', main.monthlyBilling[0]?.mdKva || '25.0000', main.monthlyBilling[0]?.mdKw || '25.0000'],
-            ['Pole', pole.readDate || '-', pole.instantaneous.vr, pole.instantaneous.vy, pole.instantaneous.vb, pole.instantaneous.ir, pole.instantaneous.iy, pole.instantaneous.ib, '-', '-', pole.monthlyBilling[0]?.mdKva || '-', pole.monthlyBilling[0]?.mdKw || '-']
+            ['Zone/EDC: ' + zoneDiv, 'Book No: -', 'Connection No: ' + connNo, 'Service No: ' + accId],
+            ['Name: ' + cName, 'Contracted Load: ' + loadKw, 'Tariff Group: ' + tariffGrp, 'Activity: Tower'],
+            [{ content: 'Address: ' + addr, colSpan: 2 }, 'Account Id: ' + accId, 'Feeder Name: ' + feeder],
+            [{ content: 'Main Meter No: ' + main.serialNo + ' (' + main.make + ' / MF: ' + (main.meterMf || '1.00') + ')', colSpan: 2 },
+             { content: 'Pole Meter No: ' + pole.serialNo + ' (' + pole.make + ' / MF: ' + (pole.meterMf || '1.00') + ')', colSpan: 2 }]
           ]
         });
 
+        // 3. Table 2: Instantaneous Parameters
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 3,
+          margin: { left: marginX, right: marginX },
+          theme: 'grid',
+          styles: { fontSize: 6.0, halign: 'center', cellPadding: 1.2, lineColor: [203, 213, 225], lineWidth: 0.35 },
+          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 6.4 },
+          head: [
+            [{ content: '2. INSTANTANEOUS PARAMETER (W.R.T NEUTRAL) & CURRENT READINGS', colSpan: 12 }],
+            ['METER TYPE', 'DATE-TIME', 'VOLTAGE-R', 'VOLTAGE-Y', 'VOLTAGE-B', 'CURRENT-R', 'CURRENT-Y', 'CURRENT-B', 'CMD', 'N', 'MD(KVA)', 'MD(KW)']
+          ],
+          body: [
+            ['Main', main.readDate || '-', main.instantaneous.vr, main.instantaneous.vy, main.instantaneous.vb, main.instantaneous.ir, main.instantaneous.iy, main.instantaneous.ib, '-', '-', main.monthlyBilling[0]?.mdKva || '0.00', main.monthlyBilling[0]?.mdKw || '0.00'],
+            ['Pole', pole.readDate || '-', pole.instantaneous.vr, pole.instantaneous.vy, pole.instantaneous.vb, pole.instantaneous.ir, pole.instantaneous.iy, pole.instantaneous.ib, '-', '-', pole.monthlyBilling[0]?.mdKva || '0.00', pole.monthlyBilling[0]?.mdKw || '0.00']
+          ]
+        });
+
+        // Table 3: TOD Register
         let mainTod = main.todMatrix[0] || {};
         let poleTod = pole.todMatrix[0] || {};
         doc.autoTable({
-          startY: doc.lastAutoTable.finalY + 1.5,
-          margin: { left: 5, right: 5 },
+          startY: doc.lastAutoTable.finalY + 2,
+          margin: { left: marginX, right: marginX },
           theme: 'grid',
-          styles: { fontSize: 5.5, halign: 'center', cellPadding: 0.6 },
-          headStyles: { fillColor: [51, 65, 85], textColor: [255, 255, 255] },
-          head: [['Meter Type', 'Date-Time', 'TOD-1', 'TOD-2', 'TOD-3', 'TOD-4', 'TOD-5', 'TOD-6', 'TOD-7', 'TOD-8', 'KVAH', 'KWH']],
+          styles: { fontSize: 5.8, halign: 'center', cellPadding: 1.0, lineColor: [203, 213, 225], lineWidth: 0.35 },
+          headStyles: { fillColor: [51, 65, 85], textColor: [255, 255, 255], fontSize: 6.0 },
+          head: [['METER TYPE', 'DATE-TIME', 'TOD-1', 'TOD-2', 'TOD-3', 'TOD-4', 'TOD-5', 'TOD-6', 'TOD-7', 'TOD-8', 'KVAH', 'KWH']],
           body: [
-            ['Main', main.readDate || '-', mainTod.t1||'0.0', mainTod.t2||'0.0', mainTod.t3||'0.0', mainTod.t4||'0.0', mainTod.t5||'0.0', mainTod.t6||'0.0', mainTod.t7||'0.0', mainTod.t8||'0.0', main.monthlyBilling[0]?.kvahI||main.instantaneous.importKvah||'0.0', main.monthlyBilling[0]?.kwhI||main.instantaneous.importAct||'0.0'],
-            ['Pole', pole.readDate || '-', poleTod.t1||'0.0', poleTod.t2||'0.0', poleTod.t3||'0.0', poleTod.t4||'0.0', poleTod.t5||'0.0', poleTod.t6||'0.0', poleTod.t7||'0.0', poleTod.t8||'0.0', pole.monthlyBilling[0]?.kvahI||pole.instantaneous.importKvah||'0.0', pole.monthlyBilling[0]?.kwhI||pole.instantaneous.importAct||'0.0']
+            ['Main', main.readDate || '-', mainTod.t1 || '0.0', mainTod.t2 || '0.0', mainTod.t3 || '0.0', mainTod.t4 || '0.0', mainTod.t5 || '0.0', mainTod.t6 || '0.0', mainTod.t7 || '0.0', mainTod.t8 || '0.0', main.monthlyBilling[0]?.kvahI || main.instantaneous.importKvah || '0.0', main.monthlyBilling[0]?.kwhI || main.instantaneous.importAct || '0.0'],
+            ['Pole', pole.readDate || '-', poleTod.t1 || '0.0', poleTod.t2 || '0.0', poleTod.t3 || '0.0', poleTod.t4 || '0.0', poleTod.t5 || '0.0', poleTod.t6 || '0.0', poleTod.t7 || '0.0', poleTod.t8 || '0.0', pole.monthlyBilling[0]?.kvahI || pole.instantaneous.importKvah || '0.0', pole.monthlyBilling[0]?.kwhI || pole.instantaneous.importAct || '0.0']
           ]
         });
 
-        doc.autoTable({
-          startY: doc.lastAutoTable.finalY + 1.5,
-          margin: { left: 5, right: 5 },
-          theme: 'grid',
-          styles: { fontSize: 5.5, halign: 'center', cellPadding: 0.6 },
-          headStyles: { fillColor: [71, 85, 105], textColor: [255, 255, 255] },
-          head: [['Meter Type', 'Date-Time', 'Import(Act)', 'Export(Act)', 'Im+Ex(Act)', 'Forward(Act)', 'Import(App)', 'Export(App)', 'Im+Ex(App)', 'Forward(App)']],
-          body: [
-            ['Main', main.readDate || '-', main.instantaneous.importAct||'420820.8', '0.0', '420820.8', '420820.8', main.instantaneous.importKvah||'421008.2', '0.0', '421008.2', '421008.2'],
-            ['Pole', pole.readDate || '-', pole.instantaneous.importAct||'577957.6', '0.0', '577957.6', '577957.6', pole.instantaneous.importKvah||'578133.4', '0.0', '578133.4', '578133.4']
-          ]
-        });
-
+        // Table 4: Energy Direction
         doc.autoTable({
           startY: doc.lastAutoTable.finalY + 2,
-          margin: { left: 5, right: 5 },
+          margin: { left: marginX, right: marginX },
           theme: 'grid',
-          styles: { fontSize: 6, halign: 'center', cellPadding: 0.6 },
-          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
-          head: [['3. Power Factor (Phase)', 'Phase-R', 'Phase-Y', 'Phase-B', 'Phase Seq']],
+          styles: { fontSize: 5.8, halign: 'center', cellPadding: 1.0, lineColor: [203, 213, 225], lineWidth: 0.35 },
+          headStyles: { fillColor: [71, 85, 105], textColor: [255, 255, 255], fontSize: 6.0 },
+          head: [['METER TYPE', 'DATE-TIME', 'IMPORT(ACT)', 'EXPORT(ACT)', 'IM+EX(ACT)', 'FORWARD(ACT)', 'IMPORT(APP)', 'EXPORT(APP)', 'IM+EX(APP)', 'FORWARD(APP)']],
+          body: [
+            ['Main', main.readDate || '-', main.instantaneous.importAct || '0.0', '0.0', main.instantaneous.importAct || '0.0', main.instantaneous.importAct || '0.0', main.instantaneous.importKvah || '0.0', '0.0', main.instantaneous.importKvah || '0.0', main.instantaneous.importKvah || '0.0'],
+            ['Pole', pole.readDate || '-', pole.instantaneous.importAct || '0.0', '0.0', pole.instantaneous.importAct || '0.0', pole.instantaneous.importAct || '0.0', pole.instantaneous.importKvah || '0.0', '0.0', pole.instantaneous.importKvah || '0.0', pole.instantaneous.importKvah || '0.0']
+          ]
+        });
+
+        // 4. Table 5: Power Factor (Phase)
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 2,
+          margin: { left: marginX, right: marginX },
+          theme: 'grid',
+          styles: { fontSize: 5.8, halign: 'center', cellPadding: 1.0, lineColor: [203, 213, 225], lineWidth: 0.35 },
+          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 6.2 },
+          head: [
+            [{ content: '3. POWER FACTOR (PHASE)', colSpan: 5 }],
+            ['METER TYPE', 'PHASE-R', 'PHASE-Y', 'PHASE-B', 'PHASE SEQ']
+          ],
           body: [
             ['Main', '-1.00', '-1.00', '-1.00', 'Normal'],
             ['Pole', '1.00', '-1.00', '-1.00', 'Normal']
           ]
         });
 
+        // 🟢 Unique 6-Month Calculation (De-duplication Fix)
         let months = [], mainKvah = [], poleKvah = [], mainKwh = [], poleKwh = [], diffPct = [];
         let mainMDKva = [], poleMDKva = [], mainMDKw = [], poleMDKw = [];
         let mainPF = [], polePF = [];
 
-        for (let i = 0; i < 6; i++) {
+        let usedMonthKeys = new Set();
+        let validIndices = [];
+
+        for (let i = 0; i < (main.monthlyBilling || []).length; i++) {
           let mb = main.monthlyBilling[i] || {};
-          let pb = pole.monthlyBilling[i] || {};
-          let dt = mb.billingDate || pb.billingDate || "";
-          let mLabel = dt ? dt.split('-')[1] + '-' + dt.split('-')[2]?.substring(0,4) : `M${i+1}`;
-          months.push(mLabel);
+          let dt = mb.billingDate || "";
+          let mKey = dt ? dt.split('-')[1] + '-' + dt.split('-')[2]?.substring(0, 4) : `M${i + 1}`;
+          if (!usedMonthKeys.has(mKey) && validIndices.length < 6) {
+            usedMonthKeys.add(mKey);
+            validIndices.push(i);
+            months.push(mKey);
+          }
+        }
+
+        while (months.length < 6) {
+          let fallbackLabel = `M-${months.length + 1}`;
+          months.push(fallbackLabel);
+          validIndices.push(validIndices.length);
+        }
+
+        validIndices.forEach(idx => {
+          let mb = main.monthlyBilling[idx] || {};
+          let pb = pole.monthlyBilling[idx] || {};
 
           let mKwh = parseFloat(mb.consmKwhI || 0);
           let pKwh = parseFloat(pb.consmKwhI || 0);
@@ -6217,94 +6747,150 @@
 
           mainPF.push(parseFloat(mb.monthlyPf || 1).toFixed(2));
           polePF.push(parseFloat(pb.monthlyPf || 1).toFixed(2));
-        }
+        });
 
+        // 5. Table 6: Monthly Consumption
         doc.autoTable({
           startY: doc.lastAutoTable.finalY + 2,
-          margin: { left: 5, right: 5 },
+          margin: { left: marginX, right: marginX },
           theme: 'grid',
-          styles: { fontSize: 5.5, halign: 'center', cellPadding: 0.6 },
-          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
-          head: [['4. Monthly Consumption', ...months.map(m => `${m}(KVAH)`), ...months.map(m => `${m}(KWH)`) ]],
+          styles: { fontSize: 5.4, halign: 'center', cellPadding: 1.0, lineColor: [203, 213, 225], lineWidth: 0.35 },
+          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 5.8 },
+          head: [
+            [{ content: '4. MONTHLY CONSUMPTION COMPARISON (LAST 6 MONTHS)', colSpan: 13 }],
+            ['METER TYPE', ...months.map(m => m + ' (kVAh)'), ...months.map(m => m + ' (kWh)')]
+          ],
           body: [
             ['Main', ...mainKvah, ...mainKwh],
             ['Pole', ...poleKvah, ...poleKwh],
-            ['Diff%', ...diffPct, ...diffPct]
+            [{ content: 'Diff%', styles: { fontStyle: 'bold', textColor: [220, 38, 38] } }, ...diffPct.map(v => ({ content: v + '%', styles: { fontStyle: 'bold', textColor: [220, 38, 38] } })), ...diffPct.map(v => ({ content: v + '%', styles: { fontStyle: 'bold', textColor: [220, 38, 38] } }))]
           ]
         });
 
+        // 6. Table 7: Power Factor
         doc.autoTable({
           startY: doc.lastAutoTable.finalY + 1.5,
-          margin: { left: 5, right: 5 },
+          margin: { left: marginX, right: marginX },
           theme: 'grid',
-          styles: { fontSize: 5.5, halign: 'center', cellPadding: 0.6 },
-          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
-          head: [['5. Power Factor', ...months]],
+          styles: { fontSize: 5.4, halign: 'center', cellPadding: 1.0, lineColor: [203, 213, 225], lineWidth: 0.35 },
+          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 5.8 },
+          head: [
+            [{ content: '5. POWER FACTOR', colSpan: 7 }],
+            ['METER TYPE', ...months]
+          ],
           body: [
             ['Main', ...mainPF],
             ['Pole', ...polePF]
           ]
         });
 
+        // 7. Table 8: Maximum Demand
         doc.autoTable({
           startY: doc.lastAutoTable.finalY + 1.5,
-          margin: { left: 5, right: 5 },
+          margin: { left: marginX, right: marginX },
           theme: 'grid',
-          styles: { fontSize: 5.5, halign: 'center', cellPadding: 0.6 },
-          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
-          head: [['6. Maximum Demand', ...months.map(m => `${m}(KVA)`), ...months.map(m => `${m}(KW)`) ]],
+          styles: { fontSize: 5.4, halign: 'center', cellPadding: 1.0, lineColor: [203, 213, 225], lineWidth: 0.35 },
+          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 5.8 },
+          head: [
+            [{ content: '6. MONTHLY MAXIMUM DEMAND', colSpan: 13 }],
+            ['METER TYPE', ...months.map(m => m + ' (kVA)'), ...months.map(m => m + ' (kW)')]
+          ],
           body: [
             ['Main', ...mainMDKva, ...mainMDKw],
             ['Pole', ...poleMDKva, ...poleMDKw]
           ]
         });
 
+        // 8. Table 9: Average Analysis
         doc.autoTable({
-          startY: doc.lastAutoTable.finalY + 2,
-          margin: { left: 5, right: 5 },
+          startY: doc.lastAutoTable.finalY + 1.5,
+          margin: { left: marginX, right: marginX },
           theme: 'grid',
-          styles: { fontSize: 6, halign: 'center', cellPadding: 0.8 },
-          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
-          head: [['7. Avg Analysis', 'Demand Factor', 'Load Factor', 'Avg Consumption (Per Day)', 'Avg Demand (Per Hour)', 'Avg Running Hour (Per Day)']],
+          styles: { fontSize: 5.8, halign: 'center', cellPadding: 1.2, lineColor: [203, 213, 225], lineWidth: 0.35 },
+          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 6.2 },
+          head: [
+            [{ content: '7. MONTHLY AVERAGE CONSUMPTION & DEMAND ANALYSIS', colSpan: 6 }],
+            ['METER TYPE', 'DEMAND FACTOR', 'LOAD FACTOR', 'AVG CONSUMPTION (PER DAY)', 'AVG DEMAND (PER HOUR)', 'AVG RUNNING HOUR (PER DAY)']
+          ],
           body: [
-            ['Main', '0.96', '0.33', `${main.avgDailyConsumptionKwh} kWh`, '8.45 kW', `${main.avgDailySupplyHrs} Hrs`],
-            ['Pole', '0.94', '0.83', `${pole.avgDailyConsumptionKwh} kWh`, '20.85 kW', `${pole.avgDailySupplyHrs} Hrs`]
+            ['Main', '0.96', '0.33', main.avgDailyConsumptionKwh + ' kWh', '8.45 kW', main.avgDailySupplyHrs + ' Hrs'],
+            ['Pole', '0.94', '0.83', pole.avgDailyConsumptionKwh + ' kWh', '20.85 kW', pole.avgDailySupplyHrs + ' Hrs']
           ]
         });
 
+        
+
+        // 🟢 POINT 4: VOLTAGE DROP & CABLE HEALTH IN PDF
+        let vDropR = (parseFloat(pole.instantaneous.vr || 0) - parseFloat(main.instantaneous.vr || 0)).toFixed(1);
+        let vDropY = (parseFloat(pole.instantaneous.vy || 0) - parseFloat(main.instantaneous.vy || 0)).toFixed(1);
+        let vDropB = (parseFloat(pole.instantaneous.vb || 0) - parseFloat(main.instantaneous.vb || 0)).toFixed(1);
+        let maxVDrop = Math.max(Math.abs(vDropR), Math.abs(vDropY), Math.abs(vDropB));
+        let cableHealth = maxVDrop <= 3.0 ? "EXCELLENT (Low Line Loss)" : (maxVDrop <= 6.0 ? "MODERATE (Normal Drop)" : "CRITICAL (High Drop / Direct Tap Suspected)");
+
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 1.5,
+          margin: { left: marginX, right: marginX },
+          theme: 'grid',
+          styles: { fontSize: 5.6, halign: 'center', cellPadding: 1.0, lineColor: [203, 213, 225], lineWidth: 0.35 },
+          headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 6.0 },
+          head: [
+            [{ content: '8. VOLTAGE DROP & POWER QUALITY AUDIT (LINE LOSS & CABLE HEALTH)', colSpan: 4 }],
+            ['R-PHASE DROP (ΔV)', 'Y-PHASE DROP (ΔV)', 'B-PHASE DROP (ΔV)', 'SERVICE CABLE INTEGRITY STATUS']
+          ],
+          body: [
+            [vDropR + " V", vDropY + " V", vDropB + " V", cableHealth]
+          ]
+        });
+
+        // 🟢 9. Chart Image (Calculated Spacing Below Table 7)
+        let chartStartY = doc.lastAutoTable.finalY + 3;
+        let chartCanvas = document.getElementById(`compChartCanvas_${index}`);
+        let chartHeight = 46; // Compact banner ratio
+
+        if (chartCanvas) {
+          try {
+            let chartImgData = chartCanvas.toDataURL("image/png");
+            doc.addImage(chartImgData, 'PNG', marginX, chartStartY, tableWidth, chartHeight);
+            chartStartY += chartHeight + 3;
+          } catch (err) {
+            console.error("Chart image render error:", err);
+            chartStartY += 2;
+          }
+        }
+
+        // Diagnostic Logic
         let maxDiff = Math.max(...diffPct.map(d => Math.abs(parseFloat(d))));
         let hasAbnormality = maxDiff > 5.0;
 
         let diagDesc = "Both meters operating synchronously within permissible accuracy limits.";
-        let diagRec = "Routine periodic inspection only.";
-        let diagAction = "No corrective action required.";
+        let diagRec = "PT Short, PT Bypass, Terminal Carbonization, Cut in Service Cable, Phase Reversal, CT Short, CT Bypass, Cover Open";
+        let diagAction = "PT Change, Remove Terminal Carbonization, Change Service Cable, Phase Sequence Change, CT Change, Meter Change";
 
         if (maxDiff > 10.0) {
-          diagDesc = `CRITICAL DRIFT: High energy variance (${maxDiff.toFixed(1)}%) detected between Main & Pole meters. Potential Direct Cable Tap or Meter Tamper suspected.`;
-          diagRec = "Perform physical site verification of service cable, check terminal seals, CT/PT wiring integrity and test meter accuracy on-site.";
-          diagAction = "Replace service cable if cut/tap found, recalibrate/replace Main or Pole meter, and issue energy assessment notice if theft established.";
+          diagDesc = "Pole Energy Consumption is greater than 10% from Main Meter, Need to check Pole Meter";
         } else if (maxDiff > 5.0) {
-          diagDesc = `MODERATE DRIFT: Variance (${maxDiff.toFixed(1)}%) exceeds standard limit (5%). Possible terminal carbonization or phase unbalance.`;
-          diagRec = "Inspect terminal block for carbon buildup, verify CT ratios, and check phase sequence.";
-          diagAction = "Clean terminal connections, correct phase reversal if any, and monitor load profile for 15 days.";
+          diagDesc = "Variance (" + maxDiff.toFixed(1) + "%) exceeds standard limit (5%). Possible terminal carbonization or phase unbalance.";
         }
 
+        // 🟢 10. Observation Box (Positioned at Bottom without Overlap)
         doc.autoTable({
-          startY: doc.lastAutoTable.finalY + 2,
-          margin: { left: 5, right: 5 },
-          theme: 'plain',
-          styles: { fontSize: 6, cellPadding: 0.8 },
-          headStyles: { fillColor: [240, 240, 240], textColor: [15, 23, 42], fontStyle: 'bold' },
-          head: [['8-11. Automated Energy Audit & Diagnostic Summary']],
+          startY: chartStartY,
+          margin: { left: marginX, right: marginX },
+          theme: 'grid',
+          styles: { fontSize: 5.6, cellPadding: 1.0, textColor: [15, 23, 42], overflow: 'linebreak', lineColor: [203, 213, 225], lineWidth: 0.35 },
+          headStyles: { fillColor: [240, 240, 240], textColor: [15, 23, 42], fontStyle: 'bold', fontSize: 6.2, cellPadding: 1.2 },
+          head: [['8-11. AUTOMATED ENERGY AUDIT & DIAGNOSTIC SUMMARY']],
           body: [
-            [`8. Abnormality Status: ${hasAbnormality ? 'YES (ANOMALY DETECTED)' : 'NO (NORMAL)'}`],
-            [`9. Diagnostic Description: ${diagDesc}`],
-            [`10. Technical Recommendation: ${diagRec}`],
-            [`11. Field Action Point: ${diagAction}`]
+            ['8. Abnormality (YES/NO): ' + (hasAbnormality ? 'YES' : 'NO')],
+            ['9. Description (If Suspected): ' + diagDesc],
+            ['10. Recommendation: ' + diagRec],
+            ['11. Action Point: ' + diagAction]
           ]
         });
 
-        doc.save(`${main.serialNo}_vs_${pole.serialNo}_Full_Comparison_Report.pdf`);
+        // Save PDF
+        let pdfFileName = (main.serialNo || 'Main') + "_vs_" + (pole.serialNo || 'Pole') + "_Full_Comparison_Report.pdf";
+        doc.save(pdfFileName);
       }
 
       function downloadAllExcel() {
@@ -6377,8 +6963,6 @@
       }
 
       // 🟢 RDG Sheet Upload के METER_NUMBER से सीधा 1-टू-1 मैचिंग इंजन
-      var cachedRdgMap = {};
-
       function getMeterRdgsFromDatabase(meterNo) {
         var fallback = { kwh: "0.0", kvah: "0.0", kw: "0.0", kva: "0.0" };
         if (!meterNo || meterNo === "-" || meterNo === "N/A" || meterNo === "NO_MTR") return fallback;
@@ -7312,93 +7896,228 @@
       }
 
       function renderDivisionPerformanceChart(dataset) {
-        var canvas = document.getElementById('divisionComparisonChart');
-        if (!canvas || typeof Chart === 'undefined') return;
+  var tbody = document.getElementById('division-scorecard-tbody');
+  if (!tbody) return;
 
-        var divStats = {
-          "EDD-I": { total: 0, billed: 0, mriDone: 0, mriUpload: 0 },
-          "EDD-II": { total: 0, billed: 0, mriDone: 0, mriUpload: 0 },
-          "EDD-III": { total: 0, billed: 0, mriDone: 0, mriUpload: 0 }
-        };
+  var divStats = {
+    "EDD-I": { 
+      name: "EDD-I Mainpuri", 
+      total: 0, 
+      mainVisit: 0, mainMri: 0, mainMriUp: 0, 
+      poleVisit: 0, poleMri: 0, poleMriUp: 0, 
+      billed: 0, 
+      distDelivered: 0, distPending: 0, distTotal: 0 
+    },
+    "EDD-II": { 
+      name: "EDD-II Mainpuri", 
+      total: 0, 
+      mainVisit: 0, mainMri: 0, mainMriUp: 0, 
+      poleVisit: 0, poleMri: 0, poleMriUp: 0, 
+      billed: 0, 
+      distDelivered: 0, distPending: 0, distTotal: 0 
+    },
+    "EDD-III": { 
+      name: "EDD-III Mainpuri", 
+      total: 0, 
+      mainVisit: 0, mainMri: 0, mainMriUp: 0, 
+      poleVisit: 0, poleMri: 0, poleMriUp: 0, 
+      billed: 0, 
+      distDelivered: 0, distPending: 0, distTotal: 0 
+    }
+  };
 
-        dataset.forEach(function(row) {
-          var u = row._uMap || row;
-          var div = String(u["DIVISION"] || "").toUpperCase();
-          var divKey = div.includes("EDD-I") && !div.includes("II") && !div.includes("III") ? "EDD-I" :
-                       div.includes("EDD-II") && !div.includes("III") ? "EDD-II" :
-                       div.includes("EDD-III") ? "EDD-III" : "";
-          if (!divKey) return;
+  dataset.forEach(function(row) {
+    var u = row._uMap || row;
+    var div = String(u["DIVISION"] || "").toUpperCase();
+    var divKey = div.includes("EDD-I") && !div.includes("II") && !div.includes("III") ? "EDD-I" :
+                 div.includes("EDD-II") && !div.includes("III") ? "EDD-II" :
+                 div.includes("EDD-III") ? "EDD-III" : "";
+    if (!divKey) return;
 
-          divStats[divKey].total++;
-          var bs = String(u["BILLING STATUS"] || u["BILLING  STATUS"] || "").toUpperCase();
-          if (bs === "BILLED" || bs.startsWith("BILLED")) divStats[divKey].billed++;
+    var d = divStats[divKey];
+    d.total++;
 
-          var exM = String(u["EXCEPTION TYPE (MAIN METER)"] || "").toUpperCase().trim();
-          var mriAvail = String(u["IS MRI AVAILABLE (MAIN METER)"] || "").toUpperCase().trim();
-          if (exM === "MRI") {
-            divStats[divKey].mriDone++;
-            if (mriAvail === "TRUE" || mriAvail === "YES" || mriAvail === "1") divStats[divKey].mriUpload++;
-          }
-        });
+    var loadKw = parseFloat(String(u["LOAD IN KW"] || u["LOAD_KW"] || "").replace(/[^0-9.-]/g, "")) || 0;
+    
+    // 1. Main Meter Metrics
+    var mainEx = String(u["EXCEPTION TYPE (MAIN METER)"] || "").toUpperCase().trim();
+    var mainMriAvail = String(u["IS MRI AVAILABLE (MAIN METER)"] || "").toUpperCase().trim();
+    var isMainMriTrue = (mainMriAvail === "TRUE" || mainMriAvail === "YES" || mainMriAvail === "1");
 
-        var labels = ["EDD-I Mainpuri", "EDD-II Mainpuri", "EDD-III Mainpuri"];
-        var billingPcts = [
-          divStats["EDD-I"].total > 0 ? Math.round((divStats["EDD-I"].billed / divStats["EDD-I"].total) * 100) : 0,
-          divStats["EDD-II"].total > 0 ? Math.round((divStats["EDD-II"].billed / divStats["EDD-II"].total) * 100) : 0,
-          divStats["EDD-III"].total > 0 ? Math.round((divStats["EDD-III"].billed / divStats["EDD-III"].total) * 100) : 0
-        ];
-        var mriPcts = [
-          divStats["EDD-I"].mriDone > 0 ? Math.round((divStats["EDD-I"].mriUpload / divStats["EDD-I"].mriDone) * 100) : 0,
-          divStats["EDD-II"].mriDone > 0 ? Math.round((divStats["EDD-II"].mriUpload / divStats["EDD-II"].mriDone) * 100) : 0,
-          divStats["EDD-III"].mriDone > 0 ? Math.round((divStats["EDD-III"].mriUpload / divStats["EDD-III"].mriDone) * 100) : 0
-        ];
+    if (mainEx !== "" && mainEx !== "NAN" && mainEx !== "VISIT PENDING") {
+      d.mainVisit++;
+    }
+    if (mainEx === "MRI") {
+      d.mainMri++;
+      if (isMainMriTrue) d.mainMriUp++;
+    }
 
-        if (divisionChartInstance) {
-          divisionChartInstance.destroy();
-        }
+    // 2. Pole Meter Metrics (>=10 KW)
+    if (loadKw >= 10) {
+      var poleEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
+      var poleMriAvail = String(u["IS MRI AVAILABLE (POLE METER)"] || "").toUpperCase().trim();
+      var isPoleMriTrue = (poleMriAvail === "TRUE" || poleMriAvail === "YES" || poleMriAvail === "1");
 
-        var ctx = canvas.getContext('2d');
-        divisionChartInstance = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: labels,
-            datasets: [
-              {
-                label: 'Billing %',
-                data: billingPcts,
-                backgroundColor: '#2563eb',
-                borderRadius: 4
-              },
-              {
-                label: 'MRI Upload %',
-                data: mriPcts,
-                backgroundColor: '#10b981',
-                borderRadius: 4
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'top',
-                labels: { boxWidth: 10, font: { size: 10, weight: 'bold', family: 'Rajdhani' } }
-              }
-            },
-            scales: {
-              y: {
-                beginAtZero: true,
-                max: 100,
-                ticks: { callback: function(val) { return val + '%'; }, font: { size: 9 } }
-              },
-              x: {
-                ticks: { font: { size: 10, weight: 'bold', family: 'Rajdhani' } }
-              }
-            }
-          }
-        });
+      if (poleEx !== "" && poleEx !== "NAN" && poleEx !== "VISIT PENDING") {
+        d.poleVisit++;
       }
+      if (poleEx === "MRI") {
+        d.poleMri++;
+        if (isPoleMriTrue) d.poleMriUp++;
+      }
+    }
+
+    // 3. Billing Status
+    var bs = String(u["BILLING STATUS"] || u["BILLING  STATUS"] || "").toUpperCase().trim();
+    if (bs === "BILLED" || bs.startsWith("BILLED")) {
+      d.billed++;
+    }
+
+    // 4. Bill Distribution Metrics
+    var fbd = String(u["FOR_BILL DISTRIBUTION"] || u["FOR_BILL_DISTRIBUTION"] || "").toUpperCase().trim();
+    var bpt = String(u["BILL PRINT TAG"] || u["BILL_PRINT_TAG"] || "").toUpperCase().trim();
+    var ibu = String(u["IS BILL UPLOAD"] || u["IS_BILL_UPLOAD"] || "").toUpperCase().trim();
+    var ds = String(u["DISTRIBUTION STATUS"] || u["DISTRIBUTION_STATUS"] || "").toUpperCase().trim();
+
+    if (fbd === "YES" && bpt !== "NEED TO PRINT" && (ibu === "YES" || ibu === "TRUE")) {
+      d.distTotal++;
+      if (ds === "DELEIVERD" || ds === "DELIVERED") {
+        d.distDelivered++;
+      } else if (ds.includes("PENDING") || ds === "DISTRIBUTION PENDING") {
+        d.distPending++;
+      }
+    }
+  });
+
+  var grand = { 
+    total: 0, 
+    mainVisit: 0, mainMri: 0, mainMriUp: 0, 
+    poleVisit: 0, poleMri: 0, poleMriUp: 0, 
+    billed: 0, 
+    distDelivered: 0, distPending: 0, distTotal: 0 
+  };
+
+  var html = "";
+
+  ["EDD-I", "EDD-II", "EDD-III"].forEach(function(k) {
+    var d = divStats[k];
+    grand.total += d.total;
+    grand.mainVisit += d.mainVisit;
+    grand.mainMri += d.mainMri;
+    grand.mainMriUp += d.mainMriUp;
+    grand.poleVisit += d.poleVisit;
+    grand.poleMri += d.poleMri;
+    grand.poleMriUp += d.poleMriUp;
+    grand.billed += d.billed;
+    grand.distDelivered += d.distDelivered;
+    grand.distPending += d.distPending;
+    grand.distTotal += d.distTotal;
+
+    var mainMriPct = d.mainMri > 0 ? Math.round((d.mainMriUp / d.mainMri) * 100) : 0;
+    var poleMriPct = d.poleMri > 0 ? Math.round((d.poleMriUp / d.poleMri) * 100) : 0;
+    var billPct = d.total > 0 ? Math.round((d.billed / d.total) * 100) : 0;
+    var distPct = d.distTotal > 0 ? Math.round((d.distDelivered / d.distTotal) * 100) : 0;
+
+    html += `
+      <tr onclick="selectedDivisions=['${d.name.toUpperCase()}']; captureFilterSelections('div');" style="cursor: pointer; border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+        <td style="padding: 5px 8px; text-align: left; font-weight: 800; color: #1e40af; border-right: 1px solid #f1f5f9;">
+          <i class="fa-solid fa-building me-1 text-muted" style="font-size: 9.5px;"></i> ${d.name}
+        </td>
+        <td style="padding: 5px; font-weight: 700; color: #0f172a; border-right: 1px solid #f1f5f9;">${d.total}</td>
+        
+        <!-- Main Meter -->
+        <td style="padding: 5px; font-weight: 700; color: #2563eb;">${d.mainVisit}</td>
+        <td style="padding: 5px; font-weight: 700; color: #7c3aed;">${d.mainMri}</td>
+        <td style="padding: 5px 6px; border-right: 1px solid #f1f5f9;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+            <span style="font-weight: 800; color: ${mainMriPct >= 90 ? '#16a34a' : '#d97706'}; font-size: 10.5px;">${mainMriPct}%</span>
+            <div style="width: 32px; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+              <div style="width: ${mainMriPct}%; height: 100%; background: ${mainMriPct >= 90 ? '#16a34a' : '#f59e0b'};"></div>
+            </div>
+          </div>
+        </td>
+
+        <!-- Pole Meter -->
+        <td style="padding: 5px; font-weight: 700; color: #0284c7;">${d.poleVisit}</td>
+        <td style="padding: 5px; font-weight: 700; color: #7c3aed;">${d.poleMri}</td>
+        <td style="padding: 5px 6px; border-right: 1px solid #f1f5f9;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+            <span style="font-weight: 800; color: ${poleMriPct >= 90 ? '#16a34a' : '#d97706'}; font-size: 10.5px;">${poleMriPct}%</span>
+            <div style="width: 32px; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+              <div style="width: ${poleMriPct}%; height: 100%; background: ${poleMriPct >= 90 ? '#16a34a' : '#f59e0b'};"></div>
+            </div>
+          </div>
+        </td>
+
+        <!-- Billing -->
+        <td style="padding: 5px; font-weight: 700; color: #059669;">${d.billed}</td>
+        <td style="padding: 5px 6px; border-right: 1px solid #f1f5f9;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+            <span style="font-weight: 800; color: #059669; font-size: 10.5px;">${billPct}%</span>
+            <div style="width: 32px; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+              <div style="width: ${billPct}%; height: 100%; background: #059669;"></div>
+            </div>
+          </div>
+        </td>
+
+        <!-- Distribution -->
+        <td style="padding: 5px; font-weight: 700; color: #7c3aed;">${d.distDelivered}</td>
+        <td style="padding: 5px; font-weight: 700; color: #ea580c;">${d.distPending}</td>
+        <td style="padding: 5px 6px;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+            <span style="font-weight: 800; color: #7c3aed; font-size: 10.5px;">${distPct}%</span>
+            <div style="width: 32px; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+              <div style="width: ${distPct}%; height: 100%; background: #7c3aed;"></div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  // Circle Total Row
+  var gMainMriPct = grand.mainMri > 0 ? Math.round((grand.mainMriUp / grand.mainMri) * 100) : 0;
+  var gPoleMriPct = grand.poleMri > 0 ? Math.round((grand.poleMriUp / grand.poleMri) * 100) : 0;
+  var gBillPct = grand.total > 0 ? Math.round((grand.billed / grand.total) * 100) : 0;
+  var gDistPct = grand.distTotal > 0 ? Math.round((grand.distDelivered / grand.distTotal) * 100) : 0;
+
+  html += `
+    <tr style="background: #eff6ff; border-top: 2px solid #3b82f6; font-weight: 900; font-size: 11px;">
+      <td style="padding: 6px 8px; text-align: left; color: #1e3a8a; border-right: 1px solid #bfdbfe;">TOTAL EDC CIRCLE</td>
+      <td style="padding: 6px; color: #0f172a; border-right: 1px solid #bfdbfe;">${grand.total}</td>
+      
+      <!-- Main Total -->
+      <td style="padding: 6px; color: #2563eb;">${grand.mainVisit}</td>
+      <td style="padding: 6px; color: #7c3aed;">${grand.mainMri}</td>
+      <td style="padding: 6px; color: #16a34a; border-right: 1px solid #bfdbfe;">${gMainMriPct}%</td>
+
+      <!-- Pole Total -->
+      <td style="padding: 6px; color: #0284c7;">${grand.poleVisit}</td>
+      <td style="padding: 6px; color: #7c3aed;">${grand.poleMri}</td>
+      <td style="padding: 6px; color: #16a34a; border-right: 1px solid #bfdbfe;">${gPoleMriPct}%</td>
+
+      <!-- Billing Total -->
+      <td style="padding: 6px; color: #059669;">${grand.billed}</td>
+      <td style="padding: 6px; color: #059669; border-right: 1px solid #bfdbfe;">${gBillPct}%</td>
+
+      <!-- Distribution Total -->
+      <td style="padding: 6px; color: #7c3aed;">${grand.distDelivered}</td>
+      <td style="padding: 6px; color: #ea580c;">${grand.distPending}</td>
+      <td style="padding: 6px; color: #7c3aed;">${gDistPct}%</td>
+    </tr>
+  `;
+
+  tbody.innerHTML = html;
+
+  // Signal Badges Update
+  var sMriNotUp = document.getElementById('signal-mri-not-upload');
+  var sSurveyMis = document.getElementById('signal-survey-missing');
+  var sMisCount = document.getElementById('signal-mismatch-count');
+
+  if (sMriNotUp) sMriNotUp.innerText = document.getElementById('val-main-mri-not-upload') ? document.getElementById('val-main-mri-not-upload').innerText : "0";
+  if (sSurveyMis) sSurveyMis.innerText = document.getElementById('val-survey-not-found') ? document.getElementById('val-survey-not-found').innerText : "0";
+  if (sMisCount) sMisCount.innerText = document.getElementById('val-main-billed-vs-fv-no-mismatch') ? document.getElementById('val-main-billed-vs-fv-no-mismatch').innerText : "0";
+}
       // 🟢 MISMASH FORM MODAL LOGIC
       var activeMismatchRowsList = [];
       var activeMismatchType = "";
@@ -8207,13 +8926,15 @@
             var isHighlighted = (isAccountCol || isMeterCol);
             var clickAttrs = ' ondblclick="copyTextToClipboard(\'' + val + '\', \'' + h + '\')" title="Double-click to copy"';
             
+            var safeDisplayVal = escapeHtml(val);
+
             if (isAccountCol && val && val !== "-") {
-              bHtml += '<td class="copyable-cell" title="Click to View 360° Profile (Double-click to copy)" onclick="openConsumer360ByAccount(\'' + val + '\')" ondblclick="event.stopPropagation(); copyTextToClipboard(\'' + val + '\', \'Account\')">' +
-                '<span style="color:#1a73e8; font-weight:800; text-decoration:underline;">' + val + '</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:8.5px; opacity:0.6; margin-left:3px;"></i></td>';
+              bHtml += '<td class="copyable-cell" title="Click to View 360° Profile (Double-click to copy)" onclick="openConsumer360ByAccount(\'' + escapeHtml(val) + '\')" ondblclick="event.stopPropagation(); copyTextToClipboard(\'' + escapeHtml(val) + '\', \'Account\')">' +
+                '<span style="color:#1a73e8; font-weight:800; text-decoration:underline;">' + safeDisplayVal + '</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:8.5px; opacity:0.6; margin-left:3px;"></i></td>';
             } else if (isHighlighted && val && val !== "-") {
-              bHtml += '<td class="copyable-cell"' + clickAttrs + ' onclick="copyTextToClipboard(\'' + val + '\', \'Meter\')">' + val + ' <i class="fa-regular fa-copy" style="font-size:9.5px; opacity:0.4; margin-left:3px;"></i></td>';
+              bHtml += '<td class="copyable-cell"' + clickAttrs + ' onclick="copyTextToClipboard(\'' + escapeHtml(val) + '\', \'Meter\')">' + safeDisplayVal + ' <i class="fa-regular fa-copy" style="font-size:9.5px; opacity:0.4; margin-left:3px;"></i></td>';
             } else {
-              bHtml += '<td' + clickAttrs + '>' + (val || "-") + '</td>';
+              bHtml += '<td' + clickAttrs + '>' + (safeDisplayVal || "-") + '</td>';
             }
           });
           bHtml += '</tr>';
@@ -8247,16 +8968,8 @@
           for (var idx = 0; idx < activeSlice.length; idx++) {
             rowsBuffer[idx] = buildRowHtml(activeSlice[idx], startIdx + idx);
           }
-          // 🟢 DocumentFragment का उपयोग करें (DOM में एक ही बार में सब कुछ डालें)
-var fragment = document.createDocumentFragment();
-var tempDiv = document.createElement('tbody');
-tempDiv.innerHTML = rowsBuffer.join('');
-
-while(tempDiv.firstChild) {
-    fragment.appendChild(tempDiv.firstChild);
-}
-tBody.innerHTML = '';
-tBody.appendChild(fragment);
+          // 🟢 DocumentFragment Optimized Insertion
+          tBody.innerHTML = rowsBuffer.join('');
         }
 
         // Update Pagination Controls Info
@@ -8268,8 +8981,10 @@ tBody.appendChild(fragment);
         document.getElementById('btn-page-next').disabled = (currentPageNumber >= totalPages);
         document.getElementById('btn-page-last').disabled = (currentPageNumber >= totalPages);
 
-        document.removeEventListener('click', closeAllHeaderPopups);
-        document.addEventListener('click', closeAllHeaderPopups);
+        if (!window._headerPopupListenerAttached) {
+          document.addEventListener('click', closeAllHeaderPopups);
+          window._headerPopupListenerAttached = true;
+        }
       }
 
       // 🟢 INTERACTIVE KPI FILTER FUNCTION
@@ -10684,83 +11399,15 @@ tBody.appendChild(fragment);
         }
 
         function formatDivisionProperName(rawDivName) {
-        var s = String(rawDivName || "").trim().toUpperCase();
-        if (s.includes("EDD-III") || s.includes("EDD III") || s.includes("EDD_III")) return "EDD-III Mainpuri";
-        if (s.includes("EDD-II") || s.includes("EDD II") || s.includes("EDD_II")) return "EDD-II Mainpuri";
-        if (s.includes("EDD-I") || s.includes("EDD I") || s.includes("EDD_I")) return "EDD-I Mainpuri";
-        if (s.includes("EDC")) return "EDC Mainpuri";
-        return s;
-      }
-
-      // 🟢 Professional Official Glossary Dictionary for Department Use
-      var deptProfessionalGlossary = {
-        "VISIT LAST MONTH": "Mr Name",
-        "MR NAME": "Mr Name",
-        "MR MOBILE NO.": "Mr Mobile No.",
-        "MASTER MOBILE NUMBER": "Master Mobile Number",
-        "LAST MONTH FINAL MM NO.": "Site Meter No. (Main)",
-        "LAST MONTH FINAL MM MAKE": "Site Meter Make (Main)",
-        "LAST MONTH FINAL PM NO.": "Site Meter No. (Pole)",
-        "LAST MONTH FINAL PM MAKE": "Site Meter Make (Pole)",
-        "FINAL VISITED MAIN METER NUMBER": "Site Meter No. (Main)",
-        "FINAL VISITED MAIN METER MAKE": "Site Meter Make (Main)",
-        "FINAL VISITED POLE METER NO.": "Site Meter No. (Pole)",
-        "FINAL VISITED POLE METER MAKE": "Site Meter Make (Pole)",
-        "POLE METER MF (SAI PORTAL)": "Pole Meter Mf",
-        "POLE METER MF": "Pole Meter Mf",
-        "FINAL_MAIN_METER_SITE_REMARK": "Site Status (Main Meter)",
-        "FINAL_POLE_METER_SITE_REMARK": "Site Status (Pole Meter)",
-        "SITE REMARK": "Site Status (Main Meter)",
-        "SITE REMARK (POLE)": "Site Status (Pole Meter)",
-        "EXCEPTION TYPE (MAIN METER)": "Exception Type (Main Meter)",
-        "EXCEPTION TYPE (POLE METER)": "Exception Type (Pole Meter)",
-        "IS MRI AVAILABLE (MAIN METER)": "Is MRI Available (Main)",
-        "IS MRI AVAILABLE (POLE METER)": "Is MRI Available (Pole)",
-        "IS LOAD SURVAY AVAILBLE (MAIN MTR)": "Load Survey (Main)",
-        "IS LOAD SURVAY AVAILBLE (POLE MTR)": "Load Survey (Pole)",
-        "BILLED METER NUMBER": "Billed Meter Number",
-        "MASTER METER NUMBER": "Master Meter Number",
-        "MASTER METER MAKE": "Master Meter Make",
-        "CONSUMER CATOGARY": "Consumer Catogary",
-        "MASTER-SUBSTATION NAME": "Master-Substation Name",
-        "MASTER-FEEDER-NAME": "Master-Feeder-Name",
-        "LOAD GROUP (5-10-50)": "Load Catogery",
-        "LOAD GROUP": "Load Catogery",
-        "BILLING STATUS": "Billing Status",
-        "BILL_BASE": "Bill Base",
-        "BILLBASE": "Bill Base",
-        "FINAL VISIT DATE": "Visit Date",
-        "VISIT DATE": "Visit Date"
-      };
-
-      function sanitizeDeptHeader(headerText, isDeptReport) {
-        if (!headerText) return "";
-        // 🟢 केवल Department रिपोर्ट होने पर ही नाम बदलें, बाकी Office Use में शीट का ओरिजिनल नाम रखें
-        if (!isDeptReport) return headerText;
-
-        var cleanKey = String(headerText).trim().toUpperCase();
-
-        if (typeof deptProfessionalGlossary !== "undefined" && deptProfessionalGlossary[cleanKey]) {
-          return deptProfessionalGlossary[cleanKey];
+          var s = String(rawDivName || "").trim().toUpperCase();
+          if (s.includes("EDD-III") || s.includes("EDD III") || s.includes("EDD_III") || s.includes("EDD3")) return "EDD-III Mainpuri";
+          if (s.includes("EDD-II") || s.includes("EDD II") || s.includes("EDD_II") || s.includes("EDD2")) return "EDD-II Mainpuri";
+          if (s.includes("EDD-I") || s.includes("EDD I") || s.includes("EDD_I") || s.includes("EDD1")) return "EDD-I Mainpuri";
+          if (s.includes("EDC")) return "EDC Mainpuri";
+          return s ? s.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); }) : "EDC Mainpuri";
         }
 
-        var targetClean = cleanKey.replace(/[^A-Z0-9]/gi, '');
-        if (targetClean === "LASTMONTHFINALMMNO" || targetClean === "FINALVISITEDMAINMETERNUMBER" || targetClean === "SITEMETERNOMAIN") return "Site Meter No. (Main)";
-        if (targetClean === "LASTMONTHFINALMMMAKE" || targetClean === "FINALVISITEDMAINMETERMAKE" || targetClean === "SITEMETERMAKEMAIN") return "Site Meter Make (Main)";
-        if (targetClean === "LASTMONTHFINALPMNO" || targetClean === "FINALVISITEDPOLEMETERNO" || targetClean === "SITEMETERNOPOLE") return "Site Meter No. (Pole)";
-        if (targetClean === "LASTMONTHFINALPMMAKE" || targetClean === "FINALVISITEDPOLEMETERMAKE" || targetClean === "SITEMETERMAKEPOLE") return "Site Meter Make (Pole)";
-        if (targetClean === "POLEMETERMFSAIPORTAL" || targetClean === "POLEMETERMF") return "Pole Meter Mf";
-        if (targetClean === "FINALMAINMETERSITEREMARK" || targetClean === "SITESTATUSMAINMETER") return "Site Status (Main Meter)";
-        if (targetClean === "FINALPOLEMETERSITEREMARK" || targetClean === "SITESTATUSPOLEMETER") return "Site Status (Pole Meter)";
-        if (targetClean === "LOADGROUP51050" || targetClean === "LOADCATOGERY" || targetClean === "LOADCATEGORY") return "Load Catogery";
-        if (targetClean === "BILLINGSTATUS" || targetClean === "FINALBILLINGTAG") return "Billing Status";
-        if (targetClean === "BILLBASE" || targetClean === "BILLBASIS") return "Bill Base";
-        if (targetClean === "FINALVISITDATE" || targetClean === "VISITDATE") return "Visit Date";
-
-        var str = String(headerText);
-        str = str.replace(/[_]/g, ' ').replace(/\s+/g, ' ').trim();
-        return str.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
-      }
+      // Duplicate glossary definition cleaned up. Using single unified definition.
 
         function createBlankBucket() {
           return {
@@ -12270,7 +12917,12 @@ tBody.appendChild(fragment);
         // 🟢 लोकल मेमोरी से डायरेक्ट फ़िल्टर चलाएँ (बिना दोबारा नेटवर्क कॉल किए)
         processClientFilterQuery();
       }
-      // 🟢 DIRECT 1-CLICK EXACT GOOGLE SHEET CLONE EXCEL DOWNLOAD ENGINE
+      // 🟢 SCREEN PREVIEW FIRST + DIRECT CLONE EXCEL DOWNLOAD ENGINE
+      function showIndependentConsumersReport(rpt, element, borderCol) {
+        selectReport(rpt, element, borderCol);
+        downloadIndependentConsumersDirectExcel(rpt, element, borderCol);
+      }
+
       function downloadIndependentConsumersDirectExcel(rpt, element, borderCol) {
         var statusToast = document.getElementById("global-copy-toast");
         if (!statusToast) {
@@ -12459,7 +13111,7 @@ tBody.appendChild(fragment);
         var displayCols = ["Sr.No.", "Duplicate Meter No.", "Total Conflicts", "Division", "Account No", "Consumer Name", "Found In Meter Column", "Conflict Status"];
         renderClientTable(displayCols);
       }
-      function triggerMonthlyRolloverProcess(event) {
+      async function triggerMonthlyRolloverProcess(event) {
   if (event) event.stopPropagation();
   if (typeof document.getElementById('mainSidebar').classList.remove === 'function') {
     document.getElementById('mainSidebar').classList.remove('open');
@@ -12471,33 +13123,131 @@ tBody.appendChild(fragment);
     return;
   }
 
+  // Live modal terminal toast box
   var toast = document.getElementById("global-copy-toast");
   if (!toast) {
     toast = document.createElement("div");
     toast.id = "global-copy-toast";
     document.body.appendChild(toast);
   }
-  toast.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right:6px; color:#f1c40f;"></i> Monthly Rollover & Sheet Cleanup chal raha hai... Kripya wait karein.';
-  toast.style.display = "block";
 
-  fetch(APPS_SCRIPT_WEBAPP_URL + "?action=executeMonthlyRollover")
-    .then(function(res) { return res.json(); })
-    .then(function(res) {
-      if (res && res.success) {
-        toast.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#2ecc71; margin-right:6px;"></i> ' + res.message;
-        setTimeout(function() {
-          toast.style.display = "none";
-          loadCoreDatabasePacket(true);
-        }, 3000);
-      } else {
-        toast.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#e74c3c; margin-right:6px;"></i> Error: ' + (res ? res.error : "Unknown Error");
-        setTimeout(function() { toast.style.display = "none"; }, 5000);
-      }
-    })
-    .catch(function(err) {
-      toast.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#e74c3c; margin-right:6px;"></i> Network Error: ' + err.message;
-      setTimeout(function() { toast.style.display = "none"; }, 5000);
+  toast.style.display = "block";
+  toast.style.width = "90%";
+  toast.style.maxWidth = "520px";
+  toast.style.textAlign = "left";
+  toast.style.padding = "14px";
+  toast.style.borderRadius = "10px";
+  toast.style.background = "#0f172a";
+  toast.style.border = "1.5px solid #334155";
+  toast.style.color = "#f8fafc";
+  toast.style.boxShadow = "0 20px 40px rgba(0,0,0,0.6)";
+
+  toast.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid #334155; padding-bottom:6px;">
+      <span style="font-weight:800; font-size:12px; color:#38bdf8;">
+        <i class="fa-solid fa-arrows-rotate fa-spin me-1"></i> Monthly Cycle Rollover Execution
+      </span>
+      <span id="rollover-pct" style="font-weight:800; font-size:11px; color:#4ade80;">0%</span>
+    </div>
+    <div style="width:100%; height:7px; background:#1e293b; border-radius:4px; overflow:hidden; margin-bottom:10px;">
+      <div id="rollover-pbar" style="width:0%; height:100%; background:linear-gradient(90deg, #38bdf8, #22c55e); transition:width 0.3s;"></div>
+    </div>
+    <div id="rollover-live-terminal" style="font-family:monospace; font-size:11px; max-height:160px; overflow-y:auto; line-height:1.45; color:#cbd5e1;">
+      <div style="color:#94a3b8;">[System] Rollover process initialized. Calling backend engine...</div>
+    </div>
+  `;
+
+  var terminal = document.getElementById("rollover-live-terminal");
+  var pbar = document.getElementById("rollover-pbar");
+  var pct = document.getElementById("rollover-pct");
+
+  function logTerminal(msg, color, percent) {
+    if (terminal) {
+      var div = document.createElement("div");
+      div.style.color = color || "#cbd5e1";
+      div.innerHTML = msg;
+      terminal.appendChild(div);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+    if (percent !== undefined) {
+      if (pbar) pbar.style.width = percent + "%";
+      if (pct) pct.innerText = percent + "%";
+    }
+  }
+
+  var sheetsList = [
+    "BILLED_LIST_UPLOAD",
+    "XML & Reads Sheet Upload",
+    "Load Survay Sheet Upload",
+    "Infinite_Rejection_List_Upload",
+    "Isspl VisiT-Upload (Main_Mtr)",
+    "Isspl VisiT-Upload (Pole_Mtr)",
+    "BILL DIST. _UPLOAD",
+    "Bill PDF LINK SHEET UPLOAD",
+    "RDG Sheet Upload"
+  ];
+
+  try {
+    // Step 1: VisiT_Data Data Shift & Cleaning
+    logTerminal("➔ <b>Step 1/10:</b> VisiT_Data me purana data shift aur field remark clean ho rahe hain...", "#38bdf8", 10);
+
+    var resStep1 = await new Promise(function(resolve, reject) {
+      fetch(APPS_SCRIPT_WEBAPP_URL + "?action=executeRolloverStep1")
+        .then(function(r) { return r.text(); })
+        .then(function(rawText) {
+          try {
+            var parsed = JSON.parse(rawText);
+            if (parsed && parsed.success) {
+              resolve(parsed);
+            } else {
+              reject(new Error(parsed ? parsed.error : "Server returned false: " + rawText));
+            }
+          } catch(jsonErr) {
+            reject(new Error("Server Response Error: " + rawText));
+          }
+        })
+        .catch(function(err) {
+          reject(new Error("Network Call Error: " + err.message));
+        });
     });
+
+    logTerminal(`✔ VisiT_Data updated: ${resStep1.rowsShifted} rows shifted & reset successfully.`, "#4ade80", 25);
+
+    // Step 2: Clear each upload sheet one by one
+    for (var i = 0; i < sheetsList.length; i++) {
+      var sName = sheetsList[i];
+      var stepNum = i + 2;
+      var curPercent = 25 + Math.round(((i + 1) / sheetsList.length) * 70);
+
+      logTerminal(`➔ <b>Step ${stepNum}/10:</b> Sheet [<b>${sName}</b>] data clear ho raha hai...`, "#93c5fd", curPercent);
+
+      var clearRes = await new Promise(function(resolve, reject) {
+        fetch(APPS_SCRIPT_WEBAPP_URL + "?action=clearSingleUploadSheet&sheet=" + encodeURIComponent(sName))
+          .then(function(r) { return r.json(); })
+          .then(resolve)
+          .catch(reject);
+      });
+
+      if (clearRes && clearRes.success) {
+        logTerminal(`✔ [${sName}] cleared (${clearRes.rowsCleared || 0} rows removed).`, "#4ade80", curPercent);
+      } else {
+        logTerminal(`⚠ [${sName}] skip hui ya khali thi: ${clearRes ? clearRes.error : ''}`, "#fbbf24", curPercent);
+      }
+    }
+
+    logTerminal("🎉 <b>[Success]</b> Monthly Cycle Rollover Safely Completed!", "#22c55e", 100);
+
+    setTimeout(function() {
+      toast.style.display = "none";
+      loadCoreDatabasePacket(true);
+    }, 3500);
+
+  } catch (err) {
+    logTerminal(`❌ <b>Error:</b> ${err.message || err}`, "#ef4444");
+    setTimeout(function() {
+      toast.style.display = "none";
+    }, 6000);
+  }
 }
 
 
@@ -12615,7 +13365,7 @@ function downloadCustomBulkTemplateExcel() {
   XLSX.writeFile(wb, "Bulk_Column_Update_Template.xlsx");
 }
 
-function executeCustomBulkUpdate() {
+async function executeCustomBulkUpdate() {
   var fileInput = document.getElementById('customBulkFileInput');
   var statusBox = document.getElementById('custom-bulk-status-box');
   var btn = document.getElementById('btn-run-custom-bulk');
@@ -12629,10 +13379,10 @@ function executeCustomBulkUpdate() {
   var reader = new FileReader();
 
   statusBox.style.color = "#2563eb";
-  statusBox.innerText = "फ़ाइल पढ़ी जा रही है...";
+  statusBox.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> फ़ाइल पढ़ी जा रही है...';
   btn.disabled = true;
 
-  reader.onload = function(e) {
+  reader.onload = async function(e) {
     try {
       var data = new Uint8Array(e.target.result);
       var workbook = XLSX.read(data, { type: 'array' });
@@ -12646,7 +13396,6 @@ function executeCustomBulkUpdate() {
         return;
       }
 
-      // 'ACCOUNT NO' कॉलम पहचानें
       var accKey = Object.keys(jsonData[0]).find(function(k) {
         var clean = k.toString().toUpperCase().replace(/[^A-Z0-9]/g, "");
         return clean === "ACCOUNTNO" || clean === "ACCOUNTID" || clean === "ACCTID";
@@ -12665,7 +13414,6 @@ function executeCustomBulkUpdate() {
         var rawAcc = String(row[accKey] || "").trim();
         if (!rawAcc) return;
 
-        // 10 डिजिट 0-पैडिंग इंजन
         var cleanAcc = rawAcc.replace(/_P$/i, '').replace(/\.0$/, '');
         var digitsOnly = cleanAcc.replace(/[^0-9]/g, '');
         var paddedAcc = digitsOnly.length > 0 ? ("0000000000" + digitsOnly).slice(-10) : cleanAcc;
@@ -12682,53 +13430,80 @@ function executeCustomBulkUpdate() {
         });
       });
 
-      statusBox.innerText = payloadUpdates.length + " रिकॉर्ड्स Google Sheet में सुरक्षित रूप से अपडेट हो रहे हैं...";
+      var totalRows = payloadUpdates.length;
+      var batchSize = 10; // 🟢 आपकी आवश्यकता अनुसार ठीक 10-10 का पैकेट
+      var totalBatches = Math.ceil(totalRows / batchSize);
+      var totalUpdated = 0;
+      var totalNotFound = 0;
+      var allAuditLogs = [];
 
-      var handleBulkSuccess = function(res) {
-        btn.disabled = false;
-        if (res && res.success) {
-          statusBox.style.color = "#10b981";
-          statusBox.innerHTML = "✅ सफलतापूर्वक <b>" + (res.updatedCount || payloadUpdates.length) + "</b> रो अपडेट हो गईं! (Not Found: " + (res.notFoundCount || 0) + ")";
-          if (res.logs && res.logs.length > 0) {
-            downloadUpdateAuditLogExcel(res.logs);
+      var b2 = document.getElementById('step-bubble-2');
+      var b3 = document.getElementById('step-bubble-3');
+      if (b2) { b2.className = 'step-bubble done-step'; b2.innerHTML = '✓'; }
+      if (b3) { b3.className = 'step-bubble active-step'; }
+
+      for (var b = 0; b < totalBatches; b++) {
+        var start = b * batchSize;
+        var end = Math.min(start + batchSize, totalRows);
+        var currentChunk = payloadUpdates.slice(start, end);
+        var currentPercent = Math.round((end / totalRows) * 100);
+
+        // 🟢 लाइव प्रोग्रेस बार UI
+        statusBox.innerHTML = `
+          <div style="margin-bottom: 4px; font-weight: bold; color: #1e40af;">
+            <i class="fa-solid fa-cloud-arrow-up fa-fade me-1"></i> अपलोडिंग: ${end} / ${totalRows} रिकॉर्ड्स (${currentPercent}%)
+          </div>
+          <div style="width: 100%; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin: 0 auto;">
+            <div style="width: ${currentPercent}%; height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 0.15s ease;"></div>
+          </div>
+        `;
+
+        var chunkRes = await new Promise(function(resolve, reject) {
+          if (window.google && google.script && google.script.run && typeof google.script.run.processAdvancedBulkColumnUpdate === "function") {
+            google.script.run
+              .withSuccessHandler(resolve)
+              .withFailureHandler(reject)
+              .processAdvancedBulkColumnUpdate({ targetSheetName: "VisiT_Data", updates: currentChunk });
+          } else {
+            fetch(APPS_SCRIPT_WEBAPP_URL, {
+              method: "POST",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify({
+                action: "bulkUpdateColumns",
+                targetSheetName: "VisiT_Data",
+                updates: currentChunk
+              })
+            })
+            .then(function(res) { return res.json(); })
+            .then(resolve)
+            .catch(reject);
           }
-          calculateAnalyticsKPICards();
-          if (typeof processClientFilterQuery === "function") processClientFilterQuery();
+        });
+
+        if (chunkRes && chunkRes.success) {
+          totalUpdated += (chunkRes.updatedCount || 0);
+          totalNotFound += (chunkRes.notFoundCount || 0);
+          if (chunkRes.logs) allAuditLogs = allAuditLogs.concat(chunkRes.logs);
         } else {
-          statusBox.style.color = "#ef4444";
-          statusBox.innerText = "त्रुटि: " + (res ? res.error : "Update Failed");
+          throw new Error(chunkRes ? chunkRes.error : "बैच " + (b + 1) + " पर टाइमआउट या नेटवर्क फेलियर");
         }
-      };
-
-      var handleBulkError = function(err) {
-        btn.disabled = false;
-        statusBox.style.color = "#ef4444";
-        statusBox.innerText = "सर्वर एरर: " + (err.message || err);
-      };
-
-      if (window.google && google.script && google.script.run && typeof google.script.run.processAdvancedBulkColumnUpdate === "function") {
-        google.script.run
-          .withSuccessHandler(handleBulkSuccess)
-          .withFailureHandler(handleBulkError)
-          .processAdvancedBulkColumnUpdate({ targetSheetName: "VisiT_Data", updates: payloadUpdates });
-      } else {
-        fetch(APPS_SCRIPT_WEBAPP_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({
-            action: "bulkUpdateColumns",
-            targetSheetName: "VisiT_Data",
-            updates: payloadUpdates
-          })
-        })
-        .then(function(res) { return res.json(); })
-        .then(handleBulkSuccess)
-        .catch(handleBulkError);
       }
+
+      btn.disabled = false;
+      statusBox.style.color = "#10b981";
+      statusBox.innerHTML = `✅ सफलता! कुल <b>${totalUpdated}</b> सेल्स सफलतापूर्वक अपडेट हो गईं! (Not Found: ${totalNotFound})`;
+
+      if (allAuditLogs.length > 0) {
+        downloadUpdateAuditLogExcel(allAuditLogs);
+      }
+
+      if (typeof calculateAnalyticsKPICards === "function") calculateAnalyticsKPICards();
+      if (typeof processClientFilterQuery === "function") processClientFilterQuery();
+
     } catch (err) {
       btn.disabled = false;
       statusBox.style.color = "#ef4444";
-      statusBox.innerText = "Excel Parsing Error: " + err.message;
+      statusBox.innerText = "अपडेट एरर: " + (err.message || err);
     }
   };
 
@@ -12881,14 +13656,21 @@ function clearAllGlobalFilters() {
   renderActiveFilterChips();
 }
 
-// Ensure chips render and KPI cards update after filtering
+// Ensure chips render, KPI cards & Rejection After MRI sub-tab update immediately on every filter change
 var origProcessFilterQuery = processClientFilterQuery;
 processClientFilterQuery = function() {
   origProcessFilterQuery.apply(this, arguments);
-  renderActiveFilterChips();
+  if (typeof renderActiveFilterChips === "function") renderActiveFilterChips();
+  
   var analyticsZone = document.getElementById('analytics-view-zone');
   if (analyticsZone && analyticsZone.style.display !== 'none') {
-    calculateAnalyticsKPICards();
+    if (typeof calculateAnalyticsKPICards === "function") calculateAnalyticsKPICards();
+    
+    // 🟢 अगर 'Rejection After MRI' टैब खुला है तो उसे भी तुरंत लाइव री-रेंडर करें
+    var tabMriRej = document.getElementById('analytics-tab-mri-rejection');
+    if (tabMriRej && tabMriRej.style.display !== 'none') {
+      renderRejectionAfterMriTable();
+    }
   }
 };
 
@@ -12920,43 +13702,18 @@ function updateKPIMiniProgressBars() {
 // ==========================================
 // 🟢 4. STEPPER & AUDIT PREVIEW IN BULK MODAL
 // ==========================================
-var origDownloadTemplate = downloadCustomBulkTemplateExcel;
-downloadCustomBulkTemplateExcel = function() {
-  origDownloadTemplate.apply(this, arguments);
+function updateCustomBulkStepperUI(step) {
   var b1 = document.getElementById('step-bubble-1');
   var b2 = document.getElementById('step-bubble-2');
-  if (b1) { b1.className = 'step-bubble done-step'; b1.innerHTML = '✓'; }
-  if (b2) { b2.className = 'step-bubble active-step'; }
-};
-
-var origExecuteCustomBulkUpdate = executeCustomBulkUpdate;
-executeCustomBulkUpdate = function() {
-  var b2 = document.getElementById('step-bubble-2');
   var b3 = document.getElementById('step-bubble-3');
-  if (b2) { b2.className = 'step-bubble done-step'; b2.innerHTML = '✓'; }
-  if (b3) { b3.className = 'step-bubble active-step'; }
-  origExecuteCustomBulkUpdate.apply(this, arguments);
-};
-
-// Hook into Audit Log download to render Quick Preview inside modal
-var origDownloadAuditLog = downloadUpdateAuditLogExcel;
-downloadUpdateAuditLogExcel = function(logs) {
-  origDownloadAuditLog(logs);
-
-  var previewBox = document.getElementById('bulk-audit-preview-box');
-  var itemsBox = document.getElementById('bulk-audit-log-items');
-  if (previewBox && itemsBox && logs && logs.length > 0) {
-    previewBox.style.display = 'block';
-    itemsBox.innerHTML = '';
-    logs.slice(0, 5).forEach(function(l) {
-      var itemDiv = document.createElement('div');
-      itemDiv.style = 'margin-bottom: 3px; line-height: 1.3;';
-      var statusColor = l.status === 'SUCCESS' ? '#4ade80' : l.status === 'NOT_FOUND' ? '#f87171' : '#fbbf24';
-      itemDiv.innerHTML = '<span style="color:' + statusColor + '">[' + l.status + ']</span> Account: <b>' + l.accountNo + '</b> ➔ ' + l.remarks;
-      itemsBox.appendChild(itemDiv);
-    });
+  if (step === 2) {
+    if (b1) { b1.className = 'step-bubble done-step'; b1.innerHTML = '✓'; }
+    if (b2) { b2.className = 'step-bubble active-step'; }
+  } else if (step === 3) {
+    if (b2) { b2.className = 'step-bubble done-step'; b2.innerHTML = '✓'; }
+    if (b3) { b3.className = 'step-bubble active-step'; }
   }
-};
+}
 // ==========================================
 // 🟢 NEW CONSUMERS ADD IN MASTER ENGINE
 // ==========================================
@@ -13143,6 +13900,563 @@ function handleTableSortColumn(colKey) {
   currentPageNumber = 1;
   renderClientTable(activeTableHeadersList);
 }
+var cachedMriRejectionRows = [];
+
+function switchAnalyticsSubTab(targetTab) {
+  var tabScorecard = document.getElementById('analytics-tab-scorecard');
+  var tabCards = document.getElementById('analytics-tab-cards');
+  var tabMriRej = document.getElementById('analytics-tab-mri-rejection');
+  
+  var btnScorecard = document.getElementById('btn-tab-scorecard');
+  var btnCards = document.getElementById('btn-tab-cards');
+  var btnMriRej = document.getElementById('btn-tab-mri-rejection');
+
+  if (!tabScorecard || !tabCards || !tabMriRej) return;
+
+  // Reset Tab Displays
+  tabScorecard.style.display = 'none';
+  tabCards.style.display = 'none';
+  tabMriRej.style.display = 'none';
+
+  // Reset Button States
+  if (btnScorecard) btnScorecard.classList.remove('active-view-tab');
+  if (btnCards) btnCards.classList.remove('active-view-tab');
+  if (btnMriRej) btnMriRej.classList.remove('active-view-tab');
+
+  if (targetTab === 'scorecard') {
+    tabScorecard.style.display = 'block';
+    if (btnScorecard) btnScorecard.classList.add('active-view-tab');
+  } else if (targetTab === 'cards') {
+    tabCards.style.display = 'block';
+    if (btnCards) btnCards.classList.add('active-view-tab');
+  } else if (targetTab === 'mri-rejection') {
+    tabMriRej.style.display = 'block';
+    if (btnMriRej) btnMriRej.classList.add('active-view-tab');
+    renderRejectionAfterMriTable();
+  }
+}
+
+// 🟢 Rejection After MRI Filter & Logic Engine (MR Mobile No Fixed, Proper Case & Dynamic Live Sync)
+function computeRejectionAfterMriData() {
+  if (!cachedDatabase || cachedDatabase.length === 0) return [];
+
+  var results = [];
+  var countRtc = 0, countFailure = 0, countMismatchNo = 0, countMismatchMake = 0, countMismatchBoth = 0, countReadMissing = 0;
+
+  function cleanStr(v) {
+    if (v === undefined || v === null) return "";
+    var s = String(v).trim().toUpperCase();
+    if (s === "" || s === "NAN" || s === "NULL" || s === "BLANK" || s === "NONE" || s === "-") return "";
+    return s.replace(/[^A-Z0-9]/gi, "");
+  }
+
+  function isMriTrue(val) {
+    var s = String(val || "").trim().toUpperCase();
+    return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+  }
+
+  function toProper(str) {
+    if (!str || typeof str !== 'string') return (str !== undefined && str !== null) ? String(str) : "";
+    return str.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+  }
+
+  // 🟢 1. Active Global Filters Extraction
+  var searchInputEl = document.getElementById('live-search-input');
+  var searchQuery = searchInputEl ? String(searchInputEl.value || "").trim().toUpperCase() : "";
+
+  cachedDatabase.forEach(function(row) {
+    var u = row._uMap || row || {};
+
+    // 🟢 MANDATORY CONDITION: IS MRI AVAILABLE (MAIN METER) must be TRUE
+    var mriAvail = u["IS MRI AVAILABLE (MAIN METER)"] || u["IS_MRI_AVAILABLE_(MAIN_METER)"] || u["IS MRI AVAILABLE MAIN"] || "";
+    if (!isMriTrue(mriAvail)) {
+      return;
+    }
+
+    // Live Search Filter
+    if (searchQuery !== "" && row._searchBlob && !row._searchBlob.includes(searchQuery)) {
+      return;
+    }
+
+    // Division, Reader, Consumer Type & Load Group Dropdown Filters Check
+    var divVal = String(u["DIVISION"] || "").toUpperCase().trim();
+    var mrVal = String(u["VISIT LAST MONTH"] || u["MR NAME"] || "").toUpperCase().trim();
+    var typeVal = String(u["CONSUMER TYPE"] || "").toUpperCase().trim();
+    var grpVal = String(u["LOAD GROUP (5-10-50)"] || u["LOAD GROUP"] || "").toUpperCase().replace(/\s+/g, '');
+
+    // 🟢 Dropdown Filter Strictly Applied
+    if (selectedDivisions && selectedDivisions.length > 0) {
+      var isDivMatched = selectedDivisions.some(function(d) {
+        var cleanD = d.replace(/[^A-Z0-9]/gi, "").toUpperCase();
+        var cleanRowDiv = divVal.replace(/[^A-Z0-9]/gi, "").toUpperCase();
+        return cleanRowDiv.includes(cleanD) || cleanD.includes(cleanRowDiv);
+      });
+      if (!isDivMatched) return;
+    }
+
+    if (selectedReaders && selectedReaders.length > 0) {
+      var isMrMatched = selectedReaders.some(function(r) {
+        return r.toUpperCase().trim() === mrVal;
+      });
+      if (!isMrMatched) return;
+    }
+
+    if (selectedTypes && selectedTypes.length > 0) {
+      var isTypeMatched = selectedTypes.some(function(t) {
+        return t.toUpperCase().trim() === typeVal;
+      });
+      if (!isTypeMatched) return;
+    }
+
+    if (selectedGroups && selectedGroups.length > 0) {
+      var isGrpMatched = selectedGroups.some(function(g) {
+        return grpVal.includes(g.replace(/\s+/g, '').toUpperCase());
+      });
+      if (!isGrpMatched) return;
+    }
+
+    var reasons = [];
+
+    // 1. Check RTC Defective
+    var siteRem = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || u["FINAL_STATUS"] || "").toUpperCase().trim();
+    if (siteRem.includes("RTC DEFECTIVE") || siteRem.includes("RTC_DEFECTIVE")) {
+      reasons.push("Meter RTC Defective");
+      countRtc++;
+    }
+
+    // 2. Check Reject By Infinite
+    var exportFailure = String(u["EXPORT FAILURE MESSAGE"] || u["EXPORT_FAILURE_MESSAGE"] || u["FAILURE_MESSAGE"] || u["REJECT BY INFINITE"] || u["INFINITE REJECTION"] || "").trim();
+    if (exportFailure !== "" && exportFailure !== "0" && exportFailure.toUpperCase() !== "NAN" && exportFailure.toUpperCase() !== "NULL") {
+      var failureReason = exportFailure.toUpperCase().includes("REJECT") ? toProper(exportFailure) : ("Reject By Infinite: " + toProper(exportFailure));
+      reasons.push(failureReason);
+      countFailure++;
+    }
+
+    // 3. Check Meter Number Mismatch
+    var fieldMtrNo = cleanStr(u["FIELD METER NUMBER"] || u["FIELD_METER_NUMBER"] || u["SITE METER NUMBER_APPSHEET"] || u["LAST MONTH FINAL MM NO."] || u["BILLED METER NUMBER"]);
+    var visitedMtrNo = cleanStr(u["FINAL VISITED MAIN METER NUMBER"] || u["FINAL_VISITED_MAIN_METER_NUMBER"] || u["SITE METER NO."]);
+    var isMismatchNo = (fieldMtrNo && visitedMtrNo && fieldMtrNo !== visitedMtrNo);
+
+    // 4. Check Meter Make Mismatch
+    var fieldMake = cleanStr(u["FIELD METER MAKE"] || u["FIELD_METER_MAKE"] || u["MASTER METER MAKE"] || u["LAST MONTH FINAL MM MAKE"]);
+    var visitedMake = cleanStr(u["FINAL VISITED MAIN METER MAKE"] || u["FINAL_VISITED_MAIN_METER_MAKE"] || u["SITE METER MAKE"]);
+    var isMismatchMake = (fieldMake && visitedMake && fieldMake !== visitedMake);
+
+    if (isMismatchNo && isMismatchMake) {
+      countMismatchBoth++;
+    }
+
+    if (isMismatchNo) {
+      reasons.push("Meter Number Mismatch (" + fieldMtrNo + " != " + visitedMtrNo + ")");
+      countMismatchNo++;
+    }
+
+    if (isMismatchMake) {
+      reasons.push("Meter Make Mismatch (" + fieldMake + " != " + visitedMake + ")");
+      countMismatchMake++;
+    }
+
+    // 5. 🟢 Clean Short Remark: "MRI Done But Reads Missing"
+    var rdgMap = window.cachedRdgMap || cachedRdgMap || {};
+    var meterToCheckRdg = visitedMtrNo || fieldMtrNo || cleanStr(u["LAST MONTH FINAL MM NO."]);
+
+    function checkInRdgSheet(mtr) {
+      if (!mtr) return true;
+      var noZeros = mtr.replace(/^0+/, "");
+      return !!(rdgMap[mtr] || (noZeros && rdgMap[noZeros]));
+    }
+
+    if (meterToCheckRdg && !checkInRdgSheet(meterToCheckRdg)) {
+      reasons.push("MRI Done But Reads Missing");
+      countReadMissing++;
+    }
+
+    if (reasons.length > 0) {
+      var combinedReason = Array.from(new Set(reasons)).join(" | ");
+      
+      // 🟢 MR Mobile No. Strictly fetched from Meter Reader Mobile column
+      var mrMobileVal = String(
+        u["MR MOBILE NO."] || 
+        u["MR MOBILE NO"] || 
+        u["MR MOBILE NUMBER"] || 
+        u["MR CONTACT NO."] || 
+        u["MR CONTACT NO"] || 
+        u["MR PHONE"] || 
+        u["MR_MOBILE_NO"] || 
+        "-"
+      ).trim();
+
+      // 🟢 Exact Sequence Keys Mapping in Proper Case
+      results.push({
+        rawRow: row,
+        division: divVal,
+        accountNo: String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").padStart(10, '0'),
+        consumerType: toProper(u["CONSUMER TYPE"] || "-"),
+        tariff: String(u["CONSUMER CATOGARY"] || u["CONSUMER CATEGORY"] || u["TARIFF"] || "-").trim(),
+        consumerName: toProper(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || ""),
+        address: toProper(u["ADDRESS"] || u["COMPLETE ADRESS"] || "-"),
+        load: String(u["LOAD IN KW"] || u["LOAD_KW"] || u["LOAD"] || "-").trim(),
+        billedMtr: String(u["BILLED METER NUMBER"] || u["MASTER METER NUMBER"] || "-").trim(),
+        fieldMtr: fieldMtrNo || "-",
+        fieldMake: fieldMake || "-",
+        visitedMtr: visitedMtrNo || "-",
+        visitedMake: visitedMake || "-",
+        failureMessage: combinedReason,
+        mrName: toProper(u["MR NAME"] || u["VISIT LAST MONTH"] || "-"),
+        mrMobile: mrMobileVal
+      });
+    }
+  });
+
+  // KPI Summary Numbers Live Update
+  var elRtc = document.getElementById("count-rej-rtc");
+  var elFail = document.getElementById("count-rej-failure");
+  var elNo = document.getElementById("count-rej-mismatch-no");
+  var elMake = document.getElementById("count-rej-mismatch-make");
+  var elBoth = document.getElementById("count-rej-mismatch-both");
+  var elReadMiss = document.getElementById("count-rej-read-missing");
+  var elSub = document.getElementById("mri-rejection-sub-count");
+
+  if (elRtc) elRtc.innerText = countRtc;
+  if (elFail) elFail.innerText = countFailure;
+  if (elNo) elNo.innerText = countMismatchNo;
+  if (elMake) elMake.innerText = countMismatchMake;
+  if (elBoth) elBoth.innerText = countMismatchBoth;
+  if (elReadMiss) elReadMiss.innerText = countReadMissing;
+  if (elSub) elSub.innerText = "Total Found: " + results.length;
+
+  cachedMriRejectionRows = results;
+  return results;
+}
+
+function renderRejectionAfterMriTable() {
+  var tbody = document.getElementById("mri-rejection-tbody");
+  if (!tbody) return;
+
+  var data = computeRejectionAfterMriData();
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="16" style="padding: 20px; font-weight: bold; color: #16a34a;">✓ No Rejections or Mismatches Found for the Selected Filter.</td></tr>';
+    return;
+  }
+
+  var html = "";
+  data.forEach(function(item, idx) {
+    html += `
+      <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'">
+        <td style="padding: 6px; font-weight: 700; color: #64748b;">${idx + 1}</td>
+        <td style="padding: 6px 8px; font-weight: 700; color: #1e293b;">${item.division}</td>
+        <td style="padding: 6px 8px; font-weight: 800; color: #1a73e8; cursor: pointer; text-decoration: underline;" onclick="openConsumer360ByAccount('${item.accountNo}')">${item.accountNo}</td>
+        <td style="padding: 6px 8px; font-weight: 600;">${item.consumerType}</td>
+        <td style="padding: 6px 8px; font-weight: 700; color: #0284c7;">${item.tariff}</td>
+        <td style="padding: 6px 8px; text-align: left; font-weight: 600; color: #334155;">${item.consumerName}</td>
+        <td style="padding: 6px 8px; text-align: left; font-size: 10.5px; color: #475569; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${item.address}">${item.address}</td>
+        <td style="padding: 6px 8px; font-weight: 700;">${item.load}</td>
+        <td style="padding: 6px 8px; font-family: monospace;">${item.billedMtr}</td>
+        <td style="padding: 6px 8px; font-family: monospace; font-weight: 700;">${item.fieldMtr}</td>
+        <td style="padding: 6px 8px;">${item.fieldMake}</td>
+        <td style="padding: 6px 8px; font-family: monospace; font-weight: 700; color: #2563eb;">${item.visitedMtr}</td>
+        <td style="padding: 6px 8px; color: #7c3aed; font-weight: 600;">${item.visitedMake}</td>
+        <td style="padding: 6px 10px; text-align: left; font-weight: 700; color: #dc2626; font-size: 10.5px;">${item.failureMessage}</td>
+        <td style="padding: 6px 8px; font-weight: 600;">${item.mrName}</td>
+        <td style="padding: 6px 8px; font-family: monospace; font-weight: bold;">${item.mrMobile}</td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+}
+
+// 🟢 Download Excel with Updated Title & Exact Sequence
+function downloadRejectionAfterMriExcel() {
+  var data = computeRejectionAfterMriData();
+  if (data.length === 0) {
+    alert("डाउनलोड करने के लिए कोई Rejection डेटा उपलब्ध नहीं है!");
+    return;
+  }
+
+  var headers = [
+    "Sr.",
+    "Division",
+    "Account No",
+    "Consumer Type",
+    "Tariff",
+    "Consumer Name",
+    "Address",
+    "Load",
+    "Billed Mtr",
+    "Field Mtr",
+    "Field Make",
+    "Visited Mtr",
+    "Visited Make",
+    "Failure Message / Rejection Reason",
+    "MR Name",
+    "MR Mobile"
+  ];
+
+  var excelRows = [headers];
+
+  data.forEach(function(item, idx) {
+    excelRows.push([
+      idx + 1,
+      item.division,
+      item.accountNo,
+      item.consumerType,
+      item.tariff,
+      item.consumerName,
+      item.address,
+      item.load,
+      item.billedMtr,
+      item.fieldMtr,
+      item.fieldMake,
+      item.visitedMtr,
+      item.visitedMake,
+      item.failureMessage,
+      item.mrName,
+      item.mrMobile
+    ]);
+  });
+
+  var ws = XLSX.utils.aoa_to_sheet(excelRows);
+  ws['!autofilter'] = { ref: ws['!ref'] };
+  ws['!views'] = [{ state: 'frozen', ySplit: 1, xSplit: 0, activeCell: 'A2' }];
+
+  ws['!cols'] = [
+    { wch: 6 },   // Sr.
+    { wch: 18 },  // Division
+    { wch: 15 },  // Account No
+    { wch: 16 },  // Consumer Type
+    { wch: 14 },  // Tariff
+    { wch: 28 },  // Consumer Name
+    { wch: 45 },  // Address
+    { wch: 10 },  // Load
+    { wch: 18 },  // Billed Mtr
+    { wch: 20 },  // Field Mtr
+    { wch: 16 },  // Field Make
+    { wch: 20 },  // Visited Mtr
+    { wch: 16 },  // Visited Make
+    { wch: 40 },  // Failure Message
+    { wch: 20 },  // MR Name
+    { wch: 18 }   // MR Mobile
+  ];
+
+  if (ws['!ref']) {
+    var range = XLSX.utils.decode_range(ws['!ref']);
+    for (var R = range.s.r; R <= range.e.r; ++R) {
+      for (var C = range.s.c; C <= range.e.c; ++C) {
+        var addr = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!ws[addr]) continue;
+
+        ws[addr].t = 's';
+        ws[addr].z = '@';
+
+        if (R === 0) {
+          ws[addr].s = {
+            fill: { fgColor: { rgb: C === 13 ? "991B1B" : "0F172A" } },
+            font: { name: "Segoe UI", sz: 9.5, bold: true, color: { rgb: "FFFFFF" } },
+            alignment: { horizontal: "center", vertical: "center", wrapText: true }
+          };
+        } else {
+          ws[addr].s = {
+            font: { name: "Segoe UI", sz: 8.5 },
+            alignment: { horizontal: (C === 5 || C === 6 || C === 13 ? "left" : "center"), vertical: "center" },
+            border: {
+              top: { style: "thin", color: { rgb: "E0E0E0" } },
+              bottom: { style: "thin", color: { rgb: "E0E0E0" } },
+              left: { style: "thin", color: { rgb: "E0E0E0" } },
+              right: { style: "thin", color: { rgb: "E0E0E0" } }
+            }
+          };
+        }
+      }
+    }
+  }
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Rejection_Report");
+  XLSX.writeFile(wb, "Rejection_After_MRI_And_Irregularities_Report_" + dateStr + ".xlsx");
+}
+
+// 🟢 Download Vector PDF with Dynamic Division Title, Proper Case & Centered Failure Message
+function downloadRejectionAfterMriPDF() {
+  var data = computeRejectionAfterMriData();
+  if (data.length === 0) {
+    alert("डाउनलोड करने के लिए कोई Rejection डेटा उपलब्ध नहीं है!");
+    return;
+  }
+
+  var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+  if (!jsPDFObj) {
+    alert("PDF लाइब्रेरी लोड नहीं हो सकी!");
+    return;
+  }
+
+  // A4 Landscape Dimensions: 841.89 pt x 595.28 pt
+  var doc = new jsPDFObj('l', 'pt', 'a4');
+  var marginX = 8;
+  var pageWidth = 841.89;
+  var tableWidth = pageWidth - (marginX * 2); // 825.89 pt
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  var timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  // 🟢 1. Dynamic Division Name Resolution based on active filters
+  function toProper(str) {
+    if (!str || typeof str !== 'string') return "";
+    return str.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+  }
+
+  var activeDivScope = "EDC Mainpuri";
+  if (selectedDivisions && selectedDivisions.length === 1) {
+    activeDivScope = toProper(selectedDivisions[0]);
+  } else if (selectedDivisions && selectedDivisions.length > 1) {
+    activeDivScope = selectedDivisions.map(toProper).join(", ");
+  }
+
+  var properReportTitle = "Rejection After MRI & Other Irregularities (Meter Mismatch, RTC Failure, Read Missing) Report";
+
+  function drawPdfTopHeader(docInstance) {
+    docInstance.setFillColor(15, 23, 42);
+    docInstance.roundedRect(marginX, 8, tableWidth, 22, 2, 2, 'F');
+
+    docInstance.setFontSize(8.2);
+    docInstance.setFont("helvetica", "bold");
+    docInstance.setTextColor(255, 255, 255);
+    docInstance.text(properReportTitle, marginX + 8, 22);
+
+    docInstance.setFontSize(7.2);
+    docInstance.setFont("helvetica", "normal");
+    docInstance.setTextColor(203, 213, 225);
+    docInstance.text(activeDivScope + " | Date: " + dateStr + " " + timeStr + " | Records: " + data.length, pageWidth - marginX - 8, 22, { align: "right" });
+  }
+
+  var pdfHeaders = [
+    [
+      "Sr.",
+      "Division",
+      "Account No",
+      "Type",
+      "Tariff",
+      "Consumer Name",
+      "Address",
+      "Load",
+      "Billed Mtr",
+      "Field Mtr",
+      "Field Make",
+      "Visited Mtr",
+      "Visited Make",
+      "Failure Message / Rejection Reason",
+      "MR Name",
+      "MR Mobile"
+    ]
+  ];
+
+  var pdfBody = data.map(function(item, idx) {
+    // 🟢 Clean 10-Digit Phone Number Formatting
+    var rawMob = String(item.mrMobile || "").replace(/[^0-9]/g, "");
+    var cleanMob = (rawMob.length >= 10) ? rawMob.slice(-10) : (item.mrMobile || "-");
+
+    return [
+      idx + 1,
+      item.division || "-",
+      item.accountNo || "-",
+      item.consumerType || "-",
+      item.tariff || "-",
+      item.consumerName || "-",
+      item.address || "-",
+      item.load || "-",
+      item.billedMtr || "-",
+      item.fieldMtr || "-",
+      item.fieldMake || "-",
+      item.visitedMtr || "-",
+      item.visitedMake || "-",
+      item.failureMessage || "-",
+      item.mrName || "-",
+      cleanMob
+    ];
+  });
+
+  doc.autoTable({
+    head: pdfHeaders,
+    body: pdfBody,
+    startY: 34,
+    margin: { left: marginX, right: marginX, top: 34, bottom: 18 },
+    theme: 'grid',
+    tableWidth: tableWidth,
+    pageBreak: 'auto',
+    styles: {
+      fontSize: 5.6,
+      halign: 'center',
+      valign: 'middle',
+      cellPadding: { top: 2.2, bottom: 2.2, left: 0.8, right: 0.8 },
+      lineWidth: 0.25,
+      lineColor: [203, 213, 225],
+      textColor: [15, 23, 42],
+      overflow: 'linebreak'
+    },
+    headStyles: {
+      fillColor: [30, 41, 59],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      fontSize: 6.0,
+      cellPadding: 2.5,
+      halign: 'center'
+    },
+    // 🟢 Failure Message centered (halign: 'center')
+    columnStyles: {
+      0: { cellWidth: 16 },                                         // Sr.
+      1: { cellWidth: 46, fontStyle: 'bold' },                      // Division
+      2: { cellWidth: 46, fontStyle: 'bold', textColor: [26, 115, 232] }, // Account No
+      3: { cellWidth: 36 },                                         // Type
+      4: { cellWidth: 30 },                                         // Tariff
+      5: { cellWidth: 68, halign: 'left' },                         // Consumer Name
+      6: { cellWidth: 140, halign: 'left', fontSize: 5.0 },         // Address
+      7: { cellWidth: 20 },                                         // Load
+      8: { cellWidth: 40 },                                         // Billed Mtr
+      9: { cellWidth: 40 },                                         // Field Mtr
+      10: { cellWidth: 34 },                                        // Field Make
+      11: { cellWidth: 42, fontStyle: 'bold', textColor: [37, 99, 235] }, // Visited Mtr
+      12: { cellWidth: 34 },                                        // Visited Make
+      13: { cellWidth: 130.89, halign: 'center', fontStyle: 'bold', textColor: [220, 38, 38] }, // Failure Message (Centered)
+      14: { cellWidth: 47, halign: 'left' },                        // MR Name
+      15: { cellWidth: 55, fontStyle: 'bold' }                      // MR Mobile (Full 10 Digits)
+    },
+    alternateRowStyles: {
+      fillColor: [248, 250, 252]
+    },
+    didDrawPage: function() {
+      drawPdfTopHeader(doc);
+    }
+  });
+
+  var totalPages = doc.internal.getNumberOfPages();
+  for (var p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    
+    // 🟢 Bottom Thin Divider Line
+    doc.setDrawColor(203, 213, 225);
+    doc.setLineWidth(0.3);
+    doc.line(marginX, 578, pageWidth - marginX, 578);
+
+    // 🟢 Left: Creator Credit (बिल्कुल पतले फ़ॉन्ट में)
+    doc.setFontSize(6.2);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100, 116, 139);
+    doc.text("Report Prepared By:- Report Generator Created By Anurag Shakya 9761414105", marginX, 587);
+
+    // 🟢 Right: Page Numbering
+    doc.setFontSize(6.5);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100, 116, 139);
+    doc.text("Page " + p + " of " + totalPages, pageWidth - marginX, 587, { align: "right" });
+  }
+
+  var cleanDivFileName = activeDivScope.replace(/[^a-zA-Z0-9]/g, "_");
+  doc.save(cleanDivFileName + "_Rejection_After_MRI_Report_" + dateStr + ".pdf");
+}
+
       
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
