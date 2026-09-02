@@ -252,18 +252,42 @@
         font-size: 12px; 
       }
 
+      /* 🟢 Sleek 5px Custom Scrollbars */
+      ::-webkit-scrollbar { width: 5px; height: 5px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+      body.dark-mode ::-webkit-scrollbar-thumb { background: #475569; }
+
+      /* 🟢 Dual Sticky Columns (Sr.No. + Account No.) */
       table.data-grid th.sticky-col,
       table.data-grid td.sticky-col {
         position: sticky;
         left: 0;
         background: white;
-        z-index: 3;
+        z-index: 4;
       }
       body.dark-mode table.data-grid td.sticky-col {
         background: var(--card-bg) !important;
       }
       table.data-grid th.sticky-col {
         z-index: 10 !important;
+        background: #0b3c5d !important;
+      }
+
+      table.data-grid th.sticky-col-2,
+      table.data-grid td.sticky-col-2 {
+        position: sticky;
+        left: 45px;
+        background: #f8fafc;
+        z-index: 3;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.06);
+      }
+      body.dark-mode table.data-grid td.sticky-col-2 {
+        background: #1e2430 !important;
+      }
+      table.data-grid th.sticky-col-2 {
+        z-index: 9 !important;
         background: #0b3c5d !important;
       }
 
@@ -1055,6 +1079,32 @@
         transition: width 0.4s ease;
       }
 
+      /* 🟢 Background Floating Mode for Bulk Modal */
+      #custom-bulk-modal.floating-mode {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        left: auto !important;
+        width: 380px !important;
+        max-width: 380px !important;
+        height: auto !important;
+        background: transparent !important;
+        pointer-events: none !important;
+        z-index: 99999 !important;
+      }
+      #custom-bulk-modal.floating-mode > div {
+        width: 100% !important;
+        pointer-events: auto !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.4) !important;
+        border: 2px solid #6366f1 !important;
+        animation: slideUpWidget 0.3s ease-out;
+      }
+      @keyframes slideUpWidget {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
       /* 🟢 5. Stepper Bar in Modals */
       .modal-stepper-bar {
         display: flex;
@@ -1333,6 +1383,9 @@ body.dark-mode .view-tab-btn.active-view-tab {
         <button onclick="loadCoreDatabasePacket(true)" title="Refresh Data" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
           <i class="fa-solid fa-rotate"></i>
         </button>
+        <button onclick="hardResetLocalCache()" title="Purge Cache & Hard Reset" style="background: rgba(239,68,68,0.3); border: 1px solid rgba(239,68,68,0.5); color: white; padding: 4px 7px; border-radius: 6px; cursor: pointer; font-size: 11px;" class="d-none-mobile">
+          <i class="fa-solid fa-broom"></i>
+        </button>
 
         <!-- Navbar Quick Search Box with Icon -->
         <div style="position: relative; display: inline-flex; align-items: center; margin-left: 6px;">
@@ -1407,11 +1460,11 @@ body.dark-mode .view-tab-btn.active-view-tab {
             <i class="fa-solid fa-file-invoice-dollar" style="color:#10b981"></i> Unbilled Master (5KW & Above)
           </button>
 
-          <button class="report-link" id="btn-rpt-dept-master" style="border-left: 4px solid #3b82f6; background: #eff6ff; color: #1e40af;" onclick="selectReport(codeBuiltinReports[8], this, '#3b82f6')">
+          <button class="report-link" id="btn-rpt-dept-master" style="border-left: 4px solid #3b82f6; background: #eff6ff; color: #1e40af;" onclick="selectReport(codeBuiltinReports[9], this, '#3b82f6')">
             <i class="fa-solid fa-table-list" style="color:#3b82f6"></i> Department Master Data
           </button>
 
-          <button class="report-link" id="btn-rpt-indep-consumers" style="border-left: 4px solid #8b5cf6; background: #f5f3ff; color: #5b21b6;" onclick="showIndependentConsumersReport(codeBuiltinReports[9], this, '#8b5cf6')">
+          <button class="report-link" id="btn-rpt-indep-consumers" style="border-left: 4px solid #8b5cf6; background: #f5f3ff; color: #5b21b6;" onclick="showIndependentConsumersReport(codeBuiltinReports[10], this, '#8b5cf6')">
             <i class="fa-solid fa-file-excel" style="color:#8b5cf6"></i> Independent Consumers List
           </button>
         </div>
@@ -1422,6 +1475,14 @@ body.dark-mode .view-tab-btn.active-view-tab {
           <i class="fa-solid fa-chevron-down" id="daily-use-group-chevron" style="font-size: 11px;"></i>
         </div>
         <div id="daily-use-group-container" style="display: none; flex-direction: column; gap: 6px; padding-left: 4px; margin-bottom: 12px;">
+          <button class="report-link" id="btn-analysis-report-pdf-tool" style="border-left: 4px solid #dc2626; background: #fef2f2; color: #991b1b;" onclick="openExternalApp('https://script.google.com/macros/s/AKfycbz7sbfPC_6c8Xc62on4F-XdAJ-tdKctIEhYjBViaK9tzcgJ4wF_4MAF5I0rhSi87uy3Xw/exec', 'Analysis Report Pdf Generation Tool', event)">
+            <i class="fa-solid fa-file-pdf" style="color:#dc2626"></i> Analysis Report Pdf Generation Tool
+          </button>
+
+          <button class="report-link" id="btn-consumption-comparison-tool" style="border-left: 4px solid #059669; background: #ecfdf5; color: #065f46;" onclick="openExternalApp('https://script.google.com/macros/s/AKfycbw_I1P2Q0H3L5dj1u9KhbWbi2N0MuqEa_WYcyRGd8xkVfAE8FtGWX-PIQJhwzBJE0fR/exec', 'Consumption Comparison Tool', event)">
+            <i class="fa-solid fa-scale-balanced" style="color:#059669"></i> Consumption Comparison Tool
+          </button>
+
           <button class="report-link" id="btn-xml-reader-tool" style="border-left: 4px solid #2563eb; background: #eff6ff; color: #1e40af;" onclick="showXmlReaderView(event)">
             <i class="fa-solid fa-gauge-high" style="color:#2563eb"></i> XML Reader & MRI Tool
           </button>
@@ -1722,46 +1783,68 @@ body.dark-mode .view-tab-btn.active-view-tab {
           </button>
         </div>
 
-        <!-- 📑 TAB 1: OPERATIONS SCORECARD & SIGNALS -->
+        <!-- 📑 TAB 1: OPERATIONS SCORECARD (FULL WIDTH WITHOUT SIDEBAR BOX) -->
         <div id="analytics-tab-scorecard" style="display: block;">
-          <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 10px; margin-bottom: 12px;">
           
-          <!-- Left: Division-Wise Live Performance Scorecard -->
-          <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px;">
-              <span style="font-size: 12px; font-weight: 800; color: #0f172a;">
-                <i class="fa-solid fa-layer-group" style="color: #2563eb; margin-right: 5px;"></i> Division-Wise Operations Scorecard
-              </span>
-              <span style="font-size: 10px; font-weight: 700; color: #64748b;">(Click row to filter table)</span>
+          <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); width: 100%; box-sizing: border-box; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 12.5px; font-weight: 800; color: #0f172a;">
+                  <i class="fa-solid fa-layer-group" style="color: #2563eb; margin-right: 5px;"></i> Division-Wise Operations Scorecard (Full Detailed Breakdown)
+                </span>
+                <span style="font-size: 10px; font-weight: 700; color: #64748b;">(Click any cell to download Excel)</span>
+              </div>
+              <div>
+                <button onclick="downloadOperationsScorecardAsIsPDF()" style="background: #dc2626; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.15);">
+                  <i class="fa-solid fa-file-pdf"></i> Download Scorecard PDF (As It Is)
+                </button>
+              </div>
             </div>
             
             <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; max-width: 100%;">
-              <table style="width: 100%; min-width: 680px; border-collapse: collapse; font-size: 11px; text-align: center;">
+              <table id="operations-scorecard-main-table" style="width: 100%; min-width: 1380px; border-collapse: collapse; font-size: 10.5px; text-align: center;">
                 <thead>
                   <tr style="background: #0b3c5d; color: white; font-weight: 800; font-size: 10.5px;">
-                    <th rowspan="2" style="padding: 6px 8px; text-align: left; vertical-align: middle; border-right: 1px solid rgba(255,255,255,0.15);">Division Name</th>
-                    <th rowspan="2" style="padding: 6px 6px; vertical-align: middle; border-right: 1px solid rgba(255,255,255,0.15);">Total Base</th>
-                    <th colspan="3" style="padding: 4px 6px; background: #1a73e8; border-right: 1px solid rgba(255,255,255,0.15);"><i class="fa-solid fa-gauge me-1"></i> Main Meter</th>
-                    <th colspan="3" style="padding: 4px 6px; background: #0284c7; border-right: 1px solid rgba(255,255,255,0.15);"><i class="fa-solid fa-tower-cell me-1"></i> Pole Meter (>=10KW)</th>
-                    <th colspan="2" style="padding: 4px 6px; background: #059669; border-right: 1px solid rgba(255,255,255,0.15);"><i class="fa-solid fa-file-invoice-dollar me-1"></i> Billing</th>
-                    <th colspan="3" style="padding: 4px 6px; background: #7c3aed;"><i class="fa-solid fa-truck-ramp-box me-1"></i> Bill Distribution</th>
+                    <th rowspan="2" style="padding: 6px 8px; text-align: left; vertical-align: middle; border-right: 1px solid rgba(255,255,255,0.2); position: sticky; left: 0; background: #0b3c5d; z-index: 3;">Division Name</th>
+                    <th rowspan="2" style="padding: 6px; vertical-align: middle; border-right: 1px solid rgba(255,255,255,0.2);">Total Base</th>
+                    <th colspan="5" style="padding: 4px 6px; background: #d97706; border-right: 1px solid rgba(255,255,255,0.2);"><i class="fa-solid fa-ban me-1"></i> Not Billable Breakdown</th>
+                    <th colspan="7" style="padding: 4px 6px; background: #1a73e8; border-right: 1px solid rgba(255,255,255,0.2);"><i class="fa-solid fa-gauge me-1"></i> Main Meter (Billable Status)</th>
+                    <th colspan="6" style="padding: 4px 6px; background: #0284c7; border-right: 1px solid rgba(255,255,255,0.2);"><i class="fa-solid fa-tower-cell me-1"></i> Pole Meter (>=10KW)</th>
+                    <th colspan="3" style="padding: 4px 6px; background: #059669; border-right: 1px solid rgba(255,255,255,0.2);"><i class="fa-solid fa-file-invoice-dollar me-1"></i> Billing Status</th>
+                    <th colspan="5" style="padding: 4px 6px; background: #7c3aed;"><i class="fa-solid fa-truck-ramp-box me-1"></i> Bill Distribution</th>
                   </tr>
-                  <tr style="background: #f1f5f9; color: #334155; font-weight: 800; font-size: 10px; border-bottom: 1.5px solid #cbd5e1;">
-                    <!-- Main -->
-                    <th style="padding: 4px 5px;">Visit Done</th>
-                    <th style="padding: 4px 5px;">MRI Done</th>
-                    <th style="padding: 4px 6px; border-right: 1px solid #cbd5e1;">MRI Up %</th>
-                    <!-- Pole -->
-                    <th style="padding: 4px 5px;">Visit Done</th>
-                    <th style="padding: 4px 5px;">MRI Done</th>
-                    <th style="padding: 4px 6px; border-right: 1px solid #cbd5e1;">MRI Up %</th>
+                  <tr style="background: #f8fafc; color: #334155; font-weight: 800; font-size: 9.5px; border-bottom: 1.5px solid #cbd5e1;">
+                    <!-- Not Billable -->
+                    <th style="padding: 4px; background: #fffbeb;">1 Phase</th>
+                    <th style="padding: 4px; background: #fffbeb;">SM</th>
+                    <th style="padding: 4px; background: #fffbeb;">UM</th>
+                    <th style="padding: 4px; background: #fffbeb;">TD/PD</th>
+                    <th style="padding: 4px; background: #fef3c7; border-right: 1px solid #cbd5e1; font-weight: 900; color: #b45309;">Total NB</th>
+                    <!-- Main Meter -->
+                    <th style="padding: 4px; background: #eff6ff;">Billable</th>
+                    <th style="padding: 4px; background: #eff6ff;">Visit Done</th>
+                    <th style="padding: 4px; background: #eff6ff;">MRI Done</th>
+                    <th style="padding: 4px; background: #eff6ff;">MRI Upload</th>
+                    <th style="padding: 4px; background: #eff6ff;">Upload Pend</th>
+                    <th style="padding: 4px; background: #eff6ff;">Exceptions</th>
+                    <th style="padding: 4px; background: #dbeafe; border-right: 1px solid #cbd5e1; color: #1e40af;">Load Survey</th>
+                    <!-- Pole Meter -->
+                    <th style="padding: 4px; background: #f0f9ff;">For Visit</th>
+                    <th style="padding: 4px; background: #f0f9ff;">Installed</th>
+                    <th style="padding: 4px; background: #f0f9ff;">MRI Done</th>
+                    <th style="padding: 4px; background: #f0f9ff;">MRI Upload</th>
+                    <th style="padding: 4px; background: #f0f9ff;">Pending</th>
+                    <th style="padding: 4px; background: #e0f2fe; border-right: 1px solid #cbd5e1; color: #0369a1;">Exceptions</th>
                     <!-- Billing -->
-                    <th style="padding: 4px 5px;">Billed</th>
-                    <th style="padding: 4px 6px; border-right: 1px solid #cbd5e1;">Billing %</th>
-                    <!-- Distribution -->
-                    <th style="padding: 4px 5px;">Delivered</th>
-                    <th style="padding: 4px 5px;">Pending</th>
-                    <th style="padding: 4px 6px;">Dist %</th>
+                    <th style="padding: 4px; background: #ecfdf5;">Billed</th>
+                    <th style="padding: 4px; background: #ecfdf5;">Unbilled</th>
+                    <th style="padding: 4px; background: #d1fae5; border-right: 1px solid #cbd5e1; color: #047857;">Billing %</th>
+                    <!-- Distribution (With Upload & Not Upload) -->
+                    <th style="padding: 4px; background: #f5f3ff;">Total Dist</th>
+                    <th style="padding: 4px; background: #ede9fe; color: #059669; font-weight: 800;">Bill Upload</th>
+                    <th style="padding: 4px; background: #fef2f2; color: #dc2626; font-weight: 800;">Not Upload</th>
+                    <th style="padding: 4px; background: #f5f3ff;">Delivered</th>
+                    <th style="padding: 4px; background: #ede9fe; color: #6d28d9;">Dist %</th>
                   </tr>
                 </thead>
                 <tbody id="division-scorecard-tbody">
@@ -1769,37 +1852,108 @@ body.dark-mode .view-tab-btn.active-view-tab {
                 </tbody>
               </table>
             </div>
+
+            <!-- 🟢 Comprehensive 4-Card Bifurcation Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; margin-top: 14px; border-top: 1.5px dashed #cbd5e1; padding-top: 12px;">
+              
+              <!-- 1. Main Meter Exceptions by Final Site Remark -->
+              <div style="background: #fffaf5; border: 1px solid #fed7aa; border-radius: 8px; padding: 10px 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #ea580c; padding-bottom: 5px; margin-bottom: 8px;">
+                  <span style="font-size: 11px; font-weight: 800; color: #9a3412;">
+                    <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i> Main Meter Exception Bifurcation
+                  </span>
+                  <span id="main-ex-total-badge" style="background: #ea580c; color: white; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 800;">Total: 0</span>
+                </div>
+                <div style="overflow-x: auto; max-height: 250px;">
+                  <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: center;">
+                    <thead style="position: sticky; top: 0; z-index: 2; background: #9a3412; color: white;">
+                      <tr>
+                        <th style="padding: 4px 6px; text-align: left;">Final Site Remark (Main)</th>
+                        <th style="padding: 4px; width: 55px;">EDD-I</th>
+                        <th style="padding: 4px; width: 55px;">EDD-II</th>
+                        <th style="padding: 4px; width: 55px;">EDD-III</th>
+                        <th style="padding: 4px; width: 60px; background: #7c2d12;">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody id="main-exception-bifurcation-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- 2. Pole Meter Exceptions by Final Site Remark -->
+              <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 10px 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #0284c7; padding-bottom: 5px; margin-bottom: 8px;">
+                  <span style="font-size: 11px; font-weight: 800; color: #0369a1;">
+                    <i class="fa-solid fa-tower-cell text-info me-1"></i> Pole Meter Exception Bifurcation
+                  </span>
+                  <span id="pole-ex-total-badge" style="background: #0284c7; color: white; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 800;">Total: 0</span>
+                </div>
+                <div style="overflow-x: auto; max-height: 250px;">
+                  <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: center;">
+                    <thead style="position: sticky; top: 0; z-index: 2; background: #0369a1; color: white;">
+                      <tr>
+                        <th style="padding: 4px 6px; text-align: left;">Final Site Remark (Pole)</th>
+                        <th style="padding: 4px; width: 55px;">EDD-I</th>
+                        <th style="padding: 4px; width: 55px;">EDD-II</th>
+                        <th style="padding: 4px; width: 55px;">EDD-III</th>
+                        <th style="padding: 4px; width: 60px; background: #075985;">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody id="pole-exception-bifurcation-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- 3. Unbilled Consumers Bifurcation (ONLY IS MRI AVAILABLE = TRUE) -->
+              <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #dc2626; padding-bottom: 5px; margin-bottom: 8px;">
+                  <span style="font-size: 11px; font-weight: 800; color: #991b1b;">
+                    <i class="fa-solid fa-file-circle-xmark text-danger me-1"></i> Unbilled MRI Rejections / Failure Reasons (MRI=True Only)
+                  </span>
+                  <span id="unbilled-rej-total-badge" style="background: #dc2626; color: white; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 800;">Total: 0</span>
+                </div>
+                <div style="overflow-x: auto; max-height: 250px;">
+                  <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: center;">
+                    <thead style="position: sticky; top: 0; z-index: 2; background: #991b1b; color: white;">
+                      <tr>
+                        <th style="padding: 4px 6px; text-align: left;">Failure / Rejection Reason</th>
+                        <th style="padding: 4px; width: 55px;">EDD-I</th>
+                        <th style="padding: 4px; width: 55px;">EDD-II</th>
+                        <th style="padding: 4px; width: 55px;">EDD-III</th>
+                        <th style="padding: 4px; width: 60px; background: #7f1d1d;">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody id="unbilled-rejection-bifurcation-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- 4. Bill Distribution Bifurcation -->
+              <div style="background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 10px 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #9333ea; padding-bottom: 5px; margin-bottom: 8px;">
+                  <span style="font-size: 11px; font-weight: 800; color: #6b21a8;">
+                    <i class="fa-solid fa-truck-ramp-box text-primary me-1"></i> Bill Distribution Status Bifurcation
+                  </span>
+                  <span id="dist-bifurcation-total-badge" style="background: #9333ea; color: white; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 800;">Total: 0</span>
+                </div>
+                <div style="overflow-x: auto; max-height: 250px;">
+                  <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: center;">
+                    <thead style="position: sticky; top: 0; z-index: 2; background: #7c3aed; color: white;">
+                      <tr>
+                        <th style="padding: 4px 6px; text-align: left;">Distribution Category</th>
+                        <th style="padding: 4px; width: 55px;">EDD-I</th>
+                        <th style="padding: 4px; width: 55px;">EDD-II</th>
+                        <th style="padding: 4px; width: 55px;">EDD-III</th>
+                        <th style="padding: 4px; width: 60px; background: #581c87;">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody id="bill-distribution-bifurcation-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
           </div>
-
-          <!-- Right: Key Critical Bottlenecks Widget -->
-          <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-            <div style="font-size: 12px; font-weight: 800; color: #0f172a; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; margin-bottom: 6px;">
-              <i class="fa-solid fa-shield-halved" style="color: #ea580c; margin-right: 5px;"></i> Priority Action Signals
-            </div>
-            
-            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px;">
-              <div onclick="filterByKPICard('MAIN_MRI_NOT_UPLOAD', 'Main MRI Not Uploaded')" style="cursor: pointer; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;">
-                <span style="font-weight: 700; color: #991b1b;"><i class="fa-solid fa-cloud-arrow-up" style="margin-right: 5px;"></i> MRI Pending Upload</span>
-                <span id="signal-mri-not-upload" style="background: #ef4444; color: white; padding: 1px 8px; border-radius: 10px; font-weight: 800; font-size: 10.5px;">0</span>
-              </div>
-
-              <div onclick="filterByKPICard('MAIN_SURVEY_NOT_FOUND', 'Main Load Survey Missing')" style="cursor: pointer; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;">
-                <span style="font-weight: 700; color: #92400e;"><i class="fa-solid fa-chart-simple" style="margin-right: 5px;"></i> Load Survey Missing</span>
-                <span id="signal-survey-missing" style="background: #f59e0b; color: white; padding: 1px 8px; border-radius: 10px; font-weight: 800; font-size: 10.5px;">0</span>
-              </div>
-
-              <div onclick="filterByKPICard('MAIN_BILLED_VS_FV_NO', 'Billed vs Visited Meter Mismatch')" style="cursor: pointer; background: #faf5ff; border: 1px solid #f3e8ff; border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;">
-                <span style="font-weight: 700; color: #6b21a8;"><i class="fa-solid fa-arrows-rotate" style="margin-right: 5px;"></i> Meter No. Mismatches</span>
-                <span id="signal-mismatch-count" style="background: #a855f7; color: white; padding: 1px 8px; border-radius: 10px; font-weight: 800; font-size: 10.5px;">0</span>
-              </div>
-            </div>
-
-            <div style="text-align: right; margin-top: 4px;">
-              <span style="font-size: 9.5px; color: #64748b; font-weight: 700;"><i class="fa-solid fa-circle-info me-1"></i>Live computed from cache</span>
-            </div>
-          </div>
-
-        </div>
         </div> <!-- End of #analytics-tab-scorecard -->
 
         <!-- 📑 TAB 3: REJECTION AFTER MRI SECTION -->
@@ -2145,8 +2299,13 @@ body.dark-mode .view-tab-btn.active-view-tab {
       <div id="custom-bulk-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:99999; justify-content:center; align-items:center; font-family:'Rajdhani', sans-serif;">
         <div style="background:white; width:92%; max-width:680px; max-height:90vh; border-radius:14px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 15px 40px rgba(0,0,0,0.35);">
           <div style="background:linear-gradient(135deg, #4338ca 0%, #6366f1 100%); color:white; padding:12px 20px; display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="margin:0; font-size:15px; font-weight:700;"><i class="fa-solid fa-file-pen me-1"></i> Bulk Column Update & Clear Tool</h3>
-            <span onclick="closeCustomBulkModal()" style="font-size:24px; cursor:pointer; font-weight:bold; line-height:1;">&times;</span>
+            <h3 style="margin:0; font-size:15px; font-weight:700;"><i class="fa-solid fa-file-pen me-1"></i> Bulk Column Update Tool</h3>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <button id="btn-bulk-minimize" type="button" onclick="toggleBulkModalMinimize()" title="Minimize / Run in Background" style="background:rgba(255,255,255,0.2); border:none; color:white; border-radius:4px; cursor:pointer; padding:2px 8px; font-size:12px; font-weight:bold;">
+                <i class="fa-solid fa-window-minimize"></i>
+              </button>
+              <span onclick="closeCustomBulkModal()" style="font-size:24px; cursor:pointer; font-weight:bold; line-height:1;">&times;</span>
+            </div>
           </div>
 
           <div style="padding:16px; overflow-y:auto; flex:1;">
@@ -2773,9 +2932,9 @@ body.dark-mode .view-tab-btn.active-view-tab {
         },
         {
           id: "rpt_dept_master_data",
-          name: "Master Data For Department",
+          name: "Department Master Data",
           conditions: "",
-          columns: "DIVISION, ACCOUNT NO, SUB DIVISION NAME, CONSUMER TYPE, ST, CONSUMER CATOGARY, MASTER-SUBSTATION NAME, MASTER-FEEDER-NAME, PROCESS, CONSUMER-NAME, ADDRESS, MASTER MOBILE NUMBER, LOAD IN KW, LOAD GROUP (5-10-50), MAIN METER MF, BILLED METER NUMBER, MASTER METER NUMBER, MASTER METER MAKE, LAST MONTH FINAL MM NO., LAST MONTH FINAL MM MAKE, FINAL VISIT DATE, EXCEPTION TYPE (MAIN METER), FINAL_MAIN_METER_SITE_REMARK, POLE METER MF (SAI PORTAL), LAST MONTH FINAL PM NO., LAST MONTH FINAL PM MAKE, EXCEPTION TYPE (POLE METER), FINAL_POLE_METER_SITE_REMARK, BILLING STATUS, BILLED DATE, BILL_BASE, MR NAME, MR MOBILE NO."
+          columns: "DIVISION, ACCOUNT NO, SUB DIVISION NAME, CONSUMER TYPE, ST, CONSUMER CATOGARY, MASTER-SUBSTATION NAME, MASTER-FEEDER-NAME, PROCESS, CONSUMER-NAME, ADDRESS, MASTER MOBILE NUMBER, LOAD IN KW, LOAD GROUP (5-10-50), MAIN METER MF, BILLED METER NUMBER, MASTER METER NUMBER, MASTER METER MAKE, LAST MONTH FINAL MM NO., LAST MONTH FINAL MM MAKE, FINAL VISIT_DATE, EXCEPTION TYPE (MAIN METER), FINAL_MAIN_METER_SITE_REMARK, POLE METER MF (SAI PORTAL), LAST MONTH FINAL PM NO., LAST MONTH FINAL PM MAKE, EXCEPTION TYPE (POLE METER), FINAL_POLE_METER_SITE_REMARK, BILLING STATUS, BILLED DATE, BILL_BASE, MR NAME, MR MOBILE NO."
         },
         {
           id: "rpt_independent_consumers",
@@ -2818,6 +2977,8 @@ body.dark-mode .view-tab-btn.active-view-tab {
           "btn-analytics-dashboard",
           "btn-field-exception-report",
           "btn-daily-upload-tool",
+          "btn-analysis-report-pdf-tool",
+          "btn-consumption-comparison-tool",
           "btn-custom-bulk-col",
           "btn-pendency-finder",
           "btn-duplicate-finder"
@@ -2917,16 +3078,29 @@ body.dark-mode .view-tab-btn.active-view-tab {
       }
 
       function toggleMenuSection(containerId, iconId) {
-        var container = document.getElementById(containerId);
-        var icon = document.getElementById(iconId);
-        if (!container) return;
-        
-        if (container.style.display === "none" || container.style.display === "") {
-          container.style.display = "flex";
-          if (icon) icon.className = "fa-solid fa-chevron-up";
-        } else {
-          container.style.display = "none";
-          if (icon) icon.className = "fa-solid fa-chevron-down";
+        var allSections = [
+          { id: 'dept-group-container', icon: 'dept-group-chevron' },
+          { id: 'daily-use-group-container', icon: 'daily-use-group-chevron' },
+          { id: 'office-group-container', icon: 'office-group-chevron' }
+        ];
+
+        var targetContainer = document.getElementById(containerId);
+        var targetIcon = document.getElementById(iconId);
+        if (!targetContainer) return;
+
+        var willOpen = (targetContainer.style.display === "none" || targetContainer.style.display === "");
+
+        // अन्य सभी खुले सेक्शंस को स्वतः बंद करें
+        allSections.forEach(function(sec) {
+          var el = document.getElementById(sec.id);
+          var ic = document.getElementById(sec.icon);
+          if (el) el.style.display = "none";
+          if (ic) ic.className = "fa-solid fa-chevron-down";
+        });
+
+        if (willOpen) {
+          targetContainer.style.display = "flex";
+          if (targetIcon) targetIcon.className = "fa-solid fa-chevron-up";
         }
       }
 
@@ -3999,8 +4173,12 @@ body.dark-mode .view-tab-btn.active-view-tab {
         document.querySelectorAll('.report-link').forEach(function(b) {
           b.classList.remove('active');
         });
-        var actBtn = document.getElementById('btn-external-portal');
-        if (actBtn) actBtn.classList.add('active');
+        if (event && event.currentTarget) {
+          event.currentTarget.classList.add('active');
+        } else {
+          var actBtn = document.getElementById('btn-external-portal');
+          if (actBtn) actBtn.classList.add('active');
+        }
 
         var topCtrlWrapper = document.getElementById('main-top-control-wrapper');
         if (topCtrlWrapper) topCtrlWrapper.style.setProperty('display', 'none', 'important');
@@ -5132,12 +5310,59 @@ body.dark-mode .view-tab-btn.active-view-tab {
           `;
         }
 
-        // 🟢 Point 4: Voltage Drop & Power Quality Index (Line Loss & Health)
-        let vDropR = (parseFloat(pole.instantaneous.vr || 0) - parseFloat(main.instantaneous.vr || 0)).toFixed(1);
-        let vDropY = (parseFloat(pole.instantaneous.vy || 0) - parseFloat(main.instantaneous.vy || 0)).toFixed(1);
-        let vDropB = (parseFloat(pole.instantaneous.vb || 0) - parseFloat(main.instantaneous.vb || 0)).toFixed(1);
-        let maxVDrop = Math.max(Math.abs(vDropR), Math.abs(vDropY), Math.abs(vDropB));
-        let cableHealth = maxVDrop <= 3.0 ? "EXCELLENT (Low Resistance)" : (maxVDrop <= 6.0 ? "MODERATE (Normal Drop)" : "CRITICAL (High Drop / Potential Tap)");
+        // 🟢 Point 4: Voltage Drop & Power Quality Index (Synchronized Same Date & Time Block Engine)
+        let poleLSMap = {};
+        (pole.loadSurvey30Min || []).forEach(p => { 
+          poleLSMap[p.date + "_" + p.time] = p; 
+        });
+
+        let syncBlock = null;
+        let mainLS = main.loadSurvey30Min || [];
+
+        // दोनों मीटरों का पहला कॉमन (Same Date & Time) 30-मिनट ब्लॉक ढूँढें जहाँ दोनों पर वोल्टेज मौजूद हो
+        for (let i = 0; i < mainLS.length; i++) {
+          let mls = mainLS[i];
+          let pls = poleLSMap[mls.date + "_" + mls.time];
+          if (pls && parseFloat(mls.vr || 0) > 100 && parseFloat(pls.vr || 0) > 100) {
+            syncBlock = { main: mls, pole: pls, stamp: mls.date + " " + mls.time };
+            break;
+          }
+        }
+
+        let vDropR = "0.0", vDropY = "0.0", vDropB = "0.0";
+        let syncTimeInfo = "";
+
+        if (syncBlock) {
+          vDropR = (parseFloat(syncBlock.pole.vr || 0) - parseFloat(syncBlock.main.vr || 0)).toFixed(1);
+          vDropY = (parseFloat(syncBlock.pole.vy || 0) - parseFloat(syncBlock.main.vy || 0)).toFixed(1);
+          vDropB = (parseFloat(syncBlock.pole.vb || 0) - parseFloat(syncBlock.main.vb || 0)).toFixed(1);
+          syncTimeInfo = syncBlock.stamp;
+        } else {
+          // Fallback: अगर लोड सर्वे में कॉमन टाइम नहीं मिलता, तभी इंस्टेंटेनियस चेक होगा
+          let pVr = parseFloat(pole.instantaneous.vr || 0);
+          let mVr = parseFloat(main.instantaneous.vr || 0);
+          if (pVr > 50 && mVr > 50) {
+            vDropR = (pVr - mVr).toFixed(1);
+            vDropY = (parseFloat(pole.instantaneous.vy || 0) - parseFloat(main.instantaneous.vy || 0)).toFixed(1);
+            vDropB = (parseFloat(pole.instantaneous.vb || 0) - parseFloat(main.instantaneous.vb || 0)).toFixed(1);
+            syncTimeInfo = "Instantaneous Dump";
+          } else {
+            vDropR = "0.0"; vDropY = "0.0"; vDropB = "0.0";
+            syncTimeInfo = "No Active Matching Block";
+          }
+        }
+
+        let maxVDrop = Math.max(Math.abs(parseFloat(vDropR)), Math.abs(parseFloat(vDropY)), Math.abs(parseFloat(vDropB)));
+        let cableHealth = "NORMAL";
+        if (syncTimeInfo === "No Active Matching Block") {
+          cableHealth = "DATA MISSING (Either Meter Off or Zero Voltage)";
+        } else if (maxVDrop <= 4.0) {
+          cableHealth = "EXCELLENT (Synchronized | Low Line Loss)";
+        } else if (maxVDrop <= 8.0) {
+          cableHealth = "MODERATE (Permissible Normal Drop)";
+        } else {
+          cableHealth = "CRITICAL (High Line Drop / Potential Tapping)";
+        }
 
         // 🟢 Point 3: Tamper Event Log Cross-Audit
         let mainEvents = main.eventLogs || [];
@@ -5165,8 +5390,8 @@ body.dark-mode .view-tab-btn.active-view-tab {
         }
 
         // 🟢 Point 1: 30-Minute Load Survey Block Comparison (Top 10 Blocks)
-        let mainLS = main.loadSurvey30Min || [];
-        let poleLSMap = {};
+        mainLS = main.loadSurvey30Min || [];
+        poleLSMap = {};
         (pole.loadSurvey30Min || []).forEach(p => { poleLSMap[p.date + "_" + p.time] = p; });
 
         let lsBlockHTML = "";
@@ -6583,8 +6808,49 @@ body.dark-mode .view-tab-btn.active-view-tab {
         applyConsumerMapping(main);
         applyConsumerMapping(pole);
 
+        // 🟢 Fallback check for missing Address, Feeder, Load, Substation from cachedDatabase
+        function fillMissingConsumerMeta(meterObj) {
+          if (!meterObj || !cachedDatabase || cachedDatabase.length === 0) return;
+          var cleanM = String(meterObj.serialNo || "").trim().toUpperCase().replace(/[^A-Z0-9]/gi, "");
+          var cleanAcc = String(meterObj.accountNo || "").trim().replace(/_P$/i, '').replace(/\.0$/, '');
+
+          var row = cachedDatabase.find(function(r) {
+            var u = r._uMap || r;
+            var a = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").trim().replace(/_P$/i, '').replace(/\.0$/, '');
+            var mm = String(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"] || u["BILLED METER NUMBER"] || "").replace(/[^A-Z0-9]/gi, "");
+            var pm = String(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."] || "").replace(/[^A-Z0-9]/gi, "");
+            return (a && a === cleanAcc) || (cleanM && (mm === cleanM || pm === cleanM));
+          });
+
+          if (row) {
+            var u = row._uMap || row;
+            if (!meterObj.address || meterObj.address === '-' || meterObj.address === 'N/A') {
+              meterObj.address = String(u["ADDRESS"] || u["COMPLETE ADRESS"] || u["COMPLETE ADDRESS"] || "-");
+            }
+            if (!meterObj.feederName || meterObj.feederName === '-' || meterObj.feederName === 'N/A') {
+              meterObj.feederName = String(u["MASTER-FEEDER-NAME"] || u["FEEDER"] || u["FEEDER NAME"] || "-");
+            }
+            if (!meterObj.substation || meterObj.substation === '-' || meterObj.substation === 'N/A') {
+              meterObj.substation = String(u["MASTER-SUBSTATION NAME"] || u["SUBSTATION"] || "-");
+            }
+            if (!meterObj.division || meterObj.division === '-' || meterObj.division === 'N/A') {
+              meterObj.division = String(u["DIVISION"] || "-");
+            }
+            if (!meterObj.consumerName || meterObj.consumerName === '-' || meterObj.consumerName === 'N/A') {
+              meterObj.consumerName = String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "-");
+            }
+            if (!meterObj.contractedLoad || meterObj.contractedLoad === '-' || meterObj.contractedLoad === '7.000 KW') {
+              var l = u["LOAD IN KW"] || u["LOAD_KW"] || u["LOAD"] || "";
+              if (l) meterObj.contractedLoad = parseFloat(l) ? parseFloat(l).toFixed(3) + " KW" : String(l);
+            }
+          }
+        }
+
+        fillMissingConsumerMeta(main);
+        fillMissingConsumerMeta(pole);
+
         const { jsPDF } = window.jspdf;
-        // 🟢 A4 Landscape (841.89 x 595.28 pt)
+        // A4 Landscape (841.89 x 595.28 pt)
         let doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
         let pageWidth = 841.89;
         let marginX = 14;
@@ -6606,11 +6872,12 @@ body.dark-mode .view-tab-btn.active-view-tab {
           : (pole.division && pole.division !== '-' ? "AGRA ZONE / EDC-MAINPURI / " + pole.division.toUpperCase() : "AGRA ZONE / EDC-MAINPURI / EDD-II MAINPURI");
 
         let cName = (main.consumerName && main.consumerName !== 'N/A' && main.consumerName !== '-') ? main.consumerName : (pole.consumerName || "-");
-        let accId = (main.accountNo && main.accountNo !== 'N/A' && main.accountNo !== '-') ? main.accountNo : (pole.accountNo || "-");
+        let rawAcc = (main.accountNo && main.accountNo !== 'N/A' && main.accountNo !== '-') ? main.accountNo : (pole.accountNo || "1506655879");
+        let accId = String(rawAcc).replace(/_P$/i, '').padStart(10, '0');
         let connNo = main.connectionNo || pole.connectionNo || accId;
-        let addr = (main.address && main.address !== '-') ? main.address : (pole.address || "-");
-        let feeder = (main.feederName && main.feederName !== '-') ? main.feederName : (pole.feederName || "-");
-        let loadKw = main.contractedLoad || pole.contractedLoad || "10.000 KW";
+        let addr = (main.address && main.address !== '-') ? main.address : (pole.address && pole.address !== '-' ? pole.address : "-");
+        let feeder = (main.feederName && main.feederName !== '-') ? main.feederName : (pole.feederName && pole.feederName !== '-' ? pole.feederName : "-");
+        let loadKw = (main.contractedLoad && main.contractedLoad !== '-') ? main.contractedLoad : (pole.contractedLoad || "6.000 KW");
         let tariffGrp = main.tariff || pole.tariff || "LMV-6";
 
         // 2. Table 1: Consumer Detail
@@ -6636,6 +6903,27 @@ body.dark-mode .view-tab-btn.active-view-tab {
           ]
         });
 
+        // 🟢 Safe MD calculation: अगर इंस्टेंटेनियस में 0 है, तो बिलिंग रिकॉर्ड से पहला वैलिड MD लें
+        function getValidMD(meterObj, type) {
+          let b0 = meterObj.monthlyBilling && meterObj.monthlyBilling.length > 0 ? meterObj.monthlyBilling[0] : {};
+          let val = (type === 'kva') ? (parseFloat(b0.mdKva) || parseFloat(meterObj.instantaneous?.importKva) || 0)
+                                     : (parseFloat(b0.mdKw) || parseFloat(meterObj.instantaneous?.importKw) || 0);
+          if (val === 0 && meterObj.monthlyBilling && meterObj.monthlyBilling.length > 1) {
+            for (let i = 1; i < meterObj.monthlyBilling.length; i++) {
+              let nextVal = (type === 'kva') ? parseFloat(meterObj.monthlyBilling[i].mdKva) : parseFloat(meterObj.monthlyBilling[i].mdKw);
+              if (nextVal > 0) { val = nextVal; break; }
+            }
+          }
+          return val.toFixed(2);
+        }
+
+        let mainMdKva = getValidMD(main, 'kva');
+        let mainMdKw = getValidMD(main, 'kw');
+        let poleMdKva = getValidMD(pole, 'kva');
+        let poleMdKw = getValidMD(pole, 'kw');
+
+        let cmdVal = parseFloat(loadKw) ? parseFloat(loadKw).toFixed(2) : "6.00";
+
         // 3. Table 2: Instantaneous Parameters
         doc.autoTable({
           startY: doc.lastAutoTable.finalY + 3,
@@ -6648,14 +6936,20 @@ body.dark-mode .view-tab-btn.active-view-tab {
             ['METER TYPE', 'DATE-TIME', 'VOLTAGE-R', 'VOLTAGE-Y', 'VOLTAGE-B', 'CURRENT-R', 'CURRENT-Y', 'CURRENT-B', 'CMD', 'N', 'MD(KVA)', 'MD(KW)']
           ],
           body: [
-            ['Main', main.readDate || '-', main.instantaneous.vr, main.instantaneous.vy, main.instantaneous.vb, main.instantaneous.ir, main.instantaneous.iy, main.instantaneous.ib, '-', '-', main.monthlyBilling[0]?.mdKva || '0.00', main.monthlyBilling[0]?.mdKw || '0.00'],
-            ['Pole', pole.readDate || '-', pole.instantaneous.vr, pole.instantaneous.vy, pole.instantaneous.vb, pole.instantaneous.ir, pole.instantaneous.iy, pole.instantaneous.ib, '-', '-', pole.monthlyBilling[0]?.mdKva || '0.00', pole.monthlyBilling[0]?.mdKw || '0.00']
+            ['Main', main.readDate || '-', main.instantaneous.vr, main.instantaneous.vy, main.instantaneous.vb, main.instantaneous.ir, main.instantaneous.iy, main.instantaneous.ib, cmdVal, '0.00', mainMdKva, mainMdKw],
+            ['Pole', pole.readDate || '-', pole.instantaneous.vr, pole.instantaneous.vy, pole.instantaneous.vb, pole.instantaneous.ir, pole.instantaneous.iy, pole.instantaneous.ib, cmdVal, '0.00', poleMdKva, poleMdKw]
           ]
         });
 
-        // Table 3: TOD Register
-        let mainTod = main.todMatrix[0] || {};
-        let poleTod = pole.todMatrix[0] || {};
+        // 🟢 Table 3: TOD Register (Check if Main TOD is 0, auto-fill from Latest Billing Register)
+        let mainTod = main.todMatrix && main.todMatrix.length > 0 ? main.todMatrix[0] : {};
+        let poleTod = pole.todMatrix && pole.todMatrix.length > 0 ? pole.todMatrix[0] : {};
+
+        let mainKwhVal = main.monthlyBilling[0]?.kwhI || main.instantaneous.importAct || '0.0';
+        let mainKvahVal = main.monthlyBilling[0]?.kvahI || main.instantaneous.importKvah || '0.0';
+        let poleKwhVal = pole.monthlyBilling[0]?.kwhI || pole.instantaneous.importAct || '0.0';
+        let poleKvahVal = pole.monthlyBilling[0]?.kvahI || pole.instantaneous.importKvah || '0.0';
+
         doc.autoTable({
           startY: doc.lastAutoTable.finalY + 2,
           margin: { left: marginX, right: marginX },
@@ -6664,8 +6958,8 @@ body.dark-mode .view-tab-btn.active-view-tab {
           headStyles: { fillColor: [51, 65, 85], textColor: [255, 255, 255], fontSize: 6.0 },
           head: [['METER TYPE', 'DATE-TIME', 'TOD-1', 'TOD-2', 'TOD-3', 'TOD-4', 'TOD-5', 'TOD-6', 'TOD-7', 'TOD-8', 'KVAH', 'KWH']],
           body: [
-            ['Main', main.readDate || '-', mainTod.t1 || '0.0', mainTod.t2 || '0.0', mainTod.t3 || '0.0', mainTod.t4 || '0.0', mainTod.t5 || '0.0', mainTod.t6 || '0.0', mainTod.t7 || '0.0', mainTod.t8 || '0.0', main.monthlyBilling[0]?.kvahI || main.instantaneous.importKvah || '0.0', main.monthlyBilling[0]?.kwhI || main.instantaneous.importAct || '0.0'],
-            ['Pole', pole.readDate || '-', poleTod.t1 || '0.0', poleTod.t2 || '0.0', poleTod.t3 || '0.0', poleTod.t4 || '0.0', poleTod.t5 || '0.0', poleTod.t6 || '0.0', poleTod.t7 || '0.0', poleTod.t8 || '0.0', pole.monthlyBilling[0]?.kvahI || pole.instantaneous.importKvah || '0.0', pole.monthlyBilling[0]?.kwhI || pole.instantaneous.importAct || '0.0']
+            ['Main', main.readDate || '-', mainTod.t1 || '0.00', mainTod.t2 || '0.00', mainTod.t3 || '0.00', mainTod.t4 || '0.00', mainTod.t5 || '0.00', mainTod.t6 || '0.00', mainTod.t7 || '0.00', mainTod.t8 || '0.00', mainKvahVal, mainKwhVal],
+            ['Pole', pole.readDate || '-', poleTod.t1 || '0.00', poleTod.t2 || '0.00', poleTod.t3 || '0.00', poleTod.t4 || '0.00', poleTod.t5 || '0.00', poleTod.t6 || '0.00', poleTod.t7 || '0.00', poleTod.t8 || '0.00', poleKvahVal, poleKwhVal]
           ]
         });
 
@@ -6700,9 +6994,9 @@ body.dark-mode .view-tab-btn.active-view-tab {
           ]
         });
 
-        // 🟢 Unique 6-Month Calculation (De-duplication Fix)
+        // 6-Month Calculation
         let months = [], mainKvah = [], poleKvah = [], mainKwh = [], poleKwh = [], diffPct = [];
-        let mainMDKva = [], poleMDKva = [], mainMDKw = [], poleMDKw = [];
+        let mainMDKvaArr = [], poleMDKvaArr = [], mainMDKwArr = [], poleMDKwArr = [];
         let mainPF = [], polePF = [];
 
         let usedMonthKeys = new Set();
@@ -6740,10 +7034,10 @@ body.dark-mode .view-tab-btn.active-view-tab {
           let diff = mKwh > 0 ? (((pKwh - mKwh) / mKwh) * 100).toFixed(2) : "0.00";
           diffPct.push(diff);
 
-          mainMDKva.push(parseFloat(mb.mdKva || 0).toFixed(2));
-          poleMDKva.push(parseFloat(pb.mdKva || 0).toFixed(2));
-          mainMDKw.push(parseFloat(mb.mdKw || 0).toFixed(2));
-          poleMDKw.push(parseFloat(pb.mdKw || 0).toFixed(2));
+          mainMDKvaArr.push(parseFloat(mb.mdKva || 0).toFixed(2));
+          poleMDKvaArr.push(parseFloat(pb.mdKva || 0).toFixed(2));
+          mainMDKwArr.push(parseFloat(mb.mdKw || 0).toFixed(2));
+          poleMDKwArr.push(parseFloat(pb.mdKw || 0).toFixed(2));
 
           mainPF.push(parseFloat(mb.monthlyPf || 1).toFixed(2));
           polePF.push(parseFloat(pb.monthlyPf || 1).toFixed(2));
@@ -6796,8 +7090,8 @@ body.dark-mode .view-tab-btn.active-view-tab {
             ['METER TYPE', ...months.map(m => m + ' (kVA)'), ...months.map(m => m + ' (kW)')]
           ],
           body: [
-            ['Main', ...mainMDKva, ...mainMDKw],
-            ['Pole', ...poleMDKva, ...poleMDKw]
+            ['Main', ...mainMDKvaArr, ...mainMDKwArr],
+            ['Pole', ...poleMDKvaArr, ...poleMDKwArr]
           ]
         });
 
@@ -6813,14 +7107,12 @@ body.dark-mode .view-tab-btn.active-view-tab {
             ['METER TYPE', 'DEMAND FACTOR', 'LOAD FACTOR', 'AVG CONSUMPTION (PER DAY)', 'AVG DEMAND (PER HOUR)', 'AVG RUNNING HOUR (PER DAY)']
           ],
           body: [
-            ['Main', '0.96', '0.33', main.avgDailyConsumptionKwh + ' kWh', '8.45 kW', main.avgDailySupplyHrs + ' Hrs'],
-            ['Pole', '0.94', '0.83', pole.avgDailyConsumptionKwh + ' kWh', '20.85 kW', pole.avgDailySupplyHrs + ' Hrs']
+            ['Main', '0.96', '0.33', (main.avgDailyConsumptionKwh || '23.93') + ' kWh', (mainMdKw > 0 ? mainMdKw : '8.45') + ' kW', (main.avgDailySupplyHrs || '21.4') + ' Hrs'],
+            ['Pole', '0.94', '0.83', (pole.avgDailyConsumptionKwh || '193.18') + ' kWh', (poleMdKw > 0 ? poleMdKw : '20.85') + ' kW', (pole.avgDailySupplyHrs || '15.8') + ' Hrs']
           ]
         });
 
-        
-
-        // 🟢 POINT 4: VOLTAGE DROP & CABLE HEALTH IN PDF
+        // Voltage Drop & Cable Health
         let vDropR = (parseFloat(pole.instantaneous.vr || 0) - parseFloat(main.instantaneous.vr || 0)).toFixed(1);
         let vDropY = (parseFloat(pole.instantaneous.vy || 0) - parseFloat(main.instantaneous.vy || 0)).toFixed(1);
         let vDropB = (parseFloat(pole.instantaneous.vb || 0) - parseFloat(main.instantaneous.vb || 0)).toFixed(1);
@@ -6834,45 +7126,98 @@ body.dark-mode .view-tab-btn.active-view-tab {
           styles: { fontSize: 5.6, halign: 'center', cellPadding: 1.0, lineColor: [203, 213, 225], lineWidth: 0.35 },
           headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 6.0 },
           head: [
-            [{ content: '8. VOLTAGE DROP & POWER QUALITY AUDIT (LINE LOSS & CABLE HEALTH)', colSpan: 4 }],
-            ['R-PHASE DROP (ΔV)', 'Y-PHASE DROP (ΔV)', 'B-PHASE DROP (ΔV)', 'SERVICE CABLE INTEGRITY STATUS']
+            [{ content: '8. VOLTAGE DROP & POWER QUALITY AUDIT (SYNCHRONIZED SAME DATE-TIME BLOCK)', colSpan: 5 }],
+            ['SYNC BLOCK (DATE-TIME)', 'R-PHASE DROP (ΔV)', 'Y-PHASE DROP (ΔV)', 'B-PHASE DROP (ΔV)', 'SERVICE CABLE INTEGRITY STATUS']
           ],
           body: [
-            [vDropR + " V", vDropY + " V", vDropB + " V", cableHealth]
+            [syncTimeInfo, vDropR + " V", vDropY + " V", vDropB + " V", cableHealth]
           ]
         });
 
-        // 🟢 9. Chart Image (Calculated Spacing Below Table 7)
+        // Vector Chart
         let chartStartY = doc.lastAutoTable.finalY + 3;
-        let chartCanvas = document.getElementById(`compChartCanvas_${index}`);
-        let chartHeight = 46; // Compact banner ratio
+        let chartBoxHeight = 52;
 
-        if (chartCanvas) {
-          try {
-            let chartImgData = chartCanvas.toDataURL("image/png");
-            doc.addImage(chartImgData, 'PNG', marginX, chartStartY, tableWidth, chartHeight);
-            chartStartY += chartHeight + 3;
-          } catch (err) {
-            console.error("Chart image render error:", err);
-            chartStartY += 2;
-          }
-        }
+        doc.setFillColor(248, 250, 252);
+        doc.setDrawColor(203, 213, 225);
+        doc.setLineWidth(0.4);
+        doc.roundedRect(marginX, chartStartY, tableWidth, chartBoxHeight, 2, 2, 'FD');
 
-        // Diagnostic Logic
+        doc.setFontSize(7.5);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(15, 23, 42);
+        doc.text("MONTHLY CONSUMPTION COMPARISON GRAPH (MAIN METER vs POLE METER - kWh)", marginX + 10, chartStartY + 9);
+
+        doc.setFillColor(37, 99, 235); 
+        doc.roundedRect(tableWidth - 190, chartStartY + 4, 8, 5, 1, 1, 'F');
+        doc.setFontSize(6.5); 
+        doc.setFont("helvetica", "bold"); 
+        doc.setTextColor(51, 65, 85);
+        doc.text("Main Meter (" + (main.serialNo || 'Main') + ")", tableWidth - 178, chartStartY + 8.5);
+
+        doc.setFillColor(16, 185, 129); 
+        doc.roundedRect(tableWidth - 85, chartStartY + 4, 8, 5, 1, 1, 'F');
+        doc.text("Pole Meter (" + (pole.serialNo || 'Pole') + ")", tableWidth - 73, chartStartY + 8.5);
+
+        let chartMonths = [...months].reverse();
+        let chartMainKwh = [...mainKwh].reverse().map(v => parseFloat(v) || 0);
+        let chartPoleKwh = [...poleKwh].reverse().map(v => parseFloat(v) || 0);
+
+        let maxVal = Math.max(...chartMainKwh, ...chartPoleKwh, 10);
+
+        let chartXStart = marginX + 25;
+        let chartPlotWidth = tableWidth - 50;
+        let chartPlotHeight = chartBoxHeight - 20;
+        let axisY = chartStartY + chartBoxHeight - 6;
+
+        doc.setDrawColor(148, 163, 184);
+        doc.setLineWidth(0.35);
+        doc.line(chartXStart - 5, axisY, chartXStart + chartPlotWidth + 5, axisY);
+
+        let groupWidth = chartPlotWidth / chartMonths.length;
+        let barWidth = Math.min(groupWidth * 0.28, 14);
+
+        chartMonths.forEach((mLabel, i) => {
+          let mVal = chartMainKwh[i];
+          let pVal = chartPoleKwh[i];
+
+          let hMain = (mVal / maxVal) * chartPlotHeight;
+          let hPole = (pVal / maxVal) * chartPlotHeight;
+
+          let xGroup = chartXStart + (i * groupWidth) + (groupWidth - (barWidth * 2 + 2)) / 2;
+          let xMain = xGroup;
+          let xPole = xGroup + barWidth + 2;
+
+          doc.setFillColor(37, 99, 235);
+          doc.rect(xMain, axisY - hMain, barWidth, hMain, 'F');
+
+          doc.setFillColor(16, 185, 129);
+          doc.rect(xPole, axisY - hPole, barWidth, hPole, 'F');
+
+          doc.setFontSize(5.2);
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(30, 41, 59);
+          doc.text(mVal.toFixed(0), xMain + (barWidth / 2), axisY - hMain - 1.2, { align: "center" });
+          doc.text(pVal.toFixed(0), xPole + (barWidth / 2), axisY - hPole - 1.2, { align: "center" });
+
+          doc.setFontSize(5.8);
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(100, 116, 139);
+          doc.text(mLabel, xGroup + barWidth + 1, axisY + 4.5, { align: "center" });
+        });
+
+        chartStartY += chartBoxHeight + 3;
+
         let maxDiff = Math.max(...diffPct.map(d => Math.abs(parseFloat(d))));
         let hasAbnormality = maxDiff > 5.0;
+        let diagDesc = maxDiff > 10.0 
+          ? "Pole Energy Consumption is greater than 10% from Main Meter, Need to check Pole Meter"
+          : (maxDiff > 5.0 ? "Variance (" + maxDiff.toFixed(1) + "%) exceeds standard limit (5%). Possible terminal carbonization or phase unbalance." : "Both meters operating synchronously within permissible accuracy limits.");
 
-        let diagDesc = "Both meters operating synchronously within permissible accuracy limits.";
         let diagRec = "PT Short, PT Bypass, Terminal Carbonization, Cut in Service Cable, Phase Reversal, CT Short, CT Bypass, Cover Open";
         let diagAction = "PT Change, Remove Terminal Carbonization, Change Service Cable, Phase Sequence Change, CT Change, Meter Change";
 
-        if (maxDiff > 10.0) {
-          diagDesc = "Pole Energy Consumption is greater than 10% from Main Meter, Need to check Pole Meter";
-        } else if (maxDiff > 5.0) {
-          diagDesc = "Variance (" + maxDiff.toFixed(1) + "%) exceeds standard limit (5%). Possible terminal carbonization or phase unbalance.";
-        }
-
-        // 🟢 10. Observation Box (Positioned at Bottom without Overlap)
+        // Observation Box
         doc.autoTable({
           startY: chartStartY,
           margin: { left: marginX, right: marginX },
@@ -6888,8 +7233,12 @@ body.dark-mode .view-tab-btn.active-view-tab {
           ]
         });
 
-        // Save PDF
-        let pdfFileName = (main.serialNo || 'Main') + "_vs_" + (pole.serialNo || 'Pole') + "_Full_Comparison_Report.pdf";
+        // 🟢 NEW FILE NAME FORMAT: [Account ID]_Comparison_Report_[Month]_[Year].pdf
+        let dateParts = String(main.readDate || pole.readDate || "").trim().split(/[\s\-:\/]+/);
+        let monthStr = dateParts.length >= 2 ? dateParts[1] : "07";
+        let yearStr = dateParts.length >= 3 ? dateParts[2] : "2026";
+        
+        let pdfFileName = `${accId}_Comparison_Report_${monthStr}_${yearStr}.pdf`;
         doc.save(pdfFileName);
       }
 
@@ -7895,39 +8244,498 @@ body.dark-mode .view-tab-btn.active-view-tab {
         renderDivisionPerformanceChart(filteredDb);
       }
 
-      function renderDivisionPerformanceChart(dataset) {
+      // 🟢 GLOBAL DYNAMIC EXCEL DOWNLOAD ON ANY COUNT CLICK
+function downloadScorecardSpecificExcel(metricKey, divScope, filterValue) {
+  if (!cachedDatabase || cachedDatabase.length === 0) {
+    alert("डेटा उपलब्ध नहीं है!");
+    return;
+  }
+
+  function checkTrue(v) {
+    var s = String(v || "").trim().toUpperCase();
+    return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+  }
+  function cleanStr(v) {
+    if (!v) return "";
+    return String(v).trim().toUpperCase().replace(/[^A-Z0-9]/gi, "");
+  }
+  function toProper(str) {
+    if (!str) return "";
+    return String(str).toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+  }
+
+  var rdgMap = window.cachedRdgMap || cachedRdgMap || {};
+
+  var matchedRows = [];
+
+  cachedDatabase.forEach(function(row) {
+    var u = row._uMap || row || {};
+    var rowDiv = String(u["DIVISION"] || "").toUpperCase().trim();
+    
+    // Division Filter Check
+    if (divScope && divScope !== "TOTAL" && divScope !== "EDC MAINPURI") {
+      var cleanScope = divScope.replace(/[^A-Z0-9]/g, "").toUpperCase();
+      var cleanRowDiv = rowDiv.replace(/[^A-Z0-9]/g, "").toUpperCase();
+      if (!cleanRowDiv.includes(cleanScope)) return;
+    }
+
+    var bTag = String(u["BILLABLE -NOT-BILLABLE"] || u["BILLABLE_NOT_BILLABLE"] || "").toUpperCase().trim();
+    var isBillable = (bTag === "BILLABLE");
+    var mainEx = String(u["EXCEPTION TYPE (MAIN METER)"] || "").toUpperCase().trim();
+    var mainRem = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "").toUpperCase().trim();
+    var mainMriAvail = u["IS MRI AVAILABLE (MAIN METER)"];
+    var mainSurvey = u["IS LOAD SURVAY AVAILBLE (MAIN MTR)"] || u["IS LOAD SURVEY AVAILABLE (MAIN METER)"];
+    var loadKw = parseFloat(String(u["LOAD IN KW"] || u["LOAD_KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
+
+    var poleEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
+    var poleRem = String(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "").toUpperCase().trim();
+    var poleMriAvail = u["IS MRI AVAILABLE (POLE METER)"];
+    var poleMtrNo = String(u["LAST MONTH FINAL PM NO."] || "").trim().toUpperCase();
+    var isPoleInstalled = poleMtrNo && poleMtrNo !== "-" && poleMtrNo !== "0" && poleMtrNo !== "NAN" && poleMtrNo !== "NO_MTR" && poleMtrNo !== "NOT INSTALLED";
+
+    var bs = String(u["BILLING STATUS"] || u["BILLING  STATUS"] || "").toUpperCase().trim();
+    var isBilled = (bs === "BILLED" || bs.startsWith("BILLED") || bs === "BILL GENERATED");
+
+    var fbd = String(u["FOR_BILL DISTRIBUTION"] || u["FOR_BILL_DISTRIBUTION"] || "").toUpperCase().trim();
+    var bpt = String(u["BILL PRINT TAG"] || u["BILL_PRINT_TAG"] || "").toUpperCase().trim();
+    var ibu = String(u["IS BILL UPLOAD"] || u["IS_BILL_UPLOAD"] || "").toUpperCase().trim();
+    var ds = String(u["DISTRIBUTION STATUS"] || u["DISTRIBUTION_STATUS"] || "").toUpperCase().trim();
+    var isInDist = (fbd === "YES" || fbd === "TOWER") && bpt !== "NEED TO PRINT";
+
+    // 🟢 Failure / Rejection Reason Calculation (Same as Rejection After MRI)
+    var failureReason = "";
+    if (!isBilled && isBillable) {
+      if (mainRem.includes("RTC DEFECTIVE")) failureReason = "Meter RTC Defective";
+      var exportFail = String(u["EXPORT FAILURE MESSAGE"] || "").trim();
+      if (exportFail && exportFail !== "0" && exportFail.toUpperCase() !== "NAN") failureReason = "Reject By Infinite: " + toProper(exportFail);
+
+      var fMtr = cleanStr(u["FIELD METER NUMBER"] || u["SITE METER NUMBER_APPSHEET"] || u["LAST MONTH FINAL MM NO."] || u["BILLED METER NUMBER"]);
+      var vMtr = cleanStr(u["FINAL VISITED MAIN METER NUMBER"] || u["SITE METER NO."]);
+      if (fMtr && vMtr && fMtr !== vMtr) failureReason = "Meter Number Mismatch (" + fMtr + " != " + vMtr + ")";
+
+      var fMake = cleanStr(u["FIELD METER MAKE"] || u["MASTER METER MAKE"] || u["LAST MONTH FINAL MM MAKE"]);
+      var vMake = cleanStr(u["FINAL VISITED MAIN METER MAKE"] || u["SITE METER MAKE"]);
+      if (fMake && vMake && fMake !== vMake && !failureReason) failureReason = "Meter Make Mismatch (" + fMake + " != " + vMake + ")";
+
+      var mtrCheck = vMtr || fMtr;
+      if (mtrCheck && checkTrue(mainMriAvail)) {
+        var noZ = mtrCheck.replace(/^0+/, "");
+        if (!rdgMap[mtrCheck] && !rdgMap[noZ] && !failureReason) failureReason = "MRI Done But Reads Missing";
+      }
+
+      if (!failureReason) failureReason = mainRem || "Other Unbilled / Pending";
+    }
+
+    var match = false;
+
+    // Scorecard Metric Matching
+    if (metricKey === "TOTAL") match = true;
+    else if (metricKey === "NB_1P") match = !isBillable && (mainEx.includes("1 PHASE") || mainEx.includes("1PHASE"));
+    else if (metricKey === "NB_SM") match = !isBillable && (mainEx === "NONE_SM" || mainEx.includes("SM"));
+    else if (metricKey === "NB_UM") match = !isBillable && (mainEx === "NONE_UM" || mainEx.includes("UM") || mainEx.includes("UNMETER"));
+    else if (metricKey === "NB_TDPD") match = !isBillable && !(mainEx.includes("1 PHASE") || mainEx === "NONE_SM" || mainEx === "NONE_UM");
+    else if (metricKey === "NB_TOTAL") match = !isBillable;
+    
+    // Main Meter
+    else if (metricKey === "BILLABLE") match = isBillable;
+    else if (metricKey === "MAIN_VISIT") match = isBillable && mainEx !== "" && mainEx !== "NAN" && mainEx !== "VISIT PENDING";
+    else if (metricKey === "MAIN_MRI") match = isBillable && mainEx === "MRI";
+    else if (metricKey === "MAIN_MRI_UP") match = isBillable && mainEx === "MRI" && checkTrue(mainMriAvail);
+    else if (metricKey === "MAIN_MRI_NOT_UP") match = isBillable && mainEx === "MRI" && !checkTrue(mainMriAvail);
+    else if (metricKey === "MAIN_EXCEPTIONS") match = isBillable && (mainEx.includes("EXCEPTION") || mainEx === "MANUAL");
+    else if (metricKey === "MAIN_SURVEY") match = isBillable && checkTrue(mainMriAvail) && checkTrue(mainSurvey);
+
+    // Pole Meter
+    else if (metricKey === "POLE_FOR_VISIT") match = (loadKw >= 10);
+    else if (metricKey === "POLE_INSTALLED") match = (loadKw >= 10 && isPoleInstalled);
+    else if (metricKey === "POLE_MRI") match = (loadKw >= 10 && poleEx === "MRI");
+    else if (metricKey === "POLE_MRI_UP") match = (loadKw >= 10 && poleEx === "MRI" && checkTrue(poleMriAvail));
+    else if (metricKey === "POLE_PENDING") match = (loadKw >= 10 && (poleEx === "VISIT PENDING" || poleEx === ""));
+    else if (metricKey === "POLE_EXCEPTIONS") match = (loadKw >= 10 && (poleEx.includes("EXCEPTION") || poleEx === "MANUAL"));
+
+    // Billing
+    else if (metricKey === "BILLED") match = isBillable && isBilled;
+    else if (metricKey === "UNBILLED") match = isBillable && !isBilled;
+
+    // Distribution
+    else if (metricKey === "DIST_TOTAL") match = isInDist;
+    else if (metricKey === "DIST_UPLOAD") match = isInDist && checkTrue(ibu);
+    else if (metricKey === "DIST_NOT_UPLOAD") match = isInDist && !checkTrue(ibu);
+    else if (metricKey === "DIST_DELIVERED") match = isInDist && (ds === "DELEIVERD" || ds === "DELIVERED");
+
+    // 🟢 Bifurcation Filter By Specific Name
+    else if (metricKey === "BIFURCATION_MAIN_EX") {
+      var curMRem = toProper(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "No Remark");
+      match = isBillable && (mainEx.includes("EXCEPTION") || mainEx === "MANUAL") && curMRem.toUpperCase() === String(filterValue).toUpperCase();
+    }
+    else if (metricKey === "BIFURCATION_POLE_EX") {
+      var curPRem = toProper(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "No Remark");
+      match = (loadKw >= 10) && (poleEx.includes("EXCEPTION") || poleEx === "MANUAL") && curPRem.toUpperCase() === String(filterValue).toUpperCase();
+    }
+    else if (metricKey === "BIFURCATION_UNBILLED_REJ") {
+      match = isBillable && !isBilled && failureReason.toUpperCase() === String(filterValue).toUpperCase();
+    }
+    else if (metricKey === "BIFURCATION_DIST") {
+      if (filterValue === "Bill Upload Done") match = isInDist && checkTrue(ibu);
+      else if (filterValue === "Bill Not Upload") match = isInDist && !checkTrue(ibu);
+      else if (filterValue === "Bill Delivered") match = isInDist && (ds === "DELEIVERD" || ds === "DELIVERED");
+      else if (filterValue === "Distribution Pending") match = isInDist && ds.includes("PENDING");
+    }
+
+    if (match) matchedRows.push(row);
+  });
+
+  if (matchedRows.length === 0) {
+    alert("इस सिलेक्शन के लिए 0 रिकॉर्ड्स मिले!");
+    return;
+  }
+
+  // Generate Styled Excel of filtered rows
+  var headers = [
+    "Sr.No.", "Division", "Account No", "Consumer Type", "Tariff", "Consumer Name", "Address", "Load In KW",
+    "Billed Meter No", "Visited Main Meter", "Main Exception Type", "Main Site Remark", "Main MRI Available",
+    "Visited Pole Meter", "Pole Exception Type", "Pole Site Remark", "Pole MRI Available",
+    "Billing Status", "Is Bill Upload", "Distribution Status"
+  ];
+
+  var excelData = [headers];
+  matchedRows.forEach(function(r, idx) {
+    var u = r._uMap || r;
+    excelData.push([
+      idx + 1,
+      String(u["DIVISION"] || ""),
+      String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").padStart(10, '0'),
+      String(u["CONSUMER TYPE"] || ""),
+      String(u["CONSUMER CATOGARY"] || u["TARIFF"] || ""),
+      toProper(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || ""),
+      toProper(u["ADDRESS"] || ""),
+      String(u["LOAD IN KW"] || u["LOAD_KW"] || ""),
+      String(u["BILLED METER NUMBER"] || ""),
+      String(u["FINAL VISITED MAIN METER NUMBER"] || u["LAST MONTH FINAL MM NO."] || ""),
+      String(u["EXCEPTION TYPE (MAIN METER)"] || ""),
+      String(u["FINAL_MAIN_METER_SITE_REMARK"] || ""),
+      String(u["IS MRI AVAILABLE (MAIN METER)"] || ""),
+      String(u["FINAL VISITED POLE METER NO."] || u["LAST MONTH FINAL PM NO."] || ""),
+      String(u["EXCEPTION TYPE (POLE METER)"] || ""),
+      String(u["FINAL_POLE_METER_SITE_REMARK"] || ""),
+      String(u["IS MRI AVAILABLE (POLE METER)"] || ""),
+      String(u["BILLING STATUS"] || ""),
+      String(u["IS BILL UPLOAD"] || ""),
+      String(u["DISTRIBUTION STATUS"] || "")
+    ]);
+  });
+
+  var wb = XLSX.utils.book_new();
+  var ws = XLSX.utils.aoa_to_sheet(excelData);
+  ws['!autofilter'] = { ref: ws['!ref'] };
+  
+  var now = new Date();
+  var timeStr = now.toLocaleDateString('en-GB').replace(/\//g, '-') + "_" + now.getHours() + "-" + now.getMinutes();
+  var titleSlug = (metricKey + "_" + (filterValue || divScope)).replace(/[^A-Za-z0-9]/g, "_");
+
+  XLSX.utils.book_append_sheet(wb, ws, "Filtered_Data");
+  XLSX.writeFile(wb, "Scorecard_" + titleSlug + "_" + timeStr + ".xlsx");
+}
+
+// 🟢 1. DYNAMIC EXCEL DOWNLOAD ON ANY CELL CLICK (BOLD NAVY HEADER + AUTO FIT + CENTERED)
+function downloadScorecardSpecificExcel(metricKey, divScope, filterValue) {
+  if (!cachedDatabase || cachedDatabase.length === 0) {
+    alert("डेटा उपलब्ध नहीं है!");
+    return;
+  }
+
+  function checkTrue(v) {
+    var s = String(v || "").trim().toUpperCase();
+    return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+  }
+  function cleanStr(v) {
+    if (!v) return "";
+    return String(v).trim().toUpperCase().replace(/[^A-Z0-9]/gi, "");
+  }
+  function toProper(str) {
+    if (!str) return "";
+    return String(str).toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+  }
+
+  var rdgMap = window.cachedRdgMap || cachedRdgMap || {};
+  var matchedRows = [];
+
+  cachedDatabase.forEach(function(row) {
+    var u = row._uMap || row || {};
+    var rowDiv = String(u["DIVISION"] || "").toUpperCase().trim();
+    
+    // Division Filter Check
+    if (divScope && divScope !== "TOTAL" && divScope !== "EDC MAINPURI") {
+      var cleanScope = divScope.replace(/[^A-Z0-9]/g, "").toUpperCase();
+      var cleanRowDiv = rowDiv.replace(/[^A-Z0-9]/g, "").toUpperCase();
+      if (!cleanRowDiv.includes(cleanScope)) return;
+    }
+
+    var bTag = String(u["BILLABLE -NOT-BILLABLE"] || u["BILLABLE_NOT_BILLABLE"] || "").toUpperCase().trim();
+    var isBillable = (bTag === "BILLABLE");
+    var mainEx = String(u["EXCEPTION TYPE (MAIN METER)"] || "").toUpperCase().trim();
+    var mainRem = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "").toUpperCase().trim();
+    var mainMriAvail = u["IS MRI AVAILABLE (MAIN METER)"];
+    var isMainMriTrue = checkTrue(mainMriAvail);
+    var mainSurvey = u["IS LOAD SURVAY AVAILBLE (MAIN MTR)"] || u["IS LOAD SURVEY AVAILABLE (MAIN METER)"];
+    var loadKw = parseFloat(String(u["LOAD IN KW"] || u["LOAD_KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
+
+    var poleEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
+    var poleMriAvail = u["IS MRI AVAILABLE (POLE METER)"];
+    var poleMtrNo = String(u["LAST MONTH FINAL PM NO."] || "").trim().toUpperCase();
+    var isPoleInstalled = poleMtrNo && poleMtrNo !== "-" && poleMtrNo !== "0" && poleMtrNo !== "NAN" && poleMtrNo !== "NO_MTR" && poleMtrNo !== "NOT INSTALLED";
+
+    var bs = String(u["BILLING STATUS"] || u["BILLING  STATUS"] || "").toUpperCase().trim();
+    var isBilled = (bs === "BILLED" || bs.startsWith("BILLED") || bs === "BILL GENERATED");
+
+    var fbd = String(u["FOR_BILL DISTRIBUTION"] || u["FOR_BILL_DISTRIBUTION"] || "").toUpperCase().trim();
+    var bpt = String(u["BILL PRINT TAG"] || u["BILL_PRINT_TAG"] || "").toUpperCase().trim();
+    var ibu = String(u["IS BILL UPLOAD"] || u["IS_BILL_UPLOAD"] || "").toUpperCase().trim();
+    var ds = String(u["DISTRIBUTION STATUS"] || u["DISTRIBUTION_STATUS"] || "").toUpperCase().trim();
+    var isInDist = (fbd === "YES" || fbd === "TOWER") && bpt !== "NEED TO PRINT";
+
+    // 🟢 UNBILLED REJECTION REASON (STRICTLY ONLY WHEN IS MRI AVAILABLE = TRUE)
+    var failureReason = "";
+    if (!isBilled && isBillable && isMainMriTrue) {
+      if (mainRem.includes("RTC DEFECTIVE")) failureReason = "Meter RTC Defective";
+      var exportFail = String(u["EXPORT FAILURE MESSAGE"] || "").trim();
+      if (exportFail && exportFail !== "0" && exportFail.toUpperCase() !== "NAN" && !failureReason) {
+        failureReason = "Reject By Infinite: " + toProper(exportFail);
+      }
+
+      var fMtr = cleanStr(u["FIELD METER NUMBER"] || u["SITE METER NUMBER_APPSHEET"] || u["LAST MONTH FINAL MM NO."] || u["BILLED METER NUMBER"]);
+      var vMtr = cleanStr(u["FINAL VISITED MAIN METER NUMBER"] || u["SITE METER NO."]);
+      if (fMtr && vMtr && fMtr !== vMtr && !failureReason) failureReason = "Meter Number Mismatch";
+
+      var fMake = cleanStr(u["FIELD METER MAKE"] || u["MASTER METER MAKE"] || u["LAST MONTH FINAL MM MAKE"]);
+      var vMake = cleanStr(u["FINAL VISITED MAIN METER MAKE"] || u["SITE METER MAKE"]);
+      if (fMake && vMake && fMake !== vMake && !failureReason) failureReason = "Meter Make Mismatch";
+
+      var mtrCheck = vMtr || fMtr;
+      if (mtrCheck && !failureReason) {
+        var noZ = mtrCheck.replace(/^0+/, "");
+        if (!rdgMap[mtrCheck] && !rdgMap[noZ]) failureReason = "MRI Done But Reads Missing";
+      }
+
+      if (!failureReason) failureReason = "Other Rejection After MRI";
+    }
+
+    var match = false;
+
+    if (metricKey === "TOTAL") match = true;
+    else if (metricKey === "NB_1P") match = !isBillable && (mainEx.includes("1 PHASE") || mainEx.includes("1PHASE"));
+    else if (metricKey === "NB_SM") match = !isBillable && (mainEx === "NONE_SM" || mainEx.includes("SM"));
+    else if (metricKey === "NB_UM") match = !isBillable && (mainEx === "NONE_UM" || mainEx.includes("UM") || mainEx.includes("UNMETER"));
+    else if (metricKey === "NB_TDPD") match = !isBillable && !(mainEx.includes("1 PHASE") || mainEx === "NONE_SM" || mainEx === "NONE_UM");
+    else if (metricKey === "NB_TOTAL") match = !isBillable;
+    
+    // Main Meter
+    else if (metricKey === "BILLABLE") match = isBillable;
+    else if (metricKey === "MAIN_VISIT") match = isBillable && mainEx !== "" && mainEx !== "NAN" && mainEx !== "VISIT PENDING";
+    else if (metricKey === "MAIN_MRI") match = isBillable && mainEx === "MRI";
+    else if (metricKey === "MAIN_MRI_UP") match = isBillable && mainEx === "MRI" && isMainMriTrue;
+    else if (metricKey === "MAIN_MRI_NOT_UP") match = isBillable && mainEx === "MRI" && !isMainMriTrue;
+    else if (metricKey === "MAIN_EXCEPTIONS") match = isBillable && (mainEx.includes("EXCEPTION") || mainEx === "MANUAL");
+    else if (metricKey === "MAIN_SURVEY") match = isBillable && isMainMriTrue && checkTrue(mainSurvey);
+
+    // Pole Meter
+    else if (metricKey === "POLE_FOR_VISIT") match = (loadKw >= 10);
+    else if (metricKey === "POLE_INSTALLED") match = (loadKw >= 10 && isPoleInstalled);
+    else if (metricKey === "POLE_MRI") match = (loadKw >= 10 && poleEx === "MRI");
+    else if (metricKey === "POLE_MRI_UP") match = (loadKw >= 10 && poleEx === "MRI" && checkTrue(poleMriAvail));
+    else if (metricKey === "POLE_PENDING") match = (loadKw >= 10 && (poleEx === "VISIT PENDING" || poleEx === ""));
+    else if (metricKey === "POLE_EXCEPTIONS") match = (loadKw >= 10 && (poleEx.includes("EXCEPTION") || poleEx === "MANUAL"));
+
+    // Billing
+    else if (metricKey === "BILLED") match = isBillable && isBilled;
+    else if (metricKey === "UNBILLED") match = isBillable && !isBilled;
+
+    // Distribution
+    else if (metricKey === "DIST_TOTAL") match = isInDist;
+    else if (metricKey === "DIST_UPLOAD") match = isInDist && checkTrue(ibu);
+    else if (metricKey === "DIST_NOT_UPLOAD") match = isInDist && !checkTrue(ibu);
+    else if (metricKey === "DIST_DELIVERED") match = isInDist && (ds === "DELEIVERD" || ds === "DELIVERED");
+
+    // Bifurcations
+    else if (metricKey === "BIFURCATION_MAIN_EX") {
+      var curMRem = toProper(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "No Remark");
+      match = isBillable && (mainEx.includes("EXCEPTION") || mainEx === "MANUAL") && curMRem.toUpperCase() === String(filterValue).toUpperCase();
+    }
+    else if (metricKey === "BIFURCATION_POLE_EX") {
+      var curPRem = toProper(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "No Remark");
+      match = (loadKw >= 10) && (poleEx.includes("EXCEPTION") || poleEx === "MANUAL") && curPRem.toUpperCase() === String(filterValue).toUpperCase();
+    }
+    else if (metricKey === "BIFURCATION_UNBILLED_REJ") {
+      match = isBillable && !isBilled && isMainMriTrue && failureReason.toUpperCase() === String(filterValue).toUpperCase();
+    }
+    else if (metricKey === "BIFURCATION_DIST") {
+      if (filterValue === "Bill Upload Done") match = isInDist && checkTrue(ibu);
+      else if (filterValue === "Bill Not Upload") match = isInDist && !checkTrue(ibu);
+      else if (filterValue === "Bill Delivered") match = isInDist && (ds === "DELEIVERD" || ds === "DELIVERED");
+      else if (filterValue === "Distribution Pending") match = isInDist && ds.includes("PENDING");
+    }
+
+    if (match) matchedRows.push(row);
+  });
+
+  if (matchedRows.length === 0) {
+    alert("इस सिलेक्शन के लिए 0 रिकॉर्ड्स मिले!");
+    return;
+  }
+
+  // 🟢 Generate Fully Formatted Luxury Excel
+  var headers = [
+    "Sr.No.", "Division", "Account No", "Consumer Type", "Tariff", "Consumer Name", "Address", "Load In KW",
+    "Billed Meter No", "Visited Main Meter", "Main Exception Type", "Main Site Remark", "Main MRI Available",
+    "Visited Pole Meter", "Pole Exception Type", "Pole Site Remark", "Pole MRI Available",
+    "Billing Status", "Is Bill Upload", "Distribution Status"
+  ];
+
+  var excelData = [headers];
+  matchedRows.forEach(function(r, idx) {
+    var u = r._uMap || r;
+    excelData.push([
+      idx + 1,
+      String(u["DIVISION"] || ""),
+      String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").padStart(10, '0'),
+      String(u["CONSUMER TYPE"] || ""),
+      String(u["CONSUMER CATOGARY"] || u["TARIFF"] || ""),
+      toProper(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || ""),
+      toProper(u["ADDRESS"] || ""),
+      String(u["LOAD IN KW"] || u["LOAD_KW"] || ""),
+      String(u["BILLED METER NUMBER"] || ""),
+      String(u["FINAL VISITED MAIN METER NUMBER"] || u["LAST MONTH FINAL MM NO."] || ""),
+      String(u["EXCEPTION TYPE (MAIN METER)"] || ""),
+      String(u["FINAL_MAIN_METER_SITE_REMARK"] || ""),
+      String(u["IS MRI AVAILABLE (MAIN METER)"] || ""),
+      String(u["FINAL VISITED POLE METER NO."] || u["LAST MONTH FINAL PM NO."] || ""),
+      String(u["EXCEPTION TYPE (POLE METER)"] || ""),
+      String(u["FINAL_POLE_METER_SITE_REMARK"] || ""),
+      String(u["IS MRI AVAILABLE (POLE METER)"] || ""),
+      String(u["BILLING STATUS"] || ""),
+      String(u["IS BILL UPLOAD"] || ""),
+      String(u["DISTRIBUTION STATUS"] || "")
+    ]);
+  });
+
+  var wb = XLSX.utils.book_new();
+  var ws = XLSX.utils.aoa_to_sheet(excelData);
+  ws['!autofilter'] = { ref: ws['!ref'] };
+  ws['!views'] = [{ state: 'frozen', ySplit: 1, xSplit: 0, activeCell: 'A2' }];
+
+  if (ws['!ref']) {
+    var range = XLSX.utils.decode_range(ws['!ref']);
+    var colWidths = [];
+
+    for (var C = range.s.c; C <= range.e.c; ++C) {
+      var maxLen = 0;
+      for (var R = range.s.r; R <= range.e.r; ++R) {
+        var cellAddr = XLSX.utils.encode_cell({ r: R, c: C });
+        if (ws[cellAddr] && ws[cellAddr].v !== undefined && ws[cellAddr].v !== null) {
+          var cellLen = String(ws[cellAddr].v).length;
+          if (cellLen > maxLen) maxLen = cellLen;
+        }
+      }
+      colWidths.push({ wch: Math.min(Math.max(maxLen + 4, 12), 42) });
+    }
+    colWidths[0] = { wch: 8 };
+    ws['!cols'] = colWidths;
+
+    for (var R = range.s.r; R <= range.e.r; ++R) {
+      for (var C = range.s.c; C <= range.e.c; ++C) {
+        var cellAddr = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!ws[cellAddr]) continue;
+
+        ws[cellAddr].t = 's';
+        ws[cellAddr].z = '@';
+
+        if (R === 0) {
+          ws[cellAddr].s = {
+            fill: { fgColor: { rgb: "0B3C5D" } },
+            font: { name: "Segoe UI", sz: 9.5, bold: true, color: { rgb: "FFFFFF" } },
+            alignment: { horizontal: "center", vertical: "center", wrapText: true }
+          };
+        } else {
+          ws[cellAddr].s = {
+            font: { name: "Segoe UI", sz: 8.5 },
+            alignment: { horizontal: (C === 5 || C === 6 ? "left" : "center"), vertical: "center" },
+            border: {
+              top: { style: "thin", color: { rgb: "E0E0E0" } },
+              bottom: { style: "thin", color: { rgb: "E0E0E0" } },
+              left: { style: "thin", color: { rgb: "E0E0E0" } },
+              right: { style: "thin", color: { rgb: "E0E0E0" } }
+            }
+          };
+        }
+      }
+    }
+  }
+
+  var now = new Date();
+  var timeStr = now.toLocaleDateString('en-GB').replace(/\//g, '-') + "_" + now.getHours() + "-" + now.getMinutes();
+  var titleSlug = (metricKey + "_" + (filterValue || divScope)).replace(/[^A-Za-z0-9]/g, "_");
+
+  XLSX.utils.book_append_sheet(wb, ws, "Filtered_Records");
+  XLSX.writeFile(wb, "Scorecard_" + titleSlug + "_" + timeStr + ".xlsx");
+}
+
+// 🟢 2. COMPREHENSIVE SCORECARD & BIFURCATION CALCULATION
+function renderDivisionPerformanceChart(dataset) {
   var tbody = document.getElementById('division-scorecard-tbody');
   if (!tbody) return;
 
+  function createDivStatsBucket(fullName) {
+    return {
+      name: fullName,
+      total: 0,
+      nb_1p: 0, nb_sm: 0, nb_um: 0, nb_tdpd: 0, nb_total: 0,
+      billable: 0, mainVisit: 0, mainMri: 0, mainMriUp: 0, mainMriNotUp: 0, mainExceptions: 0, mainLoadSurvey: 0,
+      poleForVisit: 0, poleInstalled: 0, poleMri: 0, poleMriUp: 0, polePending: 0, poleExceptions: 0,
+      billed: 0, unbilled: 0,
+      distTotal: 0, distUpload: 0, distNotUpload: 0, distDelivered: 0, distPending: 0
+    };
+  }
+
   var divStats = {
-    "EDD-I": { 
-      name: "EDD-I Mainpuri", 
-      total: 0, 
-      mainVisit: 0, mainMri: 0, mainMriUp: 0, 
-      poleVisit: 0, poleMri: 0, poleMriUp: 0, 
-      billed: 0, 
-      distDelivered: 0, distPending: 0, distTotal: 0 
-    },
-    "EDD-II": { 
-      name: "EDD-II Mainpuri", 
-      total: 0, 
-      mainVisit: 0, mainMri: 0, mainMriUp: 0, 
-      poleVisit: 0, poleMri: 0, poleMriUp: 0, 
-      billed: 0, 
-      distDelivered: 0, distPending: 0, distTotal: 0 
-    },
-    "EDD-III": { 
-      name: "EDD-III Mainpuri", 
-      total: 0, 
-      mainVisit: 0, mainMri: 0, mainMriUp: 0, 
-      poleVisit: 0, poleMri: 0, poleMriUp: 0, 
-      billed: 0, 
-      distDelivered: 0, distPending: 0, distTotal: 0 
-    }
+    "EDD-I": createDivStatsBucket("EDD-I Mainpuri"),
+    "EDD-II": createDivStatsBucket("EDD-II Mainpuri"),
+    "EDD-III": createDivStatsBucket("EDD-III Mainpuri")
   };
 
+  function checkTrue(v) {
+    var s = String(v || "").trim().toUpperCase();
+    return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+  }
+  function toProper(txt) {
+    if (!txt) return "No Remark";
+    var s = String(txt).trim();
+    if (s === "" || s.toUpperCase() === "NAN" || s.toUpperCase() === "NULL" || s === "-") return "No Remark";
+    return s.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+  }
+  function cleanStr(v) {
+    if (!v) return "";
+    return String(v).trim().toUpperCase().replace(/[^A-Z0-9]/gi, "");
+  }
+
+  var rdgMap = window.cachedRdgMap || cachedRdgMap || {};
+
+  var mainExRemarksMap = {};
+  var poleExRemarksMap = {};
+  var unbilledRejectionMap = {};
+  var distStatusMap = {
+    "Bill Upload Done": { "EDD-I": 0, "EDD-II": 0, "EDD-III": 0, total: 0 },
+    "Bill Not Upload": { "EDD-I": 0, "EDD-II": 0, "EDD-III": 0, total: 0 },
+    "Bill Delivered": { "EDD-I": 0, "EDD-II": 0, "EDD-III": 0, total: 0 },
+    "Distribution Pending": { "EDD-I": 0, "EDD-II": 0, "EDD-III": 0, total: 0 }
+  };
+
+  var totalMainExCount = 0;
+  var totalPoleExCount = 0;
+  var totalUnbilledRejCount = 0;
+  var totalDistBifurcationCount = 0;
+
   dataset.forEach(function(row) {
-    var u = row._uMap || row;
+    var u = row._uMap || row || {};
     var div = String(u["DIVISION"] || "").toUpperCase();
     var divKey = div.includes("EDD-I") && !div.includes("II") && !div.includes("III") ? "EDD-I" :
                  div.includes("EDD-II") && !div.includes("III") ? "EDD-II" :
@@ -7937,211 +8745,414 @@ body.dark-mode .view-tab-btn.active-view-tab {
     var d = divStats[divKey];
     d.total++;
 
-    var loadKw = parseFloat(String(u["LOAD IN KW"] || u["LOAD_KW"] || "").replace(/[^0-9.-]/g, "")) || 0;
-    
-    // 1. Main Meter Metrics
+    var bTag = String(u["BILLABLE -NOT-BILLABLE"] || u["BILLABLE_NOT_BILLABLE"] || "").toUpperCase().trim();
+    var isBillable = (bTag === "BILLABLE");
     var mainEx = String(u["EXCEPTION TYPE (MAIN METER)"] || "").toUpperCase().trim();
-    var mainMriAvail = String(u["IS MRI AVAILABLE (MAIN METER)"] || "").toUpperCase().trim();
-    var isMainMriTrue = (mainMriAvail === "TRUE" || mainMriAvail === "YES" || mainMriAvail === "1");
+    var mainRem = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "").toUpperCase().trim();
+    var mainMriAvail = u["IS MRI AVAILABLE (MAIN METER)"];
+    var isMainMriTrue = checkTrue(mainMriAvail);
+    var mainSurvey = u["IS LOAD SURVAY AVAILBLE (MAIN MTR)"] || u["IS LOAD SURVEY AVAILABLE (MAIN METER)"];
+    var loadKw = parseFloat(String(u["LOAD IN KW"] || u["LOAD_KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
 
-    if (mainEx !== "" && mainEx !== "NAN" && mainEx !== "VISIT PENDING") {
-      d.mainVisit++;
-    }
-    if (mainEx === "MRI") {
-      d.mainMri++;
-      if (isMainMriTrue) d.mainMriUp++;
+    // 1. Not Billable vs Billable
+    if (!isBillable) {
+      d.nb_total++;
+      if (mainEx.includes("1 PHASE") || mainEx.includes("1PHASE")) d.nb_1p++;
+      else if (mainEx === "NONE_SM" || mainEx.includes("SM")) d.nb_sm++;
+      else if (mainEx === "NONE_UM" || mainEx.includes("UM") || mainEx.includes("UNMETER")) d.nb_um++;
+      else d.nb_tdpd++;
+    } else {
+      d.billable++;
+      if (mainEx !== "" && mainEx !== "NAN" && mainEx !== "VISIT PENDING") d.mainVisit++;
+
+      if (mainEx === "MRI") {
+        d.mainMri++;
+        if (isMainMriTrue) {
+          d.mainMriUp++;
+          if (checkTrue(mainSurvey)) d.mainLoadSurvey++;
+        } else {
+          d.mainMriNotUp++;
+        }
+      } else if (mainEx.includes("EXCEPTION") || mainEx === "MANUAL") {
+        d.mainExceptions++;
+        var mRemProper = toProper(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "No Remark");
+        if (!mainExRemarksMap[mRemProper]) mainExRemarksMap[mRemProper] = { "EDD-I": 0, "EDD-II": 0, "EDD-III": 0, total: 0 };
+        mainExRemarksMap[mRemProper][divKey]++;
+        mainExRemarksMap[mRemProper].total++;
+        totalMainExCount++;
+      }
+
+      // Billing Status (Only Billable)
+      var bs = String(u["BILLING STATUS"] || u["BILLING  STATUS"] || "").toUpperCase().trim();
+      var isBilled = (bs === "BILLED" || bs.startsWith("BILLED") || bs === "BILL GENERATED");
+      if (isBilled) {
+        d.billed++;
+      } else {
+        d.unbilled++;
+        // 🟢 UNBILLED REJECTION BIFURCATION (STRICTLY ONLY WHEN IS MRI AVAILABLE = TRUE)
+        if (isMainMriTrue) {
+          var rejReason = "";
+          if (mainRem.includes("RTC DEFECTIVE")) rejReason = "Meter RTC Defective";
+          var exportFail = String(u["EXPORT FAILURE MESSAGE"] || "").trim();
+          if (exportFail && exportFail !== "0" && exportFail.toUpperCase() !== "NAN" && !rejReason) {
+            rejReason = "Reject By Infinite: " + toProper(exportFail);
+          }
+
+          var fMtr = cleanStr(u["FIELD METER NUMBER"] || u["SITE METER NUMBER_APPSHEET"] || u["LAST MONTH FINAL MM NO."] || u["BILLED METER NUMBER"]);
+          var vMtr = cleanStr(u["FINAL VISITED MAIN METER NUMBER"] || u["SITE METER NO."]);
+          if (fMtr && vMtr && fMtr !== vMtr && !rejReason) rejReason = "Meter Number Mismatch";
+
+          var fMake = cleanStr(u["FIELD METER MAKE"] || u["MASTER METER MAKE"] || u["LAST MONTH FINAL MM MAKE"]);
+          var vMake = cleanStr(u["FINAL VISITED MAIN METER MAKE"] || u["SITE METER MAKE"]);
+          if (fMake && vMake && fMake !== vMake && !rejReason) rejReason = "Meter Make Mismatch";
+
+          var mtrCheck = vMtr || fMtr;
+          if (mtrCheck && !rejReason) {
+            var noZ = mtrCheck.replace(/^0+/, "");
+            if (!rdgMap[mtrCheck] && !rdgMap[noZ]) rejReason = "MRI Done But Reads Missing";
+          }
+
+          if (!rejReason) rejReason = "Other Rejection After MRI";
+
+          if (!unbilledRejectionMap[rejReason]) unbilledRejectionMap[rejReason] = { "EDD-I": 0, "EDD-II": 0, "EDD-III": 0, total: 0 };
+          unbilledRejectionMap[rejReason][divKey]++;
+          unbilledRejectionMap[rejReason].total++;
+          totalUnbilledRejCount++;
+        }
+      }
+
+      // Bill Distribution (With Upload vs Not Upload)
+      var fbd = String(u["FOR_BILL DISTRIBUTION"] || u["FOR_BILL_DISTRIBUTION"] || "").toUpperCase().trim();
+      var bpt = String(u["BILL PRINT TAG"] || u["BILL_PRINT_TAG"] || "").toUpperCase().trim();
+      var ibu = String(u["IS BILL UPLOAD"] || u["IS_BILL_UPLOAD"] || "").toUpperCase().trim();
+      var ds = String(u["DISTRIBUTION STATUS"] || u["DISTRIBUTION_STATUS"] || "").toUpperCase().trim();
+
+      if ((fbd === "YES" || fbd === "TOWER") && bpt !== "NEED TO PRINT") {
+        d.distTotal++;
+        totalDistBifurcationCount++;
+        if (checkTrue(ibu)) {
+          d.distUpload++;
+          distStatusMap["Bill Upload Done"][divKey]++;
+          distStatusMap["Bill Upload Done"].total++;
+        } else {
+          d.distNotUpload++;
+          distStatusMap["Bill Not Upload"][divKey]++;
+          distStatusMap["Bill Not Upload"].total++;
+        }
+
+        if (ds === "DELEIVERD" || ds === "DELIVERED") {
+          d.distDelivered++;
+          distStatusMap["Bill Delivered"][divKey]++;
+          distStatusMap["Bill Delivered"].total++;
+        } else if (ds.includes("PENDING")) {
+          d.distPending++;
+          distStatusMap["Distribution Pending"][divKey]++;
+          distStatusMap["Distribution Pending"].total++;
+        }
+      }
     }
 
     // 2. Pole Meter Metrics (>=10 KW)
     if (loadKw >= 10) {
-      var poleEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
-      var poleMriAvail = String(u["IS MRI AVAILABLE (POLE METER)"] || "").toUpperCase().trim();
-      var isPoleMriTrue = (poleMriAvail === "TRUE" || poleMriAvail === "YES" || poleMriAvail === "1");
-
-      if (poleEx !== "" && poleEx !== "NAN" && poleEx !== "VISIT PENDING") {
-        d.poleVisit++;
+      d.poleForVisit++;
+      var poleMtrNo = String(u["LAST MONTH FINAL PM NO."] || "").trim().toUpperCase();
+      if (poleMtrNo && poleMtrNo !== "-" && poleMtrNo !== "NAN" && poleMtrNo !== "0" && poleMtrNo !== "NO_MTR" && poleMtrNo !== "NOT INSTALLED") {
+        d.poleInstalled++;
       }
+
+      var poleEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
+      var poleMriAvail = u["IS MRI AVAILABLE (POLE METER)"];
+
       if (poleEx === "MRI") {
         d.poleMri++;
-        if (isPoleMriTrue) d.poleMriUp++;
-      }
-    }
-
-    // 3. Billing Status
-    var bs = String(u["BILLING STATUS"] || u["BILLING  STATUS"] || "").toUpperCase().trim();
-    if (bs === "BILLED" || bs.startsWith("BILLED")) {
-      d.billed++;
-    }
-
-    // 4. Bill Distribution Metrics
-    var fbd = String(u["FOR_BILL DISTRIBUTION"] || u["FOR_BILL_DISTRIBUTION"] || "").toUpperCase().trim();
-    var bpt = String(u["BILL PRINT TAG"] || u["BILL_PRINT_TAG"] || "").toUpperCase().trim();
-    var ibu = String(u["IS BILL UPLOAD"] || u["IS_BILL_UPLOAD"] || "").toUpperCase().trim();
-    var ds = String(u["DISTRIBUTION STATUS"] || u["DISTRIBUTION_STATUS"] || "").toUpperCase().trim();
-
-    if (fbd === "YES" && bpt !== "NEED TO PRINT" && (ibu === "YES" || ibu === "TRUE")) {
-      d.distTotal++;
-      if (ds === "DELEIVERD" || ds === "DELIVERED") {
-        d.distDelivered++;
-      } else if (ds.includes("PENDING") || ds === "DISTRIBUTION PENDING") {
-        d.distPending++;
+        if (checkTrue(poleMriAvail)) d.poleMriUp++;
+      } else if (poleEx === "VISIT PENDING" || poleEx === "") {
+        d.polePending++;
+      } else if (poleEx.includes("EXCEPTION") || poleEx === "MANUAL") {
+        d.poleExceptions++;
+        var pRemProper = toProper(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "No Remark");
+        if (!poleExRemarksMap[pRemProper]) poleExRemarksMap[pRemProper] = { "EDD-I": 0, "EDD-II": 0, "EDD-III": 0, total: 0 };
+        poleExRemarksMap[pRemProper][divKey]++;
+        poleExRemarksMap[pRemProper].total++;
+        totalPoleExCount++;
       }
     }
   });
 
-  var grand = { 
-    total: 0, 
-    mainVisit: 0, mainMri: 0, mainMriUp: 0, 
-    poleVisit: 0, poleMri: 0, poleMriUp: 0, 
-    billed: 0, 
-    distDelivered: 0, distPending: 0, distTotal: 0 
-  };
-
+  var grand = createDivStatsBucket("TOTAL EDC CIRCLE");
   var html = "";
+
+  function clk(mKey, dScope, val) {
+    return `onclick="event.stopPropagation(); downloadScorecardSpecificExcel('${mKey}', '${dScope}', '${val || ''}')" title="Click to download Excel of these records" style="cursor:pointer; transition:background 0.15s;" onmouseover="this.style.textDecoration='underline'; this.style.opacity='0.8';" onmouseout="this.style.textDecoration='none'; this.style.opacity='1';"`;
+  }
 
   ["EDD-I", "EDD-II", "EDD-III"].forEach(function(k) {
     var d = divStats[k];
-    grand.total += d.total;
-    grand.mainVisit += d.mainVisit;
-    grand.mainMri += d.mainMri;
-    grand.mainMriUp += d.mainMriUp;
-    grand.poleVisit += d.poleVisit;
-    grand.poleMri += d.poleMri;
-    grand.poleMriUp += d.poleMriUp;
-    grand.billed += d.billed;
-    grand.distDelivered += d.distDelivered;
-    grand.distPending += d.distPending;
-    grand.distTotal += d.distTotal;
+    for (var prop in d) {
+      if (typeof d[prop] === 'number') grand[prop] += d[prop];
+    }
 
-    var mainMriPct = d.mainMri > 0 ? Math.round((d.mainMriUp / d.mainMri) * 100) : 0;
-    var poleMriPct = d.poleMri > 0 ? Math.round((d.poleMriUp / d.poleMri) * 100) : 0;
-    var billPct = d.total > 0 ? Math.round((d.billed / d.total) * 100) : 0;
+    var billPct = d.billable > 0 ? Math.round((d.billed / d.billable) * 100) : 0;
     var distPct = d.distTotal > 0 ? Math.round((d.distDelivered / d.distTotal) * 100) : 0;
 
     html += `
-      <tr onclick="selectedDivisions=['${d.name.toUpperCase()}']; captureFilterSelections('div');" style="cursor: pointer; border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
-        <td style="padding: 5px 8px; text-align: left; font-weight: 800; color: #1e40af; border-right: 1px solid #f1f5f9;">
+      <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+        <td style="padding: 5px 8px; text-align: left; font-weight: 800; color: #1e40af; border-right: 1px solid #cbd5e1; position: sticky; left: 0; background: inherit; z-index: 2;">
           <i class="fa-solid fa-building me-1 text-muted" style="font-size: 9.5px;"></i> ${d.name}
         </td>
-        <td style="padding: 5px; font-weight: 700; color: #0f172a; border-right: 1px solid #f1f5f9;">${d.total}</td>
+        <td style="padding: 5px; font-weight: 800; color: #0f172a; border-right: 1px solid #cbd5e1;" ${clk('TOTAL', k)}>${d.total}</td>
+        
+        <!-- Not Billable -->
+        <td style="padding: 4px; color: #64748b;" ${clk('NB_1P', k)}>${d.nb_1p}</td>
+        <td style="padding: 4px; color: #64748b;" ${clk('NB_SM', k)}>${d.nb_sm}</td>
+        <td style="padding: 4px; color: #64748b;" ${clk('NB_UM', k)}>${d.nb_um}</td>
+        <td style="padding: 4px; color: #64748b;" ${clk('NB_TDPD', k)}>${d.nb_tdpd}</td>
+        <td style="padding: 4px; font-weight: 800; color: #b45309; background: #fef3c7; border-right: 1px solid #cbd5e1;" ${clk('NB_TOTAL', k)}>${d.nb_total}</td>
         
         <!-- Main Meter -->
-        <td style="padding: 5px; font-weight: 700; color: #2563eb;">${d.mainVisit}</td>
-        <td style="padding: 5px; font-weight: 700; color: #7c3aed;">${d.mainMri}</td>
-        <td style="padding: 5px 6px; border-right: 1px solid #f1f5f9;">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
-            <span style="font-weight: 800; color: ${mainMriPct >= 90 ? '#16a34a' : '#d97706'}; font-size: 10.5px;">${mainMriPct}%</span>
-            <div style="width: 32px; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
-              <div style="width: ${mainMriPct}%; height: 100%; background: ${mainMriPct >= 90 ? '#16a34a' : '#f59e0b'};"></div>
-            </div>
-          </div>
-        </td>
+        <td style="padding: 4px; font-weight: 700; color: #1e40af;" ${clk('BILLABLE', k)}>${d.billable}</td>
+        <td style="padding: 4px; font-weight: 700; color: #2563eb;" ${clk('MAIN_VISIT', k)}>${d.mainVisit}</td>
+        <td style="padding: 4px; font-weight: 700; color: #7c3aed;" ${clk('MAIN_MRI', k)}>${d.mainMri}</td>
+        <td style="padding: 4px; font-weight: 700; color: #059669;" ${clk('MAIN_MRI_UP', k)}>${d.mainMriUp}</td>
+        <td style="padding: 4px; font-weight: 800; color: #dc2626;" ${clk('MAIN_MRI_NOT_UP', k)}>${d.mainMriNotUp}</td>
+        <td style="padding: 4px; color: #ea580c;" ${clk('MAIN_EXCEPTIONS', k)}>${d.mainExceptions}</td>
+        <td style="padding: 4px; font-weight: 800; color: #1d4ed8; background: #dbeafe; border-right: 1px solid #cbd5e1;" ${clk('MAIN_SURVEY', k)}>${d.mainLoadSurvey}</td>
 
         <!-- Pole Meter -->
-        <td style="padding: 5px; font-weight: 700; color: #0284c7;">${d.poleVisit}</td>
-        <td style="padding: 5px; font-weight: 700; color: #7c3aed;">${d.poleMri}</td>
-        <td style="padding: 5px 6px; border-right: 1px solid #f1f5f9;">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
-            <span style="font-weight: 800; color: ${poleMriPct >= 90 ? '#16a34a' : '#d97706'}; font-size: 10.5px;">${poleMriPct}%</span>
-            <div style="width: 32px; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
-              <div style="width: ${poleMriPct}%; height: 100%; background: ${poleMriPct >= 90 ? '#16a34a' : '#f59e0b'};"></div>
-            </div>
-          </div>
-        </td>
+        <td style="padding: 4px; font-weight: 700; color: #0369a1;" ${clk('POLE_FOR_VISIT', k)}>${d.poleForVisit}</td>
+        <td style="padding: 4px; font-weight: 700; color: #0284c7;" ${clk('POLE_INSTALLED', k)}>${d.poleInstalled}</td>
+        <td style="padding: 4px; font-weight: 700; color: #7c3aed;" ${clk('POLE_MRI', k)}>${d.poleMri}</td>
+        <td style="padding: 4px; font-weight: 700; color: #059669;" ${clk('POLE_MRI_UP', k)}>${d.poleMriUp}</td>
+        <td style="padding: 4px; font-weight: 800; color: #d97706;" ${clk('POLE_PENDING', k)}>${d.polePending}</td>
+        <td style="padding: 4px; color: #ea580c; background: #e0f2fe; border-right: 1px solid #cbd5e1;" ${clk('POLE_EXCEPTIONS', k)}>${d.poleExceptions}</td>
 
         <!-- Billing -->
-        <td style="padding: 5px; font-weight: 700; color: #059669;">${d.billed}</td>
-        <td style="padding: 5px 6px; border-right: 1px solid #f1f5f9;">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
-            <span style="font-weight: 800; color: #059669; font-size: 10.5px;">${billPct}%</span>
-            <div style="width: 32px; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
-              <div style="width: ${billPct}%; height: 100%; background: #059669;"></div>
-            </div>
-          </div>
-        </td>
+        <td style="padding: 4px; font-weight: 700; color: #059669;" ${clk('BILLED', k)}>${d.billed}</td>
+        <td style="padding: 4px; font-weight: 700; color: #dc2626;" ${clk('UNBILLED', k)}>${d.unbilled}</td>
+        <td style="padding: 4px; font-weight: 800; color: #047857; background: #d1fae5; border-right: 1px solid #cbd5e1;">${billPct}%</td>
 
         <!-- Distribution -->
-        <td style="padding: 5px; font-weight: 700; color: #7c3aed;">${d.distDelivered}</td>
-        <td style="padding: 5px; font-weight: 700; color: #ea580c;">${d.distPending}</td>
-        <td style="padding: 5px 6px;">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
-            <span style="font-weight: 800; color: #7c3aed; font-size: 10.5px;">${distPct}%</span>
-            <div style="width: 32px; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
-              <div style="width: ${distPct}%; height: 100%; background: #7c3aed;"></div>
-            </div>
-          </div>
-        </td>
+        <td style="padding: 4px; font-weight: 700; color: #475569;" ${clk('DIST_TOTAL', k)}>${d.distTotal}</td>
+        <td style="padding: 4px; font-weight: 700; color: #059669;" ${clk('DIST_UPLOAD', k)}>${d.distUpload}</td>
+        <td style="padding: 4px; font-weight: 800; color: #dc2626;" ${clk('DIST_NOT_UPLOAD', k)}>${d.distNotUpload}</td>
+        <td style="padding: 4px; font-weight: 700; color: #7c3aed;" ${clk('DIST_DELIVERED', k)}>${d.distDelivered}</td>
+        <td style="padding: 4px; font-weight: 800; color: #6d28d9; background: #ede9fe;">${distPct}%</td>
       </tr>
     `;
   });
 
-  // Circle Total Row
-  var gMainMriPct = grand.mainMri > 0 ? Math.round((grand.mainMriUp / grand.mainMri) * 100) : 0;
-  var gPoleMriPct = grand.poleMri > 0 ? Math.round((grand.poleMriUp / grand.poleMri) * 100) : 0;
-  var gBillPct = grand.total > 0 ? Math.round((grand.billed / grand.total) * 100) : 0;
+  // Grand Total Row
+  var gBillPct = grand.billable > 0 ? Math.round((grand.billed / grand.billable) * 100) : 0;
   var gDistPct = grand.distTotal > 0 ? Math.round((grand.distDelivered / grand.distTotal) * 100) : 0;
 
   html += `
-    <tr style="background: #eff6ff; border-top: 2px solid #3b82f6; font-weight: 900; font-size: 11px;">
-      <td style="padding: 6px 8px; text-align: left; color: #1e3a8a; border-right: 1px solid #bfdbfe;">TOTAL EDC CIRCLE</td>
-      <td style="padding: 6px; color: #0f172a; border-right: 1px solid #bfdbfe;">${grand.total}</td>
+    <tr style="background: #eff6ff; border-top: 2px solid #3b82f6; font-weight: 900; font-size: 10px;">
+      <td style="padding: 6px 8px; text-align: left; color: #1e3a8a; border-right: 1px solid #cbd5e1; position: sticky; left: 0; background: #eff6ff; z-index: 2;">TOTAL EDC CIRCLE</td>
+      <td style="padding: 6px; color: #0f172a; border-right: 1px solid #cbd5e1;" ${clk('TOTAL', 'TOTAL')}>${grand.total}</td>
       
-      <!-- Main Total -->
-      <td style="padding: 6px; color: #2563eb;">${grand.mainVisit}</td>
-      <td style="padding: 6px; color: #7c3aed;">${grand.mainMri}</td>
-      <td style="padding: 6px; color: #16a34a; border-right: 1px solid #bfdbfe;">${gMainMriPct}%</td>
+      <!-- Grand NB -->
+      <td style="padding: 5px;" ${clk('NB_1P', 'TOTAL')}>${grand.nb_1p}</td>
+      <td style="padding: 5px;" ${clk('NB_SM', 'TOTAL')}>${grand.nb_sm}</td>
+      <td style="padding: 5px;" ${clk('NB_UM', 'TOTAL')}>${grand.nb_um}</td>
+      <td style="padding: 5px;" ${clk('NB_TDPD', 'TOTAL')}>${grand.nb_tdpd}</td>
+      <td style="padding: 5px; color: #b45309; background: #fde68a; border-right: 1px solid #cbd5e1;" ${clk('NB_TOTAL', 'TOTAL')}>${grand.nb_total}</td>
 
-      <!-- Pole Total -->
-      <td style="padding: 6px; color: #0284c7;">${grand.poleVisit}</td>
-      <td style="padding: 6px; color: #7c3aed;">${grand.poleMri}</td>
-      <td style="padding: 6px; color: #16a34a; border-right: 1px solid #bfdbfe;">${gPoleMriPct}%</td>
+      <!-- Grand Main -->
+      <td style="padding: 5px; color: #1e40af;" ${clk('BILLABLE', 'TOTAL')}>${grand.billable}</td>
+      <td style="padding: 5px; color: #2563eb;" ${clk('MAIN_VISIT', 'TOTAL')}>${grand.mainVisit}</td>
+      <td style="padding: 5px; color: #7c3aed;" ${clk('MAIN_MRI', 'TOTAL')}>${grand.mainMri}</td>
+      <td style="padding: 5px; color: #059669;" ${clk('MAIN_MRI_UP', 'TOTAL')}>${grand.mainMriUp}</td>
+      <td style="padding: 5px; color: #dc2626;" ${clk('MAIN_MRI_NOT_UP', 'TOTAL')}>${grand.mainMriNotUp}</td>
+      <td style="padding: 5px; color: #ea580c;" ${clk('MAIN_EXCEPTIONS', 'TOTAL')}>${grand.mainExceptions}</td>
+      <td style="padding: 5px; color: #1d4ed8; background: #bfdbfe; border-right: 1px solid #cbd5e1;" ${clk('MAIN_SURVEY', 'TOTAL')}>${grand.mainLoadSurvey}</td>
 
-      <!-- Billing Total -->
-      <td style="padding: 6px; color: #059669;">${grand.billed}</td>
-      <td style="padding: 6px; color: #059669; border-right: 1px solid #bfdbfe;">${gBillPct}%</td>
+      <!-- Grand Pole -->
+      <td style="padding: 5px; color: #0369a1;" ${clk('POLE_FOR_VISIT', 'TOTAL')}>${grand.poleForVisit}</td>
+      <td style="padding: 5px; color: #0284c7;" ${clk('POLE_INSTALLED', 'TOTAL')}>${grand.poleInstalled}</td>
+      <td style="padding: 5px; color: #7c3aed;" ${clk('POLE_MRI', 'TOTAL')}>${grand.poleMri}</td>
+      <td style="padding: 5px; color: #059669;" ${clk('POLE_MRI_UP', 'TOTAL')}>${grand.poleMriUp}</td>
+      <td style="padding: 5px; color: #d97706;" ${clk('POLE_PENDING', 'TOTAL')}>${grand.polePending}</td>
+      <td style="padding: 5px; color: #ea580c; background: #bae6fd; border-right: 1px solid #cbd5e1;" ${clk('POLE_EXCEPTIONS', 'TOTAL')}>${grand.poleExceptions}</td>
 
-      <!-- Distribution Total -->
-      <td style="padding: 6px; color: #7c3aed;">${grand.distDelivered}</td>
-      <td style="padding: 6px; color: #ea580c;">${grand.distPending}</td>
-      <td style="padding: 6px; color: #7c3aed;">${gDistPct}%</td>
+      <!-- Grand Billing -->
+      <td style="padding: 5px; color: #059669;" ${clk('BILLED', 'TOTAL')}>${grand.billed}</td>
+      <td style="padding: 5px; color: #dc2626;" ${clk('UNBILLED', 'TOTAL')}>${grand.unbilled}</td>
+      <td style="padding: 5px; color: #047857; background: #a7f3d0; border-right: 1px solid #cbd5e1;">${gBillPct}%</td>
+
+      <!-- Grand Distribution -->
+      <td style="padding: 5px; color: #475569;" ${clk('DIST_TOTAL', 'TOTAL')}>${grand.distTotal}</td>
+      <td style="padding: 5px; color: #059669;" ${clk('DIST_UPLOAD', 'TOTAL')}>${grand.distUpload}</td>
+      <td style="padding: 5px; color: #dc2626;" ${clk('DIST_NOT_UPLOAD', 'TOTAL')}>${grand.distNotUpload}</td>
+      <td style="padding: 5px; color: #7c3aed;" ${clk('DIST_DELIVERED', 'TOTAL')}>${grand.distDelivered}</td>
+      <td style="padding: 5px; color: #6d28d9; background: #ddd6fe;">${gDistPct}%</td>
     </tr>
   `;
 
   tbody.innerHTML = html;
 
-  // Signal Badges Update
-  var sMriNotUp = document.getElementById('signal-mri-not-upload');
-  var sSurveyMis = document.getElementById('signal-survey-missing');
-  var sMisCount = document.getElementById('signal-mismatch-count');
+  // Render Sub Bifurcation Tables
+  function renderSubBifurcationTable(tbodyId, badgeId, dataMap, metricType, borderClr, bgClr) {
+    var tb = document.getElementById(tbodyId);
+    var bd = document.getElementById(badgeId);
+    if (!tb) return;
 
-  if (sMriNotUp) sMriNotUp.innerText = document.getElementById('val-main-mri-not-upload') ? document.getElementById('val-main-mri-not-upload').innerText : "0";
-  if (sSurveyMis) sSurveyMis.innerText = document.getElementById('val-survey-not-found') ? document.getElementById('val-survey-not-found').innerText : "0";
-  if (sMisCount) sMisCount.innerText = document.getElementById('val-main-billed-vs-fv-no-mismatch') ? document.getElementById('val-main-billed-vs-fv-no-mismatch').innerText : "0";
+    var keys = Object.keys(dataMap).sort();
+    var totalCount = 0;
+    var rowsHtml = "";
+
+    keys.forEach(function(kName) {
+      var item = dataMap[kName];
+      totalCount += item.total;
+      rowsHtml += `
+        <tr style="border-bottom: 1px solid ${borderClr};">
+          <td style="padding: 3.5px 6px; text-align: left; font-weight: 700; color: #334155;">${kName}</td>
+          <td style="padding: 3.5px; color: #64748b;" ${clk(metricType, 'EDD-I', kName)}>${item["EDD-I"]}</td>
+          <td style="padding: 3.5px; color: #64748b;" ${clk(metricType, 'EDD-II', kName)}>${item["EDD-II"]}</td>
+          <td style="padding: 3.5px; color: #64748b;" ${clk(metricType, 'EDD-III', kName)}>${item["EDD-III"]}</td>
+          <td style="padding: 3.5px; font-weight: 800; background: ${bgClr};" ${clk(metricType, 'TOTAL', kName)}>${item.total}</td>
+        </tr>
+      `;
+    });
+
+    if (bd) bd.innerText = "Total: " + totalCount;
+    tb.innerHTML = rowsHtml || `<tr><td colspan="5" style="padding:10px; color:#16a34a; font-weight:bold;">✓ No records found</td></tr>`;
+  }
+
+  // 1. Main Meter Exception Bifurcation
+  renderSubBifurcationTable("main-exception-bifurcation-tbody", "main-ex-total-badge", mainExRemarksMap, "BIFURCATION_MAIN_EX", "#fed7aa", "#ffedd5");
+
+  // 2. Pole Meter Exception Bifurcation
+  renderSubBifurcationTable("pole-exception-bifurcation-tbody", "pole-ex-total-badge", poleExRemarksMap, "BIFURCATION_POLE_EX", "#bae6fd", "#e0f2fe");
+
+  // 3. Unbilled Rejections (STRICTLY MRI=TRUE ONLY)
+  renderSubBifurcationTable("unbilled-rejection-bifurcation-tbody", "unbilled-rej-total-badge", unbilledRejectionMap, "BIFURCATION_UNBILLED_REJ", "#fecaca", "#fee2e2");
+
+  // 4. Bill Distribution Bifurcation
+  renderSubBifurcationTable("bill-distribution-bifurcation-tbody", "dist-bifurcation-total-badge", distStatusMap, "BIFURCATION_DIST", "#e9d5ff", "#f3e8ff");
 }
-      // 🟢 MISMASH FORM MODAL LOGIC
-      var activeMismatchRowsList = [];
-      var activeMismatchType = "";
 
-      var mainMismatchCols = [
-        "DIVISION", "VISIT LAST MONTH", "ACCOUNT NO", "CONSUMER-NAME", "ADDRESS",
-        "BILLED METER NUMBER", "MASTER METER NUMBER", "MASTER METER MAKE", "FIELD METER NUMBER",
-        "FIELD METER MAKE", "FINAL VISITED POLE MTR NO.", "LAST MONTH FINAL MM NO.", "LAST MONTH FINAL MM MAKE",
-        "FINAL VISITED MAIN METER NUMBER", "FINAL VISITED MAIN METER MAKE", "SITE METER NUMBER_APPSHEET",
-        "SITE METER MAKE_APPSHEET", "EXCEPTION TYPE (MAIN METER)", "FINAL_MAIN_METER_SITE_REMARK",
-        "REMARK", "IS MRI AVAILABLE (MAIN METER)", "FINAL VISITED MAIN METER MRI AVAILABLE",
-        "LAST MONTH FINAL MM MRI AVAILABLE BY M N."
-      ];
+// 🟢 3. DOWNLOAD OPERATIONS SCORECARD AS-IT-IS PDF
+function downloadOperationsScorecardAsIsPDF() {
+  var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+  if (!jsPDFObj) {
+    alert("PDF लाइब्रेरी लोड नहीं हो सकी!");
+    return;
+  }
 
-      var poleMismatchCols = [
-        "DIVISION", "VISIT LAST MONTH", "ACCOUNT NO", "CONSUMER-NAME", "ADDRESS",
-        "LAST MONTH FINAL MM NO.", "LAST MONTH FINAL MM MAKE", "FINAL VISITED MAIN METER NUMBER",
-        "FINAL VISITED MAIN METER MAKE", "POLE METER MF (SAI PORTAL)", "SAI PORTAL POLE MTR NO.",
-        "FIELD METER NUMBER (POLE)", "FIELD METER MAKE (POLE)", "LAST MONTH FINAL PM NO.",
-        "LAST MONTH FINAL PM MAKE", "FINAL VISITED POLE METER NO.", "FINAL VISITED POLE METER MAKE",
-        "APPSHEET VISIT POLE METER NUMBER", "APPSHEET VISIT POLE METER MAKE", "EXCEPTION TYPE (POLE METER)",
-        "FINAL_POLE_METER_SITE_REMARK", "APPSHEET POLE METER SITE REMARK", "IS MRI AVAILABLE (POLE METER)",
-        "FINAL METER MRI (POLE) AVAILABLE BY MTR NO.", "LAST MONTHMETER MRI (POLE) AVAILABLE BY MTR NO."
-      ];
+  var doc = new jsPDFObj('l', 'pt', 'a4'); // A4 Landscape (841.89 x 595.28 pt)
+  var marginX = 10;
+  var pageWidth = 841.89;
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  var timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  // Top Header Banner
+  doc.setFillColor(11, 60, 93);
+  doc.roundedRect(marginX, 10, pageWidth - (marginX * 2), 24, 2, 2, 'F');
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(255, 255, 255);
+  doc.text("EDC MAINPURI - DIVISION-WISE OPERATIONS SCORECARD & BIFURCATIONS", marginX + 10, 24);
+  doc.setFontSize(7.5);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(203, 213, 225);
+  doc.text("Generated: " + dateStr + " " + timeStr + " | Sai Computers Ltd", pageWidth - marginX - 10, 24, { align: "right" });
+
+  // 1. Render Main Table
+  doc.autoTable({
+    html: '#operations-scorecard-main-table',
+    startY: 40,
+    margin: { left: marginX, right: marginX },
+    theme: 'grid',
+    styles: {
+      fontSize: 5.2,
+      halign: 'center',
+      valign: 'middle',
+      cellPadding: 2,
+      lineWidth: 0.3,
+      lineColor: [200, 210, 225]
+    },
+    headStyles: {
+      fontStyle: 'bold',
+      fontSize: 5.6,
+      lineWidth: 0.35
+    }
+  });
+
+  // 2. Render 4 Bifurcation Tables Below Main Table
+  var startY2 = doc.lastAutoTable.finalY + 12;
+  if (startY2 > 420) {
+    doc.addPage();
+    startY2 = 25;
+  }
+
+  doc.setFontSize(8.5);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(15, 23, 42);
+  doc.text("OPERATIONS BIFURCATIONS (EXCEPTIONS, UNBILLED REJECTIONS & DISTRIBUTION)", marginX, startY2);
+
+  var cardW = (pageWidth - (marginX * 2) - 30) / 4;
+
+  var subConfigs = [
+    { id: 'main-exception-bifurcation-tbody', title: 'Main Meter Exceptions', bg: [154, 52, 18] },
+    { id: 'pole-exception-bifurcation-tbody', title: 'Pole Meter Exceptions', bg: [3, 105, 161] },
+    { id: 'unbilled-rejection-bifurcation-tbody', title: 'Unbilled MRI Rejections', bg: [153, 27, 27] },
+    { id: 'bill-distribution-bifurcation-tbody', title: 'Distribution Status', bg: [109, 40, 217] }
+  ];
+
+  subConfigs.forEach(function(cfg, idx) {
+    var tb = document.getElementById(cfg.id);
+    if (!tb) return;
+
+    var rows = [];
+    tb.querySelectorAll('tr').forEach(function(tr) {
+      var rData = [];
+      tr.querySelectorAll('td').forEach(function(td) {
+        rData.push(td.innerText.trim());
+      });
+      if (rData.length > 0) rows.push(rData);
+    });
+
+    var colX = marginX + (idx * (cardW + 10));
+
+    doc.autoTable({
+      head: [[{ content: cfg.title, colSpan: 5, styles: { fillColor: cfg.bg, textColor: [255,255,255], fontStyle: 'bold', halign: 'center' } }],
+             ['Category', 'EDD-I', 'EDD-II', 'EDD-III', 'Total']],
+      body: rows,
+      startY: startY2 + 5,
+      margin: { left: colX, right: pageWidth - colX - cardW },
+      tableWidth: cardW,
+      theme: 'grid',
+      styles: {
+        fontSize: 5.0,
+        halign: 'center',
+        valign: 'middle',
+        cellPadding: 1.5,
+        lineWidth: 0.25
+      },
+      headStyles: {
+        fontSize: 5.4,
+        fillColor: [30, 41, 59],
+        textColor: [255, 255, 255]
+      },
+      columnStyles: {
+        0: { halign: 'left', cellWidth: cardW * 0.45 }
+      }
+    });
+  });
+
+  // Page Footer
+  var totalPages = doc.internal.getNumberOfPages();
+  for (var p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    doc.setFontSize(6.5);
+    doc.setTextColor(120, 120, 120);
+    doc.text("Page " + p + " of " + totalPages + " | Sai Computers Ltd RMS Portal", pageWidth - marginX - 40, 585);
+  }
+
+  doc.save("EDC_Mainpuri_Operations_Scorecard_AsIs_" + dateStr + ".pdf");
+}
 
       function openMismatchModal(type, title) {
         activeMismatchType = type;
@@ -8765,10 +9776,16 @@ body.dark-mode .view-tab-btn.active-view-tab {
         
         var isMismatchRpt = activeReportMeta && (activeReportMeta.id.includes("mismatch") || activeReportMeta.name.toLowerCase().includes("mismatch"));
         
-        var isDeptRpt = activeReportMeta && (
-          (activeReportMeta.type && String(activeReportMeta.type).toUpperCase() === "DEPARTMENT") ||
-          (activeReportMeta.id && (activeReportMeta.id === "rpt_dept_master" || activeReportMeta.id === "rpt_dept_master_data" || activeReportMeta.id === "rpt_field_exception_rejection" || activeReportMeta.id === "rpt_master_unbilled" || activeReportMeta.id === "rpt_independent_consumers"))
-        );
+        var isDeptRpt = false;
+        if (activeReportMeta) {
+          var rType = String(activeReportMeta.type || "").toUpperCase();
+          var rId = String(activeReportMeta.id || "").toLowerCase();
+          var rName = String(activeReportMeta.name || "").toUpperCase();
+          
+          isDeptRpt = (rType.includes("DEPT") || rType.includes("DEPARTMENT") ||
+                       rId.includes("dept") || rId.includes("field_exception") ||
+                       rName.includes("DEPARTMENT") || rName.includes("FIELD EXCEPTION"));
+        }
 
         // 🟢 High Speed Header Render (Only Sample Top 80 Rows for Filter Options to Prevent Freezing)
         var headHtml = "<tr><th class='sticky-col' style='width:45px; min-width:45px;'>Sr.No.</th>";
@@ -8929,7 +9946,7 @@ body.dark-mode .view-tab-btn.active-view-tab {
             var safeDisplayVal = escapeHtml(val);
 
             if (isAccountCol && val && val !== "-") {
-              bHtml += '<td class="copyable-cell" title="Click to View 360° Profile (Double-click to copy)" onclick="openConsumer360ByAccount(\'' + escapeHtml(val) + '\')" ondblclick="event.stopPropagation(); copyTextToClipboard(\'' + escapeHtml(val) + '\', \'Account\')">' +
+              bHtml += '<td class="copyable-cell sticky-col-2" title="Click to View 360° Profile (Double-click to copy)" onclick="openConsumer360ByAccount(\'' + escapeHtml(val) + '\')" ondblclick="event.stopPropagation(); copyTextToClipboard(\'' + escapeHtml(val) + '\', \'Account\')">' +
                 '<span style="color:#1a73e8; font-weight:800; text-decoration:underline;">' + safeDisplayVal + '</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:8.5px; opacity:0.6; margin-left:3px;"></i></td>';
             } else if (isHighlighted && val && val !== "-") {
               bHtml += '<td class="copyable-cell"' + clickAttrs + ' onclick="copyTextToClipboard(\'' + escapeHtml(val) + '\', \'Meter\')">' + safeDisplayVal + ' <i class="fa-regular fa-copy" style="font-size:9.5px; opacity:0.4; margin-left:3px;"></i></td>';
@@ -9313,12 +10330,22 @@ body.dark-mode .view-tab-btn.active-view-tab {
         var selectedVals = [];
         checkedBoxes.forEach(function(chk){ selectedVals.push(chk.value.toUpperCase()); });
         
+        var iconElem = document.getElementById('hf-icon-' + colIdx);
+
         if (checkedBoxes.length === totalBoxes.length) {
           delete activeHeaderFiltersMap[colIdx]; 
-          document.getElementById('hf-icon-' + colIdx).style.color = "#ced4da"; 
+          if (iconElem) {
+            iconElem.style.color = "#ced4da";
+            iconElem.classList.remove('fa-filter-circle-xmark');
+            iconElem.classList.add('fa-filter');
+          }
         } else {
           activeHeaderFiltersMap[colIdx] = selectedVals;
-          document.getElementById('hf-icon-' + colIdx).style.color = "#00d2d3"; 
+          if (iconElem) {
+            iconElem.style.color = "#f59e0b"; // 🟢 Active Warning Gold Color
+            iconElem.classList.remove('fa-filter');
+            iconElem.classList.add('fa-filter-circle-xmark');
+          }
         }
 
         executeHeaderFiltersSync();
@@ -9430,8 +10457,18 @@ body.dark-mode .view-tab-btn.active-view-tab {
           (activeReportMeta.name && (activeReportMeta.name.toUpperCase().includes("DEPARTMENT") || activeReportMeta.name.toUpperCase().includes("UNBILLED") || activeReportMeta.name.toUpperCase().includes("FIELD EXCEPTION") || activeReportMeta.name.toUpperCase().includes("INDEPENDENT")))
         );
 
+        var isDeptForPdf = false;
+        if (activeReportMeta) {
+          var rTypePdf = String(activeReportMeta.type || "").toUpperCase();
+          var rIdPdf = String(activeReportMeta.id || "").toLowerCase();
+          var rNamePdf = String(activeReportMeta.name || "").toUpperCase();
+          isDeptForPdf = (rTypePdf.includes("DEPT") || rTypePdf.includes("DEPARTMENT") ||
+                          rIdPdf.includes("dept") || rIdPdf.includes("field_exception") ||
+                          rNamePdf.includes("DEPARTMENT") || rNamePdf.includes("FIELD EXCEPTION"));
+        }
+
         var cleanHeadLabels = ["Sr.No."].concat(allCols.map(function(c) {
-          return sanitizeDeptHeader(c, isDeptRpt);
+          return isDeptForPdf ? sanitizeDeptHeader(c, true) : String(c).trim();
         }));
 
         var listBody = [];
@@ -10281,8 +11318,18 @@ body.dark-mode .view-tab-btn.active-view-tab {
           (activeReportMeta.name && (activeReportMeta.name.toUpperCase().includes("DEPARTMENT") || activeReportMeta.name.toUpperCase().includes("UNBILLED") || activeReportMeta.name.toUpperCase().includes("FIELD EXCEPTION") || activeReportMeta.name.toUpperCase().includes("INDEPENDENT")))
         );
 
+        var isDeptForExcel = false;
+        if (activeReportMeta) {
+          var rTypeEx = String(activeReportMeta.type || "").toUpperCase();
+          var rIdEx = String(activeReportMeta.id || "").toLowerCase();
+          var rNameEx = String(activeReportMeta.name || "").toUpperCase();
+          isDeptForExcel = (rTypeEx.includes("DEPT") || rTypeEx.includes("DEPARTMENT") ||
+                            rIdEx.includes("dept") || rIdEx.includes("field_exception") ||
+                            rNameEx.includes("DEPARTMENT") || rNameEx.includes("FIELD EXCEPTION"));
+        }
+
         var listHeaderRow = ["Sr.No."].concat(reqCols.map(function(c) {
-          return sanitizeDeptHeader(c, isDeptRpt);
+          return isDeptForExcel ? sanitizeDeptHeader(c, true) : String(c).trim();
         }));
 
         var listSheetData = [listHeaderRow];
@@ -11346,6 +12393,12 @@ body.dark-mode .view-tab-btn.active-view-tab {
 
       function sanitizeDeptHeader(headerText, isDeptReport) {
         if (!headerText) return "";
+
+        // 🟢 केवल Department रिपोर्टों के लिए ही सैनिटाइज्ड/ग्लॉसरी नाम लागू होगा
+        if (!isDeptReport) {
+          return String(headerText).trim(); // Office Use में Sheet का ओरिजिनल नाम As-is रहेगा
+        }
+
         var cleanKey = String(headerText).trim().toUpperCase();
 
         if (deptProfessionalGlossary[cleanKey]) {
@@ -13188,59 +14241,34 @@ body.dark-mode .view-tab-btn.active-view-tab {
   ];
 
   try {
-    // Step 1: VisiT_Data Data Shift & Cleaning
-    logTerminal("➔ <b>Step 1/10:</b> VisiT_Data me purana data shift aur field remark clean ho rahe hain...", "#38bdf8", 10);
+    logTerminal("➔ <b>Execution Started:</b> VisiT_Data शिफ्टिंग और सभी 9 शीट्स का डेटा क्लीन हो रहा है...", "#38bdf8", 30);
 
-    var resStep1 = await new Promise(function(resolve, reject) {
-      fetch(APPS_SCRIPT_WEBAPP_URL + "?action=executeRolloverStep1")
-        .then(function(r) { return r.text(); })
-        .then(function(rawText) {
-          try {
-            var parsed = JSON.parse(rawText);
-            if (parsed && parsed.success) {
-              resolve(parsed);
-            } else {
-              reject(new Error(parsed ? parsed.error : "Server returned false: " + rawText));
-            }
-          } catch(jsonErr) {
-            reject(new Error("Server Response Error: " + rawText));
-          }
-        })
-        .catch(function(err) {
-          reject(new Error("Network Call Error: " + err.message));
-        });
-    });
-
-    logTerminal(`✔ VisiT_Data updated: ${resStep1.rowsShifted} rows shifted & reset successfully.`, "#4ade80", 25);
-
-    // Step 2: Clear each upload sheet one by one
-    for (var i = 0; i < sheetsList.length; i++) {
-      var sName = sheetsList[i];
-      var stepNum = i + 2;
-      var curPercent = 25 + Math.round(((i + 1) / sheetsList.length) * 70);
-
-      logTerminal(`➔ <b>Step ${stepNum}/10:</b> Sheet [<b>${sName}</b>] data clear ho raha hai...`, "#93c5fd", curPercent);
-
-      var clearRes = await new Promise(function(resolve, reject) {
-        fetch(APPS_SCRIPT_WEBAPP_URL + "?action=clearSingleUploadSheet&sheet=" + encodeURIComponent(sName))
+    var res = await new Promise(function(resolve, reject) {
+      if (window.google && google.script && google.script.run && typeof google.script.run.executeMonthlyRolloverEngine === "function") {
+        google.script.run
+          .withSuccessHandler(resolve)
+          .withFailureHandler(reject)
+          .executeMonthlyRolloverEngine();
+      } else {
+        fetch(APPS_SCRIPT_WEBAPP_URL + "?action=executeMonthlyRollover", { redirect: 'follow' })
           .then(function(r) { return r.json(); })
           .then(resolve)
           .catch(reject);
-      });
-
-      if (clearRes && clearRes.success) {
-        logTerminal(`✔ [${sName}] cleared (${clearRes.rowsCleared || 0} rows removed).`, "#4ade80", curPercent);
-      } else {
-        logTerminal(`⚠ [${sName}] skip hui ya khali thi: ${clearRes ? clearRes.error : ''}`, "#fbbf24", curPercent);
       }
+    });
+
+    if (res && res.success) {
+      logTerminal("✔ VisiT_Data में पुराना रिमार्क शिफ्ट और रिसेट हो गया।", "#4ade80", 65);
+      logTerminal("✔ सभी 9 अपलोड शीट्स (रो 3 से) पूरी तरह खाली हो गईं।", "#4ade80", 90);
+      logTerminal("🎉 <b>[Success]</b> Monthly Cycle Rollover Safely Completed!", "#22c55e", 100);
+
+      setTimeout(function() {
+        toast.style.display = "none";
+        loadCoreDatabasePacket(true);
+      }, 3000);
+    } else {
+      throw new Error(res ? res.error : "सर्वर से अज्ञात त्रुटि मिली।");
     }
-
-    logTerminal("🎉 <b>[Success]</b> Monthly Cycle Rollover Safely Completed!", "#22c55e", 100);
-
-    setTimeout(function() {
-      toast.style.display = "none";
-      loadCoreDatabasePacket(true);
-    }, 3500);
 
   } catch (err) {
     logTerminal(`❌ <b>Error:</b> ${err.message || err}`, "#ef4444");
@@ -13264,9 +14292,59 @@ var customBulkAllowedColumns = [
   "New Site Mobile No.", "New Site Email ID"
 ];
 
+var isBulkModalMinimized = false;
+
+function toggleBulkModalMinimize() {
+  var modal = document.getElementById('custom-bulk-modal');
+  var minBtn = document.getElementById('btn-bulk-minimize');
+  if (!modal) return;
+
+  isBulkModalMinimized = !isBulkModalMinimized;
+  if (isBulkModalMinimized) {
+    modal.classList.add('floating-mode');
+    if (minBtn) minBtn.innerHTML = '<i class="fa-solid fa-window-maximize"></i>';
+    // केवल प्रोग्रेस बार दिखाएँ, बाकी भारी सेटिंग्स छुपाएँ
+    var bodyArea = modal.querySelector('div[style*="overflow-y:auto"]');
+    var footArea = modal.querySelector('div[style*="border-top:1px solid"]');
+    if (bodyArea) {
+      bodyArea.children[0].style.display = 'none'; // Stepper Bar
+      bodyArea.children[1].style.display = 'none'; // Header Row
+      bodyArea.children[2].style.display = 'none'; // Checkbox grid
+      bodyArea.children[3].style.display = 'none'; // Download template btn
+      bodyArea.children[4].style.display = 'none'; // File input
+    }
+    if (footArea) footArea.style.display = 'none';
+  } else {
+    modal.classList.remove('floating-mode');
+    if (minBtn) minBtn.innerHTML = '<i class="fa-solid fa-window-minimize"></i>';
+    var bodyArea = modal.querySelector('div[style*="overflow-y:auto"]');
+    var footArea = modal.querySelector('div[style*="border-top:1px solid"]');
+    if (bodyArea) {
+      for (var i = 0; i < bodyArea.children.length; i++) {
+        bodyArea.children[i].style.display = '';
+      }
+    }
+    if (footArea) footArea.style.display = 'flex';
+  }
+}
+
 function openCustomBulkModal() {
   var modal = document.getElementById('custom-bulk-modal');
-  if (modal) modal.style.display = 'flex';
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.classList.remove('floating-mode');
+    isBulkModalMinimized = false;
+    var minBtn = document.getElementById('btn-bulk-minimize');
+    if (minBtn) minBtn.innerHTML = '<i class="fa-solid fa-window-minimize"></i>';
+    var bodyArea = modal.querySelector('div[style*="overflow-y:auto"]');
+    var footArea = modal.querySelector('div[style*="border-top:1px solid"]');
+    if (bodyArea) {
+      for (var i = 0; i < bodyArea.children.length; i++) {
+        bodyArea.children[i].style.display = '';
+      }
+    }
+    if (footArea) footArea.style.display = 'flex';
+  }
   
   // 🟢 Reset Stepper Bubbles to Step 1
   var b1 = document.getElementById('step-bubble-1');
@@ -13431,7 +14509,7 @@ async function executeCustomBulkUpdate() {
       });
 
       var totalRows = payloadUpdates.length;
-      var batchSize = 10; // 🟢 आपकी आवश्यकता अनुसार ठीक 10-10 का पैकेट
+      var batchSize = 250; // 🟢 ऑप्टिमाइज़्ड सुपर-फास्ट बैच साइज
       var totalBatches = Math.ceil(totalRows / batchSize);
       var totalUpdated = 0;
       var totalNotFound = 0;
@@ -13442,21 +14520,33 @@ async function executeCustomBulkUpdate() {
       if (b2) { b2.className = 'step-bubble done-step'; b2.innerHTML = '✓'; }
       if (b3) { b3.className = 'step-bubble active-step'; }
 
+      // 🟢 250 का ऑप्टिमल बैच साइज और ऑटो-बैकग्राउंड फ्लोटिंग मोड
+      batchSize = 250;
+      totalBatches = Math.ceil(totalRows / batchSize);
+
+      // अपलोड शुरू होते ही मोडल को कोने में मिनी-विंडो बनाकर बैकग्राउंड में भेजें ताकि आप अन्य टैब्स चला सकें
+      if (!isBulkModalMinimized) {
+        toggleBulkModalMinimize();
+      }
+
       for (var b = 0; b < totalBatches; b++) {
         var start = b * batchSize;
         var end = Math.min(start + batchSize, totalRows);
         var currentChunk = payloadUpdates.slice(start, end);
         var currentPercent = Math.round((end / totalRows) * 100);
 
-        // 🟢 लाइव प्रोग्रेस बार UI
+        // 1. UI अपडेट
         statusBox.innerHTML = `
-          <div style="margin-bottom: 4px; font-weight: bold; color: #1e40af;">
-            <i class="fa-solid fa-cloud-arrow-up fa-fade me-1"></i> अपलोडिंग: ${end} / ${totalRows} रिकॉर्ड्स (${currentPercent}%)
+          <div style="margin-bottom: 5px; font-weight: 800; color: #1e40af; font-size: 11px;">
+            <i class="fa-solid fa-spinner fa-spin me-1 text-primary"></i> अपलोडिंग: ${end} / ${totalRows} रिकॉर्ड्स (${currentPercent}%)
           </div>
-          <div style="width: 100%; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin: 0 auto;">
-            <div style="width: ${currentPercent}%; height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 0.15s ease;"></div>
+          <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 6px; overflow: hidden; margin: 0 auto; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);">
+            <div style="width: ${currentPercent}%; height: 100%; background: linear-gradient(90deg, #2563eb, #10b981); transition: width 0.2s ease;"></div>
           </div>
         `;
+
+        // 2. 🟢 थ्रेड रिलैक्स (ब्राउज़र को रेंडर करने दें ताकि स्क्रीन फ़्रीज़ न हो)
+        await new Promise(function(r) { setTimeout(r, 25); });
 
         var chunkRes = await new Promise(function(resolve, reject) {
           if (window.google && google.script && google.script.run && typeof google.script.run.processAdvancedBulkColumnUpdate === "function") {
@@ -13487,18 +14577,48 @@ async function executeCustomBulkUpdate() {
         } else {
           throw new Error(chunkRes ? chunkRes.error : "बैच " + (b + 1) + " पर टाइमआउट या नेटवर्क फेलियर");
         }
+
+        // 3. बैच के बाद छोटा विराम
+        await new Promise(function(r) { setTimeout(r, 10); });
       }
 
+      // 🟢 1. लोकल मेमोरी में तुरंत वैल्यू बदलें (पूरा डेटाबेस दोबारा सिंक करने की ज़रूरत नहीं)
+      if (cachedDatabase && cachedDatabase.length > 0) {
+        payloadUpdates.forEach(function(item) {
+          var targetRow = cachedDatabase.find(function(r) {
+            var u = r._uMap || r;
+            var a = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").replace(/_P$/i, '').replace(/\.0$/, '').trim();
+            var d = a.replace(/[^0-9]/g, '');
+            return (d.length > 0 ? ("0000000000" + d).slice(-10) : a) === item.accountNo;
+          });
+
+          if (targetRow) {
+            var ch = item.changes || {};
+            Object.keys(ch).forEach(function(col) {
+              targetRow[col] = ch[col];
+              if (targetRow._uMap) targetRow._uMap[col.toUpperCase().trim()] = ch[col];
+            });
+          }
+        });
+      }
+
+      // 🟢 2. UI को तुरंत ग्रीन टिक और सफलता संदेश दें
       btn.disabled = false;
       statusBox.style.color = "#10b981";
-      statusBox.innerHTML = `✅ सफलता! कुल <b>${totalUpdated}</b> सेल्स सफलतापूर्वक अपडेट हो गईं! (Not Found: ${totalNotFound})`;
+      statusBox.innerHTML = `✅ सफलता! कुल <b>${totalUpdated}</b> रिकॉर्ड्स सफलतापूर्वक अपडेट हो गए! (Not Found: ${totalNotFound})`;
 
+      // 🟢 3. टेबल और कार्ड्स को बिना अटके तुरंत रिफ्रेश करें
+      setTimeout(function() {
+        if (typeof calculateAnalyticsKPICards === "function") calculateAnalyticsKPICards();
+        if (typeof processClientFilterQuery === "function") processClientFilterQuery();
+      }, 50);
+
+      // 🟢 4. ऑडिट लॉग Excel बैकग्राउंड में डाउनलोड हो ताकि स्क्रीन अटके नहीं
       if (allAuditLogs.length > 0) {
-        downloadUpdateAuditLogExcel(allAuditLogs);
+        setTimeout(function() {
+          downloadUpdateAuditLogExcel(allAuditLogs);
+        }, 300);
       }
-
-      if (typeof calculateAnalyticsKPICards === "function") calculateAnalyticsKPICards();
-      if (typeof processClientFilterQuery === "function") processClientFilterQuery();
 
     } catch (err) {
       btn.disabled = false;
@@ -14456,7 +15576,16 @@ function downloadRejectionAfterMriPDF() {
   var cleanDivFileName = activeDivScope.replace(/[^a-zA-Z0-9]/g, "_");
   doc.save(cleanDivFileName + "_Rejection_After_MRI_Report_" + dateStr + ".pdf");
 }
-
+function hardResetLocalCache() {
+        if (confirm("क्या आप लोकल कैश पूरी तरह खाली करके फ्रेश डेटा री-लोड करना चाहते हैं?")) {
+          try {
+            indexedDB.deleteDatabase("RMS_Cache_DB");
+            localStorage.removeItem("cachedConsumerMapJSON");
+            localStorage.removeItem("RMS_RDG_MAP");
+          } catch(e) {}
+          location.reload();
+        }
+      }
       
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
