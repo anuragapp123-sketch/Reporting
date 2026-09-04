@@ -152,31 +152,23 @@
         opacity: 0.7;
       }
 
-      /* Dynamic Multicolor Glowing Header */
+      /* 🟢 Official Clean Executive Corporate Header */
       .top-navbar {
-        height: 52px;
+        height: 50px;
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         z-index: 1000;
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #6b11ff 50%, #ee0979 75%, #ff6a00 100%);
-        background-size: 300% 300%;
-        animation: gradientFlow 15s ease infinite;
+        background: #0b3c5d; /* Professional Deep Corporate Navy Blue */
+        border-bottom: 2px solid #1a73e8;
         color: white;
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0 16px;
         box-sizing: border-box;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        backdrop-filter: blur(8px);
-      }
-
-      @keyframes gradientFlow {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
       }
 
       /* Live Date Time Center Capsule Widget */
@@ -483,21 +475,29 @@
       
       .report-link { 
         width: 100%; 
-        padding: 12px 14px; 
+        padding: 9px 12px; 
         background: var(--sidebar-btn-bg); 
         border: 1px solid var(--sidebar-border); 
         color: var(--sidebar-text); 
         text-align: left; 
-        font-size: 12.5px; 
-        border-radius: 8px; 
+        font-size: 11.5px; 
+        border-radius: 6px; 
         cursor: pointer; 
         display: flex; 
         align-items: center; 
-        gap: 12px; 
+        gap: 8px; 
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
-        line-height: 1.4; 
-        font-weight: 600;
+        line-height: 1.2; 
+        font-weight: 700; 
         border-left: 4px solid var(--primary); 
+        white-space: nowrap !important; 
+        overflow: hidden !important; 
+        text-overflow: ellipsis !important;
+      }
+      .report-link span {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
       }
       .report-link i { font-size: 14px; opacity: 0.9; }
       .report-link:hover { 
@@ -1794,6 +1794,145 @@ body.dark-mode .view-tab-btn.active-view-tab {
           <button type="button" class="view-tab-btn" id="btn-tab-total-exception" onclick="switchAnalyticsSubTab('total_exception')">
             <i class="fa-solid fa-layer-group" style="color:#1d4ed8;"></i> Total Exception & Rejection
           </button>
+          <button type="button" class="view-tab-btn" id="btn-tab-mr-pendency" onclick="switchAnalyticsSubTab('mr_pendency')">
+            <i class="fa-solid fa-user-clock" style="color:#059669;"></i> Meter Readers Wise Pendency
+          </button>
+          <button type="button" class="view-tab-btn" id="btn-tab-3m-comparison" onclick="switchAnalyticsSubTab('3m_comparison')">
+            <i class="fa-solid fa-chart-area" style="color:#d97706;"></i> 3-Month Comparison Summary
+          </button>
+        </div>
+
+        <!-- 📑 TAB 4: METER READERS WISE PENDENCY (EXACT MATCH WITH IMAGE) -->
+        <div id="analytics-tab-mr-pendency" style="display: none;">
+          <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #059669; padding-bottom: 8px; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <div>
+                  <h4 style="margin: 0; font-size: 13.5px; font-weight: 800; color: #065f46; text-transform: uppercase;">
+                    <i class="fa-solid fa-user-clock me-1 text-success"></i> Meter Readers Wise Pendency Summary
+                  </h4>
+                  <span id="mr-pendency-sub-count" style="font-size: 11px; color: #64748b; font-weight: 700;">Total Active Readers: 0</span>
+                </div>
+
+                <!-- 🟢 UI Meter Reader Exclude/Include Checklist Dropdown -->
+                <div style="position: relative; display: inline-block;">
+                  <button type="button" onclick="toggleMrFilterDropdownPanel(event)" style="background: #f8fafc; border: 1.5px solid #059669; color: #065f46; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-filter"></i> <span id="mr-filter-btn-label">Filter Readers (All Selected)</span> <i class="fa-solid fa-chevron-down"></i>
+                  </button>
+                  <div id="mr-filter-dropdown-panel" class="multiselect-dropdown-panel" style="display: none; width: 260px; right: 0; left: auto; max-height: 280px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" onclick="event.stopPropagation()">
+                    <div style="padding: 6px 10px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f1f5f9;">
+                      <span style="font-weight: bold; font-size: 11px; color: #0f172a;">Select Readers</span>
+                      <div style="display: flex; gap: 6px;">
+                        <button type="button" onclick="setAllMrFilterStatus(true)" style="background: none; border: none; color: #2563eb; font-size: 10px; font-weight: bold; cursor: pointer; text-decoration: underline;">All</button>
+                        <button type="button" onclick="setAllMrFilterStatus(false)" style="background: none; border: none; color: #dc2626; font-size: 10px; font-weight: bold; cursor: pointer; text-decoration: underline;">None</button>
+                      </div>
+                    </div>
+                    <div id="mr-filter-checkboxes-container" style="max-height: 220px; overflow-y: auto; padding: 4px 0;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button onclick="downloadMrPendencySummaryExcel()" class="btn-icon" style="height: 32px; padding: 0 10px; font-size: 11px; background: #059669; color: white;" title="Download Summary Excel">
+                  <i class="fa-solid fa-file-excel me-1"></i> Summary Excel
+                </button>
+                <button onclick="downloadMrPendencySummaryPDF()" class="btn-icon" style="height: 32px; padding: 0 10px; font-size: 11px; background: #dc2626; color: white;" title="Download Summary PDF">
+                  <i class="fa-solid fa-file-pdf me-1"></i> Summary PDF
+                </button>
+                <button onclick="downloadMrPendencyDataListExcel()" class="btn-icon" style="height: 32px; padding: 0 10px; font-size: 11px; background: #2563eb; color: white;" title="Download Full Data List Excel">
+                  <i class="fa-solid fa-table me-1"></i> Consumer List Excel
+                </button>
+                <button onclick="downloadMrPendencyDataListPDF()" class="btn-icon" style="height: 32px; padding: 0 10px; font-size: 11px; background: #7c3aed; color: white;" title="Download Full Data List PDF">
+                  <i class="fa-solid fa-file-lines me-1"></i> Consumer List PDF
+                </button>
+              </div>
+            </div>
+
+            <div style="overflow-x: auto; max-height: 540px; -webkit-overflow-scrolling: touch;">
+              <table id="mr-pendency-main-table" style="width: 100%; min-width: 1250px; border-collapse: collapse; font-size: 11px; text-align: center;">
+                <thead style="position: sticky; top: 0; z-index: 2;">
+                  <tr style="background: #93c5fd; color: #000; font-weight: 900; font-size: 13px;">
+                    <th colspan="15" style="padding: 6px; border: 1.5px solid #000; text-transform: uppercase;">Meter Readers Wise Pendency</th>
+                  </tr>
+                  <tr style="font-weight: 800; font-size: 11px;">
+                    <th rowspan="2" style="background: #cbd5e1; color: #000; border: 1.5px solid #000; padding: 6px 8px; width: 160px; text-align: center; vertical-align: middle;">Reports/ Pendency Name</th>
+                    <th rowspan="2" style="background: #e2e8f0; color: #000; border: 1.5px solid #000; padding: 4px; width: 65px; vertical-align: middle;">Previous Day VisiT</th>
+                    <th colspan="6" style="background: #fef08a; color: #000; border: 1.5px solid #000; padding: 4px;">Main Meters</th>
+                    <th colspan="7" style="background: #bfdbfe; color: #000; border: 1.5px solid #000; padding: 4px;">Pole Meters</th>
+                  </tr>
+                  <tr style="font-weight: 800; font-size: 9.5px; line-height: 1.2;">
+                    <!-- Main Meters Subheaders -->
+                    <th style="background: #fef9c3; color: #000; border: 1px solid #000; padding: 4px; width: 75px;">Main Meter Visit Pending</th>
+                    <th style="background: #fef9c3; color: #000; border: 1px solid #000; padding: 4px; width: 65px;">Main Meter MRI Not Upload</th>
+                    <th style="background: #fef9c3; color: #000; border: 1px solid #000; padding: 4px; width: 65px;">Main Meter Load Survay Availble %</th>
+                    <th style="background: #fef9c3; color: #000; border: 1px solid #000; padding: 4px; width: 70px;">Main Meter Load Survay Not Availble</th>
+                    <th style="background: #fef9c3; color: #000; border: 1px solid #000; padding: 4px; width: 95px;">Exception (Meter Defective,Not Meter, Locked,Not Assessable</th>
+                    <th style="background: #fef9c3; color: #000; border: 1px solid #000; padding: 4px; width: 75px;">Manual (Lead Faulty,MRD Corrput)</th>
+                    <!-- Pole Meters Subheaders -->
+                    <th style="background: #dbeafe; color: #000; border: 1px solid #000; padding: 4px; width: 75px;">Pole Meter Visit Pending</th>
+                    <th style="background: #dbeafe; color: #000; border: 1px solid #000; padding: 4px; width: 65px;">Pole Meter MRI Not Upload</th>
+                    <th style="background: #dbeafe; color: #000; border: 1px solid #000; padding: 4px; width: 65px;">Pole Meter Load Survay Availble %</th>
+                    <th style="background: #dbeafe; color: #000; border: 1px solid #000; padding: 4px; width: 70px;">Pole Meter Load Survay Not Availble</th>
+                    <th style="background: #dbeafe; color: #000; border: 1px solid #000; padding: 4px; width: 95px;">Exception (Meter Defective,Not Meter, Locked,Not Assessable</th>
+                    <th style="background: #dbeafe; color: #000; border: 1px solid #000; padding: 4px; width: 75px;">Manual (Lead Faulty,MRD Corrput)</th>
+                    <th style="background: #dbeafe; color: #000; border: 1px solid #000; padding: 4px; width: 65px;">No Meter At Site</th>
+                  </tr>
+                </thead>
+                <tbody id="mr-pendency-tbody">
+                  <!-- Data will be injected here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 📑 TAB 5: 3-MONTH PROGRESSIVE COMPARISON SUMMARY -->
+        <div id="analytics-tab-3m-comparison" style="display: none;">
+          <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #d97706; padding-bottom: 8px; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <div>
+                  <h4 style="margin: 0; font-size: 13.5px; font-weight: 800; color: #92400e; text-transform: uppercase;">
+                    <i class="fa-solid fa-chart-area me-1 text-warning"></i> 3-Month MRI vs Non-MRI Comparison Summary
+                  </h4>
+                  <span style="font-size: 10.5px; color: #64748b; font-weight: 700;">(Evaluated strictly against Current Month Billable Consumers)</span>
+                </div>
+
+                <!-- MR Wise & Division Wise Toggle Switch -->
+                <div style="display: inline-flex; background: #f1f5f9; padding: 2px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                  <button type="button" id="btn-3m-mr-view" onclick="switch3MGroupingMode('MR')" style="border: none; background: #2563eb; color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 800; cursor: pointer;">
+                    <i class="fa-solid fa-user me-1"></i> MR Wise
+                  </button>
+                  <button type="button" id="btn-3m-div-view" onclick="switch3MGroupingMode('DIV')" style="border: none; background: transparent; color: #475569; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 800; cursor: pointer;">
+                    <i class="fa-solid fa-building me-1"></i> Division Wise
+                  </button>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button onclick="download3MComparisonExcel()" class="btn-icon" style="height: 30px; padding: 0 10px; font-size: 11px; background: #059669; color: white;">
+                  <i class="fa-solid fa-file-excel me-1"></i> Summary Excel
+                </button>
+                <button onclick="download3MComparisonPDF()" class="btn-icon" style="height: 30px; padding: 0 10px; font-size: 11px; background: #dc2626; color: white;">
+                  <i class="fa-solid fa-file-pdf me-1"></i> Summary PDF
+                </button>
+                <button onclick="download3MConsumerListExcel()" class="btn-icon" style="height: 30px; padding: 0 10px; font-size: 11px; background: #2563eb; color: white;">
+                  <i class="fa-solid fa-table me-1"></i> Consumer Excel
+                </button>
+                <button onclick="download3MConsumerListPDF()" class="btn-icon" style="height: 30px; padding: 0 10px; font-size: 11px; background: #7c3aed; color: white;">
+                  <i class="fa-solid fa-file-lines me-1"></i> Consumer PDF
+                </button>
+              </div>
+            </div>
+
+            <!-- Table Container -->
+            <div style="overflow-x: auto; max-height: 520px; -webkit-overflow-scrolling: touch;">
+              <table id="3m-comparison-table" style="width: 100%; min-width: 1320px; border-collapse: collapse; font-size: 10.5px; text-align: center;">
+                <thead id="3m-comparison-thead" style="position: sticky; top: 0; z-index: 2;"></thead>
+                <tbody id="3m-comparison-tbody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
         <!-- 📑 TAB 1: OPERATIONS SCORECARD (FULL WIDTH WITHOUT SIDEBAR BOX) -->
@@ -2232,6 +2371,49 @@ body.dark-mode .view-tab-btn.active-view-tab {
 
       
 
+      <!-- 🟢 METER READER PENDENCY DRILL-DOWN MODAL -->
+      <div id="mr-drilldown-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.7); z-index:999999; justify-content:center; align-items:center; backdrop-filter:blur(3px);">
+        <div style="background:white; width:95%; max-width:1150px; max-height:90vh; border-radius:10px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.4); border:2px solid #059669;">
+          <div style="background:linear-gradient(135deg, #0f172a, #065f46); color:white; padding:10px 18px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h5 id="mr-drilldown-title" style="margin:0; font-size:14px; font-weight:800;">Filtered Consumer Records</h5>
+              <span id="mr-drilldown-subtitle" style="font-size:11px; opacity:0.85;">Total Found: 0</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button onclick="downloadMrDrilldownExcel()" class="btn-icon btn-excel" style="height:28px; padding:0 10px; font-size:11px; background:#059669;">
+                <i class="fa-solid fa-file-excel me-1"></i> Excel
+              </button>
+              <button onclick="downloadMrDrilldownPDF()" class="btn-icon btn-pdf" style="height:28px; padding:0 10px; font-size:11px; background:#dc2626;">
+                <i class="fa-solid fa-file-pdf me-1"></i> PDF
+              </button>
+              <span onclick="closeMrDrilldownModal()" style="font-size:24px; cursor:pointer; font-weight:bold; line-height:1; margin-left:8px;">&times;</span>
+            </div>
+          </div>
+          <div style="padding:10px 14px; overflow-y:auto; flex:1; background:#f8fafc;">
+            <div style="overflow-x:auto;">
+              <table class="report-table" style="width:100%; font-size:11px; text-align:center; border-collapse:collapse;">
+                <thead style="position:sticky; top:0; background:#1e293b; color:white; z-index:2;">
+                  <tr>
+                    <th style="padding:6px;">Sr.</th>
+                    <th style="padding:6px;">MR Name</th>
+                    <th style="padding:6px;">Division</th>
+                    <th style="padding:6px;">Account No</th>
+                    <th style="padding:6px; text-align:left;">Consumer Name</th>
+                    <th style="padding:6px; text-align:left;">Address</th>
+                    <th style="padding:6px;">Load</th>
+                    <th style="padding:6px;">Main Meter No</th>
+                    <th style="padding:6px;">Site Remark (Main)</th>
+                    <th style="padding:6px;">Pole Meter No</th>
+                    <th style="padding:6px;">Site Remark (Pole)</th>
+                  </tr>
+                </thead>
+                <tbody id="mr-drilldown-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 🟢 CONSUMER 360° INTERACTIVE PROFILE MODAL -->
       <div id="consumer-360-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.75); z-index:9999999; justify-content:center; align-items:center; backdrop-filter:blur(4px); font-family:'Rajdhani', sans-serif;">
         <div style="background:white; width:95%; max-width:960px; max-height:92vh; border-radius:12px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.4); border: 2px solid #1a73e8;">
@@ -2613,16 +2795,18 @@ body.dark-mode .view-tab-btn.active-view-tab {
       var activeSummaryColsMap = { "G1": true, "G2": true, "G3": true };
 
       var reportColorsPalette = [
-        { border: "#1a73e8", bg: "rgba(26, 115, 232, 0.15)" },
-        { border: "#27ae60", bg: "rgba(39, 174, 96, 0.15)" },
-        { border: "#e67e22", bg: "rgba(230, 126, 34, 0.15)" },
-        { border: "#9b59b6", bg: "rgba(155, 89, 182, 0.15)" },
-        { border: "#e74c3c", bg: "rgba(231, 76, 60, 0.15)" },
-        { border: "#16a085", bg: "rgba(22, 160, 133, 0.15)" },
-        { border: "#f1c40f", bg: "rgba(241, 196, 15, 0.12)" },
-        { border: "#3498db", bg: "rgba(52, 152, 219, 0.15)" },
-        { border: "#00d2d3", bg: "rgba(0, 210, 211, 0.15)" },
-        { border: "#ff9f43", bg: "rgba(255, 159, 67, 0.15)" }
+        { border: "#2563eb", bg: "#eff6ff", text: "#1d4ed8" }, // Blue
+        { border: "#16a34a", bg: "#f0fdf4", text: "#15803d" }, // Green
+        { border: "#ea580c", bg: "#fff7ed", text: "#c2410c" }, // Orange
+        { border: "#9333ea", bg: "#faf5ff", text: "#7e22ce" }, // Purple
+        { border: "#dc2626", bg: "#fef2f2", text: "#b91c1c" }, // Red
+        { border: "#0891b2", bg: "#ecfeff", text: "#0e7490" }, // Cyan
+        { border: "#d97706", bg: "#fffbeb", text: "#b45309" }, // Amber
+        { border: "#db2777", bg: "#fdf2f8", text: "#be185d" }, // Pink
+        { border: "#4f46e5", bg: "#eef2ff", text: "#4338ca" }, // Indigo
+        { border: "#059669", bg: "#ecfdf5", text: "#047857" }, // Emerald
+        { border: "#7c3aed", bg: "#f5f3ff", text: "#6d28d9" }, // Violet
+        { border: "#e11d48", bg: "#fff1f2", text: "#be123c" }  // Rose
       ];
 
       function getIndexedDB() {
@@ -2936,6 +3120,12 @@ body.dark-mode .view-tab-btn.active-view-tab {
           name: "Independent Consumers List",
           conditions: "",
           columns: "ALL"
+        },
+        {
+          id: "rpt_mr_performance_scorecard",
+          name: "MR Performance & Accuracy Audit Scorecard",
+          conditions: "",
+          columns: "MR Name, MR Mobile, Division, Total Assigned Consumers, Visit Completed, Visit Pending, MRI Done Count, Manual Read Count, Exception / Defective Count, Locked Count, Success % (MRI/Assigned), Overall Visit %"
         }
       ];
 
@@ -3002,22 +3192,29 @@ body.dark-mode .view-tab-btn.active-view-tab {
           renderedSet.add(normTitle);
           if (cleanId) renderedSet.add(cleanId);
 
+          var colorScheme = reportColorsPalette[renderedSet.size % reportColorsPalette.length];
+          var border = borderColor || colorScheme.border;
+          var bg = colorScheme.bg;
+          var textColor = colorScheme.text;
+
           var btn = document.createElement("button");
           btn.className = "report-link " + (customClass || "");
           btn.id = "btn-rpt-" + (cleanId || idx);
-          btn.style.borderLeft = "4px solid " + (borderColor || "#1a73e8");
-          btn.style.background = "rgba(255, 255, 255, 0.02)";
-          btn.innerHTML = '<i class="' + defaultIcon + '" style="color:' + (borderColor || "#1a73e8") + '"></i> ' + rpt.name;
+          btn.title = rpt.name; // माउस ले जाने पर पूरा नाम दिखेगा
+          btn.style.borderLeft = "4px solid " + border;
+          btn.style.background = bg;
+          btn.style.color = textColor;
+          btn.innerHTML = '<i class="' + defaultIcon + '" style="color:' + border + '; flex-shrink: 0;"></i> <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + rpt.name + '</span>';
 
           btn.onclick = function(e) {
             e.stopPropagation();
             document.getElementById('mainSidebar').classList.remove('open');
             if (rpt.id === "rpt_mr_name_mismatch") {
-              loadMrMismatchLiveReport(rpt, this, borderColor);
+              loadMrMismatchLiveReport(rpt, this, border);
             } else if (rpt.id === "rpt_independent_consumers") {
-              downloadIndependentConsumersDirectExcel(rpt, this, borderColor);
+              downloadIndependentConsumersDirectExcel(rpt, this, border);
             } else {
-              selectReport(rpt, this, borderColor);
+              selectReport(rpt, this, border);
             }
           };
           targetContainer.appendChild(btn);
@@ -3103,6 +3300,148 @@ body.dark-mode .view-tab-btn.active-view-tab {
         var backBtn = document.getElementById('btn-back-to-analytics');
         if (backBtn) backBtn.style.display = "none";
         showAnalyticsDashboard();
+      }
+
+      // 🟢 MR Performance & Accuracy Audit Scorecard Engine
+      function showMrPerformanceScorecardReport(element) {
+        if (!cachedDatabase || cachedDatabase.length === 0) {
+          alert("डेटा अभी लोड नहीं हुआ है। कृपया पहले रिफ्रेश करें!");
+          return;
+        }
+
+        var rptMeta = {
+          id: "rpt_mr_performance_scorecard",
+          name: "MR Performance & Accuracy Audit Scorecard",
+          conditions: "",
+          columns: "MR Name, MR Mobile, Division, Total Assigned Consumers, Visit Completed, Visit Pending, MRI Done Count, Manual Read Count, Exception / Defective Count, Locked Count, Success % (MRI/Assigned), Overall Visit %"
+        };
+
+        var topCtrlWrapper = document.getElementById('main-top-control-wrapper');
+        if (topCtrlWrapper) topCtrlWrapper.style.setProperty('display', 'flex', 'important');
+        if (document.getElementById('filters-panel-wrapper')) document.getElementById('filters-panel-wrapper').style.display = 'grid';
+
+        if (document.getElementById('xml-reader-view-zone')) document.getElementById('xml-reader-view-zone').style.display = 'none';
+        if (document.getElementById('external-app-view-zone')) document.getElementById('external-app-view-zone').style.display = 'none';
+        if (document.getElementById('home-view-zone')) document.getElementById('home-view-zone').style.display = 'none';
+        if (document.getElementById('analytics-view-zone')) document.getElementById('analytics-view-zone').style.display = 'none';
+        if (document.getElementById('pivot-page-zone')) document.getElementById('pivot-page-zone').style.display = 'none';
+
+        document.querySelectorAll('.report-link').forEach(function(b) {
+          b.classList.remove('active');
+        });
+        if (element) element.classList.add('active');
+
+        var titleHeader = document.getElementById('active-report-title');
+        if (titleHeader) {
+          titleHeader.innerText = rptMeta.name;
+          titleHeader.style.color = "#059669";
+        }
+
+        activeReportMeta = rptMeta;
+
+        // 🟢 Reader-Wise Data Aggregation
+        var mrMap = {};
+
+        function toProper(str) {
+          if (!str) return "Unassigned";
+          return String(str).toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); }).trim();
+        }
+
+        cachedDatabase.forEach(function(row) {
+          var u = row._uMap || row;
+
+          var mrNameRaw = u["VISIT LAST MONTH"] || u["MR NAME"] || u["USER NAME"] || "";
+          var mrName = toProper(mrNameRaw);
+          if (!mrName || mrName === "-" || mrName.toUpperCase() === "NAN") mrName = "Unassigned / Other";
+
+          var mrMob = String(u["MR MOBILE NO."] || u["MR MOBILE NUMBER"] || u["MASTER MOBILE NUMBER"] || u["MR PHONE"] || "-").trim();
+          var div = String(u["DIVISION"] || "-").trim();
+
+          if (!mrMap[mrName]) {
+            mrMap[mrName] = {
+              mrName: mrName,
+              mrMobile: mrMob,
+              divisions: new Set(),
+              totalAssigned: 0,
+              visited: 0,
+              pending: 0,
+              mriDone: 0,
+              manualRead: 0,
+              exceptions: 0,
+              locked: 0
+            };
+          }
+
+          var item = mrMap[mrName];
+          if (mrMob && mrMob !== "-" && item.mrMobile === "-") item.mrMobile = mrMob;
+          if (div && div !== "-") item.divisions.add(div);
+
+          item.totalAssigned++;
+
+          var exType = String(u["EXCEPTION TYPE (MAIN METER)"] || u["EXCEPTION TYPE"] || "").toUpperCase().trim();
+          var siteRem = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "").toUpperCase().trim();
+
+          if (exType === "VISIT PENDING" || exType === "") {
+            item.pending++;
+          } else {
+            item.visited++;
+          }
+
+          if (exType === "MRI") {
+            item.mriDone++;
+          } else if (exType === "MANUAL") {
+            item.manualRead++;
+          }
+
+          if (siteRem.includes("LOCK") || siteRem.includes("PREMISES LOCKED")) {
+            item.locked++;
+          }
+
+          if (exType.includes("EXCEPTION") || siteRem.includes("DEFECTIVE") || siteRem.includes("BURNT") || siteRem.includes("DISPLAY OFF")) {
+            item.exceptions++;
+          }
+        });
+
+        var computedRows = [];
+        Object.keys(mrMap).forEach(function(k) {
+          var d = mrMap[k];
+          var mriSuccessPct = d.totalAssigned > 0 ? Math.round((d.mriDone / d.totalAssigned) * 100) : 0;
+          var visitPct = d.totalAssigned > 0 ? Math.round((d.visited / d.totalAssigned) * 100) : 0;
+          var divStr = Array.from(d.divisions).join(", ") || "-";
+
+          computedRows.push({
+            "MR Name": d.mrName,
+            "MR Mobile": d.mrMobile,
+            "Division": divStr,
+            "Total Assigned Consumers": d.totalAssigned,
+            "Visit Completed": d.visited,
+            "Visit Pending": d.pending,
+            "MRI Done Count": d.mriDone,
+            "Manual Read Count": d.manualRead,
+            "Exception / Defective Count": d.exceptions,
+            "Locked Count": d.locked,
+            "Success % (MRI/Assigned)": mriSuccessPct + "%",
+            "Overall Visit %": visitPct + "%"
+          });
+        });
+
+        // Sort descending by Total Assigned Consumers
+        computedRows.sort(function(a, b) {
+          return b["Total Assigned Consumers"] - a["Total Assigned Consumers"];
+        });
+
+        clientRenderedRows = computedRows;
+        currentPageNumber = 1;
+
+        var counterBadge = document.getElementById('report-live-counter');
+        if (counterBadge) {
+          counterBadge.innerText = "Total Readers: " + computedRows.length;
+          counterBadge.style.background = "#059669";
+        }
+
+        document.getElementById('table-zone').style.display = 'flex';
+        var colHeaders = rptMeta.columns.split(",").map(function(c){ return c.trim(); });
+        renderClientTable(colHeaders);
       }
 
       function selectReport(rpt, element, borderCol) {
@@ -3243,6 +3582,16 @@ body.dark-mode .view-tab-btn.active-view-tab {
           }
         } else {
           configCols = activeReportMeta.columns.split(",").map(function(c){ return c.trim().toUpperCase(); });
+        }
+
+        // 🟢 Account ID / Account No को सबसे पहले (Index 0 पर) लाना
+        var accColIdx = configCols.findIndex(function(c) {
+          var clean = c.replace(/[^A-Z0-9]/g, '');
+          return clean === "ACCOUNTNO" || clean === "ACCOUNTID" || clean === "ACCTID" || clean === "ACCOUNTNUMBER";
+        });
+        if (accColIdx > 0) {
+          var accColName = configCols.splice(accColIdx, 1)[0];
+          configCols.unshift(accColName);
         }
         clientRenderedRows = [];
 
@@ -4305,7 +4654,12 @@ body.dark-mode .view-tab-btn.active-view-tab {
           let jsonData = XLSX.utils.sheet_to_json(firstSheet);
 
           parseAndStoreConsumerData(jsonData);
-          try { localStorage.setItem("cachedConsumerMapJSON", JSON.stringify(masterConsumerMap)); } catch (e) {}
+          try { 
+            localStorage.setItem("cachedConsumerMapJSON", JSON.stringify(masterConsumerMap)); 
+          } catch (e) {
+            console.warn("Local Storage is full. Data cached in memory but won't persist after reload.");
+            // Optional: You can show a small UI toast here
+          }
 
           let totalMapped = Object.keys(masterConsumerMap).length;
           if(loader) loader.innerHTML = `<span class="text-success"><i class="fa-solid fa-cloud-arrow-down me-1"></i> Synced (${totalMapped} Meters)</span>`;
@@ -8196,9 +8550,11 @@ body.dark-mode .view-tab-btn.active-view-tab {
           updateKPIMiniProgressBars();
         }
 
-        // 🟢 Update Target vs Achievement Gauges
-        var visitPct = totalMainVisit > 0 ? Math.min(100, Math.round((mainVisitDone / totalMainVisit) * 100)) : 0;
-        var mriPct = mainMriDone > 0 ? Math.min(100, Math.round((mainMriUpload / mainMriDone) * 100)) : 0;
+        // 🟢 Update Target vs Achievement Gauges (Zero Division Guard)
+        var visitPct = (totalMainVisit && totalMainVisit > 0) ? Math.min(100, Math.max(0, Math.round((mainVisitDone / totalMainVisit) * 100))) : 0;
+        var mriPct = (mainMriDone && mainMriDone > 0) ? Math.min(100, Math.max(0, Math.round((mainMriUpload / mainMriDone) * 100))) : 0;
+        if (isNaN(visitPct)) visitPct = 0;
+        if (isNaN(mriPct)) mriPct = 0;
 
         var gVisitVal = document.getElementById('gauge-visit-val');
         var gVisitBar = document.getElementById('gauge-visit-bar');
@@ -8493,6 +8849,2262 @@ function downloadScorecardSpecificExcel(metricKey, divScope, filterValue) {
   XLSX.utils.book_append_sheet(wb, ws, "Filtered_Records");
   XLSX.writeFile(wb, "Scorecard_" + titleSlug + "_" + timeStr + ".xlsx");
 }
+// ==========================================
+// 🟢 METER READERS WISE PENDENCY ENGINE (EXACT MATCH WITH IMAGE)
+// ==========================================
+var cachedMrPendencyData = [];
+var cachedMrPendencyTotals = {};
+var unselectedMeterReadersSet = new Set(); // 🟢 UI में अनचेक किए गए रीडर्स
+
+function toggleMrFilterDropdownPanel(e) {
+  if (e) e.stopPropagation();
+  var p = document.getElementById('mr-filter-dropdown-panel');
+  if (!p) return;
+  var isOpen = p.style.display === 'block';
+  closeAllMultiPanels();
+  closeAllHeaderPopups();
+  p.style.display = isOpen ? 'none' : 'block';
+}
+
+function setAllMrFilterStatus(status) {
+  var chks = document.querySelectorAll('#mr-filter-checkboxes-container input[type="checkbox"]');
+  chks.forEach(function(c) {
+    c.checked = status;
+    if (status) {
+      unselectedMeterReadersSet.delete(c.value);
+    } else {
+      unselectedMeterReadersSet.add(c.value);
+    }
+  });
+  updateMrFilterButtonLabel();
+  renderMrWisePendencyTable();
+}
+
+function updateMrFilterButtonLabel() {
+  var lbl = document.getElementById('mr-filter-btn-label');
+  var totalChks = document.querySelectorAll('#mr-filter-checkboxes-container input[type="checkbox"]').length;
+  if (!lbl) return;
+
+  if (unselectedMeterReadersSet.size === 0) {
+    lbl.innerText = "Filter Readers (All Selected)";
+  } else if (unselectedMeterReadersSet.size === totalChks) {
+    lbl.innerText = "0 Readers Selected";
+  } else {
+    lbl.innerText = (totalChks - unselectedMeterReadersSet.size) + " Readers Active";
+  }
+}
+
+function populateMrFilterCheckboxes(readersList) {
+  var container = document.getElementById('mr-filter-checkboxes-container');
+  if (!container || container.children.length > 0) return; // पहले से बना हो तो दोबारा रीसेट न करें
+
+  container.innerHTML = "";
+  readersList.forEach(function(r, idx) {
+    var optId = "chk_mr_filter_" + idx;
+    var div = document.createElement("div");
+    div.className = "multiselect-option";
+    div.style = "padding: 5px 10px; display: flex; align-items: center; gap: 8px; font-size: 11px;";
+
+    var chk = document.createElement("input");
+    chk.type = "checkbox";
+    chk.id = optId;
+    chk.value = r.name;
+    chk.checked = !unselectedMeterReadersSet.has(r.name);
+    chk.style = "cursor: pointer;";
+
+    chk.onchange = function() {
+      if (this.checked) {
+        unselectedMeterReadersSet.delete(this.value);
+      } else {
+        unselectedMeterReadersSet.add(this.value);
+      }
+      updateMrFilterButtonLabel();
+      renderMrWisePendencyTable();
+    };
+
+    var label = document.createElement("label");
+    label.htmlFor = optId;
+    label.innerText = r.name;
+    label.style = "cursor: pointer; flex: 1; user-select: none; margin: 0;";
+
+    div.appendChild(chk);
+    div.appendChild(label);
+    container.appendChild(div);
+  });
+
+  updateMrFilterButtonLabel();
+}
+
+function calculateMrWisePendency() {
+  if (!cachedDatabase || cachedDatabase.length === 0) return { readers: [], totals: {} };
+
+  var mrMap = {};
+
+  function isTrueVal(v) {
+    var s = String(v || "").trim().toUpperCase();
+    return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+  }
+
+  // Yesterday date matching for "Previous Day Visit"
+  var now = new Date();
+  var yest = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+  var yestD = String(yest.getDate()).padStart(2, '0');
+  var yestM = String(yest.getMonth() + 1).padStart(2, '0');
+  var yestY = yest.getFullYear();
+  var yestDatePattern1 = yestD + "-" + yestM + "-" + yestY;
+  var yestDatePattern2 = yestD + "/" + yestM + "/" + yestY;
+
+  cachedDatabase.forEach(function(row) {
+    var u = row._uMap || row || {};
+
+    var mrName = String(u["VISIT LAST MONTH"] || u["MR NAME"] || u["USER NAME"] || "").trim().toUpperCase();
+    if (!mrName || mrName === "-" || mrName === "NAN" || mrName === "NULL") mrName = "OTHER / UNASSIGNED";
+
+    if (!mrMap[mrName]) {
+      mrMap[mrName] = {
+        name: mrName,
+        prevDayVisit: 0,
+        mainVisitPending: 0,
+        mainMriNotUpload: 0,
+        mainMriDone: 0,
+        mainSurveyAvailable: 0,
+        mainSurveyNotAvailable: 0,
+        mainException: 0,
+        mainManual: 0,
+        poleVisitPending: 0,
+        poleMriNotUpload: 0,
+        poleMriDone: 0,
+        poleSurveyAvailable: 0,
+        poleSurveyNotAvailable: 0,
+        poleException: 0,
+        poleManual: 0,
+        poleNoMeter: 0
+      };
+    }
+
+    var item = mrMap[mrName];
+
+    // 🟢 Clean Address: MAINPURI, 205001, UP, U.P., UTTAR PRADESH हटाना और साफ़ करना
+    function cleanAddressText(rawAddr) {
+      if (!rawAddr || rawAddr === "-" || rawAddr.toUpperCase() === "NAN" || rawAddr.toUpperCase() === "NULL") return "-";
+      var s = String(rawAddr)
+        .replace(/MAINPURI/gi, '')
+        .replace(/205001/gi, '')
+        .replace(/\bU\.?P\.?\b/gi, '')
+        .replace(/UTTAR\s+PRADESH/gi, '')
+        .replace(/,\s*,/g, ',')
+        .replace(/\s+/g, ' ')
+        .trim();
+      
+      // शुरुआत या अंत में बचे हुए कॉमा (,) या डैश (-) को हटाना
+      s = s.replace(/^[\s,\-]+|[\s,\-]+$/g, '');
+      if (!s) return "-";
+      return s.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+    }
+
+    var addrVal = cleanAddressText(u["ADDRESS"] || u["COMPLETE ADRESS"] || u["CONSUMER ADDRESS"] || "");
+
+    // Previous Day Visit
+    var visitDate = String(u["FINAL VISIT_DATE"] || u["FINAL VISIT DATE"] || u["VISIT DATE"] || "");
+    if (visitDate.includes(yestDatePattern1) || visitDate.includes(yestDatePattern2)) {
+      item.prevDayVisit++;
+    }
+
+    var loadKw = parseFloat(String(u["LOAD IN KW"] || u["LOAD_KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
+    var bTag = String(u["BILLABLE -NOT-BILLABLE"] || u["BILLABLE_NOT_BILLABLE"] || "").toUpperCase().trim();
+    
+    // अगर NOT-BILLABLE स्पष्ट रूप से नहीं है, तो उसे Billable मानकर चलें
+    var isNotBillable = (bTag.includes("NOT") || bTag.includes("NON"));
+    var isBillable = !isNotBillable;
+
+    var mainEx = String(u["EXCEPTION TYPE (MAIN METER)"] || u["EXCEPTION TYPE"] || "").toUpperCase().trim();
+    var attendStatus = String(u["ATTEND STATUS"] || u["ATTEND STATUS (MAIN)"] || "").toUpperCase().trim();
+    var mainRem = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "").toUpperCase().trim();
+    var mainMriAvail = u["IS MRI AVAILABLE (MAIN METER)"];
+    var mainSurvey = u["IS LOAD SURVAY AVAILBLE (MAIN MTR)"] || u["IS LOAD SURVEY AVAILABLE (MAIN METER)"];
+
+    // 🟢 1. Main Meter Calculation (Pending Logic + Address Tracking)
+    var isMainPending = (isBillable && (mainEx === "VISIT PENDING" || mainEx === "" || mainEx === "-" || mainEx === "NAN" || mainEx === "NULL" || String(u["ATTEND STATUS"] || "").toUpperCase().includes("PEND")));
+
+    if (isBillable) {
+      if (isMainPending && mainEx !== "MRI" && !mainEx.includes("EXCEPTION") && mainEx !== "MANUAL") {
+        item.mainVisitPending++;
+      } else if (mainEx === "MRI") {
+        item.mainMriDone++;
+        if (!isTrueVal(mainMriAvail)) {
+          item.mainMriNotUpload++;
+        }
+        if (isTrueVal(mainMriAvail) && isTrueVal(mainSurvey)) {
+          item.mainSurveyAvailable++;
+        } else if (isTrueVal(mainMriAvail) && !isTrueVal(mainSurvey)) {
+          item.mainSurveyNotAvailable++;
+        }
+      } else if (mainEx === "MANUAL" || mainRem.includes("MRD CORRPUT") || mainRem.includes("LEAD FAULTY")) {
+        item.mainManual++;
+      } else if (mainEx.includes("EXCEPTION") || mainRem.includes("DEFECTIVE") || mainRem.includes("LOCKED") || mainRem.includes("NOT ASSESSABLE") || mainRem.includes("NOT METER")) {
+        item.mainException++;
+      }
+    }
+
+    // 🟢 2. Pole Meter Calculation (>=10 KW)
+    if (loadKw >= 10) {
+      var poleEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
+      var poleRem = String(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "").toUpperCase().trim();
+      var poleMriAvail = u["IS MRI AVAILABLE (POLE METER)"];
+      var poleSurvey = u["IS LOAD SURVAY AVAILBLE (POLE MTR)"] || u["IS LOAD SURVEY AVAILABLE (POLE METER)"];
+      var poleMtrNo = String(u["LAST MONTH FINAL PM NO."] || "").trim().toUpperCase();
+
+      if (poleEx === "VISIT PENDING" || poleEx === "") {
+        item.poleVisitPending++;
+      } else if (poleEx === "MRI") {
+        item.poleMriDone++;
+        if (!isTrueVal(poleMriAvail)) {
+          item.poleMriNotUpload++;
+        }
+        if (isTrueVal(poleMriAvail) && isTrueVal(poleSurvey)) {
+          item.poleSurveyAvailable++;
+        } else if (isTrueVal(poleMriAvail) && !isTrueVal(poleSurvey)) {
+          item.poleSurveyNotAvailable++;
+        }
+      } else if (poleEx === "MANUAL" || poleRem.includes("MRD CORRPUT") || poleRem.includes("LEAD FAULTY")) {
+        item.poleManual++;
+      } else if (poleEx === "EXCEPTION (NO_MTR)" || poleRem.includes("NO METER AT SITE") || poleRem.includes("NO_MTR") || (!poleMtrNo || poleMtrNo === "-" || poleMtrNo === "NAN" || poleMtrNo === "0")) {
+        item.poleNoMeter++;
+      } else if (poleEx.includes("EXCEPTION") || poleRem.includes("DEFECTIVE") || poleRem.includes("LOCKED") || poleRem.includes("NOT ASSESSABLE")) {
+        item.poleException++;
+      }
+    }
+  });
+
+  // 🟢 A to Z (Alphabetical) Sorting (Case-Insensitive & Whitespace Trimmed)
+  var allReadersList = Object.values(mrMap).sort(function(a, b) {
+    var nameA = String(a.name || "").trim().toUpperCase();
+    var nameB = String(b.name || "").trim().toUpperCase();
+    return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+  });
+
+  // 🟢 ड्रॉपडाउन में चेकलिस्ट विकल्प भरें
+  populateMrFilterCheckboxes(allReadersList);
+
+  // 🟢 केवल वही रीडर्स आएंगे जो UI ड्रॉपडाउन में चेक (Active) हैं और A to Z क्रम में रहेंगे
+  var readersList = allReadersList.filter(function(r) {
+    return !unselectedMeterReadersSet.has(r.name);
+  }).sort(function(a, b) {
+    var nameA = String(a.name || "").trim().toUpperCase();
+    var nameB = String(b.name || "").trim().toUpperCase();
+    return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+  });
+
+  // Calculate Totals
+  var totals = {
+    prevDayVisit: 0,
+    mainVisitPending: 0,
+    mainMriNotUpload: 0,
+    mainMriDone: 0,
+    mainSurveyAvailable: 0,
+    mainSurveyNotAvailable: 0,
+    mainException: 0,
+    mainManual: 0,
+    poleVisitPending: 0,
+    poleMriNotUpload: 0,
+    poleMriDone: 0,
+    poleSurveyAvailable: 0,
+    poleSurveyNotAvailable: 0,
+    poleException: 0,
+    poleManual: 0,
+    poleNoMeter: 0
+  };
+
+  readersList.forEach(function(r) {
+    for (var k in totals) {
+      totals[k] += r[k];
+    }
+  });
+
+  cachedMrPendencyData = readersList;
+  cachedMrPendencyTotals = totals;
+
+  return { readers: readersList, totals: totals };
+}
+
+function renderMrWisePendencyTable() {
+  var tbody = document.getElementById("mr-pendency-tbody");
+  if (!tbody) return;
+
+  var res = calculateMrWisePendency();
+  var readers = res.readers;
+  var tot = res.totals;
+
+  var subCountEl = document.getElementById("mr-pendency-sub-count");
+  if (subCountEl) subCountEl.innerText = "Total Active Readers: " + readers.length;
+
+  var totalMainSurveyPct = (tot.mainSurveyAvailable + tot.mainSurveyNotAvailable) > 0 
+    ? ((tot.mainSurveyAvailable / (tot.mainSurveyAvailable + tot.mainSurveyNotAvailable)) * 100).toFixed(2) + "%" 
+    : "0.00%";
+
+  var totalPoleSurveyPct = (tot.poleSurveyAvailable + tot.poleSurveyNotAvailable) > 0 
+    ? ((tot.poleSurveyAvailable / (tot.poleSurveyAvailable + tot.poleSurveyNotAvailable)) * 100).toFixed(2) + "%" 
+    : "0.00%";
+
+  // 🟢 Exact Row Palette Helpers from Image
+  function getSurveyPctColor(pctVal) {
+    var n = parseFloat(pctVal);
+    if (isNaN(n) || n === 0) return "background: #f87171; color: #fff;"; // Red
+    if (n >= 90) return "background: #15803d; color: #fff;"; // Dark Green
+    if (n >= 75) return "background: #22c55e; color: #000;"; // Light Green
+    if (n >= 60) return "background: #fde047; color: #000;"; // Yellow
+    return "background: #ef4444; color: #fff;"; // Red
+  }
+
+  function mrCellClick(typeKey, readerName) {
+    return `onclick="openMrPendencyDrillDownModal('${typeKey}', '${readerName || 'ALL'}')" title="Click to View & Download List" style="cursor:pointer; text-decoration:underline;"`;
+  }
+
+  var html = `
+    <!-- TOTAL ROW: Clickable Cells for Immediate Drill-down & Exports -->
+    <tr style="background: #fef08a; font-weight: 900; font-size: 12px; border: 1.5px solid #000;">
+      <td style="padding: 6px; text-align: center; border: 1.5px solid #000; font-size: 13px;">Total</td>
+      <td style="padding: 6px; border: 1px solid #000;" ${mrCellClick('PREV_DAY_VISIT', 'ALL')}>${tot.prevDayVisit}</td>
+      <td style="padding: 6px; border: 1px solid #000;" ${mrCellClick('MAIN_VISIT_PENDING', 'ALL')}>${tot.mainVisitPending}</td>
+      <td style="padding: 6px; border: 1px solid #000;" ${mrCellClick('MAIN_MRI_NOT_UPLOAD', 'ALL')}>${tot.mainMriNotUpload}</td>
+      <td style="padding: 6px; border: 1px solid #000; background: #dc2626; color: #fff;" ${mrCellClick('MAIN_SURVEY_AVAIL', 'ALL')}>${totalMainSurveyPct}</td>
+      <td style="padding: 6px; border: 1px solid #000;" ${mrCellClick('MAIN_SURVEY_NOT_AVAIL', 'ALL')}>${tot.mainSurveyNotAvailable}</td>
+      <td style="padding: 6px; border: 1px solid #000;" ${mrCellClick('MAIN_EXCEPTION', 'ALL')}>${tot.mainException}</td>
+      <td style="padding: 6px; border: 1px solid #000;" ${mrCellClick('MAIN_MANUAL', 'ALL')}>${tot.mainManual}</td>
+      <td style="padding: 6px; border: 1px solid #000;" ${mrCellClick('POLE_VISIT_PENDING', 'ALL')}>${tot.poleVisitPending}</td>
+      <td style="padding: 6px; border: 1px solid #000;" ${mrCellClick('POLE_MRI_NOT_UPLOAD', 'ALL')}>${tot.poleMriNotUpload}</td>
+      <td style="padding: 6px; border: 1px solid #000; background: #dc2626; color: #fff;" ${mrCellClick('POLE_SURVEY_AVAIL', 'ALL')}>${totalPoleSurveyPct}</td>
+      <td style="padding: 6px; border: 1px solid #000;" ${mrCellClick('POLE_SURVEY_NOT_AVAIL', 'ALL')}>${tot.poleSurveyNotAvailable}</td>
+      <td style="padding: 6px; border: 1px solid #000;" ${mrCellClick('POLE_EXCEPTION', 'ALL')}>${tot.poleException}</td>
+      <td style="padding: 6px; border: 1px solid #000;" ${mrCellClick('POLE_MANUAL', 'ALL')}>${tot.poleManual}</td>
+      <td style="padding: 6px; border: 1px solid #000;" ${mrCellClick('POLE_NO_METER', 'ALL')}>${tot.poleNoMeter}</td>
+    </tr>
+  `;
+
+  // Reader Data Rows - हर एक सेल पर क्लिक इवेंट
+  readers.forEach(function(r) {
+    var mainPct = (r.mainSurveyAvailable + r.mainSurveyNotAvailable) > 0 
+      ? ((r.mainSurveyAvailable / (r.mainSurveyAvailable + r.mainSurveyNotAvailable)) * 100).toFixed(2) + "%" 
+      : "0.00%";
+
+    var polePct = (r.poleSurveyAvailable + r.poleSurveyNotAvailable) > 0 
+      ? ((r.poleSurveyAvailable / (r.poleSurveyAvailable + r.poleSurveyNotAvailable)) * 100).toFixed(2) + "%" 
+      : "0.00%";
+
+    var safeRName = r.name.replace(/'/g, "\\'");
+    html += `
+      <tr style="border-bottom: 1px solid #000; font-weight: 700;">
+        <td style="padding: 5px 8px; text-align: left; background: #e2e8f0; border: 1px solid #000; font-size: 10.5px;">${r.name}</td>
+        <td style="padding: 5px; border: 1px solid #000; background: #fff; cursor:pointer;" ${mrCellClick('PREV_DAY_VISIT', safeRName)}>${r.prevDayVisit}</td>
+        
+        <!-- Main Meter Cells (Clickable Every Cell) -->
+        <td style="padding: 5px; border: 1px solid #000; background: #1d4ed8; color: #fff; font-weight: 800; cursor:pointer;" ${mrCellClick('MAIN_VISIT_PENDING', safeRName)}>${r.mainVisitPending}</td>
+        <td style="padding: 5px; border: 1px solid #000; background: #94a3b8; color: #991b1b; font-weight: 800; cursor:pointer;" ${mrCellClick('MAIN_MRI_NOT_UPLOAD', safeRName)}>${r.mainMriNotUpload}</td>
+        <td style="padding: 5px; border: 1px solid #000; ${getSurveyPctColor(mainPct)}; cursor:pointer;" ${mrCellClick('MAIN_SURVEY_AVAIL', safeRName)}>${mainPct}</td>
+        <td style="padding: 5px; border: 1px solid #000; background: #fff; cursor:pointer;" ${mrCellClick('MAIN_SURVEY_NOT_AVAIL', safeRName)}>${r.mainSurveyNotAvailable}</td>
+        <td style="padding: 5px; border: 1px solid #000; background: #fff; cursor:pointer;" ${mrCellClick('MAIN_EXCEPTION', safeRName)}>${r.mainException}</td>
+        <td style="padding: 5px; border: 1px solid #000; background: #fff; cursor:pointer;" ${mrCellClick('MAIN_MANUAL', safeRName)}>${r.mainManual}</td>
+
+        <!-- Pole Meter Cells (Clickable Every Cell) -->
+        <td style="padding: 5px; border: 1px solid #000; background: #1d4ed8; color: #fff; font-weight: 800; cursor:pointer;" ${mrCellClick('POLE_VISIT_PENDING', safeRName)}>${r.poleVisitPending}</td>
+        <td style="padding: 5px; border: 1px solid #000; background: #cbd5e1; color: #b91c1c; font-weight: 800; cursor:pointer;" ${mrCellClick('POLE_MRI_NOT_UPLOAD', safeRName)}>${r.poleMriNotUpload}</td>
+        <td style="padding: 5px; border: 1px solid #000; ${getSurveyPctColor(polePct)}; cursor:pointer;" ${mrCellClick('POLE_SURVEY_AVAIL', safeRName)}>${polePct}</td>
+        <td style="padding: 5px; border: 1px solid #000; background: #fff; cursor:pointer;" ${mrCellClick('POLE_SURVEY_NOT_AVAIL', safeRName)}>${r.poleSurveyNotAvailable}</td>
+        <td style="padding: 5px; border: 1px solid #000; background: #fff; cursor:pointer;" ${mrCellClick('POLE_EXCEPTION', safeRName)}>${r.poleException}</td>
+        <td style="padding: 5px; border: 1px solid #000; background: #fff; cursor:pointer;" ${mrCellClick('POLE_MANUAL', safeRName)}>${r.poleManual}</td>
+        <td style="padding: 5px; border: 1px solid #000; background: #fff; cursor:pointer;" ${mrCellClick('POLE_NO_METER', safeRName)}>${r.poleNoMeter}</td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+}
+
+// 🟢 1. DOWNLOAD SUMMARY EXCEL (EXACT COLORS, MERGES & CELL STYLES)
+function downloadMrPendencySummaryExcel() {
+  var res = calculateMrWisePendency();
+  var readers = res.readers;
+  var tot = res.totals;
+
+  if (readers.length === 0) {
+    alert("डाउनलोड करने के लिए डेटा उपलब्ध नहीं है!");
+    return;
+  }
+
+  var headerRow1 = [
+    "Reports/ Pendency Name", "Previous Day VisiT",
+    "Main Meters", "", "", "", "", "",
+    "Pole Meters", "", "", "", "", "", ""
+  ];
+
+  var headerRow2 = [
+    "", "",
+    "Main Meter Visit Pending", "Main Meter MRI Not Upload", "Main Meter Load Survay Availble %", "Main Meter Load Survay Not Availble", "Exception (Meter Defective,Not Meter, Locked,Not Assessable", "Manual (Lead Faulty,MRD Corrput)",
+    "Pole Meter Visit Pending", "Pole Meter MRI Not Upload", "Pole Meter Load Survay Availble %", "Pole Meter Load Survay Not Availble", "Exception (Meter Defective,Not Meter, Locked,Not Assessable", "Manual (Lead Faulty,MRD Corrput)", "No Meter At Site"
+  ];
+
+  var totalMainSurveyPct = (tot.mainSurveyAvailable + tot.mainSurveyNotAvailable) > 0 
+    ? ((tot.mainSurveyAvailable / (tot.mainSurveyAvailable + tot.mainSurveyNotAvailable)) * 100).toFixed(2) + "%" 
+    : "0.00%";
+
+  var totalPoleSurveyPct = (tot.poleSurveyAvailable + tot.poleSurveyNotAvailable) > 0 
+    ? ((tot.poleSurveyAvailable / (tot.poleSurveyAvailable + tot.poleSurveyNotAvailable)) * 100).toFixed(2) + "%" 
+    : "0.00%";
+
+  var totalRow = [
+    "Total", tot.prevDayVisit,
+    tot.mainVisitPending, tot.mainMriNotUpload, totalMainSurveyPct, tot.mainSurveyNotAvailable, tot.mainException, tot.mainManual,
+    tot.poleVisitPending, tot.poleMriNotUpload, totalPoleSurveyPct, tot.poleSurveyNotAvailable, tot.poleException, tot.poleManual, tot.poleNoMeter
+  ];
+
+  var rowsData = [
+    ["Meter Readers Wise Pendency"], // Top Big Header
+    headerRow1,
+    headerRow2,
+    totalRow
+  ];
+
+  readers.forEach(function(r) {
+    var mainPct = (r.mainSurveyAvailable + r.mainSurveyNotAvailable) > 0 
+      ? ((r.mainSurveyAvailable / (r.mainSurveyAvailable + r.mainSurveyNotAvailable)) * 100).toFixed(2) + "%" 
+      : "0.00%";
+
+    var polePct = (r.poleSurveyAvailable + r.poleSurveyNotAvailable) > 0 
+      ? ((r.poleSurveyAvailable / (r.poleSurveyAvailable + r.poleSurveyNotAvailable)) * 100).toFixed(2) + "%" 
+      : "0.00%";
+
+    rowsData.push([
+      r.name, r.prevDayVisit,
+      r.mainVisitPending, r.mainMriNotUpload, mainPct, r.mainSurveyNotAvailable, r.mainException, r.mainManual,
+      r.poleVisitPending, r.poleMriNotUpload, polePct, r.poleSurveyNotAvailable, r.poleException, r.poleManual, r.poleNoMeter
+    ]);
+  });
+
+  var ws = XLSX.utils.aoa_to_sheet(rowsData);
+
+  // Exact Merges
+  ws['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 14 } }, // Title
+    { s: { r: 1, c: 0 }, e: { r: 2, c: 0 } },  // Pendency Name
+    { s: { r: 1, c: 1 }, e: { r: 2, c: 1 } },  // Prev Day
+    { s: { r: 1, c: 2 }, e: { r: 1, c: 7 } },  // Main Meters Group
+    { s: { r: 1, c: 8 }, e: { r: 1, c: 14 } }  // Pole Meters Group
+  ];
+
+  ws['!cols'] = [
+    { wch: 24 }, { wch: 18 },
+    { wch: 16 }, { wch: 16 }, { wch: 18 }, { wch: 18 }, { wch: 25 }, { wch: 20 },
+    { wch: 16 }, { wch: 16 }, { wch: 18 }, { wch: 18 }, { wch: 25 }, { wch: 20 }, { wch: 16 }
+  ];
+
+  // Styling (Thick borders + Exact Colors)
+  if (ws['!ref']) {
+    var range = XLSX.utils.decode_range(ws['!ref']);
+    for (var R = range.s.r; R <= range.e.r; ++R) {
+      for (var C = range.s.c; C <= range.e.c; ++C) {
+        var addr = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!ws[addr]) continue;
+
+        var cellStyle = {
+          font: { name: "Segoe UI", sz: 9 },
+          alignment: { horizontal: (C === 0 && R >= 4 ? "left" : "center"), vertical: "center", wrapText: true },
+          border: {
+            top: { style: "thin", color: { rgb: "000000" } },
+            bottom: { style: "thin", color: { rgb: "000000" } },
+            left: { style: "thin", color: { rgb: "000000" } },
+            right: { style: "thin", color: { rgb: "000000" } }
+          }
+        };
+
+        if (R === 0) {
+          cellStyle.fill = { fgColor: { rgb: "93C5FD" } };
+          cellStyle.font = { name: "Segoe UI", sz: 12, bold: true };
+        } else if (R === 1) {
+          if (C >= 2 && C <= 7) cellStyle.fill = { fgColor: { rgb: "FEF08A" } };
+          else if (C >= 8) cellStyle.fill = { fgColor: { rgb: "BFDBFE" } };
+          else cellStyle.fill = { fgColor: { rgb: "CBD5E1" } };
+          cellStyle.font = { name: "Segoe UI", sz: 9.5, bold: true };
+        } else if (R === 2) {
+          if (C >= 2 && C <= 7) cellStyle.fill = { fgColor: { rgb: "FEF9C3" } };
+          else if (C >= 8) cellStyle.fill = { fgColor: { rgb: "DBEAFE" } };
+          cellStyle.font = { name: "Segoe UI", sz: 8.5, bold: true };
+        } else if (R === 3) {
+          // Total Row
+          cellStyle.fill = { fgColor: { rgb: "FEF08A" } };
+          cellStyle.font = { name: "Segoe UI", sz: 10, bold: true };
+          if (C === 4 || C === 10) {
+            cellStyle.fill = { fgColor: { rgb: "DC2626" } };
+            cellStyle.font.color = { rgb: "FFFFFF" };
+          }
+        } else {
+          // Data Rows Accents
+          if (C === 2 || C === 8) {
+            cellStyle.fill = { fgColor: { rgb: "1D4ED8" } };
+            cellStyle.font = { name: "Segoe UI", sz: 9, bold: true, color: { rgb: "FFFFFF" } };
+          } else if (C === 3 || C === 9) {
+            cellStyle.fill = { fgColor: { rgb: "CBD5E1" } };
+            cellStyle.font = { name: "Segoe UI", sz: 9, bold: true, color: { rgb: "B91C1C" } };
+          }
+        }
+
+        ws[addr].s = cellStyle;
+      }
+    }
+  }
+
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "MR_Wise_Pendency");
+  
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  XLSX.writeFile(wb, "Meter_Readers_Wise_Pendency_Summary_" + dateStr + ".xlsx");
+}
+
+// 🟢 2. DOWNLOAD SUMMARY PDF (EXACT IMAGE VISUAL REPLICA)
+function downloadMrPendencySummaryPDF() {
+  var res = calculateMrWisePendency();
+  var readers = res.readers;
+  var tot = res.totals;
+
+  if (readers.length === 0) {
+    alert("डाउनलोड करने के लिए डेटा उपलब्ध नहीं है!");
+    return;
+  }
+
+  var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+  if (!jsPDFObj) return;
+
+  var doc = new jsPDFObj('l', 'pt', 'a4'); // A4 Landscape (842 x 595 pt)
+  var pageWidth = 842;
+  var marginX = 10;
+
+  var totalMainSurveyPct = (tot.mainSurveyAvailable + tot.mainSurveyNotAvailable) > 0 
+    ? ((tot.mainSurveyAvailable / (tot.mainSurveyAvailable + tot.mainSurveyNotAvailable)) * 100).toFixed(2) + "%" 
+    : "0.00%";
+
+  var totalPoleSurveyPct = (tot.poleSurveyAvailable + tot.poleSurveyNotAvailable) > 0 
+    ? ((tot.poleSurveyAvailable / (tot.poleSurveyAvailable + tot.poleSurveyNotAvailable)) * 100).toFixed(2) + "%" 
+    : "0.00%";
+
+  var pdfHead = [
+    [
+      { content: "Meter Readers Wise Pendency", colSpan: 15, styles: { fillColor: [147, 197, 253], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 11, halign: 'center' } }
+    ],
+    [
+      { content: "Reports/ Pendency Name", rowSpan: 2, styles: { fillColor: [203, 213, 225], textColor: [0, 0, 0], fontStyle: 'bold', valign: 'middle', halign: 'center' } },
+      { content: "Previous Day VisiT", rowSpan: 2, styles: { fillColor: [226, 232, 240], textColor: [0, 0, 0], fontStyle: 'bold', valign: 'middle', halign: 'center' } },
+      { content: "Main Meters", colSpan: 6, styles: { fillColor: [254, 240, 138], textColor: [0, 0, 0], fontStyle: 'bold', halign: 'center' } },
+      { content: "Pole Meters", colSpan: 7, styles: { fillColor: [191, 219, 254], textColor: [0, 0, 0], fontStyle: 'bold', halign: 'center' } }
+    ],
+    [
+      { content: "Main Meter Visit Pending", styles: { fillColor: [254, 249, 195], textColor: [0, 0, 0], fontSize: 6 } },
+      { content: "Main Meter MRI Not Upload", styles: { fillColor: [254, 249, 195], textColor: [0, 0, 0], fontSize: 6 } },
+      { content: "Main Meter Load Survay Availble %", styles: { fillColor: [254, 249, 195], textColor: [0, 0, 0], fontSize: 6 } },
+      { content: "Main Meter Load Survay Not Availble", styles: { fillColor: [254, 249, 195], textColor: [0, 0, 0], fontSize: 6 } },
+      { content: "Exception (Meter Defective,No Meter, Locked,Not Assessable", styles: { fillColor: [254, 249, 195], textColor: [0, 0, 0], fontSize: 5.5 } },
+      { content: "Manual (Lead Faulty,MRD Corrput)", styles: { fillColor: [254, 249, 195], textColor: [0, 0, 0], fontSize: 6 } },
+      { content: "Pole Meter Visit Pending", styles: { fillColor: [219, 234, 254], textColor: [0, 0, 0], fontSize: 6 } },
+      { content: "Pole Meter MRI Not Upload", styles: { fillColor: [219, 234, 254], textColor: [0, 0, 0], fontSize: 6 } },
+      { content: "Pole Meter Load Survay Availble %", styles: { fillColor: [219, 234, 254], textColor: [0, 0, 0], fontSize: 6 } },
+      { content: "Pole Meter Load Survay Not Availble", styles: { fillColor: [219, 234, 254], textColor: [0, 0, 0], fontSize: 6 } },
+      { content: "Exception (Meter Defective,No Meter, Locked,Not Assessable", styles: { fillColor: [219, 234, 254], textColor: [0, 0, 0], fontSize: 5.5 } },
+      { content: "Manual (Lead Faulty,MRD Corrput)", styles: { fillColor: [219, 234, 254], textColor: [0, 0, 0], fontSize: 6 } },
+      { content: "No Meter At Site", styles: { fillColor: [219, 234, 254], textColor: [0, 0, 0], fontSize: 6 } }
+    ]
+  ];
+
+  var pdfBody = [
+    // Total Row
+    [
+      { content: "Total", styles: { fillColor: [254, 240, 138], fontStyle: 'bold', fontSize: 8.5 } },
+      { content: tot.prevDayVisit, styles: { fillColor: [254, 240, 138], fontStyle: 'bold' } },
+      { content: tot.mainVisitPending, styles: { fillColor: [254, 240, 138], fontStyle: 'bold' } },
+      { content: tot.mainMriNotUpload, styles: { fillColor: [254, 240, 138], fontStyle: 'bold' } },
+      { content: totalMainSurveyPct, styles: { fillColor: [220, 38, 38], textColor: [255, 255, 255], fontStyle: 'bold' } },
+      { content: tot.mainSurveyNotAvailable, styles: { fillColor: [254, 240, 138], fontStyle: 'bold' } },
+      { content: tot.mainException, styles: { fillColor: [254, 240, 138], fontStyle: 'bold' } },
+      { content: tot.mainManual, styles: { fillColor: [254, 240, 138], fontStyle: 'bold' } },
+      { content: tot.poleVisitPending, styles: { fillColor: [254, 240, 138], fontStyle: 'bold' } },
+      { content: tot.poleMriNotUpload, styles: { fillColor: [254, 240, 138], fontStyle: 'bold' } },
+      { content: totalPoleSurveyPct, styles: { fillColor: [220, 38, 38], textColor: [255, 255, 255], fontStyle: 'bold' } },
+      { content: tot.poleSurveyNotAvailable, styles: { fillColor: [254, 240, 138], fontStyle: 'bold' } },
+      { content: tot.poleException, styles: { fillColor: [254, 240, 138], fontStyle: 'bold' } },
+      { content: tot.poleManual, styles: { fillColor: [254, 240, 138], fontStyle: 'bold' } },
+      { content: tot.poleNoMeter, styles: { fillColor: [254, 240, 138], fontStyle: 'bold' } }
+    ]
+  ];
+
+  readers.forEach(function(r) {
+    var mainPct = (r.mainSurveyAvailable + r.mainSurveyNotAvailable) > 0 
+      ? ((r.mainSurveyAvailable / (r.mainSurveyAvailable + r.mainSurveyNotAvailable)) * 100).toFixed(2) + "%" 
+      : "0.00%";
+
+    var polePct = (r.poleSurveyAvailable + r.poleSurveyNotAvailable) > 0 
+      ? ((r.poleSurveyAvailable / (r.poleSurveyAvailable + r.poleSurveyNotAvailable)) * 100).toFixed(2) + "%" 
+      : "0.00%";
+
+    function getPdfPctStyle(pctStr) {
+      var n = parseFloat(pctStr);
+      if (isNaN(n) || n === 0) return { fillColor: [248, 113, 113], textColor: [255, 255, 255], fontStyle: 'bold' };
+      if (n >= 90) return { fillColor: [21, 128, 61], textColor: [255, 255, 255], fontStyle: 'bold' };
+      if (n >= 75) return { fillColor: [34, 197, 94], textColor: [0, 0, 0], fontStyle: 'bold' };
+      if (n >= 60) return { fillColor: [253, 224, 71], textColor: [0, 0, 0], fontStyle: 'bold' };
+      return { fillColor: [239, 68, 68], textColor: [255, 255, 255], fontStyle: 'bold' };
+    }
+
+    pdfBody.push([
+      { content: r.name, styles: { halign: 'left', fontStyle: 'bold', fillColor: [226, 232, 240] } },
+      { content: r.prevDayVisit },
+      { content: r.mainVisitPending, styles: { fillColor: [29, 78, 216], textColor: [255, 255, 255], fontStyle: 'bold' } },
+      { content: r.mainMriNotUpload, styles: { fillColor: [203, 213, 225], textColor: [185, 28, 28], fontStyle: 'bold' } },
+      { content: mainPct, styles: getPdfPctStyle(mainPct) },
+      { content: r.mainSurveyNotAvailable },
+      { content: r.mainException },
+      { content: r.mainManual },
+      { content: r.poleVisitPending, styles: { fillColor: [29, 78, 216], textColor: [255, 255, 255], fontStyle: 'bold' } },
+      { content: r.poleMriNotUpload, styles: { fillColor: [203, 213, 225], textColor: [185, 28, 28], fontStyle: 'bold' } },
+      { content: polePct, styles: getPdfPctStyle(polePct) },
+      { content: r.poleSurveyNotAvailable },
+      { content: r.poleException },
+      { content: r.poleManual },
+      { content: r.poleNoMeter }
+    ]);
+  });
+
+  doc.autoTable({
+    head: pdfHead,
+    body: pdfBody,
+    startY: 18,
+    margin: { left: marginX, right: marginX },
+    theme: 'grid',
+    tableWidth: pageWidth - (marginX * 2),
+    styles: {
+      fontSize: 7,
+      halign: 'center',
+      valign: 'middle',
+      cellPadding: 2.5,
+      lineWidth: 0.35,
+      lineColor: [0, 0, 0],
+      textColor: [0, 0, 0]
+    },
+    columnStyles: {
+      0: { cellWidth: 110, halign: 'left' }
+    }
+  });
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  doc.save("Meter_Readers_Wise_Pendency_Summary_" + dateStr + ".pdf");
+}
+
+// 🟢 3. DOWNLOAD FULL CONSUMER LIST EXCEL (READER-WISE DETAILED RECORDS)
+function downloadMrPendencyDataListExcel() {
+  if (!cachedDatabase || cachedDatabase.length === 0) {
+    alert("डेटा उपलब्ध नहीं है!");
+    return;
+  }
+
+  var headers = [
+    "Sr.No.", "MR Name", "Division", "Account No", "Consumer Name", "Load in KW",
+    "Main Meter No", "Main Visit Status", "Main Exception Type", "Main Site Remark", "Main MRI Available", "Main Load Survey",
+    "Pole Meter No", "Pole Exception Type", "Pole Site Remark", "Pole MRI Available", "Pole Load Survey", "Billing Status"
+  ];
+
+  var rowsData = [headers];
+
+  // 🟢 MR Name A to Z Sort (Excel Consumer List)
+  var sortedDb = cachedDatabase.filter(function(row) {
+    var u = row._uMap || row;
+    var mr = String(u["VISIT LAST MONTH"] || u["MR NAME"] || u["USER NAME"] || "").trim().toUpperCase();
+    if (!mr || mr === "-" || mr === "NAN" || mr === "NULL") mr = "OTHER / UNASSIGNED";
+    return !unselectedMeterReadersSet.has(mr);
+  }).sort(function(a, b) {
+    var uA = a._uMap || a;
+    var uB = b._uMap || b;
+    var mrA = String(uA["VISIT LAST MONTH"] || uA["MR NAME"] || "OTHER / UNASSIGNED").trim().toUpperCase();
+    var mrB = String(uB["VISIT LAST MONTH"] || uB["MR NAME"] || "OTHER / UNASSIGNED").trim().toUpperCase();
+    return mrA.localeCompare(mrB, undefined, { numeric: true, sensitivity: 'base' });
+  });
+
+  sortedDb.forEach(function(row, idx) {
+    var u = row._uMap || row;
+    rowsData.push([
+      idx + 1,
+      String(u["VISIT LAST MONTH"] || u["MR NAME"] || "UNASSIGNED"),
+      String(u["DIVISION"] || ""),
+      String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").padStart(10, '0'),
+      String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || ""),
+      String(u["LOAD IN KW"] || u["LOAD_KW"] || ""),
+      String(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"] || ""),
+      String(u["EXCEPTION TYPE (MAIN METER)"] || ""),
+      String(u["EXCEPTION TYPE (MAIN METER)"] || ""),
+      String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || ""),
+      String(u["IS MRI AVAILABLE (MAIN METER)"] || ""),
+      String(u["IS LOAD SURVAY AVAILBLE (MAIN MTR)"] || ""),
+      String(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."] || ""),
+      String(u["EXCEPTION TYPE (POLE METER)"] || ""),
+      String(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || ""),
+      String(u["IS MRI AVAILABLE (POLE METER)"] || ""),
+      String(u["IS LOAD SURVAY AVAILBLE (POLE MTR)"] || ""),
+      String(u["BILLING STATUS"] || "")
+    ]);
+  });
+
+  var ws = XLSX.utils.aoa_to_sheet(rowsData);
+  ws['!autofilter'] = { ref: ws['!ref'] };
+  ws['!views'] = [{ state: 'frozen', ySplit: 1, xSplit: 0, activeCell: 'A2' }];
+
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Consumers_Detailed_List");
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  XLSX.writeFile(wb, "Meter_Readers_Consumer_List_" + dateStr + ".xlsx");
+}
+
+// 🟢 4. DOWNLOAD FULL CONSUMER LIST PDF (A3 LANDSCAPE COMPREHENSIVE)
+function downloadMrPendencyDataListPDF() {
+  if (!cachedDatabase || cachedDatabase.length === 0) {
+    alert("डेटा उपलब्ध नहीं है!");
+    return;
+  }
+
+  var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+  if (!jsPDFObj) return;
+
+  var doc = new jsPDFObj('l', 'pt', 'a3'); // A3 Landscape (1191 x 842 pt)
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+
+  doc.setFontSize(13);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(15, 23, 42);
+  doc.text("METER READERS WISE DETAILED CONSUMER LIST - EDC MAINPURI (" + dateStr + ")", 14, 22);
+
+  var headers = [[
+    "Sr.", "MR Name", "Division", "Account No", "Consumer Name", "Load",
+    "Main Mtr No", "Main Exception", "Main Site Remark", "Main MRI",
+    "Pole Mtr No", "Pole Exception", "Pole Site Remark", "Pole MRI", "Billing Status"
+  ]];
+
+  // 🟢 MR Name A to Z Sort (PDF Consumer List)
+  var sortedDb = cachedDatabase.filter(function(row) {
+    var u = row._uMap || row;
+    var mr = String(u["VISIT LAST MONTH"] || u["MR NAME"] || u["USER NAME"] || "").trim().toUpperCase();
+    if (!mr || mr === "-" || mr === "NAN" || mr === "NULL") mr = "OTHER / UNASSIGNED";
+    return !unselectedMeterReadersSet.has(mr);
+  }).sort(function(a, b) {
+    var uA = a._uMap || a;
+    var uB = b._uMap || b;
+    var mrA = String(uA["VISIT LAST MONTH"] || uA["MR NAME"] || "OTHER / UNASSIGNED").trim().toUpperCase();
+    var mrB = String(uB["VISIT LAST MONTH"] || uB["MR NAME"] || "OTHER / UNASSIGNED").trim().toUpperCase();
+    return mrA.localeCompare(mrB, undefined, { numeric: true, sensitivity: 'base' });
+  });
+
+  var body = sortedDb.map(function(row, idx) {
+    var u = row._uMap || row;
+    var rawA = String(u["ADDRESS"] || u["COMPLETE ADRESS"] || u["CONSUMER ADDRESS"] || "-");
+    var cleanA = (rawA !== "-") ? rawA
+      .replace(/MAINPURI/gi, '')
+      .replace(/205001/gi, '')
+      .replace(/\bU\.?P\.?\b/gi, '')
+      .replace(/UTTAR\s+PRADESH/gi, '')
+      .replace(/,\s*,/g, ',')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/^[\s,\-]+|[\s,\-]+$/g, '') : "-";
+    if (cleanA && cleanA !== "-") cleanA = cleanA.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+
+    return [
+      idx + 1,
+      String(u["VISIT LAST MONTH"] || u["MR NAME"] || "UNASSIGNED").substring(0, 16),
+      String(u["DIVISION"] || "-"),
+      String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").padStart(10, '0'),
+      String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "").substring(0, 20),
+      cleanA, // 🟢 Address
+      String(u["LOAD IN KW"] || u["LOAD_KW"] || "-"),
+      String(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"] || "-"),
+      String(u["EXCEPTION TYPE (MAIN METER)"] || "-"),
+      String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "-").substring(0, 20),
+      String(u["IS MRI AVAILABLE (MAIN METER)"] || "-"),
+      String(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."] || "-"),
+      String(u["EXCEPTION TYPE (POLE METER)"] || "-"),
+      String(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "-").substring(0, 20),
+      String(u["IS MRI AVAILABLE (POLE METER)"] || "-"),
+      String(u["BILLING STATUS"] || "-")
+    ];
+  });
+
+  doc.autoTable({
+    head: headers,
+    body: body,
+    startY: 30,
+    margin: { left: 12, right: 12 },
+    theme: 'grid',
+    styles: {
+      fontSize: 6.5,
+      halign: 'center',
+      valign: 'middle',
+      cellPadding: 2,
+      overflow: 'linebreak'
+    },
+    headStyles: {
+      fillColor: [15, 23, 42],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      fontSize: 7
+    },
+    columnStyles: {
+      1: { halign: 'left', fontStyle: 'bold' },
+      4: { halign: 'left' },
+      8: { halign: 'left' },
+      12: { halign: 'left' }
+    }
+  });
+
+  doc.save("Meter_Readers_Consumer_List_" + dateStr + ".pdf");
+}
+
+// 🟢 DRILL-DOWN MODAL & EXPORT LOGIC FOR TOTAL CELL CLICKS
+var activeDrillDownRecords = [];
+var activeDrillDownTitle = "Filtered Records";
+
+function closeMrDrilldownModal() {
+  var modal = document.getElementById("mr-drilldown-modal");
+  if (modal) modal.style.display = "none";
+}
+
+function openMrPendencyDrillDownModal(typeKey, readerName) {
+  if (!cachedDatabase || cachedDatabase.length === 0) return;
+
+  function isTrueVal(v) {
+    var s = String(v || "").trim().toUpperCase();
+    return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+  }
+
+  function cleanAddressDisplay(rawAddr) {
+    if (!rawAddr || rawAddr === "-" || rawAddr.toUpperCase() === "NAN" || rawAddr.toUpperCase() === "NULL") return "-";
+    var s = String(rawAddr)
+      .replace(/MAINPURI/gi, '')
+      .replace(/205001/gi, '')
+      .replace(/\bU\.?P\.?\b/gi, '')
+      .replace(/UTTAR\s+PRADESH/gi, '')
+      .replace(/,\s*,/g, ',')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/^[\s,\-]+|[\s,\-]+$/g, '');
+    if (!s) return "-";
+    return s.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+  }
+
+  var now = new Date();
+  var yest = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+  var yestD = String(yest.getDate()).padStart(2, '0');
+  var yestM = String(yest.getMonth() + 1).padStart(2, '0');
+  var yestY = yest.getFullYear();
+  var p1 = yestD + "-" + yestM + "-" + yestY;
+  var p2 = yestD + "/" + yestM + "/" + yestY;
+
+  var matched = [];
+
+  cachedDatabase.forEach(function(row) {
+    var u = row._uMap || row || {};
+
+    var mr = String(u["VISIT LAST MONTH"] || u["MR NAME"] || u["USER NAME"] || "OTHER / UNASSIGNED").trim().toUpperCase();
+    if (readerName !== "ALL" && mr !== readerName) return;
+    if (typeof unselectedMeterReadersSet !== 'undefined' && unselectedMeterReadersSet.has(mr)) return;
+
+    var bTag = String(u["BILLABLE -NOT-BILLABLE"] || u["BILLABLE_NOT_BILLABLE"] || "").toUpperCase().trim();
+    var isBillable = (bTag === "BILLABLE");
+
+    var mainEx = String(u["EXCEPTION TYPE (MAIN METER)"] || "").toUpperCase().trim();
+    var mainRem = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "").toUpperCase().trim();
+    var mainMriAvail = u["IS MRI AVAILABLE (MAIN METER)"];
+    var mainSurvey = u["IS LOAD SURVAY AVAILBLE (MAIN MTR)"] || u["IS LOAD SURVEY AVAILABLE (MAIN METER)"];
+
+    var loadKw = parseFloat(String(u["LOAD IN KW"] || u["LOAD_KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
+    var poleEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
+    var poleRem = String(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "").toUpperCase().trim();
+    var poleMriAvail = u["IS MRI AVAILABLE (POLE METER)"];
+    var poleSurvey = u["IS LOAD SURVAY AVAILBLE (POLE MTR)"] || u["IS LOAD SURVEY AVAILABLE (POLE METER)"];
+    var poleMtrNo = String(u["LAST MONTH FINAL PM NO."] || "").trim().toUpperCase();
+
+    var isPending = (isBillable && (mainEx === "VISIT PENDING" || mainEx === "" || mainEx === "-" || mainEx === "NAN" || String(u["ATTEND STATUS"] || "").toUpperCase().includes("PEND")));
+
+    var isHit = false;
+
+    if (typeKey === "PREV_DAY_VISIT") {
+      var vDate = String(u["FINAL VISIT_DATE"] || u["FINAL VISIT DATE"] || u["VISIT DATE"] || "");
+      if (vDate.includes(p1) || vDate.includes(p2)) isHit = true;
+    } else if (typeKey === "MAIN_VISIT_PENDING") {
+      if (isPending && mainEx !== "MRI" && !mainEx.includes("EXCEPTION") && mainEx !== "MANUAL") isHit = true;
+    } else if (typeKey === "MAIN_MRI_NOT_UPLOAD") {
+      if (isBillable && mainEx === "MRI" && !isTrueVal(mainMriAvail)) isHit = true;
+    } else if (typeKey === "MAIN_SURVEY_AVAIL") {
+      if (isBillable && mainEx === "MRI" && isTrueVal(mainMriAvail) && isTrueVal(mainSurvey)) isHit = true;
+    } else if (typeKey === "MAIN_SURVEY_NOT_AVAIL") {
+      if (isBillable && mainEx === "MRI" && isTrueVal(mainMriAvail) && !isTrueVal(mainSurvey)) isHit = true;
+    } else if (typeKey === "MAIN_EXCEPTION") {
+      if (isBillable && (mainEx.includes("EXCEPTION") || mainRem.includes("DEFECTIVE") || mainRem.includes("LOCKED") || mainRem.includes("NOT ASSESSABLE") || mainRem.includes("NOT METER"))) isHit = true;
+    } else if (typeKey === "MAIN_MANUAL") {
+      if (isBillable && (mainEx === "MANUAL" || mainRem.includes("MRD CORRPUT") || mainRem.includes("LEAD FAULTY"))) isHit = true;
+    } else if (typeKey === "POLE_VISIT_PENDING") {
+      if (loadKw >= 10 && (poleEx === "VISIT PENDING" || poleEx === "")) isHit = true;
+    } else if (typeKey === "POLE_MRI_NOT_UPLOAD") {
+      if (loadKw >= 10 && poleEx === "MRI" && !isTrueVal(poleMriAvail)) isHit = true;
+    } else if (typeKey === "POLE_SURVEY_AVAIL") {
+      if (loadKw >= 10 && poleEx === "MRI" && isTrueVal(poleMriAvail) && isTrueVal(poleSurvey)) isHit = true;
+    } else if (typeKey === "POLE_SURVEY_NOT_AVAIL") {
+      if (loadKw >= 10 && poleEx === "MRI" && isTrueVal(poleMriAvail) && !isTrueVal(poleSurvey)) isHit = true;
+    } else if (typeKey === "POLE_EXCEPTION") {
+      if (loadKw >= 10 && (poleEx.includes("EXCEPTION") || poleRem.includes("DEFECTIVE") || poleRem.includes("LOCKED") || poleRem.includes("NOT ASSESSABLE"))) isHit = true;
+    } else if (typeKey === "POLE_MANUAL") {
+      if (loadKw >= 10 && (poleEx === "MANUAL" || poleRem.includes("MRD CORRPUT") || poleRem.includes("LEAD FAULTY"))) isHit = true;
+    } else if (typeKey === "POLE_NO_METER") {
+      if (loadKw >= 10 && (poleEx === "EXCEPTION (NO_MTR)" || poleRem.includes("NO METER AT SITE") || poleRem.includes("NO_MTR") || (!poleMtrNo || poleMtrNo === "-" || poleMtrNo === "NAN" || poleMtrNo === "0"))) isHit = true;
+    }
+
+    if (isHit) matched.push(row);
+  });
+
+  matched.sort(function(a, b) {
+    var uA = a._uMap || a;
+    var uB = b._uMap || b;
+    var mrA = String(uA["VISIT LAST MONTH"] || uA["MR NAME"] || "OTHER / UNASSIGNED").trim().toUpperCase();
+    var mrB = String(uB["VISIT LAST MONTH"] || uB["MR NAME"] || "OTHER / UNASSIGNED").trim().toUpperCase();
+    return mrA.localeCompare(mrB, undefined, { numeric: true, sensitivity: 'base' });
+  });
+
+  activeDrillDownRecords = matched;
+  window.activeDrillDownMode = typeKey.startsWith("MAIN_") ? "MAIN" : (typeKey.startsWith("POLE_") ? "POLE" : "BOTH");
+  activeDrillDownTitle = typeKey.replace(/_/g, " ") + (readerName !== "ALL" ? " (" + readerName + ")" : " (Total)");
+
+  var modal = document.getElementById("mr-drilldown-modal");
+  var titleEl = document.getElementById("mr-drilldown-title");
+  var subEl = document.getElementById("mr-drilldown-subtitle");
+  var table = modal ? modal.querySelector("table") : null;
+  var thead = table ? table.querySelector("thead") : null;
+  var tbody = document.getElementById("mr-drilldown-tbody");
+
+  if (titleEl) titleEl.innerText = activeDrillDownTitle;
+  if (subEl) subEl.innerText = "Total Found: " + matched.length;
+
+  var isMain = (window.activeDrillDownMode === "MAIN");
+  var isPole = (window.activeDrillDownMode === "POLE");
+
+  // 🟢 डायनामिक हेडर: Main में सिर्फ Main के, Pole में सिर्फ Pole के हेडर
+  if (thead) {
+    if (isMain) {
+      thead.innerHTML = `
+        <tr style="background:#1e293b; color:white; font-size:10.5px;">
+          <th style="padding:6px; width:35px;">Sr.</th>
+          <th style="padding:6px; width:120px;">MR Name</th>
+          <th style="padding:6px; width:90px;">Division</th>
+          <th style="padding:6px; width:95px;">Account No</th>
+          <th style="padding:6px; text-align:left;">Consumer Name</th>
+          <th style="padding:6px; text-align:left;">Address</th>
+          <th style="padding:6px; width:65px;">Load</th>
+          <th style="padding:6px; background:#1e3a8a; color:#fff;">Main Meter No</th>
+          <th style="padding:6px; background:#1e3a8a; color:#fff;">Site Remark (Main)</th>
+          <th style="padding:6px; background:#1e3a8a; color:#fff;">Exception (Main)</th>
+          <th style="padding:6px; background:#1e3a8a; color:#fff;">MRI Available</th>
+        </tr>
+      `;
+    } else if (isPole) {
+      thead.innerHTML = `
+        <tr style="background:#1e293b; color:white; font-size:10.5px;">
+          <th style="padding:6px; width:35px;">Sr.</th>
+          <th style="padding:6px; width:120px;">MR Name</th>
+          <th style="padding:6px; width:90px;">Division</th>
+          <th style="padding:6px; width:95px;">Account No</th>
+          <th style="padding:6px; text-align:left;">Consumer Name</th>
+          <th style="padding:6px; text-align:left;">Address</th>
+          <th style="padding:6px; width:65px;">Load</th>
+          <th style="padding:6px; background:#075985; color:#fff;">Pole Meter No</th>
+          <th style="padding:6px; background:#075985; color:#fff;">Site Remark (Pole)</th>
+          <th style="padding:6px; background:#075985; color:#fff;">Exception (Pole)</th>
+          <th style="padding:6px; background:#075985; color:#fff;">MRI Available</th>
+        </tr>
+      `;
+    } else {
+      thead.innerHTML = `
+        <tr style="background:#1e293b; color:white; font-size:10.5px;">
+          <th style="padding:6px;">Sr.</th>
+          <th style="padding:6px;">MR Name</th>
+          <th style="padding:6px;">Division</th>
+          <th style="padding:6px;">Account No</th>
+          <th style="padding:6px; text-align:left;">Consumer Name</th>
+          <th style="padding:6px; text-align:left;">Address</th>
+          <th style="padding:6px;">Load</th>
+          <th style="padding:6px;">Main Meter No</th>
+          <th style="padding:6px;">Site Remark (Main)</th>
+          <th style="padding:6px;">Pole Meter No</th>
+          <th style="padding:6px;">Site Remark (Pole)</th>
+        </tr>
+      `;
+    }
+  }
+
+  var bHtml = "";
+  matched.forEach(function(row, idx) {
+    var u = row._uMap || row;
+    var acc = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").padStart(10, '0');
+    var conName = String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "-");
+    var address = cleanAddressDisplay(u["ADDRESS"] || u["COMPLETE ADRESS"] || u["CONSUMER ADDRESS"] || "-");
+    var loadVal = String(u["LOAD IN KW"] || u["LOAD_KW"] || "-");
+    var mrName = String(u["VISIT LAST MONTH"] || u["MR NAME"] || "-");
+    var divVal = String(u["DIVISION"] || "-");
+
+    var mainMtr = String(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"] || "-");
+    var mainRem = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "-");
+    var mainEx = String(u["EXCEPTION TYPE (MAIN METER)"] || "-");
+    var mainMri = String(u["IS MRI AVAILABLE (MAIN METER)"] || "False");
+
+    var poleMtr = String(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."] || "-");
+    var poleRem = String(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "-");
+    var poleEx = String(u["EXCEPTION TYPE (POLE METER)"] || "-");
+    var poleMri = String(u["IS MRI AVAILABLE (POLE METER)"] || "False");
+
+    if (isMain) {
+      bHtml += `
+        <tr>
+          <td style="padding:5px;">${idx + 1}</td>
+          <td style="padding:5px; font-weight:700;">${escapeHtml(mrName)}</td>
+          <td style="padding:5px;">${escapeHtml(divVal)}</td>
+          <td style="padding:5px; font-weight:bold; color:#1a73e8; cursor:pointer;" onclick="openConsumer360ByAccount('${escapeHtml(acc)}')">${escapeHtml(acc)}</td>
+          <td style="padding:5px; text-align:left;">${escapeHtml(conName)}</td>
+          <td style="padding:5px; text-align:left; max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(address)}">${escapeHtml(address)}</td>
+          <td style="padding:5px; font-weight:bold;">${escapeHtml(loadVal)}</td>
+          <td style="padding:5px; font-weight:bold; color:#1e40af;">${escapeHtml(mainMtr)}</td>
+          <td style="padding:5px; color:#c026d3;">${escapeHtml(mainRem)}</td>
+          <td style="padding:5px;">${escapeHtml(mainEx)}</td>
+          <td style="padding:5px; font-weight:bold; color:${isTrueVal(mainMri) ? '#16a34a' : '#dc2626'};">${isTrueVal(mainMri) ? 'Yes' : 'No'}</td>
+        </tr>
+      `;
+    } else if (isPole) {
+      bHtml += `
+        <tr>
+          <td style="padding:5px;">${idx + 1}</td>
+          <td style="padding:5px; font-weight:700;">${escapeHtml(mrName)}</td>
+          <td style="padding:5px;">${escapeHtml(divVal)}</td>
+          <td style="padding:5px; font-weight:bold; color:#1a73e8; cursor:pointer;" onclick="openConsumer360ByAccount('${escapeHtml(acc)}')">${escapeHtml(acc)}</td>
+          <td style="padding:5px; text-align:left;">${escapeHtml(conName)}</td>
+          <td style="padding:5px; text-align:left; max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(address)}">${escapeHtml(address)}</td>
+          <td style="padding:5px; font-weight:bold;">${escapeHtml(loadVal)}</td>
+          <td style="padding:5px; font-weight:bold; color:#0369a1;">${escapeHtml(poleMtr)}</td>
+          <td style="padding:5px; color:#2563eb;">${escapeHtml(poleRem)}</td>
+          <td style="padding:5px;">${escapeHtml(poleEx)}</td>
+          <td style="padding:5px; font-weight:bold; color:${isTrueVal(poleMri) ? '#16a34a' : '#dc2626'};">${isTrueVal(poleMri) ? 'Yes' : 'No'}</td>
+        </tr>
+      `;
+    } else {
+      bHtml += `
+        <tr>
+          <td style="padding:5px;">${idx + 1}</td>
+          <td style="padding:5px; font-weight:700;">${escapeHtml(mrName)}</td>
+          <td style="padding:5px;">${escapeHtml(divVal)}</td>
+          <td style="padding:5px; font-weight:bold; color:#1a73e8; cursor:pointer;" onclick="openConsumer360ByAccount('${escapeHtml(acc)}')">${escapeHtml(acc)}</td>
+          <td style="padding:5px; text-align:left;">${escapeHtml(conName)}</td>
+          <td style="padding:5px; text-align:left; max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(address)}">${escapeHtml(address)}</td>
+          <td style="padding:5px; font-weight:bold;">${escapeHtml(loadVal)}</td>
+          <td style="padding:5px;">${escapeHtml(mainMtr)}</td>
+          <td style="padding:5px; color:#c026d3;">${escapeHtml(mainRem)}</td>
+          <td style="padding:5px;">${escapeHtml(poleMtr)}</td>
+          <td style="padding:5px; color:#2563eb;">${escapeHtml(poleRem)}</td>
+        </tr>
+      `;
+    }
+  });
+
+  if (tbody) tbody.innerHTML = bHtml || '<tr><td colspan="11" style="padding:20px; color:#dc2626;">No matching records.</td></tr>';
+  if (modal) modal.style.display = "flex";
+}
+
+function downloadMrDrilldownExcel() {
+  var isMain = (window.activeDrillDownMode === "MAIN");
+  var isPole = (window.activeDrillDownMode === "POLE");
+
+  if (!activeDrillDownRecords || activeDrillDownRecords.length === 0) {
+    alert("डाउनलोड करने के लिए डेटा उपलब्ध नहीं है!");
+    return;
+  }
+
+  function isTrueVal(v) {
+    var s = String(v || "").trim().toUpperCase();
+    return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+  }
+
+  var headers = [];
+  if (isMain) {
+    headers = [
+      "Sr.No.", "MR Name", "Division", "Account No", "Consumer Name", "Address", "Load in KW",
+      "Main Meter No", "Site Remark (Main)", "Exception Type (Main)", "MRI Available"
+    ];
+  } else if (isPole) {
+    headers = [
+      "Sr.No.", "MR Name", "Division", "Account No", "Consumer Name", "Address", "Load in KW",
+      "Pole Meter No", "Site Remark (Pole)", "Exception Type (Pole)", "MRI Available"
+    ];
+  } else {
+    headers = [
+      "Sr.No.", "MR Name", "Division", "Account No", "Consumer Name", "Address", "Load in KW",
+      "Main Meter No", "Site Remark (Main)", "Pole Meter No", "Site Remark (Pole)"
+    ];
+  }
+
+  var rows = [headers];
+
+  activeDrillDownRecords.forEach(function(row, idx) {
+    var u = row._uMap || row;
+    var acc = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").padStart(10, '0');
+    var rawAddr = String(u["ADDRESS"] || u["COMPLETE ADRESS"] || u["CONSUMER ADDRESS"] || "-");
+    var address = (rawAddr !== "-") ? rawAddr
+      .replace(/MAINPURI/gi, '')
+      .replace(/205001/gi, '')
+      .replace(/\bU\.?P\.?\b/gi, '')
+      .replace(/UTTAR\s+PRADESH/gi, '')
+      .replace(/,\s*,/g, ',')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/^[\s,\-]+|[\s,\-]+$/g, '') : "-";
+    if (address && address !== "-") address = address.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+
+    if (isMain) {
+      rows.push([
+        idx + 1,
+        String(u["VISIT LAST MONTH"] || u["MR NAME"] || "-"),
+        String(u["DIVISION"] || "-"),
+        acc,
+        String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "-"),
+        address,
+        String(u["LOAD IN KW"] || u["LOAD_KW"] || "-"),
+        String(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"] || "-"),
+        String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "-"),
+        String(u["EXCEPTION TYPE (MAIN METER)"] || "-"),
+        isTrueVal(u["IS MRI AVAILABLE (MAIN METER)"]) ? "Yes" : "No"
+      ]);
+    } else if (isPole) {
+      rows.push([
+        idx + 1,
+        String(u["VISIT LAST MONTH"] || u["MR NAME"] || "-"),
+        String(u["DIVISION"] || "-"),
+        acc,
+        String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "-"),
+        address,
+        String(u["LOAD IN KW"] || u["LOAD_KW"] || "-"),
+        String(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."] || "-"),
+        String(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "-"),
+        String(u["EXCEPTION TYPE (POLE METER)"] || "-"),
+        isTrueVal(u["IS MRI AVAILABLE (POLE METER)"]) ? "Yes" : "No"
+      ]);
+    } else {
+      rows.push([
+        idx + 1,
+        String(u["VISIT LAST MONTH"] || u["MR NAME"] || "-"),
+        String(u["DIVISION"] || "-"),
+        acc,
+        String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "-"),
+        address,
+        String(u["LOAD IN KW"] || u["LOAD_KW"] || "-"),
+        String(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"] || "-"),
+        String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "-"),
+        String(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."] || "-"),
+        String(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "-")
+      ]);
+    }
+  });
+
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!autofilter'] = { ref: ws['!ref'] };
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Filtered_List");
+  XLSX.writeFile(wb, activeDrillDownTitle.replace(/[^A-Za-z0-9]/g, "_") + ".xlsx");
+}
+
+function downloadMrDrilldownPDF() {
+  if (!activeDrillDownRecords || activeDrillDownRecords.length === 0) {
+    alert("डाउनलोड करने के लिए डेटा उपलब्ध नहीं है!");
+    return;
+  }
+
+  var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+  if (!jsPDFObj) return;
+
+  var isMain = (window.activeDrillDownMode === "MAIN");
+  var isPole = (window.activeDrillDownMode === "POLE");
+
+  function isTrueVal(v) {
+    var s = String(v || "").trim().toUpperCase();
+    return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+  }
+
+  var doc = new jsPDFObj('l', 'pt', 'a4');
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(15, 23, 42);
+  doc.text(activeDrillDownTitle + " - Detailed Records (" + dateStr + ")", 14, 20);
+
+  var headers = [];
+  if (isMain) {
+    headers = [["Sr.", "MR Name", "Division", "Account No", "Consumer Name", "Address", "Load", "Main Meter No", "Site Remark (Main)", "Exception (Main)", "MRI Avail"]];
+  } else if (isPole) {
+    headers = [["Sr.", "MR Name", "Division", "Account No", "Consumer Name", "Address", "Load", "Pole Meter No", "Site Remark (Pole)", "Exception (Pole)", "MRI Avail"]];
+  } else {
+    headers = [["Sr.", "MR Name", "Division", "Account No", "Consumer Name", "Address", "Load", "Main Mtr", "Main Remark", "Pole Mtr", "Pole Remark"]];
+  }
+
+  var body = activeDrillDownRecords.map(function(row, idx) {
+    var u = row._uMap || row;
+    var acc = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").padStart(10, '0');
+    var rawA = String(u["ADDRESS"] || u["COMPLETE ADRESS"] || u["CONSUMER ADDRESS"] || "-");
+    var addr = (rawA !== "-") ? rawA
+      .replace(/MAINPURI/gi, '')
+      .replace(/205001/gi, '')
+      .replace(/\bU\.?P\.?\b/gi, '')
+      .replace(/UTTAR\s+PRADESH/gi, '')
+      .replace(/,\s*,/g, ',')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/^[\s,\-]+|[\s,\-]+$/g, '') : "-";
+    if (addr && addr !== "-") addr = addr.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+
+    if (isMain) {
+      return [
+        idx + 1,
+        String(u["VISIT LAST MONTH"] || u["MR NAME"] || "-").substring(0, 15),
+        String(u["DIVISION"] || "-"),
+        acc,
+        String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "-").substring(0, 20),
+        addr,
+        String(u["LOAD IN KW"] || u["LOAD_KW"] || "-"),
+        String(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"] || "-"),
+        String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "-").substring(0, 22),
+        String(u["EXCEPTION TYPE (MAIN METER)"] || "-"),
+        isTrueVal(u["IS MRI AVAILABLE (MAIN METER)"]) ? "Yes" : "No"
+      ];
+    } else if (isPole) {
+      return [
+        idx + 1,
+        String(u["VISIT LAST MONTH"] || u["MR NAME"] || "-").substring(0, 15),
+        String(u["DIVISION"] || "-"),
+        acc,
+        String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "-").substring(0, 20),
+        addr,
+        String(u["LOAD IN KW"] || u["LOAD_KW"] || "-"),
+        String(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."] || "-"),
+        String(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "-").substring(0, 22),
+        String(u["EXCEPTION TYPE (POLE METER)"] || "-"),
+        isTrueVal(u["IS MRI AVAILABLE (POLE METER)"]) ? "Yes" : "No"
+      ];
+    } else {
+      return [
+        idx + 1,
+        String(u["VISIT LAST MONTH"] || u["MR NAME"] || "-").substring(0, 15),
+        String(u["DIVISION"] || "-"),
+        acc,
+        String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "-").substring(0, 18),
+        addr,
+        String(u["LOAD IN KW"] || u["LOAD_KW"] || "-"),
+        String(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"] || "-"),
+        String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "-").substring(0, 18),
+        String(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."] || "-"),
+        String(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "-").substring(0, 18)
+      ];
+    }
+  });
+
+  doc.autoTable({
+    head: headers,
+    body: body,
+    startY: 28,
+    margin: { left: 8, right: 8 },
+    theme: 'grid',
+    styles: { fontSize: 6.5, halign: 'center', cellPadding: 1.8, overflow: 'linebreak' },
+    headStyles: { fillColor: isMain ? [30, 58, 138] : (isPole ? [7, 89, 133] : [15, 23, 42]), textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7 }
+  });
+
+  doc.save(activeDrillDownTitle.replace(/[^A-Za-z0-9]/g, "_") + "_" + dateStr + ".pdf");
+}
+
+
+// ==========================================
+// 🟢 3-MONTH PROGRESSIVE COMPARISON SUMMARY ENGINE (EXACT IMAGE MAPPING + DRILLDOWN)
+// ==========================================
+var cached3MGroupingMode = "MR"; // 'MR' or 'DIV'
+var cached3MComparisonCalculated = null;
+var active3MDrillDownRecords = [];
+var active3MDrillDownTitle = "";
+
+// 🟢 Image Mapping: Remarks के अनुसार Billable / Not-Billable आधिकारिक तालिका
+var exactImageRemarkBillableMap = {
+  "SINGLE PHASE METER": false,
+  "STREET LIGHT/PAYJAL (UNMETERD)": false,
+  "DUPLICATE": false,
+  "SUBSTATION OR DEPARTMENT OFFICE": false,
+  "MRI DONE": true,
+  "COMMUNICATION ERROR": true,
+  "PAYJAL (UNMETERD)": false,
+  "METER LEAD/SENSOR FAULTY": true,
+  "NO USE OF SUPPLY AT SITE (STW OR PAYJAL)": false,
+  "WRONG TARRIF (PTW)": false,
+  "CHINA METER/SEM I-ELECTRONIC METER/ELECTRO MECHNICAL METER": true,
+  "NO_NEED TO_VISIT (<10)": false,
+  "SINGLE PHASE METER (DUMMY)": false,
+  "CMRI DONE": true,
+  "ENTRY DENIED BY CONSUMER": true,
+  "METER DEFECTIVE/ DISPLAY OFF/ METER BURNT": true,
+  "METER NOT ACCESSIBLE": true,
+  "NO METER AT SITE": true,
+  "NO METER NO CABLE AT SITE (PDC)": false,
+  "WATER/FLOOD LOGGING": true,
+  "OK (APP MRI)": true,
+  "OK(OCR)": true,
+  "PREMISES LOCKED": true,
+  "SMART/PREPAID METER": false,
+  "TDC": false,
+  "UNDER LOAD": false,
+  "CT-PT DAMAGED": false,
+  "SITE NOT FOUND": true,
+  "PT/CUBICAL DAMAGED": false,
+  "NO SUPPLY": false,
+  "MRD CORRUPT": true,
+  "MRD CORRPUT": true,
+  "SMART/PREPAID METER_": false,
+  "METER BYPASS": true,
+  "METER RTC DEFECTIVE": true
+};
+
+function isRemarkBillable(remStr, exceptionTag, fallbackBillableTag) {
+  var cleanR = String(remStr || "").trim().toUpperCase();
+  if (exactImageRemarkBillableMap.hasOwnProperty(cleanR)) {
+    return exactImageRemarkBillableMap[cleanR];
+  }
+  for (var k in exactImageRemarkBillableMap) {
+    if (cleanR.replace(/[^A-Z0-9]/g, "") === k.replace(/[^A-Z0-9]/g, "")) {
+      return exactImageRemarkBillableMap[k];
+    }
+  }
+  var tag = String(exceptionTag || "").toUpperCase().trim();
+  if (tag.includes("NONE_1") || tag.includes("NONE_UM") || tag.includes("NONE_SM") || tag === "NONE" || tag === "INACTIVE") {
+    return false;
+  }
+  if (fallbackBillableTag && (fallbackBillableTag.includes("NOT") || fallbackBillableTag.includes("NON"))) {
+    return false;
+  }
+  return true;
+}
+
+function switch3MGroupingMode(mode) {
+  cached3MGroupingMode = mode;
+  var btnMr = document.getElementById('btn-3m-mr-view');
+  var btnDiv = document.getElementById('btn-3m-div-view');
+  if (mode === "MR") {
+    if (btnMr) { btnMr.style.background = "#2563eb"; btnMr.style.color = "white"; }
+    if (btnDiv) { btnDiv.style.background = "transparent"; btnDiv.style.color = "#475569"; }
+  } else {
+    if (btnDiv) { btnDiv.style.background = "#2563eb"; btnDiv.style.color = "white"; }
+    if (btnMr) { btnMr.style.background = "transparent"; btnMr.style.color = "#475569"; }
+  }
+  render3MComparisonDashboard();
+}
+
+function create3MBucket(entityName) {
+  return {
+    name: entityName,
+    // Month-wise Billables
+    billable_m1: 0,
+    billable_m2: 0,
+    billable_m3: 0,
+    // Main Meter (3 Months)
+    main_m1_mri: 0, main_m1_non_mri: 0,
+    main_m2_mri: 0, main_m2_non_mri: 0,
+    main_m3_mri: 0, main_m3_non_mri: 0,
+    // 3 Months Continuous Non-MRI (Main)
+    main_continuous_non_mri_3m: 0,
+    // Pole Meter (3 Months)
+    poleTotalForVisit: 0,
+    poleNoMeterAtSite: 0,
+    poleInstalled: 0,
+    pole_m1_mri: 0, pole_m1_non_mri: 0,
+    pole_m2_mri: 0, pole_m2_non_mri: 0,
+    pole_m3_mri: 0, pole_m3_non_mri: 0,
+    // 3 Months Continuous Non-MRI (Pole)
+    pole_continuous_non_mri_3m: 0
+  };
+}
+
+function classify3MRemark(remStr, mriAvail) {
+  if (!remStr || remStr === "-" || remStr.toUpperCase() === "NAN" || remStr.toUpperCase() === "NULL") {
+    return "BLANK";
+  }
+  var s = String(remStr).trim().toUpperCase();
+  var isAvail = String(mriAvail || "").trim().toUpperCase();
+  var isYes = (isAvail === "TRUE" || isAvail === "YES" || isAvail === "1" || isAvail === "Y");
+
+  if (isYes || s.includes("MRI DONE") || s.includes("CMRI DONE") || s.includes("OK (APP MRI)") || s.includes("OK(OCR)") || s.includes("METER RTC DEFECTIVE")) {
+    return "MRI";
+  }
+  return "NON_MRI";
+}
+
+function calculate3MonthComparisonMetrics() {
+  if (!cachedDatabase || cachedDatabase.length === 0) return { groups: {}, grand: create3MBucket("GRAND TOTAL"), consumers: [] };
+
+  function cleanStr(v) {
+    if (!v) return "";
+    var s = String(v).trim().toUpperCase();
+    if (s === "" || s === "NAN" || s === "NULL" || s === "BLANK" || s === "NONE" || s === "-") return "";
+    return s.replace(/[^A-Z0-9]/gi, "");
+  }
+
+  var groupsMap = {};
+  var grand = create3MBucket("GRAND TOTAL");
+  var consumerDrillDown = [];
+
+  // 🟢 1. टॉप सर्च बार इनपुट पढ़ें
+  var searchInputEl = document.getElementById('live-search-input');
+  var searchQuery = searchInputEl ? String(searchInputEl.value || "").trim().toUpperCase() : "";
+
+  cachedDatabase.forEach(function(row) {
+    var u = row._uMap || row || {};
+
+    // 🟢 2. Live Search फ़िल्टर
+    if (searchQuery !== "" && row._searchBlob && !row._searchBlob.includes(searchQuery)) {
+      return;
+    }
+
+    var mrName = String(u["VISIT LAST MONTH"] || u["MR NAME"] || u["USER NAME"] || "OTHER / UNASSIGNED").trim().toUpperCase();
+    if (mrName === "" || mrName === "-" || mrName === "NAN") mrName = "OTHER / UNASSIGNED";
+
+    var divName = String(u["DIVISION"] || "EDC MAINPURI").trim().toUpperCase();
+    var typeVal = String(u["CONSUMER TYPE"] || "").trim().toUpperCase();
+    var grpVal = String(u["LOAD GROUP (5-10-50)"] || u["LOAD GROUP"] || "").toUpperCase().replace(/\s+/g, '');
+
+    var entityKey = (cached3MGroupingMode === "MR") ? mrName : divName;
+
+    // 🟢 3. Division फ़िल्टर
+    if (selectedDivisions && selectedDivisions.length > 0) {
+      var isDivMatched = selectedDivisions.some(function(d) {
+        var cleanD = d.replace(/[^A-Z0-9]/gi, "").toUpperCase();
+        var cleanRowDiv = divName.replace(/[^A-Z0-9]/gi, "").toUpperCase();
+        return cleanRowDiv.includes(cleanD) || cleanD.includes(cleanRowDiv);
+      });
+      if (!isDivMatched) return;
+    }
+
+    // 🟢 4. Meter Reader फ़िल्टर
+    if (selectedReaders && selectedReaders.length > 0) {
+      var isMrMatched = selectedReaders.some(function(r) {
+        return r.toUpperCase().trim() === mrName;
+      });
+      if (!isMrMatched) return;
+    }
+    if (typeof unselectedMeterReadersSet !== 'undefined' && unselectedMeterReadersSet.has(mrName)) return;
+
+    // 🟢 5. Consumer Type फ़िल्टर (NON-GOVT / GOVT)
+    if (selectedTypes && selectedTypes.length > 0) {
+      var isTypeMatched = selectedTypes.some(function(t) {
+        return t.toUpperCase().trim() === typeVal;
+      });
+      if (!isTypeMatched) return;
+    }
+
+    // 🟢 6. Load Group फ़िल्टर (>=5KW<10KW, आदि)
+    if (selectedGroups && selectedGroups.length > 0) {
+      var isGrpMatched = selectedGroups.some(function(g) {
+        return grpVal.includes(g.replace(/\s+/g, '').toUpperCase());
+      });
+      if (!isGrpMatched) return;
+    }
+
+    // 🟢 Exact Remarks Extraction
+    var curMainRem = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "").trim();
+    var lastMainRem = String(u["LAST_MONTH SITE REMARK"] || u["LAST MONTH SITE REMARK"] || u["LAST MONTH FINAL MM REMARK"] || "").trim();
+    var twoMainRem = String(u["LAST 2 MONTHS SITE REMARK"] || u["LAST 2 MONTH SITE REMARK"] || "").trim();
+
+    var curPoleRem = String(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "").trim();
+    var lastPoleRem = String(u["LAST MONTH POLE SITE REMARK"] || u["LAST_MONTH POLE SITE REMARK"] || "").trim();
+    var twoPoleRem = String(u["LAST 2 MONTH POLE SITE REMARK"] || u["LAST 2 MONTHS POLE SITE REMARK"] || "").trim();
+
+    var curExTag = String(u["EXCEPTION TYPE (MAIN METER)"] || "").trim().toUpperCase();
+    var curBTag = String(u["BILLABLE -NOT-BILLABLE"] || u["BILLABLE_NOT_BILLABLE"] || "").trim().toUpperCase();
+
+    // 🟢 हर महीने का Billable चेक अलग-अलग
+    var isM1Billable = isRemarkBillable(curMainRem, curExTag, curBTag);
+    var isM2Billable = isRemarkBillable(lastMainRem, "", curBTag);
+    var isM3Billable = isRemarkBillable(twoMainRem, "", curBTag);
+
+    // यदि तीनों महीनों में कभी भी Billable नहीं रहा और कोई रिमार्क नहीं है, तो छोड़ दें
+    if (!isM1Billable && !isM2Billable && !isM3Billable) return;
+
+    if (!groupsMap[entityKey]) {
+      groupsMap[entityKey] = create3MBucket(entityKey);
+    }
+    var b = groupsMap[entityKey];
+
+    // Billable Counts
+    if (isM1Billable && curMainRem) { b.billable_m1++; grand.billable_m1++; }
+    if (isM2Billable && lastMainRem) { b.billable_m2++; grand.billable_m2++; }
+    if (isM3Billable && twoMainRem) { b.billable_m3++; grand.billable_m3++; }
+
+    // 🟢 1. MAIN METER 3-MONTH MRI / NON-MRI CLASSIFICATION (Blank Excluded)
+    var m1_type = isM1Billable ? classify3MRemark(curMainRem, u["IS MRI AVAILABLE (MAIN METER)"] || u["IS_MRI_AVAILABLE_(MAIN_METER)"]) : "BLANK";
+    var m2_type = isM2Billable ? classify3MRemark(lastMainRem, u["IS LAST MONTH MRI AVAILABLE (MAIN MTR)"] || u["LAST MONTH MRI AVAILABLE (MAIN METER)"]) : "BLANK";
+    var m3_type = isM3Billable ? classify3MRemark(twoMainRem, u["LAST 2 MONTH MRI AVAILABLE (MAIN METER)"]) : "BLANK";
+
+    if (m1_type === "MRI") { b.main_m1_mri++; grand.main_m1_mri++; }
+    else if (m1_type === "NON_MRI") { b.main_m1_non_mri++; grand.main_m1_non_mri++; }
+
+    if (m2_type === "MRI") { b.main_m2_mri++; grand.main_m2_mri++; }
+    else if (m2_type === "NON_MRI") { b.main_m2_non_mri++; grand.main_m2_non_mri++; }
+
+    if (m3_type === "MRI") { b.main_m3_mri++; grand.main_m3_mri++; }
+    else if (m3_type === "NON_MRI") { b.main_m3_non_mri++; grand.main_m3_non_mri++; }
+
+    // 🟢 3 Months Continuous Non-MRI (Main Meter)
+    var isMain3MLaterNonMri = (m1_type === "NON_MRI" && m2_type === "NON_MRI" && m3_type === "NON_MRI");
+    if (isMain3MLaterNonMri) {
+      b.main_continuous_non_mri_3m++;
+      grand.main_continuous_non_mri_3m++;
+    }
+
+    // 🟢 2. POLE METER 3-MONTH CLASSIFICATION (>= 10 KW)
+    var loadKw = parseFloat(String(u["LOAD IN KW"] || u["LOAD_KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
+    var poleInstalledThis = false;
+    var p1_type = "BLANK", p2_type = "BLANK", p3_type = "BLANK";
+
+    if (loadKw >= 10) {
+      b.poleTotalForVisit++;
+      grand.poleTotalForVisit++;
+
+      var poleMtrNo = cleanStr(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."]);
+      var poleEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
+
+      var isNoMeter = (poleEx === "EXCEPTION (NO_MTR)" || curPoleRem.toUpperCase().includes("NO METER AT SITE") || curPoleRem.toUpperCase().includes("NO_MTR") || !poleMtrNo);
+
+      if (isNoMeter) {
+        b.poleNoMeterAtSite++;
+        grand.poleNoMeterAtSite++;
+      } else {
+        b.poleInstalled++;
+        grand.poleInstalled++;
+        poleInstalledThis = true;
+
+        p1_type = classify3MRemark(curPoleRem, u["IS MRI AVAILABLE (POLE METER)"] || u["IS_MRI_AVAILABLE_(POLE_METER)"]);
+        p2_type = classify3MRemark(lastPoleRem, u["LAST MONTH MRI AVAILABLE (POLE MTR)"]);
+        p3_type = classify3MRemark(twoPoleRem, u["LAST 2 MONTH MRI AVAILABLE (POLE METER)"]);
+
+        if (p1_type === "MRI") { b.pole_m1_mri++; grand.pole_m1_mri++; }
+        else if (p1_type === "NON_MRI") { b.pole_m1_non_mri++; grand.pole_m1_non_mri++; }
+
+        if (p2_type === "MRI") { b.pole_m2_mri++; grand.pole_m2_mri++; }
+        else if (p2_type === "NON_MRI") { b.pole_m2_non_mri++; grand.pole_m2_non_mri++; }
+
+        if (p3_type === "MRI") { b.pole_m3_mri++; grand.pole_m3_mri++; }
+        else if (p3_type === "NON_MRI") { b.pole_m3_non_mri++; grand.pole_m3_non_mri++; }
+
+        // 🟢 3 Months Continuous Non-MRI (Pole Meter)
+        if (p1_type === "NON_MRI" && p2_type === "NON_MRI" && p3_type === "NON_MRI") {
+          b.pole_continuous_non_mri_3m++;
+          grand.pole_continuous_non_mri_3m++;
+        }
+      }
+    }
+
+    var cleanAddr = String(u["ADDRESS"] || u["COMPLETE ADRESS"] || u["CONSUMER ADDRESS"] || "-")
+      .replace(/MAINPURI/gi, '')
+      .replace(/205001/gi, '')
+      .replace(/\bU\.?P\.?\b/gi, '')
+      .replace(/UTTAR\s+PRADESH/gi, '')
+      .replace(/,\s*,/g, ',')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/^[\s,\-]+|[\s,\-]+$/g, '');
+    if (cleanAddr && cleanAddr !== "-") cleanAddr = cleanAddr.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+
+    consumerDrillDown.push({
+      rawRow: row,
+      accountNo: String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").padStart(10, '0'),
+      consumerName: String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "-"),
+      address: cleanAddr,
+      division: divName,
+      mrName: mrName,
+      mrMobile: String(u["MR MOBILE NO."] || u["MR MOBILE NUMBER"] || u["MASTER MOBILE NUMBER"] || "-"),
+      load: loadKw,
+      isM1Billable: isM1Billable,
+      isM2Billable: isM2Billable,
+      isM3Billable: isM3Billable,
+      main_m1: m1_type,
+      main_m2: m2_type,
+      main_m3: m3_type,
+      main_m1_rem: curMainRem,
+      main_m2_rem: lastMainRem,
+      main_m3_rem: twoMainRem,
+      isMain3MLaterNonMri: isMain3MLaterNonMri,
+      poleStatus: loadKw < 10 ? "<10 KW (N/A)" : (poleInstalledThis ? "Installed" : "No Meter"),
+      pole_m1: p1_type,
+      pole_m2: p2_type,
+      pole_m3: p3_type,
+      pole_m1_rem: curPoleRem,
+      pole_m2_rem: lastPoleRem,
+      pole_m3_rem: twoPoleRem,
+      isPole3MLaterNonMri: (p1_type === "NON_MRI" && p2_type === "NON_MRI" && p3_type === "NON_MRI")
+    });
+  });
+
+  cached3MComparisonCalculated = { groups: groupsMap, grand: grand, consumers: consumerDrillDown };
+  return cached3MComparisonCalculated;
+}
+
+function render3MComparisonDashboard() {
+  var thead = document.getElementById("3m-comparison-thead");
+  var tbody = document.getElementById("3m-comparison-tbody");
+  if (!thead || !tbody) return;
+
+  var res = calculate3MonthComparisonMetrics();
+  var groups = res.groups;
+  var grand = res.grand;
+
+  var groupTitle = (cached3MGroupingMode === "MR") ? "Meter Reader Name" : "Division Name";
+
+  // 🟢 Dynamic Month Names
+  var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var baseDate = new Date();
+  var m1Name = monthNames[baseDate.getMonth()];
+  var m2Name = monthNames[new Date(baseDate.getFullYear(), baseDate.getMonth() - 1, 1).getMonth()];
+  var m3Name = monthNames[new Date(baseDate.getFullYear(), baseDate.getMonth() - 2, 1).getMonth()];
+
+  thead.innerHTML = `
+    <tr style="background: #0f172a; color: white; font-weight: 800; font-size: 10.5px;">
+      <th rowspan="2" style="padding: 6px 4px; border: 1px solid #334155; width: 35px;">Sr.</th>
+      <th rowspan="2" style="padding: 6px 8px; border: 1px solid #334155; text-align: left; width: 140px;">${groupTitle}</th>
+      
+      <!-- Main Meters (3 Months Comparison with Individual Billable & MRI %) -->
+      <th colspan="4" style="padding: 4px; background: #15803d; border: 1px solid #334155;">${m1Name} (Current Main)</th>
+      <th colspan="4" style="padding: 4px; background: #166534; border: 1px solid #334155;">${m2Name} (Last Main)</th>
+      <th colspan="4" style="padding: 4px; background: #14532d; border: 1px solid #334155;">${m3Name} (2M Ago Main)</th>
+      <th rowspan="2" style="padding: 6px 4px; border: 1px solid #334155; width: 60px; background: #b91c1c; color: #fff;">3M Later Non-MRI (Main)</th>
+
+      <!-- Pole Meters (3 Months Comparison with MRI %) -->
+      <th rowspan="2" style="padding: 6px 4px; border: 1px solid #334155; width: 50px; background: #9a3412;">No Meter At Site</th>
+      <th rowspan="2" style="padding: 6px 4px; border: 1px solid #334155; width: 50px; background: #0369a1;">Pole Installed</th>
+      <th colspan="3" style="padding: 4px; background: #0284c7; border: 1px solid #334155;">${m1Name} (Current Pole)</th>
+      <th colspan="3" style="padding: 4px; background: #0369a1; border: 1px solid #334155;">${m2Name} (Last Pole)</th>
+      <th colspan="3" style="padding: 4px; background: #075985; border: 1px solid #334155;">${m3Name} (2M Ago Pole)</th>
+      <th rowspan="2" style="padding: 6px 4px; border: 1px solid #334155; width: 60px; background: #7c2d12; color: #fff;">3M Later Non-MRI (Pole)</th>
+    </tr>
+    <tr style="background: #1e293b; color: white; font-weight: 700; font-size: 9px;">
+      <!-- M1 Main -->
+      <th style="padding: 3px; border: 1px solid #334155; background: #eff6ff; color: #1e40af;">Billable</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #22c55e; color: #000;">MRI</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #ef4444; color: #fff;">Non-MRI</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #15803d; color: #fff;">MRI %</th>
+
+      <!-- M2 Main -->
+      <th style="padding: 3px; border: 1px solid #334155; background: #eff6ff; color: #1e40af;">Billable</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #4ade80; color: #000;">MRI</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #f87171; color: #fff;">Non-MRI</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #166534; color: #fff;">MRI %</th>
+
+      <!-- M3 Main -->
+      <th style="padding: 3px; border: 1px solid #334155; background: #eff6ff; color: #1e40af;">Billable</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #86efac; color: #000;">MRI</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #fca5a5; color: #000;">Non-MRI</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #14532d; color: #fff;">MRI %</th>
+
+      <!-- M1 Pole -->
+      <th style="padding: 3px; border: 1px solid #334155; background: #38bdf8; color: #000;">MRI</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #ef4444; color: #fff;">Non-MRI</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #0284c7; color: #fff;">MRI %</th>
+
+      <!-- M2 Pole -->
+      <th style="padding: 3px; border: 1px solid #334155; background: #7dd3fc; color: #000;">MRI</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #f87171; color: #fff;">Non-MRI</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #0369a1; color: #fff;">MRI %</th>
+
+      <!-- M3 Pole -->
+      <th style="padding: 3px; border: 1px solid #334155; background: #bae6fd; color: #000;">MRI</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #fca5a5; color: #000;">Non-MRI</th>
+      <th style="padding: 3px; border: 1px solid #334155; background: #075985; color: #fff;">MRI %</th>
+    </tr>
+  `;
+
+  function calcPct(num, den) {
+    if (!den || den === 0) return "0.0%";
+    return ((num / den) * 100).toFixed(1) + "%";
+  }
+
+  function clk3M(colKey, entName) {
+    return `onclick="open3MDrillDownModal('${colKey}', '${entName.replace(/'/g, "\\'")}')" title="Click to view & download consumer records" style="cursor:pointer; text-decoration:underline;"`;
+  }
+
+  // Grand Total Percentages
+  var g_m1_mri_pct = calcPct(grand.main_m1_mri, grand.billable_m1);
+  var g_m2_mri_pct = calcPct(grand.main_m2_mri, grand.billable_m2);
+  var g_m3_mri_pct = calcPct(grand.main_m3_mri, grand.billable_m3);
+
+  var g_p1_mri_pct = calcPct(grand.pole_m1_mri, grand.poleInstalled);
+  var g_p2_mri_pct = calcPct(grand.pole_m2_mri, grand.poleInstalled);
+  var g_p3_mri_pct = calcPct(grand.pole_m3_mri, grand.poleInstalled);
+
+  var bHtml = `
+    <!-- GRAND TOTAL ROW (All Numbers Clickable) -->
+    <tr style="background: #fef08a; font-weight: 900; font-size: 11px; border: 1.5px solid #000;">
+      <td colspan="2" style="padding: 5px; text-align: center; border: 1.5px solid #000; color: #92400e;">TOTAL</td>
+      
+      <!-- M1 Main -->
+      <td style="padding: 4px; border: 1px solid #000; background: #eff6ff; color: #1e40af;" ${clk3M('BILLABLE_M1', 'ALL')}>${grand.billable_m1}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #22c55e; color: #000;" ${clk3M('MAIN_M1_MRI', 'ALL')}>${grand.main_m1_mri}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #ef4444; color: #fff;" ${clk3M('MAIN_M1_NON_MRI', 'ALL')}>${grand.main_m1_non_mri}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #15803d; color: #fff;" ${clk3M('MAIN_M1_MRI', 'ALL')}>${g_m1_mri_pct}</td>
+
+      <!-- M2 Main -->
+      <td style="padding: 4px; border: 1px solid #000; background: #eff6ff; color: #1e40af;" ${clk3M('BILLABLE_M2', 'ALL')}>${grand.billable_m2}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #4ade80; color: #000;" ${clk3M('MAIN_M2_MRI', 'ALL')}>${grand.main_m2_mri}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #f87171; color: #fff;" ${clk3M('MAIN_M2_NON_MRI', 'ALL')}>${grand.main_m2_non_mri}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #166534; color: #fff;" ${clk3M('MAIN_M2_MRI', 'ALL')}>${g_m2_mri_pct}</td>
+
+      <!-- M3 Main -->
+      <td style="padding: 4px; border: 1px solid #000; background: #eff6ff; color: #1e40af;" ${clk3M('BILLABLE_M3', 'ALL')}>${grand.billable_m3}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #86efac; color: #000;" ${clk3M('MAIN_M3_MRI', 'ALL')}>${grand.main_m3_mri}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #fca5a5; color: #000;" ${clk3M('MAIN_M3_NON_MRI', 'ALL')}>${grand.main_m3_non_mri}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #14532d; color: #fff;" ${clk3M('MAIN_M3_MRI', 'ALL')}>${g_m3_mri_pct}</td>
+
+      <!-- 3M Later Non-MRI Main -->
+      <td style="padding: 4px; border: 1px solid #000; background: #dc2626; color: #fff;" ${clk3M('MAIN_3M_NON_MRI', 'ALL')}>${grand.main_continuous_non_mri_3m}</td>
+
+      <!-- Pole General -->
+      <td style="padding: 4px; border: 1px solid #000; background: #ffedd5; color: #9a3412;" ${clk3M('POLE_NO_MTR', 'ALL')}>${grand.poleNoMeterAtSite}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #e0f2fe; color: #0369a1;" ${clk3M('POLE_INSTALLED', 'ALL')}>${grand.poleInstalled}</td>
+
+      <!-- M1 Pole -->
+      <td style="padding: 4px; border: 1px solid #000; background: #38bdf8; color: #000;" ${clk3M('POLE_M1_MRI', 'ALL')}>${grand.pole_m1_mri}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #ef4444; color: #fff;" ${clk3M('POLE_M1_NON_MRI', 'ALL')}>${grand.pole_m1_non_mri}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #0284c7; color: #fff;" ${clk3M('POLE_M1_MRI', 'ALL')}>${g_p1_mri_pct}</td>
+
+      <!-- M2 Pole -->
+      <td style="padding: 4px; border: 1px solid #000; background: #7dd3fc; color: #000;" ${clk3M('POLE_M2_MRI', 'ALL')}>${grand.pole_m2_mri}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #f87171; color: #fff;" ${clk3M('POLE_M2_NON_MRI', 'ALL')}>${grand.pole_m2_non_mri}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #0369a1; color: #fff;" ${clk3M('POLE_M2_MRI', 'ALL')}>${g_p2_mri_pct}</td>
+
+      <!-- M3 Pole -->
+      <td style="padding: 4px; border: 1px solid #000; background: #bae6fd; color: #000;" ${clk3M('POLE_M3_MRI', 'ALL')}>${grand.pole_m3_mri}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #fca5a5; color: #000;" ${clk3M('POLE_M3_NON_MRI', 'ALL')}>${grand.pole_m3_non_mri}</td>
+      <td style="padding: 4px; border: 1px solid #000; background: #075985; color: #fff;" ${clk3M('POLE_M3_MRI', 'ALL')}>${g_p3_mri_pct}</td>
+
+      <!-- 3M Later Non-MRI Pole -->
+      <td style="padding: 4px; border: 1px solid #000; background: #7c2d12; color: #fff;" ${clk3M('POLE_3M_NON_MRI', 'ALL')}>${grand.pole_continuous_non_mri_3m}</td>
+    </tr>
+  `;
+
+  var sortedKeys = Object.keys(groups).sort(function(a, b) {
+    return a.localeCompare(b, undefined, { numeric: true });
+  });
+
+  sortedKeys.forEach(function(k, idx) {
+    var b = groups[k];
+    var m1_pct = calcPct(b.main_m1_mri, b.billable_m1);
+    var m2_pct = calcPct(b.main_m2_mri, b.billable_m2);
+    var m3_pct = calcPct(b.main_m3_mri, b.billable_m3);
+
+    var p1_pct = calcPct(b.pole_m1_mri, b.poleInstalled);
+    var p2_pct = calcPct(b.pole_m2_mri, b.poleInstalled);
+    var p3_pct = calcPct(b.pole_m3_mri, b.poleInstalled);
+
+    bHtml += `
+      <tr style="border-bottom: 1px solid #cbd5e1; font-weight: 700; font-size: 10px;">
+        <td style="padding: 4px; border: 1px solid #cbd5e1; background: #f8fafc;">${idx + 1}</td>
+        <td style="padding: 4px 6px; text-align: left; border: 1px solid #cbd5e1; background: #f1f5f9; color: #0f172a;">${b.name}</td>
+        
+        <!-- M1 Main -->
+        <td style="padding: 4px; border: 1px solid #cbd5e1; font-weight: 800; color: #1e40af; background: #eff6ff;" ${clk3M('BILLABLE_M1', b.name)}>${b.billable_m1}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; color: #15803d; background: #f0fdf4;" ${clk3M('MAIN_M1_MRI', b.name)}>${b.main_m1_mri}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; color: #b91c1c; background: #fef2f2;" ${clk3M('MAIN_M1_NON_MRI', b.name)}>${b.main_m1_non_mri}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; font-weight: 800; color: #15803d;" ${clk3M('MAIN_M1_MRI', b.name)}>${m1_pct}</td>
+
+        <!-- M2 Main -->
+        <td style="padding: 4px; border: 1px solid #cbd5e1; font-weight: 800; color: #1e40af; background: #eff6ff;" ${clk3M('BILLABLE_M2', b.name)}>${b.billable_m2}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; color: #15803d;" ${clk3M('MAIN_M2_MRI', b.name)}>${b.main_m2_mri}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; color: #b91c1c;" ${clk3M('MAIN_M2_NON_MRI', b.name)}>${b.main_m2_non_mri}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; font-weight: 800; color: #166534;" ${clk3M('MAIN_M2_MRI', b.name)}>${m2_pct}</td>
+
+        <!-- M3 Main -->
+        <td style="padding: 4px; border: 1px solid #cbd5e1; font-weight: 800; color: #1e40af; background: #eff6ff;" ${clk3M('BILLABLE_M3', b.name)}>${b.billable_m3}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; color: #15803d;" ${clk3M('MAIN_M3_MRI', b.name)}>${b.main_m3_mri}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; color: #b91c1c;" ${clk3M('MAIN_M3_NON_MRI', b.name)}>${b.main_m3_non_mri}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; font-weight: 800; color: #14532d;" ${clk3M('MAIN_M3_MRI', b.name)}>${m3_pct}</td>
+
+        <!-- 3M Later Non-MRI Main -->
+        <td style="padding: 4px; border: 1px solid #cbd5e1; font-weight: 800; color: #b91c1c; background: #fee2e2;" ${clk3M('MAIN_3M_NON_MRI', b.name)}>${b.main_continuous_non_mri_3m}</td>
+
+        <!-- Pole General -->
+        <td style="padding: 4px; border: 1px solid #cbd5e1; color: #c2410c; background: #fff7ed;" ${clk3M('POLE_NO_MTR', b.name)}>${b.poleNoMeterAtSite}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; color: #0284c7; background: #f0f9ff;" ${clk3M('POLE_INSTALLED', b.name)}>${b.poleInstalled}</td>
+
+        <!-- M1 Pole -->
+        <td style="padding: 4px; border: 1px solid #cbd5e1; color: #0369a1; background: #f0f9ff;" ${clk3M('POLE_M1_MRI', b.name)}>${b.pole_m1_mri}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; color: #b91c1c; background: #fef2f2;" ${clk3M('POLE_M1_NON_MRI', b.name)}>${b.pole_m1_non_mri}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; font-weight: 800; color: #0284c7;" ${clk3M('POLE_M1_MRI', b.name)}>${p1_pct}</td>
+
+        <!-- M2 Pole -->
+        <td style="padding: 4px; border: 1px solid #cbd5e1; color: #0369a1;" ${clk3M('POLE_M2_MRI', b.name)}>${b.pole_m2_mri}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; color: #b91c1c;" ${clk3M('POLE_M2_NON_MRI', b.name)}>${b.pole_m2_non_mri}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; font-weight: 800; color: #0369a1;" ${clk3M('POLE_M2_MRI', b.name)}>${p2_pct}</td>
+
+        <!-- M3 Pole -->
+        <td style="padding: 4px; border: 1px solid #cbd5e1; color: #0369a1;" ${clk3M('POLE_M3_MRI', b.name)}>${b.pole_m3_mri}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; color: #b91c1c;" ${clk3M('POLE_M3_NON_MRI', b.name)}>${b.pole_m3_non_mri}</td>
+        <td style="padding: 4px; border: 1px solid #cbd5e1; font-weight: 800; color: #075985;" ${clk3M('POLE_M3_MRI', b.name)}>${p3_pct}</td>
+
+        <!-- 3M Later Non-MRI Pole -->
+        <td style="padding: 4px; border: 1px solid #cbd5e1; font-weight: 800; color: #7c2d12; background: #ffedd5;" ${clk3M('POLE_3M_NON_MRI', b.name)}>${b.pole_continuous_non_mri_3m}</td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = bHtml;
+}
+
+function cleanRemarkDisplay(val) {
+  if (!val) return "";
+  var s = String(val).trim();
+  var u = s.toUpperCase();
+  if (u === "BLANK" || u === "NAN" || u === "NULL" || u === "-" || u === "NONE" || u === "UNDEFINED") {
+    return "";
+  }
+  return s;
+}
+
+function open3MDrillDownModal(metricKey, entityName) {
+  var res = calculate3MonthComparisonMetrics();
+  var consumers = res.consumers;
+  if (!consumers || consumers.length === 0) return;
+
+  var filtered = consumers.filter(function(c) {
+    var matchEntity = (entityName === "ALL") || (cached3MGroupingMode === "MR" ? c.mrName === entityName : c.division === entityName);
+    if (!matchEntity) return false;
+
+    if (metricKey === "BILLABLE_M1") return c.isM1Billable && c.main_m1 !== "BLANK";
+    if (metricKey === "BILLABLE_M2") return c.isM2Billable && c.main_m2 !== "BLANK";
+    if (metricKey === "BILLABLE_M3") return c.isM3Billable && c.main_m3 !== "BLANK";
+
+    if (metricKey === "MAIN_M1_MRI") return c.main_m1 === "MRI";
+    if (metricKey === "MAIN_M1_NON_MRI") return c.main_m1 === "NON_MRI";
+    if (metricKey === "MAIN_M2_MRI") return c.main_m2 === "MRI";
+    if (metricKey === "MAIN_M2_NON_MRI") return c.main_m2 === "NON_MRI";
+    if (metricKey === "MAIN_M3_MRI") return c.main_m3 === "MRI";
+    if (metricKey === "MAIN_M3_NON_MRI") return c.main_m3 === "NON_MRI";
+
+    if (metricKey === "MAIN_3M_NON_MRI") return c.isMain3MLaterNonMri;
+
+    if (metricKey === "POLE_NO_MTR") return c.load >= 10 && c.poleStatus === "No Meter";
+    if (metricKey === "POLE_INSTALLED") return c.load >= 10 && c.poleStatus === "Installed";
+
+    if (metricKey === "POLE_M1_MRI") return c.pole_m1 === "MRI";
+    if (metricKey === "POLE_M1_NON_MRI") return c.pole_m1 === "NON_MRI";
+    if (metricKey === "POLE_M2_MRI") return c.pole_m2 === "MRI";
+    if (metricKey === "POLE_M2_NON_MRI") return c.pole_m2 === "NON_MRI";
+    if (metricKey === "POLE_M3_MRI") return c.pole_m3 === "MRI";
+    if (metricKey === "POLE_M3_NON_MRI") return c.pole_m3 === "NON_MRI";
+
+    if (metricKey === "POLE_3M_NON_MRI") return c.isPole3MLaterNonMri;
+
+    return true;
+  });
+
+  active3MDrillDownRecords = filtered;
+  activeDrillDownRecords = []; // 3M mode me MR records clear karein
+  activeDrillDownTitle = "3M " + metricKey.replace(/_/g, " ") + " - " + entityName;
+
+  var modal = document.getElementById("mr-drilldown-modal");
+  var titleEl = document.getElementById("mr-drilldown-title");
+  var subEl = document.getElementById("mr-drilldown-subtitle");
+  var table = modal ? modal.querySelector("table") : null;
+  var thead = table ? table.querySelector("thead") : null;
+  var tbody = document.getElementById("mr-drilldown-tbody");
+
+  if (titleEl) titleEl.innerText = activeDrillDownTitle;
+  if (subEl) subEl.innerText = "Total Found: " + filtered.length;
+
+  var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var baseDate = new Date();
+  var m1 = monthNames[baseDate.getMonth()];
+  var m2 = monthNames[new Date(baseDate.getFullYear(), baseDate.getMonth() - 1, 1).getMonth()];
+  var m3 = monthNames[new Date(baseDate.getFullYear(), baseDate.getMonth() - 2, 1).getMonth()];
+
+  // 🟢 3-Month Comparison के लिए हेडर Month-wise Main और Pole Remarks के साथ बदलें
+  if (thead) {
+    thead.innerHTML = `
+      <tr style="background:#0f172a; color:white; font-size:10.5px;">
+        <th style="padding:6px;">Sr.</th>
+        <th style="padding:6px;">MR Name</th>
+        <th style="padding:6px;">Division</th>
+        <th style="padding:6px;">Account No</th>
+        <th style="padding:6px; text-align:left;">Consumer Name</th>
+        <th style="padding:6px; text-align:left;">Address</th>
+        <th style="padding:6px;">Load</th>
+        <th style="padding:6px; background:#15803d;">${m1} Main Remark</th>
+        <th style="padding:6px; background:#166534;">${m2} Main Remark</th>
+        <th style="padding:6px; background:#14532d;">${m3} Main Remark</th>
+        <th style="padding:6px; background:#0284c7;">${m1} Pole Remark</th>
+        <th style="padding:6px; background:#0369a1;">${m2} Pole Remark</th>
+        <th style="padding:6px; background:#075985;">${m3} Pole Remark</th>
+      </tr>
+    `;
+  }
+
+  var bHtml = "";
+  filtered.forEach(function(item, idx) {
+    bHtml += `
+      <tr>
+        <td style="padding:5px;">${idx + 1}</td>
+        <td style="padding:5px; font-weight:700;">${escapeHtml(item.mrName)}</td>
+        <td style="padding:5px;">${escapeHtml(item.division)}</td>
+        <td style="padding:5px; font-weight:bold; color:#1a73e8; cursor:pointer;" onclick="openConsumer360ByAccount('${escapeHtml(item.accountNo)}')">${escapeHtml(item.accountNo)}</td>
+        <td style="padding:5px; text-align:left;">${escapeHtml(item.consumerName)}</td>
+        <td style="padding:5px; text-align:left; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(item.address)}">${escapeHtml(item.address)}</td>
+        <td style="padding:5px; font-weight:bold;">${escapeHtml(String(item.load))}</td>
+        <td style="padding:5px; color:#15803d; font-weight:700;">${escapeHtml(cleanRemarkDisplay(item.main_m1_rem || item.main_m1))}</td>
+        <td style="padding:5px; color:#166534;">${escapeHtml(cleanRemarkDisplay(item.main_m2_rem || item.main_m2))}</td>
+        <td style="padding:5px; color:#14532d;">${escapeHtml(cleanRemarkDisplay(item.main_m3_rem || item.main_m3))}</td>
+        <td style="padding:5px; color:#0284c7; font-weight:700;">${escapeHtml(cleanRemarkDisplay(item.pole_m1_rem || item.pole_m1))}</td>
+        <td style="padding:5px; color:#0369a1;">${escapeHtml(cleanRemarkDisplay(item.pole_m2_rem || item.pole_m2))}</td>
+        <td style="padding:5px; color:#075985;">${escapeHtml(cleanRemarkDisplay(item.pole_m3_rem || item.pole_m3))}</td>
+      </tr>
+    `;
+  });
+
+  if (tbody) tbody.innerHTML = bHtml || '<tr><td colspan="13" style="padding:20px; color:#dc2626;">No matching records.</td></tr>';
+  if (modal) modal.style.display = "flex";
+}
+
+// 🟢 1. SUMMARY EXCEL EXPORT
+function download3MComparisonExcel() {
+  var res = calculate3MonthComparisonMetrics();
+  var groups = res.groups;
+  var grand = res.grand;
+  var modeTitle = (cached3MGroupingMode === "MR") ? "MR Wise" : "Division Wise";
+
+  var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var baseDate = new Date();
+  var m1Name = monthNames[baseDate.getMonth()];
+  var m2Name = monthNames[new Date(baseDate.getFullYear(), baseDate.getMonth() - 1, 1).getMonth()];
+  var m3Name = monthNames[new Date(baseDate.getFullYear(), baseDate.getMonth() - 2, 1).getMonth()];
+
+  function calcPct(num, den) {
+    if (!den || den === 0) return "0.0%";
+    return ((num / den) * 100).toFixed(1) + "%";
+  }
+
+  var headers1 = [
+    modeTitle + " 3-Month Comparison Summary", "",
+    m1Name + " (Current Main)", "", "", "",
+    m2Name + " (Last Main)", "", "", "",
+    m3Name + " (2M Ago Main)", "", "", "",
+    "3M Non-MRI Main",
+    "Pole Overview", "",
+    m1Name + " (Current Pole)", "", "",
+    m2Name + " (Last Pole)", "", "",
+    m3Name + " (2M Ago Pole)", "", "",
+    "3M Non-MRI Pole"
+  ];
+
+  var headers2 = [
+    "Sr.", modeTitle,
+    "Billable", "MRI", "Non-MRI", "MRI %",
+    "Billable", "MRI", "Non-MRI", "MRI %",
+    "Billable", "MRI", "Non-MRI", "MRI %",
+    "3M Non-MRI",
+    "No Meter", "Installed",
+    "MRI", "Non-MRI", "MRI %",
+    "MRI", "Non-MRI", "MRI %",
+    "MRI", "Non-MRI", "MRI %",
+    "3M Non-MRI"
+  ];
+
+  var rows = [
+    headers1,
+    headers2,
+    [
+      "Total", "GRAND TOTAL",
+      grand.billable_m1, grand.main_m1_mri, grand.main_m1_non_mri, calcPct(grand.main_m1_mri, grand.billable_m1),
+      grand.billable_m2, grand.main_m2_mri, grand.main_m2_non_mri, calcPct(grand.main_m2_mri, grand.billable_m2),
+      grand.billable_m3, grand.main_m3_mri, grand.main_m3_non_mri, calcPct(grand.main_m3_mri, grand.billable_m3),
+      grand.main_continuous_non_mri_3m,
+      grand.poleNoMeterAtSite, grand.poleInstalled,
+      grand.pole_m1_mri, grand.pole_m1_non_mri, calcPct(grand.pole_m1_mri, grand.poleInstalled),
+      grand.pole_m2_mri, grand.pole_m2_non_mri, calcPct(grand.pole_m2_mri, grand.poleInstalled),
+      grand.pole_m3_mri, grand.pole_m3_non_mri, calcPct(grand.pole_m3_mri, grand.poleInstalled),
+      grand.pole_continuous_non_mri_3m
+    ]
+  ];
+
+  var sortedKeys = Object.keys(groups).sort(function(a, b){ return a.localeCompare(b, undefined, { numeric: true }); });
+  sortedKeys.forEach(function(k, idx) {
+    var b = groups[k];
+    rows.push([
+      idx + 1, b.name,
+      b.billable_m1, b.main_m1_mri, b.main_m1_non_mri, calcPct(b.main_m1_mri, b.billable_m1),
+      b.billable_m2, b.main_m2_mri, b.main_m2_non_mri, calcPct(b.main_m2_mri, b.billable_m2),
+      b.billable_m3, b.main_m3_mri, b.main_m3_non_mri, calcPct(b.main_m3_mri, b.billable_m3),
+      b.main_continuous_non_mri_3m,
+      b.poleNoMeterAtSite, b.poleInstalled,
+      b.pole_m1_mri, b.pole_m1_non_mri, calcPct(b.pole_m1_mri, b.poleInstalled),
+      b.pole_m2_mri, b.pole_m2_non_mri, calcPct(b.pole_m2_mri, b.poleInstalled),
+      b.pole_m3_mri, b.pole_m3_non_mri, calcPct(b.pole_m3_mri, b.poleInstalled),
+      b.pole_continuous_non_mri_3m
+    ]);
+  });
+
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!autofilter'] = { ref: ws['!ref'] };
+
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "3M_Summary");
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  XLSX.writeFile(wb, "3_Month_Comparison_Summary_" + (cached3MGroupingMode === "MR" ? "MR_Wise_" : "Division_Wise_") + dateStr + ".xlsx");
+}
+
+function download3MComparisonPDF() {
+  var res = calculate3MonthComparisonMetrics();
+  var groups = res.groups;
+  var grand = res.grand;
+  if (!groups || Object.keys(groups).length === 0) {
+    alert("डाउनलोड करने के लिए समरी डेटा उपलब्ध नहीं है!");
+    return;
+  }
+
+  var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+  if (!jsPDFObj) return;
+
+  var doc = new jsPDFObj('l', 'pt', 'a3');
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  var modeTitle = (cached3MGroupingMode === "MR") ? "MR Wise" : "Division Wise";
+
+  // 🟢 एक्टिव फ़िल्टर की जानकारी टाइटल में जोड़ें
+  var filterDesc = [];
+  if (selectedTypes && selectedTypes.length > 0) filterDesc.push("Type: " + selectedTypes.join("/"));
+  if (selectedDivisions && selectedDivisions.length > 0) filterDesc.push("Div: " + selectedDivisions.join("/"));
+  if (selectedGroups && selectedGroups.length > 0) filterDesc.push("Group: " + selectedGroups.join("/"));
+  var filterInfoStr = filterDesc.length > 0 ? " [" + filterDesc.join(" | ") + "]" : " [All Consumers]";
+
+  doc.setFontSize(13);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(15, 23, 42);
+  doc.text("3-Month Progressive Comparison Summary (" + modeTitle + ")" + filterInfoStr + " - " + dateStr, 14, 22);
+
+  function calcPct(num, den) {
+    if (!den || den === 0) return "0.0%";
+    return ((num / den) * 100).toFixed(1) + "%";
+  }
+
+  var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var baseDate = new Date();
+  var m1 = monthNames[baseDate.getMonth()];
+  var m2 = monthNames[new Date(baseDate.getFullYear(), baseDate.getMonth() - 1, 1).getMonth()];
+  var m3 = monthNames[new Date(baseDate.getFullYear(), baseDate.getMonth() - 2, 1).getMonth()];
+
+  var pdfHead = [
+    [
+      { content: "Sr.", rowSpan: 2, styles: { fillColor: [15, 23, 42], valign: 'middle' } },
+      { content: modeTitle, rowSpan: 2, styles: { fillColor: [15, 23, 42], valign: 'middle' } },
+      { content: `${m1} (Current Main)`, colSpan: 4, styles: { fillColor: [21, 128, 61], halign: 'center' } },
+      { content: `${m2} (Last Main)`, colSpan: 4, styles: { fillColor: [22, 101, 52], halign: 'center' } },
+      { content: `${m3} (2M Ago Main)`, colSpan: 4, styles: { fillColor: [20, 83, 45], halign: 'center' } },
+      { content: "3M Non-MRI (Main)", rowSpan: 2, styles: { fillColor: [185, 28, 28], valign: 'middle' } },
+      { content: "No Meter", rowSpan: 2, styles: { fillColor: [154, 52, 18], valign: 'middle' } },
+      { content: "Installed", rowSpan: 2, styles: { fillColor: [3, 105, 161], valign: 'middle' } },
+      { content: `${m1} (Current Pole)`, colSpan: 3, styles: { fillColor: [2, 132, 199], halign: 'center' } },
+      { content: `${m2} (Last Pole)`, colSpan: 3, styles: { fillColor: [3, 105, 161], halign: 'center' } },
+      { content: `${m3} (2M Ago Pole)`, colSpan: 3, styles: { fillColor: [7, 89, 133], halign: 'center' } },
+      { content: "3M Non-MRI (Pole)", rowSpan: 2, styles: { fillColor: [124, 45, 18], valign: 'middle' } }
+    ],
+    [
+      { content: "Billable", styles: { fillColor: [239, 246, 255], textColor: [30, 64, 175] } },
+      { content: "MRI", styles: { fillColor: [34, 197, 94], textColor: [0, 0, 0] } },
+      { content: "Non-MRI", styles: { fillColor: [239, 68, 68], textColor: [255, 255, 255] } },
+      { content: "MRI %", styles: { fillColor: [21, 128, 61], textColor: [255, 255, 255] } },
+
+      { content: "Billable", styles: { fillColor: [239, 246, 255], textColor: [30, 64, 175] } },
+      { content: "MRI", styles: { fillColor: [74, 222, 128], textColor: [0, 0, 0] } },
+      { content: "Non-MRI", styles: { fillColor: [248, 113, 113], textColor: [255, 255, 255] } },
+      { content: "MRI %", styles: { fillColor: [22, 101, 52], textColor: [255, 255, 255] } },
+
+      { content: "Billable", styles: { fillColor: [239, 246, 255], textColor: [30, 64, 175] } },
+      { content: "MRI", styles: { fillColor: [134, 239, 172], textColor: [0, 0, 0] } },
+      { content: "Non-MRI", styles: { fillColor: [252, 165, 165], textColor: [0, 0, 0] } },
+      { content: "MRI %", styles: { fillColor: [20, 83, 45], textColor: [255, 255, 255] } },
+
+      { content: "MRI", styles: { fillColor: [56, 189, 248], textColor: [0, 0, 0] } },
+      { content: "Non-MRI", styles: { fillColor: [239, 68, 68], textColor: [255, 255, 255] } },
+      { content: "MRI %", styles: { fillColor: [2, 132, 199], textColor: [255, 255, 255] } },
+
+      { content: "MRI", styles: { fillColor: [125, 211, 252], textColor: [0, 0, 0] } },
+      { content: "Non-MRI", styles: { fillColor: [248, 113, 113], textColor: [255, 255, 255] } },
+      { content: "MRI %", styles: { fillColor: [3, 105, 161], textColor: [255, 255, 255] } },
+
+      { content: "MRI", styles: { fillColor: [186, 230, 253], textColor: [0, 0, 0] } },
+      { content: "Non-MRI", styles: { fillColor: [252, 165, 165], textColor: [0, 0, 0] } },
+      { content: "MRI %", styles: { fillColor: [7, 89, 133], textColor: [255, 255, 255] } }
+    ]
+  ];
+
+  var pdfBody = [];
+
+  // Grand Total Row
+  pdfBody.push([
+    { content: "TOT", styles: { fillColor: [254, 240, 138], fontStyle: 'bold' } },
+    { content: "GRAND TOTAL", styles: { fillColor: [254, 240, 138], fontStyle: 'bold', halign: 'left' } },
+    { content: grand.billable_m1 }, { content: grand.main_m1_mri }, { content: grand.main_m1_non_mri }, { content: calcPct(grand.main_m1_mri, grand.billable_m1), styles: { fontStyle: 'bold' } },
+    { content: grand.billable_m2 }, { content: grand.main_m2_mri }, { content: grand.main_m2_non_mri }, { content: calcPct(grand.main_m2_mri, grand.billable_m2), styles: { fontStyle: 'bold' } },
+    { content: grand.billable_m3 }, { content: grand.main_m3_mri }, { content: grand.main_m3_non_mri }, { content: calcPct(grand.main_m3_mri, grand.billable_m3), styles: { fontStyle: 'bold' } },
+    { content: grand.main_continuous_non_mri_3m, styles: { fillColor: [254, 226, 226], fontStyle: 'bold', textColor: [185, 28, 28] } },
+    { content: grand.poleNoMeterAtSite }, { content: grand.poleInstalled },
+    { content: grand.pole_m1_mri }, { content: grand.pole_m1_non_mri }, { content: calcPct(grand.pole_m1_mri, grand.poleInstalled), styles: { fontStyle: 'bold' } },
+    { content: grand.pole_m2_mri }, { content: grand.pole_m2_non_mri }, { content: calcPct(grand.pole_m2_mri, grand.poleInstalled), styles: { fontStyle: 'bold' } },
+    { content: grand.pole_m3_mri }, { content: grand.pole_m3_non_mri }, { content: calcPct(grand.pole_m3_mri, grand.poleInstalled), styles: { fontStyle: 'bold' } },
+    { content: grand.pole_continuous_non_mri_3m, styles: { fillColor: [255, 237, 213], fontStyle: 'bold', textColor: [124, 45, 18] } }
+  ]);
+
+  var sortedKeys = Object.keys(groups).sort(function(a, b){ return a.localeCompare(b, undefined, { numeric: true }); });
+  sortedKeys.forEach(function(k, idx) {
+    var b = groups[k];
+    pdfBody.push([
+      idx + 1,
+      { content: b.name, styles: { halign: 'left' } },
+      b.billable_m1, b.main_m1_mri, b.main_m1_non_mri, calcPct(b.main_m1_mri, b.billable_m1),
+      b.billable_m2, b.main_m2_mri, b.main_m2_non_mri, calcPct(b.main_m2_mri, b.billable_m2),
+      b.billable_m3, b.main_m3_mri, b.main_m3_non_mri, calcPct(b.main_m3_mri, b.billable_m3),
+      b.main_continuous_non_mri_3m,
+      b.poleNoMeterAtSite, b.poleInstalled,
+      b.pole_m1_mri, b.pole_m1_non_mri, calcPct(b.pole_m1_mri, b.poleInstalled),
+      b.pole_m2_mri, b.pole_m2_non_mri, calcPct(b.pole_m2_mri, b.poleInstalled),
+      b.pole_m3_mri, b.pole_m3_non_mri, calcPct(b.pole_m3_mri, b.poleInstalled),
+      b.pole_continuous_non_mri_3m
+    ]);
+  });
+
+  doc.autoTable({
+    head: pdfHead,
+    body: pdfBody,
+    startY: 30,
+    margin: { left: 8, right: 8 },
+    theme: 'grid',
+    styles: { fontSize: 6.8, halign: 'center', cellPadding: 2.2, lineWidth: 0.35, lineColor: [203, 213, 225] },
+    headStyles: { fontStyle: 'bold', fontSize: 7, textColor: [255, 255, 255] }
+  });
+
+  doc.save("3_Month_Comparison_Summary_" + (cached3MGroupingMode === "MR" ? "MR_Wise_" : "Division_Wise_") + dateStr + ".pdf");
+}
+
+// 🟢 3. DETAILED CONSUMER LIST EXCEL
+function download3MConsumerListExcel() {
+  var res = calculate3MonthComparisonMetrics();
+  var list = res.consumers;
+  if (!list || list.length === 0) return alert("No records found!");
+
+  var headers = [
+    "Sr.", "Division", "MR Name", "Account No", "Consumer Name", "Address", "Load (KW)",
+    "M1 (Current Main)", "M2 (Last Main)", "M3 (2M Ago Main)", "3M Later Non-MRI (Main)",
+    "Pole Status", "M1 (Current Pole)", "M2 (Last Pole)", "M3 (2M Ago Pole)", "3M Later Non-MRI (Pole)"
+  ];
+  var rows = [headers];
+
+  list.forEach(function(c, i) {
+    rows.push([
+      i + 1, c.division, c.mrName, c.accountNo, c.consumerName, c.address, c.load,
+      c.main_m1_rem || c.main_m1, c.main_m2_rem || c.main_m2, c.main_m3_rem || c.main_m3, c.isMain3MLaterNonMri ? "Yes" : "No",
+      c.poleStatus, c.pole_m1_rem || c.pole_m1, c.pole_m2_rem || c.pole_m2, c.pole_m3_rem || c.pole_m3, c.isPole3MLaterNonMri ? "Yes" : "No"
+    ]);
+  });
+
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!autofilter'] = { ref: ws['!ref'] };
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Consumers_3M_Comparison");
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  XLSX.writeFile(wb, "3_Month_Consumers_Comparison_List_" + dateStr + ".xlsx");
+}
+
+// 🟢 4. DETAILED CONSUMER LIST PDF
+function download3MConsumerListPDF() {
+  var res = calculate3MonthComparisonMetrics();
+  var list = res.consumers;
+  if (!list || list.length === 0) return alert("No records found!");
+
+  var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+  if (!jsPDFObj) return;
+
+  var doc = new jsPDFObj('l', 'pt', 'a4');
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(15, 23, 42);
+  doc.text("3-Month Detailed Consumers Comparison List - " + dateStr, 14, 20);
+
+  var headers = [["Sr.", "Division", "MR Name", "Account No", "Consumer Name", "Address", "Load", "M1 Main", "M2 Main", "M3 Main", "3M Main", "Pole", "M1 Pole", "M2 Pole", "M3 Pole", "3M Pole"]];
+  var body = list.map(function(c, idx) {
+    return [
+      idx + 1, c.division, c.mrName.substring(0, 12), c.accountNo, c.consumerName.substring(0, 16), c.address, c.load,
+      c.main_m1, c.main_m2, c.main_m3, c.isMain3MLaterNonMri ? "Yes" : "No",
+      c.poleStatus, c.pole_m1, c.pole_m2, c.pole_m3, c.isPole3MLaterNonMri ? "Yes" : "No"
+    ];
+  });
+
+  doc.autoTable({
+    head: headers,
+    body: body,
+    startY: 28,
+    margin: { left: 6, right: 6 },
+    theme: 'grid',
+    styles: { fontSize: 6.2, halign: 'center', cellPadding: 1.5, overflow: 'linebreak' },
+    headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' }
+  });
+
+  doc.save("3_Month_Consumers_Comparison_List_" + dateStr + ".pdf");
+}
+
+// 🟢 3. DETAILED CONSUMER LIST EXCEL (With Cleaned Address)
+function download3MConsumerListExcel() {
+  var res = calculate3MonthComparisonMetrics();
+  var list = res.consumers;
+  if (!list || list.length === 0) return alert("No records found!");
+
+  var headers = ["Sr.", "Division", "MR Name", "Account No", "Consumer Name", "Address", "Load (KW)", "M1 (Current Main)", "M2 (Last Main)", "M3 (2M Ago Main)", "Pole Status", "M1 (Current Pole)", "M2 (Last Pole)", "M3 (2M Ago Pole)"];
+  var rows = [headers];
+
+  list.forEach(function(c, i) {
+    rows.push([
+      i + 1, c.division, c.mrName, c.accountNo, c.consumerName, c.address, c.load,
+      c.main_m1, c.main_m2, c.main_m3, c.poleStatus, c.pole_m1, c.pole_m2, c.pole_m3
+    ]);
+  });
+
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!autofilter'] = { ref: ws['!ref'] };
+  ws['!cols'] = [
+    { wch: 6 }, { wch: 16 }, { wch: 18 }, { wch: 15 }, { wch: 26 }, { wch: 38 },
+    { wch: 10 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 16 }
+  ];
+
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Consumers_3M_Comparison");
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  XLSX.writeFile(wb, "3_Month_Consumers_Comparison_List_" + dateStr + ".xlsx");
+}
+
 
 // 🟢 2. COMPREHENSIVE SCORECARD & BIFURCATION CALCULATION
 function renderDivisionPerformanceChart(dataset) {
@@ -8561,7 +11173,6 @@ function renderDivisionPerformanceChart(dataset) {
     d.total++;
 
     var bTag = String(u["BILLABLE -NOT-BILLABLE"] || u["BILLABLE_NOT_BILLABLE"] || "").toUpperCase().trim();
-    var isBillable = (bTag === "BILLABLE");
     var mainEx = String(u["EXCEPTION TYPE (MAIN METER)"] || "").toUpperCase().trim();
     var mainRem = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "").toUpperCase().trim();
     var mainMriAvail = u["IS MRI AVAILABLE (MAIN METER)"];
@@ -8569,19 +11180,27 @@ function renderDivisionPerformanceChart(dataset) {
     var mainSurvey = u["IS LOAD SURVAY AVAILBLE (MAIN MTR)"] || u["IS LOAD SURVEY AVAILABLE (MAIN METER)"];
     var loadKw = parseFloat(String(u["LOAD IN KW"] || u["LOAD_KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
 
-    // 1. Not Billable vs Billable
-    if (!isBillable) {
-      d.nb_total++;
-      var nbCombined = (mainEx + " " + mainRem + " " + String(u["CONSUMER REMARK"] || "") + " " + String(u["REMARK"] || "") + " " + String(u["FINAL REJECTION"] || "")).toUpperCase();
+    // 🟢 केवल Specific Remarks होने पर ही Not-Billable माना जाए
+    var nbCombined = (mainEx + " " + mainRem + " " + String(u["CONSUMER REMARK"] || "") + " " + String(u["REMARK"] || "") + " " + String(u["FINAL REJECTION"] || "")).toUpperCase();
+    var is1P = nbCombined.includes("1 PHASE") || nbCombined.includes("1PHASE") || nbCombined.includes("SINGLE PHASE");
+    var isUM = nbCombined.includes("NONE_UM") || nbCombined.includes("UNMETER") || nbCombined.includes("PAYJAL") || nbCombined.includes("STREET LIGHT") || nbCombined.includes("(UM)");
+    var isTDPD = nbCombined.includes("TD") || nbCombined.includes("PD") || nbCombined.includes("TDC") || nbCombined.includes("PDC") || nbCombined.includes("TEMP") || nbCombined.includes("PERM") || nbCombined.includes("DISCONNECT");
+    var isSM = (bTag.includes("NOT") || bTag.includes("NON")) && (nbCombined.includes("SM") || mainEx.includes("SM") || mainRem.includes("SMART"));
 
-      if (nbCombined.includes("1 PHASE") || nbCombined.includes("1PHASE") || nbCombined.includes("SINGLE PHASE")) {
+    var isStrictNotBillable = (bTag.includes("NOT") || bTag.includes("NON")) && (is1P || isUM || isTDPD || isSM);
+    var isBillable = !isStrictNotBillable; // बाकी सभी अनिवार्य रूप से Billable में जाएंगे
+
+    // 1. Not Billable vs Billable
+    if (isStrictNotBillable) {
+      d.nb_total++;
+      if (is1P) {
         d.nb_1p++;
-      } else if (nbCombined.includes("NONE_UM") || nbCombined.includes("UNMETER") || nbCombined.includes("PAYJAL") || nbCombined.includes("STREET LIGHT") || nbCombined.includes("(UM)")) {
+      } else if (isUM) {
         d.nb_um++;
-      } else if (nbCombined.includes("TD") || nbCombined.includes("PD") || nbCombined.includes("TDC") || nbCombined.includes("PDC") || nbCombined.includes("TEMP") || nbCombined.includes("PERM") || nbCombined.includes("DISCONNECT")) {
+      } else if (isTDPD) {
         d.nb_tdpd++;
       } else {
-        d.nb_sm++; // खाली रिमार्क या नॉर्मल नॉट-बिलिएबल सीधे SM में जाएगा
+        d.nb_sm++;
       }
     } else {
       d.billable++;
@@ -9821,8 +12440,10 @@ function downloadOperationsScorecardAsIsPDF() {
             var safeDisplayVal = escapeHtml(val);
 
             if (isAccountCol && val && val !== "-") {
-              bHtml += '<td class="copyable-cell sticky-col-2" title="Click to View 360° Profile (Double-click to copy)" onclick="openConsumer360ByAccount(\'' + escapeHtml(val) + '\')" ondblclick="event.stopPropagation(); copyTextToClipboard(\'' + escapeHtml(val) + '\', \'Account\')">' +
-                '<span style="color:#1a73e8; font-weight:800; text-decoration:underline;">' + safeDisplayVal + '</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:8.5px; opacity:0.6; margin-left:3px;"></i></td>';
+              bHtml += '<td class="copyable-cell sticky-col-2" style="white-space: nowrap; user-select: all;">' +
+                '<span style="font-weight:800; color:#0f172a; cursor:pointer;" onclick="copyTextToClipboard(\'' + escapeHtml(val) + '\', \'Account No\')" title="Click to Copy Account No">' + safeDisplayVal + '</span> ' +
+                '<button type="button" onclick="event.stopPropagation(); openConsumer360ByAccount(\'' + escapeHtml(val) + '\')" title="Open 360° Profile" style="border:none; background:#eff6ff; color:#1d4ed8; padding:2px 5px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer; border:1px solid #bfdbfe; margin-left:4px;"><i class="fa-solid fa-eye"></i> 360°</button>' +
+                '</td>';
             } else if (isHighlighted && val && val !== "-") {
               bHtml += '<td class="copyable-cell"' + clickAttrs + ' onclick="copyTextToClipboard(\'' + escapeHtml(val) + '\', \'Meter\')">' + safeDisplayVal + ' <i class="fa-regular fa-copy" style="font-size:9.5px; opacity:0.4; margin-left:3px;"></i></td>';
             } else {
@@ -9890,13 +12511,15 @@ function downloadOperationsScorecardAsIsPDF() {
         }
 
         cachedDatabase.forEach(function(row) {
-          var u = {};
-          for (var k in row) { u[k.toUpperCase().trim()] = row[k]; }
+          var u = row._uMap || {};
+          if (Object.keys(u).length === 0) {
+            for (var k in row) { u[k.toUpperCase().trim()] = row[k]; }
+          }
 
-          var billableTag = String(u["BILLABLE -NOT-BILLABLE"] || "").toUpperCase().trim();
-          var mainMriAvail = String(u["IS MRI AVAILABLE (MAIN METER)"] || "").toUpperCase().trim();
-          var mainEx = String(u["EXCEPTION TYPE (MAIN METER)"] || "").toUpperCase().trim();
-          var mainSurvey = String(u["IS LOAD SURVAY AVAILBLE (MAIN MTR)"] || "").toUpperCase().trim();
+          var billableTag = String(u["BILLABLE -NOT-BILLABLE"] || u["BILLABLE_NOT_BILLABLE"] || "").toUpperCase().trim();
+          var mainMriAvail = String(u["IS MRI AVAILABLE (MAIN METER)"] || u["IS_MRI_AVAILABLE_(MAIN_METER)"] || "").toUpperCase().trim();
+          var mainEx = String(u["EXCEPTION TYPE (MAIN METER)"] || u["EXCEPTION_TYPE_(MAIN_METER)"] || "").toUpperCase().trim();
+          var mainSurvey = String(u["IS LOAD SURVAY AVAILBLE (MAIN MTR)"] || u["IS LOAD SURVEY AVAILABLE (MAIN METER)"] || "").toUpperCase().trim();
 
           var loadKwNum = parseFloat(String(u["LOAD IN KW"] || "").replace(/[^0-9.-]/g, "")) || 0;
           var poleEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
@@ -10032,8 +12655,8 @@ function downloadOperationsScorecardAsIsPDF() {
           if (match) matchingRows.push(row);
         });
 
-        // Load filtered data into standard Table View
-        var customColsString = "DIVISION, ACCOUNT NO, ST, CONSUMER-NAME, ADDRESS, LOAD IN KW, BILLED METER NUMBER, MASTER METER NUMBER, MASTER METER MAKE, LAST MONTH FINAL MM NO., LAST MONTH FINAL MM MAKE, FINAL VISITED MAIN METER NUMBER, FINAL VISITED MAIN METER MAKE, SITE METER NUMBER_APPSHEET, SITE METER MAKE_APPSHEET, INENTIVE VISIT METER NUMBER, INVENTIVE VISIT METER MAKE, EXCEPTION TYPE (MAIN METER), FINAL_MAIN_METER_SITE_REMARK, IS MRI AVAILABLE (MAIN METER), LAST MONTH FINAL PM NO., LAST MONTH FINAL PM MAKE, FINAL VISITED POLE METER NO., FINAL VISITED POLE METER MAKE, APPSHEET VISIT POLE METER NUMBER, APPSHEET VISIT POLE METER MAKE, INVENTIVE VISIT POLE METER NUMBER, INVENTIVE VISIT POLE METER MAKE, EXCEPTION TYPE (POLE METER), FINAL_POLE_METER_SITE_REMARK, APPSHEET POLE METER SITE REMARK, INVENTIVE POLE METER SITE REMARK, IS MRI AVAILABLE (POLE METER)";
+        // Load filtered data into standard Table View (Account No First)
+        var customColsString = "ACCOUNT NO, DIVISION, ST, CONSUMER-NAME, ADDRESS, LOAD IN KW, BILLED METER NUMBER, MASTER METER NUMBER, MASTER METER MAKE, LAST MONTH FINAL MM NO., LAST MONTH FINAL MM MAKE, FINAL VISITED MAIN METER NUMBER, FINAL VISITED MAIN METER MAKE, SITE METER NUMBER_APPSHEET, SITE METER MAKE_APPSHEET, INENTIVE VISIT METER NUMBER, INVENTIVE VISIT METER MAKE, EXCEPTION TYPE (MAIN METER), FINAL_MAIN_METER_SITE_REMARK, IS MRI AVAILABLE (MAIN METER), LAST MONTH FINAL PM NO., LAST MONTH FINAL PM MAKE, FINAL VISITED POLE METER NO., FINAL VISITED POLE METER MAKE, APPSHEET VISIT POLE METER NUMBER, APPSHEET VISIT POLE METER MAKE, INVENTIVE VISIT POLE METER NUMBER, INVENTIVE VISIT POLE METER MAKE, EXCEPTION TYPE (POLE METER), FINAL_POLE_METER_SITE_REMARK, APPSHEET POLE METER SITE REMARK, INVENTIVE POLE METER SITE REMARK, IS MRI AVAILABLE (POLE METER)";
 
         activeReportMeta = {
           id: "kpi_custom_" + filterKey,
@@ -12974,6 +15597,16 @@ function downloadOperationsScorecardAsIsPDF() {
             headers = Object.keys(globalMatches[0]).filter(function(k){ return !k.startsWith("_"); });
           }
 
+          // 🟢 सर्च लिस्ट में Account ID सबसे पहले दिखे
+          var accIdx = headers.findIndex(function(c) {
+            var clean = c.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            return clean === "ACCOUNTNO" || clean === "ACCOUNTID" || clean === "ACCTID" || clean === "ACCOUNTNUMBER";
+          });
+          if (accIdx > 0) {
+            var accName = headers.splice(accIdx, 1)[0];
+            headers.unshift(accName);
+          }
+
           renderClientTable(headers);
           
           // टेबल व्यू के कंटेनर को सबसे ऊपर स्क्रॉल करें
@@ -14116,7 +16749,8 @@ function downloadOperationsScorecardAsIsPDF() {
   ];
 
   try {
-    logTerminal("➔ <b>Execution Started:</b> VisiT_Data शिफ्टिंग और सभी 9 शीट्स का डेटा क्लीन हो रहा है...", "#38bdf8", 30);
+    logTerminal("➔ <b>[Step 1/3] Initializing Rollover Engine...</b>", "#38bdf8", 10);
+    logTerminal("➔ <i>Protecting Formula Columns & Preparing Shifting...</i>", "#94a3b8");
 
     var res = await new Promise(function(resolve, reject) {
       if (window.google && google.script && google.script.run && typeof google.script.run.executeMonthlyRolloverEngine === "function") {
@@ -14133,23 +16767,75 @@ function downloadOperationsScorecardAsIsPDF() {
     });
 
     if (res && res.success) {
-      logTerminal("✔ VisiT_Data में पुराना रिमार्क शिफ्ट और रिसेट हो गया।", "#4ade80", 65);
-      logTerminal("✔ सभी 9 अपलोड शीट्स (रो 3 से) पूरी तरह खाली हो गईं।", "#4ade80", 90);
+      // 1. Shifted Columns Detailed Log
+      logTerminal("✔ <b>[Step 1 Complete] 3-Month Data Shifted Backward:</b>", "#4ade80", 40);
+      if (res.shiftedCols && res.shiftedCols.length > 0) {
+        res.shiftedCols.forEach(function(s) {
+          logTerminal("&nbsp;&nbsp;↳ <span style='color:#a5b4fc;'>Shifted:</span> " + s, "#cbd5e1");
+        });
+      } else {
+        logTerminal("&nbsp;&nbsp;↳ <i>Main & Pole 3-Month remarks shifted successfully.</i>", "#cbd5e1");
+      }
+
+      // 2. Deleted Exact 18 AppSheet Columns Log (Formula Columns Safe)
+      logTerminal("✔ <b>[Step 2 Complete] Formula Columns Protected! 18 AppSheet Input Columns Cleared:</b>", "#4ade80", 75);
+      if (res.deletedCols && res.deletedCols.length > 0) {
+        res.deletedCols.forEach(function(c) {
+          logTerminal("&nbsp;&nbsp;↳ <span style='color:#f87171;'>Deleted Input Column:</span> <b>" + c + "</b>", "#cbd5e1");
+        });
+      }
+
+      // 3. Cleared 9 Upload Sheets Log
+      logTerminal("✔ <b>[Step 3 Complete] 9 Upload Sheets Cleared (from Row 3 downward):</b>", "#4ade80", 95);
+      if (res.clearedSheets && res.clearedSheets.length > 0) {
+        res.clearedSheets.forEach(function(sh) {
+          logTerminal("&nbsp;&nbsp;↳ <span style='color:#facc15;'>Cleared Sheet:</span> " + sh, "#cbd5e1");
+        });
+      }
+
       logTerminal("🎉 <b>[Success]</b> Monthly Cycle Rollover Safely Completed!", "#22c55e", 100);
 
-      setTimeout(function() {
+      // 🟢 ऑटो-क्लोज टाइमर हटाकर स्थायी 'OK' बटन और सारांश जोड़ें
+      var finishBox = document.createElement("div");
+      finishBox.style = "margin-top: 12px; padding-top: 10px; border-top: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; background: rgba(34, 197, 94, 0.1); padding: 8px 12px; border-radius: 6px;";
+      finishBox.innerHTML = `
+        <div>
+          <span style="color: #4ade80; font-weight: 800; font-size: 12px;">
+            <i class="fa-solid fa-circle-check me-1"></i> रोलओवर सफलतापूर्वक पूरा हो गया!
+          </span>
+          <div style="font-size: 10.5px; color: #94a3b8; margin-top: 2px;">
+            डेटा शिफ्ट हो चुका है और 9 अपलोड शीट्स क्लियर कर दी गई हैं।
+          </div>
+        </div>
+        <button id="btn-rollover-confirm-ok" style="background: #22c55e; color: #0f172a; border: none; padding: 6px 16px; border-radius: 6px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);">
+          <i class="fa-solid fa-check"></i> OK, Reload Data
+        </button>
+      `;
+
+      toast.appendChild(finishBox);
+
+      // जब यूजर स्वयं OK पर क्लिक करेगा, तभी टोस्ट हटेगा और नया डेटा लोड होगा
+      document.getElementById("btn-rollover-confirm-ok").onclick = function() {
         toast.style.display = "none";
         loadCoreDatabasePacket(true);
-      }, 3000);
+      };
+
     } else {
       throw new Error(res ? res.error : "सर्वर से अज्ञात त्रुटि मिली।");
     }
 
   } catch (err) {
-    logTerminal(`❌ <b>Error:</b> ${err.message || err}`, "#ef4444");
-    setTimeout(function() {
-      toast.style.display = "none";
-    }, 6000);
+    logTerminal("❌ <b>Error:</b> " + (err.message || err), "#ef4444");
+
+    // एरर आने पर भी विंडो खुली रहे और यूजर क्लोज कर सके
+    var errorBox = document.createElement("div");
+    errorBox.style = "margin-top: 10px; padding-top: 8px; border-top: 1px solid #334155; text-align: right;";
+    errorBox.innerHTML = `
+      <button onclick="document.getElementById('global-copy-toast').style.display='none'" style="background: #ef4444; color: white; border: none; padding: 5px 14px; border-radius: 4px; font-weight: bold; font-size: 11px; cursor: pointer;">
+        Close Window
+      </button>
+    `;
+    toast.appendChild(errorBox);
   }
 }
 
@@ -14164,7 +16850,11 @@ var customBulkAllowedColumns = [
   "APPSHEET VISIT POLE METER MAKE", "IS POLE METER VISIT", "APPSHEET POLE METER SITE REMARK", "VISITED METER MRI (POLE) AVAILABLE",
   "MAIN METER PHOTO", "POLE METER PHOTO", "TIME STAMP2", "M_BILL_DELIVERD_DATE", "M_BILL RECEIVER NAME",
   "M_CONSUMER MOBILE NUMBER", "M_BILL RECEIVER IMAGE", "M_REMARK", "NEW WHATSUP NO.", "NEW EMAIL ID",
-  "New Site Mobile No.", "New Site Email ID"
+  "New Site Mobile No.", "New Site Email ID",
+  "LAST 2 MONTHS SITE REMARK",
+  "LAST 2 MONTH MRI AVAILABLE (MAIN METER)",
+  "LAST 2 MONTH POLE SITE REMARK",
+  "LAST MONTH MRI AVAILABLE (POLE MTR)"
 ];
 
 var isBulkModalMinimized = false;
@@ -14652,22 +17342,29 @@ function clearAllGlobalFilters() {
 }
 
 // Ensure chips render, KPI cards & Rejection After MRI sub-tab update immediately on every filter change
-var origProcessFilterQuery = processClientFilterQuery;
-processClientFilterQuery = function() {
-  origProcessFilterQuery.apply(this, arguments);
+function triggerPostFilterUpdates() {
   if (typeof renderActiveFilterChips === "function") renderActiveFilterChips();
   
   var analyticsZone = document.getElementById('analytics-view-zone');
   if (analyticsZone && analyticsZone.style.display !== 'none') {
     if (typeof calculateAnalyticsKPICards === "function") calculateAnalyticsKPICards();
     
-    // 🟢 अगर 'Rejection After MRI' टैब खुला है तो उसे भी तुरंत लाइव री-रेंडर करें
     var tabMriRej = document.getElementById('analytics-tab-mri-rejection');
     if (tabMriRej && tabMriRej.style.display !== 'none') {
       renderRejectionAfterMriTable();
     }
+
+    var tab3MComp = document.getElementById('analytics-tab-3m-comparison');
+    if (tab3MComp && tab3MComp.style.display !== 'none') {
+      render3MComparisonDashboard();
+    }
+
+    var tabMrPendency = document.getElementById('analytics-tab-mr-pendency');
+    if (tabMrPendency && tabMrPendency.style.display !== 'none') {
+      renderMrWisePendencyTable();
+    }
   }
-};
+}
 
 // ==========================================
 // 🟢 3. PROGRESS BARS HELPER LOGIC
@@ -14980,6 +17677,16 @@ function switchAnalyticsSubTab(targetTab) {
 
   activeRemarkCardFilter = null; // 🟢 Reset card selection on tab switch
 
+  var tabMrPendency = document.getElementById('analytics-tab-mr-pendency');
+  var btnMrPendency = document.getElementById('btn-tab-mr-pendency');
+  var tab3MComp = document.getElementById('analytics-tab-3m-comparison');
+  var btn3MComp = document.getElementById('btn-tab-3m-comparison');
+
+  if (tabMrPendency) tabMrPendency.style.display = 'none';
+  if (btnMrPendency) btnMrPendency.classList.remove('active-view-tab');
+  if (tab3MComp) tab3MComp.style.display = 'none';
+  if (btn3MComp) btn3MComp.classList.remove('active-view-tab');
+
   if (targetTab === 'scorecard') {
     tabScorecard.style.display = 'block';
     if (btnScorecard) btnScorecard.classList.add('active-view-tab');
@@ -15006,6 +17713,14 @@ function switchAnalyticsSubTab(targetTab) {
     if (btnTotalEx) btnTotalEx.classList.add('active-view-tab');
     currentMriRejectionFilterMode = 'total_exception';
     renderRejectionAfterMriTable();
+  } else if (targetTab === 'mr_pendency') {
+    if (tabMrPendency) tabMrPendency.style.display = 'block';
+    if (btnMrPendency) btnMrPendency.classList.add('active-view-tab');
+    renderMrWisePendencyTable();
+  } else if (targetTab === '3m_comparison') {
+    if (tab3MComp) tab3MComp.style.display = 'block';
+    if (btn3MComp) btn3MComp.classList.add('active-view-tab');
+    render3MComparisonDashboard();
   }
 }
 
@@ -15632,12 +18347,18 @@ function downloadRejectionAfterMriExcel() {
 function downloadRejectionAfterMriPDF() {
   var data = computeRejectionAfterMriData();
   if (!data || data.length === 0) {
-    showToast("No data available to export!", "warning");
+    alert("डाउनलोड करने के लिए कोई रिकॉर्ड उपलब्ध नहीं है!");
+    return;
+  }
+
+  var jsPDFConstructor = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (typeof jsPDF !== "undefined" ? jsPDF : null);
+  if (!jsPDFConstructor) {
+    alert("PDF जनरेटर लाइब्रेरी लोड नहीं हो सकी!");
     return;
   }
 
   // jsPDF Landscape Mode (Horizontal Orientation)
-  var doc = new jspdf.jsPDF('l', 'mm', 'a4');
+  var doc = new jsPDFConstructor('l', 'mm', 'a4');
   var pageWidth = doc.internal.pageSize.getWidth();
 
   var isTotalEx = (currentMriRejectionFilterMode === 'total_exception');
@@ -16162,40 +18883,46 @@ function downloadTestDistSummaryExcel() {
 function downloadTestDistSummaryPDF() {
   var s = buildTestDistSummaryData();
   if (!s || s.grandTotal.total.total === 0) {
-    showToast("No summary data to export!", "warning");
+    alert("डाउनलोड करने के लिए कोई समरी डेटा नहीं मिला!");
     return;
   }
 
-  var doc = new jspdf.jsPDF('l', 'mm', 'a4');
+  var jsPDFConstructor = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (typeof jsPDF !== "undefined" ? jsPDF : null);
+  if (!jsPDFConstructor) {
+    alert("PDF लाइब्रेरी लोड नहीं हो सकी!");
+    return;
+  }
+
+  var doc = new jsPDFConstructor('l', 'mm', 'a4');
   var pageWidth = doc.internal.pageSize.getWidth();
   var now = new Date();
   var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
 
-  // 🟢 1. Two-Tier Header: Perfect Alignment & Proper Colspan
+  // 🟢 1. Two-Tier Header: Darker Text & High-Contrast Borders for Sharp Printing
   var headRows = [
     [
-      { content: "REMARKS CATEGORY & REASON", rowSpan: 2, styles: { halign: 'left', valign: 'middle', fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' } },
-      { content: "EDD-I MAINPURI", colSpan: 3, styles: { halign: 'center', fillColor: [30, 58, 138], textColor: [255, 255, 255], fontStyle: 'bold' } },
-      { content: "EDD-II MAINPURI", colSpan: 3, styles: { halign: 'center', fillColor: [30, 58, 138], textColor: [255, 255, 255], fontStyle: 'bold' } },
-      { content: "EDD-III MAINPURI", colSpan: 3, styles: { halign: 'center', fillColor: [30, 58, 138], textColor: [255, 255, 255], fontStyle: 'bold' } },
-      { content: "EDC TOTAL", colSpan: 3, styles: { halign: 'center', fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' } }
+      { content: "REMARKS CATEGORY & REASON", rowSpan: 2, styles: { halign: 'left', valign: 'middle', fillColor: [11, 60, 93], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 } },
+      { content: "EDD-I MAINPURI", colSpan: 3, styles: { halign: 'center', fillColor: [15, 76, 129], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7.8 } },
+      { content: "EDD-II MAINPURI", colSpan: 3, styles: { halign: 'center', fillColor: [15, 76, 129], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7.8 } },
+      { content: "EDD-III MAINPURI", colSpan: 3, styles: { halign: 'center', fillColor: [15, 76, 129], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7.8 } },
+      { content: "EDC TOTAL", colSpan: 3, styles: { halign: 'center', fillColor: [11, 60, 93], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 } }
     ],
     [
-      { content: "Govt", styles: { halign: 'center', fillColor: [51, 65, 85], textColor: [255, 255, 255], fontSize: 6.5 } },
-      { content: "Non-Govt", styles: { halign: 'center', fillColor: [51, 65, 85], textColor: [255, 255, 255], fontSize: 6.5 } },
-      { content: "Total", styles: { halign: 'center', fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 6.5 } },
+      { content: "Govt", styles: { halign: 'center', fillColor: [241, 245, 249], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7 } },
+      { content: "Non-Govt", styles: { halign: 'center', fillColor: [241, 245, 249], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7 } },
+      { content: "Total", styles: { halign: 'center', fillColor: [203, 213, 225], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7.2 } },
 
-      { content: "Govt", styles: { halign: 'center', fillColor: [51, 65, 85], textColor: [255, 255, 255], fontSize: 6.5 } },
-      { content: "Non-Govt", styles: { halign: 'center', fillColor: [51, 65, 85], textColor: [255, 255, 255], fontSize: 6.5 } },
-      { content: "Total", styles: { halign: 'center', fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 6.5 } },
+      { content: "Govt", styles: { halign: 'center', fillColor: [241, 245, 249], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7 } },
+      { content: "Non-Govt", styles: { halign: 'center', fillColor: [241, 245, 249], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7 } },
+      { content: "Total", styles: { halign: 'center', fillColor: [203, 213, 225], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7.2 } },
 
-      { content: "Govt", styles: { halign: 'center', fillColor: [51, 65, 85], textColor: [255, 255, 255], fontSize: 6.5 } },
-      { content: "Non-Govt", styles: { halign: 'center', fillColor: [51, 65, 85], textColor: [255, 255, 255], fontSize: 6.5 } },
-      { content: "Total", styles: { halign: 'center', fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 6.5 } },
+      { content: "Govt", styles: { halign: 'center', fillColor: [241, 245, 249], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7 } },
+      { content: "Non-Govt", styles: { halign: 'center', fillColor: [241, 245, 249], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7 } },
+      { content: "Total", styles: { halign: 'center', fillColor: [203, 213, 225], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7.2 } },
 
-      { content: "Govt", styles: { halign: 'center', fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 6.5 } },
-      { content: "Non-Govt", styles: { halign: 'center', fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 6.5 } },
-      { content: "Total", styles: { halign: 'center', fillColor: [185, 28, 28], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7 } }
+      { content: "Govt", styles: { halign: 'center', fillColor: [226, 232, 240], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7 } },
+      { content: "Non-Govt", styles: { halign: 'center', fillColor: [226, 232, 240], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 7 } },
+      { content: "Total", styles: { halign: 'center', fillColor: [254, 226, 226], textColor: [185, 28, 28], fontStyle: 'bold', fontSize: 7.5 } }
     ]
   ];
 
@@ -16265,62 +18992,64 @@ function downloadTestDistSummaryPDF() {
       });
     }
 
-    // Subtotal Row
+    // Subtotal Row (Deep Black Bold Text & Distinct Borders for Printing)
     bodyRows.push([
-      { content: title + " SUBTOTAL", styles: { fontStyle: 'bold', fillColor: [226, 232, 240], textColor: [15, 23, 42] } },
-      { content: formatCount(subtotalObj["EDD-I"].govt), styles: { fontStyle: 'bold', fillColor: [226, 232, 240] } },
-      { content: formatCount(subtotalObj["EDD-I"].nonGovt), styles: { fontStyle: 'bold', fillColor: [226, 232, 240] } },
-      { content: formatCount(subtotalObj["EDD-I"].total), styles: { fontStyle: 'bold', fillColor: [203, 213, 225] } },
-      { content: formatCount(subtotalObj["EDD-II"].govt), styles: { fontStyle: 'bold', fillColor: [226, 232, 240] } },
-      { content: formatCount(subtotalObj["EDD-II"].nonGovt), styles: { fontStyle: 'bold', fillColor: [226, 232, 240] } },
-      { content: formatCount(subtotalObj["EDD-II"].total), styles: { fontStyle: 'bold', fillColor: [203, 213, 225] } },
-      { content: formatCount(subtotalObj["EDD-III"].govt), styles: { fontStyle: 'bold', fillColor: [226, 232, 240] } },
-      { content: formatCount(subtotalObj["EDD-III"].nonGovt), styles: { fontStyle: 'bold', fillColor: [226, 232, 240] } },
-      { content: formatCount(subtotalObj["EDD-III"].total), styles: { fontStyle: 'bold', fillColor: [203, 213, 225] } },
-      { content: formatCount(subtotalObj.total.govt), styles: { fontStyle: 'bold', fillColor: [203, 213, 225] } },
-      { content: formatCount(subtotalObj.total.nonGovt), styles: { fontStyle: 'bold', fillColor: [203, 213, 225] } },
-      { content: formatCount(subtotalObj.total.total), styles: { fontStyle: 'bold', fillColor: [185, 28, 28], textColor: [255, 255, 255] } }
+      { content: title + " SUBTOTAL", styles: { fontStyle: 'bold', fillColor: [226, 232, 240], textColor: [0, 0, 0], fontSize: 7.5 } },
+      { content: formatCount(subtotalObj["EDD-I"].govt), styles: { fontStyle: 'bold', fillColor: [226, 232, 240], textColor: [0, 0, 0], fontSize: 7.2 } },
+      { content: formatCount(subtotalObj["EDD-I"].nonGovt), styles: { fontStyle: 'bold', fillColor: [226, 232, 240], textColor: [0, 0, 0], fontSize: 7.2 } },
+      { content: formatCount(subtotalObj["EDD-I"].total), styles: { fontStyle: 'bold', fillColor: [203, 213, 225], textColor: [0, 0, 0], fontSize: 7.5 } },
+      { content: formatCount(subtotalObj["EDD-II"].govt), styles: { fontStyle: 'bold', fillColor: [226, 232, 240], textColor: [0, 0, 0], fontSize: 7.2 } },
+      { content: formatCount(subtotalObj["EDD-II"].nonGovt), styles: { fontStyle: 'bold', fillColor: [226, 232, 240], textColor: [0, 0, 0], fontSize: 7.2 } },
+      { content: formatCount(subtotalObj["EDD-II"].total), styles: { fontStyle: 'bold', fillColor: [203, 213, 225], textColor: [0, 0, 0], fontSize: 7.5 } },
+      { content: formatCount(subtotalObj["EDD-III"].govt), styles: { fontStyle: 'bold', fillColor: [226, 232, 240], textColor: [0, 0, 0], fontSize: 7.2 } },
+      { content: formatCount(subtotalObj["EDD-III"].nonGovt), styles: { fontStyle: 'bold', fillColor: [226, 232, 240], textColor: [0, 0, 0], fontSize: 7.2 } },
+      { content: formatCount(subtotalObj["EDD-III"].total), styles: { fontStyle: 'bold', fillColor: [203, 213, 225], textColor: [0, 0, 0], fontSize: 7.5 } },
+      { content: formatCount(subtotalObj.total.govt), styles: { fontStyle: 'bold', fillColor: [203, 213, 225], textColor: [0, 0, 0], fontSize: 7.5 } },
+      { content: formatCount(subtotalObj.total.nonGovt), styles: { fontStyle: 'bold', fillColor: [203, 213, 225], textColor: [0, 0, 0], fontSize: 7.5 } },
+      { content: formatCount(subtotalObj.total.total), styles: { fontStyle: 'bold', fillColor: [254, 202, 202], textColor: [153, 27, 27], fontSize: 8 } }
     ]);
   }
 
   if (s.isAllMriTab) {
-    // 🟢 REJECTION AFTER MRI SUMMARY BLOCK (Only 49 records)
+    // 🟢 REJECTION AFTER MRI SUMMARY BLOCK
     bodyRows.push([
-      { content: "REJECTION AFTER MRI & IRREGULARITIES REASONS", colSpan: 13, styles: { fontStyle: 'bold', fillColor: [153, 27, 27], textColor: [255, 255, 255], halign: 'left' } }
+      { content: "REJECTION AFTER MRI & IRREGULARITIES REASONS", colSpan: 13, styles: { fontStyle: 'bold', fillColor: [153, 27, 27], textColor: [255, 255, 255], halign: 'left', fontSize: 8 } }
     ]);
 
     var rejKeys = Object.keys(s.mriRejectionRows).sort();
     rejKeys.forEach(function(k) {
       var r = s.mriRejectionRows[k];
       bodyRows.push([
-        "   • " + k,
-        formatCount(r["EDD-I"].govt), formatCount(r["EDD-I"].nonGovt), formatCount(r["EDD-I"].total),
-        formatCount(r["EDD-II"].govt), formatCount(r["EDD-II"].nonGovt), formatCount(r["EDD-II"].total),
-        formatCount(r["EDD-III"].govt), formatCount(r["EDD-III"].nonGovt), formatCount(r["EDD-III"].total),
-        formatCount(r.total.govt), formatCount(r.total.nonGovt), formatCount(r.total.total)
+        { content: "    • " + k, styles: { fontStyle: 'bold', textColor: [0, 0, 0] } },
+        formatCount(r["EDD-I"].govt), formatCount(r["EDD-I"].nonGovt), { content: formatCount(r["EDD-I"].total), styles: { fontStyle: 'bold', textColor: [0, 0, 0] } },
+        formatCount(r["EDD-II"].govt), formatCount(r["EDD-II"].nonGovt), { content: formatCount(r["EDD-II"].total), styles: { fontStyle: 'bold', textColor: [0, 0, 0] } },
+        formatCount(r["EDD-III"].govt), formatCount(r["EDD-III"].nonGovt), { content: formatCount(r["EDD-III"].total), styles: { fontStyle: 'bold', textColor: [0, 0, 0] } },
+        { content: formatCount(r.total.govt), styles: { fontStyle: 'bold', textColor: [0, 0, 0] } },
+        { content: formatCount(r.total.nonGovt), styles: { fontStyle: 'bold', textColor: [0, 0, 0] } },
+        { content: formatCount(r.total.total), styles: { fontStyle: 'bold', textColor: [185, 28, 28], fontSize: 7.5 } }
       ]);
     });
   } else {
-    // 🟢 NON-MRI SUMMARY BLOCK (Test_Div / Dist_Div with Rejection After MRI sub-group)
-    appendSection("DISTRIBUTION_DIV", s.distMainRows, s.distMainRejRows, s.distPoleRows, s.distDivSubtotal, [14, 116, 144]);
+    // 🟢 NON-MRI SUMMARY BLOCK
+    appendSection("DISTRIBUTION_DIV", s.distMainRows, s.distMainRejRows, s.distPoleRows, s.distDivSubtotal, [11, 60, 93]);
     appendSection("TEST_DIV", s.testMainRows, s.testMainRejRows, s.testPoleRows, s.testDivSubtotal, [194, 65, 12]);
   }
 
-  // Grand Total Row
+  // Grand Total Row (Heavy Contrast & Bold Black Font)
   bodyRows.push([
-    { content: "GRAND TOTAL", styles: { fontStyle: 'bold', fillColor: [15, 23, 42], textColor: [255, 255, 255] } },
-    { content: formatCount(s.grandTotal["EDD-I"].govt), styles: { fontStyle: 'bold', fillColor: [15, 23, 42], textColor: [255, 255, 255] } },
-    { content: formatCount(s.grandTotal["EDD-I"].nonGovt), styles: { fontStyle: 'bold', fillColor: [15, 23, 42], textColor: [255, 255, 255] } },
-    { content: formatCount(s.grandTotal["EDD-I"].total), styles: { fontStyle: 'bold', fillColor: [30, 41, 59], textColor: [255, 255, 255] } },
-    { content: formatCount(s.grandTotal["EDD-II"].govt), styles: { fontStyle: 'bold', fillColor: [15, 23, 42], textColor: [255, 255, 255] } },
-    { content: formatCount(s.grandTotal["EDD-II"].nonGovt), styles: { fontStyle: 'bold', fillColor: [15, 23, 42], textColor: [255, 255, 255] } },
-    { content: formatCount(s.grandTotal["EDD-II"].total), styles: { fontStyle: 'bold', fillColor: [30, 41, 59], textColor: [255, 255, 255] } },
-    { content: formatCount(s.grandTotal["EDD-III"].govt), styles: { fontStyle: 'bold', fillColor: [15, 23, 42], textColor: [255, 255, 255] } },
-    { content: formatCount(s.grandTotal["EDD-III"].nonGovt), styles: { fontStyle: 'bold', fillColor: [15, 23, 42], textColor: [255, 255, 255] } },
-    { content: formatCount(s.grandTotal["EDD-III"].total), styles: { fontStyle: 'bold', fillColor: [30, 41, 59], textColor: [255, 255, 255] } },
-    { content: formatCount(s.grandTotal.total.govt), styles: { fontStyle: 'bold', fillColor: [30, 41, 59], textColor: [255, 255, 255] } },
-    { content: formatCount(s.grandTotal.total.nonGovt), styles: { fontStyle: 'bold', fillColor: [30, 41, 59], textColor: [255, 255, 255] } },
-    { content: formatCount(s.grandTotal.total.total), styles: { fontStyle: 'bold', fillColor: [220, 38, 38], textColor: [255, 255, 255] } }
+    { content: "GRAND TOTAL", styles: { fontStyle: 'bold', fillColor: [254, 240, 138], textColor: [0, 0, 0], fontSize: 8.5 } },
+    { content: formatCount(s.grandTotal["EDD-I"].govt), styles: { fontStyle: 'bold', fillColor: [254, 240, 138], textColor: [0, 0, 0], fontSize: 7.8 } },
+    { content: formatCount(s.grandTotal["EDD-I"].nonGovt), styles: { fontStyle: 'bold', fillColor: [254, 240, 138], textColor: [0, 0, 0], fontSize: 7.8 } },
+    { content: formatCount(s.grandTotal["EDD-I"].total), styles: { fontStyle: 'bold', fillColor: [253, 224, 71], textColor: [0, 0, 0], fontSize: 8.2 } },
+    { content: formatCount(s.grandTotal["EDD-II"].govt), styles: { fontStyle: 'bold', fillColor: [254, 240, 138], textColor: [0, 0, 0], fontSize: 7.8 } },
+    { content: formatCount(s.grandTotal["EDD-II"].nonGovt), styles: { fontStyle: 'bold', fillColor: [254, 240, 138], textColor: [0, 0, 0], fontSize: 7.8 } },
+    { content: formatCount(s.grandTotal["EDD-II"].total), styles: { fontStyle: 'bold', fillColor: [253, 224, 71], textColor: [0, 0, 0], fontSize: 8.2 } },
+    { content: formatCount(s.grandTotal["EDD-III"].govt), styles: { fontStyle: 'bold', fillColor: [254, 240, 138], textColor: [0, 0, 0], fontSize: 7.8 } },
+    { content: formatCount(s.grandTotal["EDD-III"].nonGovt), styles: { fontStyle: 'bold', fillColor: [254, 240, 138], textColor: [0, 0, 0], fontSize: 7.8 } },
+    { content: formatCount(s.grandTotal["EDD-III"].total), styles: { fontStyle: 'bold', fillColor: [253, 224, 71], textColor: [0, 0, 0], fontSize: 8.2 } },
+    { content: formatCount(s.grandTotal.total.govt), styles: { fontStyle: 'bold', fillColor: [253, 224, 71], textColor: [0, 0, 0], fontSize: 8.2 } },
+    { content: formatCount(s.grandTotal.total.nonGovt), styles: { fontStyle: 'bold', fillColor: [253, 224, 71], textColor: [0, 0, 0], fontSize: 8.2 } },
+    { content: formatCount(s.grandTotal.total.total), styles: { fontStyle: 'bold', fillColor: [220, 38, 38], textColor: [255, 255, 255], fontSize: 9 } }
   ]);
 
   // A4 Landscape Width = 297mm. Available width ~ 281mm.
@@ -16337,26 +19066,34 @@ function downloadTestDistSummaryPDF() {
     body: bodyRows,
     startY: 20,
     theme: 'grid',
-    styles: { fontSize: 7, cellPadding: 1.5, halign: 'center', valign: 'middle' },
+    styles: { 
+      fontSize: 7.2, 
+      fontStyle: 'normal',
+      textColor: [0, 0, 0], // गहरा काला रंग ताकि प्रिंट में फीका न आए
+      cellPadding: 1.6, 
+      halign: 'center', 
+      valign: 'middle',
+      lineWidth: 0.35,
+      lineColor: [0, 0, 0] // गहरी ब्लैक बॉर्डर लाइन
+    },
     columnStyles: colStyles,
     didDrawPage: function(data) {
-      doc.setFillColor(15, 23, 42);
+      doc.setFillColor(11, 60, 93);
       doc.rect(0, 0, pageWidth, 15, 'F');
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(11);
+      doc.setFontSize(11.5);
       doc.setFont('helvetica', 'bold');
-      doc.text("EDC MAINPURI [" + s.scopeTypeLabel + "] TEST & DISTRIBUTION REMARK SUMMARY", 14, 7);
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.text("Till Date: " + dateStr + " | EDC Total: " + s.grandTotal.total.total, 14, 12);
+      doc.text("EDC MAINPURI [" + s.scopeTypeLabel + "] TEST & DISTRIBUTION REMARK SUMMARY", 14, 6.5);
+      doc.setFontSize(8.2);
+      doc.setFont('helvetica', 'bold');
+      doc.text("Till Date: " + dateStr + " | EDC Total: " + s.grandTotal.total.total, 14, 11.8);
     }
   });
 
   var safeFileName = s.scopeTypeLabel.replace(/[^a-zA-Z0-9]/g, "_");
   doc.save("EDC_Mainpuri_" + safeFileName + "_Summary_" + dateStr + ".pdf");
 }
-      
-    </script>
+ </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
