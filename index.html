@@ -1518,7 +1518,7 @@ body.dark-mode .view-tab-btn.active-view-tab {
     </div>
 
     <!-- Sidebar -->
-    <div class="sidebar" id="mainSidebar">
+    <div class="sidebar" id="mainSidebar" onclick="event.stopPropagation()">
       <div class="brand-header" style="display: flex; align-items: center; gap: 10px; padding: 0 5px 12px 5px;">
         <img src="logo.png" alt="SAI Logo" style="height: 40px; width: auto; object-fit: contain;">
         <div>
@@ -1558,7 +1558,7 @@ body.dark-mode .view-tab-btn.active-view-tab {
             <i class="fa-solid fa-triangle-exclamation" style="color:#ea580c"></i> Field Exception & Rejection
           </button>
 
-          <button class="report-link" id="btn-rpt-master-unbilled" style="border-left: 4px solid #10b981; background: #ecfdf5; color: #065f46;" onclick="selectReport(codeBuiltinReports[0], this, '#10b981')">
+          <button class="report-link" id="btn-rpt-master-unbilled" style="border-left: 4px solid #10b981; background: #ecfdf5; color: #065f46;" onclick="selectReport(codeBuiltinReports[1], this, '#10b981')">
             <i class="fa-solid fa-file-invoice-dollar" style="color:#10b981"></i> Unbilled Master (5KW & Above)
           </button>
 
@@ -1566,7 +1566,7 @@ body.dark-mode .view-tab-btn.active-view-tab {
             <i class="fa-solid fa-table-list" style="color:#3b82f6"></i> Department Master Data
           </button>
 
-          <button class="report-link" id="btn-rpt-indep-consumers" style="border-left: 4px solid #8b5cf6; background: #f5f3ff; color: #5b21b6;" onclick="showIndependentConsumersReport(codeBuiltinReports[10], this, '#8b5cf6')">
+          <button class="report-link" id="btn-rpt-indep-consumers" style="border-left: 4px solid #8b5cf6; background: #f5f3ff; color: #5b21b6;" onclick="downloadIndependentConsumersDirectExcel(codeBuiltinReports[10] || { id: 'rpt_independent_consumers', name: 'Independent Consumers List' }, this, '#8b5cf6')">
             <i class="fa-solid fa-file-excel" style="color:#8b5cf6"></i> Independent Consumers List
           </button>
         </div>
@@ -1991,8 +1991,8 @@ body.dark-mode .view-tab-btn.active-view-tab {
               </div>
             </div>
             
-            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; max-width: 100%;">
-              <table id="operations-scorecard-main-table" style="width: 100%; min-width: 1480px; border-collapse: collapse; font-size: 10.5px; text-align: center;">
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; max-width: 100%; padding-bottom: 12px;">
+              <table id="operations-scorecard-main-table" style="width: 100%; min-width: 1540px; border-collapse: collapse; font-size: 12.5px; text-align: center;">
                 <thead id="operations-scorecard-thead">
                   <!-- Dynamic Bulletin Multi-level Headers injected via JS -->
                 </thead>
@@ -2034,9 +2034,9 @@ body.dark-mode .view-tab-btn.active-view-tab {
             <div id="mri-rejection-cards-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-bottom: 14px;">
             </div>
 
-            <!-- Table View -->
-            <div style="overflow-x: auto; max-height: 480px;">
-              <table style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: center;">
+            <!-- Table View: Expanded Dynamic Height to avoid excessive scrolling -->
+            <div style="overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 370px); min-height: 560px; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 6px;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: center;">
                 <thead style="position: sticky; top: 0; z-index: 2;">
                   <tr style="background: #0f172a; color: white; font-weight: 800; font-size: 10.5px;">
                     <th style="padding: 7px 6px;">Sr.</th>
@@ -2417,15 +2417,16 @@ body.dark-mode .view-tab-btn.active-view-tab {
               </div>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <span style="font-size:12px; font-weight:700; color:#334155;">Step 1: Choose Columns to Update/Clear:</span>
-              <div style="display:flex; gap:8px;">
-                <button type="button" onclick="toggleAllCustomCols(true)" style="background:#f1f5f9; border:1px solid #cbd5e1; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:4px; cursor:pointer;">Select All</button>
-                <button type="button" onclick="toggleAllCustomCols(false)" style="background:#f1f5f9; border:1px solid #cbd5e1; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:4px; cursor:pointer;">Deselect All</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+              <span style="font-size:12px; font-weight:800; color:#1e293b; font-family:'Inter', sans-serif;">Step 1: Choose Columns to Update/Clear:</span>
+              <div style="display:flex; gap:6px;">
+                <button type="button" onclick="toggleAllCustomCols(true)" style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; font-size:11px; font-weight:700; padding:3px 10px; border-radius:5px; cursor:pointer;">Select All</button>
+                <button type="button" onclick="toggleAllCustomCols(false)" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; font-size:11px; font-weight:700; padding:3px 10px; border-radius:5px; cursor:pointer;">Deselect All</button>
               </div>
             </div>
 
-            <div id="custom-cols-checkbox-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:6px; max-height:160px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; padding:8px; background:#f8fafc; margin-bottom:12px;"></div>
+            <!-- 🟢 Clean Responsive Multi-Column Grid (Desktop: 2-3 cols, Mobile: 1 col) -->
+            <div id="custom-cols-checkbox-container" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:8px; max-height:220px; overflow-y:auto; border:1.5px solid #cbd5e1; border-radius:8px; padding:10px; background:#ffffff; margin-bottom:14px; font-family:'Inter', -apple-system, sans-serif !important;"></div>
 
             <div style="display:flex; justify-content:flex-end; margin-bottom:14px;">
               <button type="button" onclick="downloadCustomBulkTemplateExcel()" style="padding:7px 14px; background:#0284c7; color:white; border:none; border-radius:6px; font-weight:700; font-size:11.5px; cursor:pointer; display:flex; align-items:center; gap:6px;">
@@ -2552,6 +2553,11 @@ body.dark-mode .view-tab-btn.active-view-tab {
             
             <button onclick="processPendencyExcelUpload()" style="width:100%; margin-bottom:8px; padding:12px; background:linear-gradient(135deg, #10b981, #047857); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:800; font-size:13px; box-shadow:0 2px 6px rgba(16,185,129,0.25);">
               <i class="fa-solid fa-bolt"></i> Auto Process & Generate Categorized Excel
+            </button>
+
+            <!-- 🟢 Download Template Button -->
+            <button type="button" onclick="downloadPendencyTemplateExcel()" style="width:100%; margin-bottom:8px; padding:9px; background:#0284c7; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px; display:flex; align-items:center; justify-content:center; gap:6px;">
+              <i class="fa-solid fa-download"></i> Download Template (.xlsx)
             </button>
             
             <div id="pendency-status-msg" style="margin-top:12px; font-size:12.5px; font-weight:bold; min-height:20px;"></div>
@@ -2699,29 +2705,27 @@ body.dark-mode .view-tab-btn.active-view-tab {
         if (colWidths.length > 0) colWidths[0] = { wch: 8 };
         ws['!cols'] = colWidths;
 
-        for (var R = range.s.r; R <= range.e.r; ++R) {
+        // 🟢 केवल हेडर (R === 0) को स्टाइल करें ताकि 50,000+ पंक्तियों में ब्राउज़र क्रैश न हो
+        for (var C = range.s.c; C <= range.e.c; ++C) {
+          var hAddr = XLSX.utils.encode_cell({ r: 0, c: C });
+          if (ws[hAddr]) {
+            ws[hAddr].t = 's';
+            ws[hAddr].z = '@';
+            ws[hAddr].s = {
+              fill: { fgColor: { rgb: headBg } },
+              font: { name: "Segoe UI", sz: 9.5, bold: true, color: { rgb: "FFFFFF" } },
+              alignment: { horizontal: "center", vertical: "center", wrapText: true }
+            };
+          }
+        }
+
+        // डेटा सेल्स को टेक्स्ट फॉर्मेट (@) में रखें (अकाउंट के शून्य सुरक्षित रखने हेतु)
+        for (var R = 1; R <= range.e.r; ++R) {
           for (var C = range.s.c; C <= range.e.c; ++C) {
-            var addr = XLSX.utils.encode_cell({ r: R, c: C });
-            if (!ws[addr]) continue;
-            ws[addr].t = 's';
-            ws[addr].z = '@';
-            if (R === 0) {
-              ws[addr].s = {
-                fill: { fgColor: { rgb: headBg } },
-                font: { name: "Segoe UI", sz: 9.5, bold: true, color: { rgb: "FFFFFF" } },
-                alignment: { horizontal: "center", vertical: "center", wrapText: true }
-              };
-            } else {
-              ws[addr].s = {
-                font: { name: "Segoe UI", sz: 8.5 },
-                alignment: { horizontal: (C === 4 || C === 5 || C === 6 ? "left" : "center"), vertical: "center" },
-                border: {
-                  top: { style: "thin", color: { rgb: "E0E0E0" } },
-                  bottom: { style: "thin", color: { rgb: "E0E0E0" } },
-                  left: { style: "thin", color: { rgb: "E0E0E0" } },
-                  right: { style: "thin", color: { rgb: "E0E0E0" } }
-                }
-              };
+            var dAddr = XLSX.utils.encode_cell({ r: R, c: C });
+            if (ws[dAddr]) {
+              ws[dAddr].t = 's';
+              ws[dAddr].z = '@';
             }
           }
         }
@@ -2771,24 +2775,31 @@ body.dark-mode .view-tab-btn.active-view-tab {
       }
 
       var cleanAddressGlobal = function(a) {
-        if (!a || ["-", "NAN", "NULL"].includes(String(a).toUpperCase())) return "-";
-        var raw = String(a);
+        if (!a || ["-", "NAN", "NULL", "BLANK"].includes(String(a).toUpperCase().trim())) return "-";
+        var s = String(a);
 
-        // 1. शहर और राज्य का नाम हटाना
-        var s = raw.replace(/MAINPURI|205001|\bU\.?P\.?\b|UTTAR\s+PRADESH/gi, '')
-                   .replace(/,\s*,/g, ',')
-                   .replace(/\s+/g, ' ')
-                   .trim();
+        // 1. बार-बार दोहराए जाने वाले शहर, ज़िले और पिनकोड को पूरी तरह हटाना
+        s = s.replace(/(?:DIST\s+)?MAINPURI/gi, '')
+             .replace(/205001/g, '')
+             .replace(/\bU\.?P\.?\b|UTTAR\s+PRADESH/gi, '')
+             .replace(/\bUP\s+IND\b/gi, '')
+             .replace(/\bINDIA\b/gi, '');
 
-        // 2. अधूरे "IND" / "IND AREA" को सही "Ind. Area" में बदलना
+        // 2. अधूरे "IND" को सही स्वरूप देना या हटाना
         s = s.replace(/\bIND[\.\s]*AREA\b/gi, 'Ind. Area')
-             .replace(/\bIND\b\.?/gi, 'Ind. Area');
+             .replace(/\bIND\b\.?/gi, '');
 
-        // 3. शुरुआत या अंत के फालतू कॉमा और डैश हटाना
-        s = s.replace(/^[\s,\-]+|[\s,\-]+$/g, '').trim();
+        // 3. लगातार लगे कॉमा, हाइफ़न और अतिरिक्त स्पेस साफ़ करना
+        s = s.replace(/,\s*,/g, ', ')
+             .replace(/[\s,\-]+$/g, '')
+             .replace(/^[\s,\-]+/g, '')
+             .replace(/\s+/g, ' ')
+             .trim();
 
-        // अगर केवल "Ind. Area" बचा हो या खाली हो
-        if (!s || s.toUpperCase() === "IND. AREA") return s ? "Ind. Area" : "-";
+        // 4. एक ही शब्द के लगातार दोहराव को हटाना (जैसे Khasra No... Khata No...)
+        s = s.replace(/\b(\w+)(?:\s+\1\b)+/gi, '$1');
+
+        if (!s || s === "-" || s.toUpperCase() === "IND. AREA") return s || "-";
 
         return toProperCase(s);
       };
@@ -3089,11 +3100,24 @@ body.dark-mode .view-tab-btn.active-view-tab {
               srcBadge.style.color = "#ffffff";
             }
 
+            // 🟢 पुराना समरी कैश खाली करके ऑटोमैटिक सभी समरी को नए डेटा से अपडेट करें
+            reportSummaryCache = {};
+
+            if (typeof calculateAnalyticsKPICards === "function") {
+              calculateAnalyticsKPICards();
+            }
+
             if(activeReportMeta) {
               var currentId = activeReportMeta.id;
               var updatedMeta = cachedReportsConfig.find(function(r){ return r.id === currentId; });
               if(updatedMeta) activeReportMeta = updatedMeta;
               processClientFilterQuery();
+            } else {
+              // यदि एनालिटिक्स व्यू खुला हो तो तुरंत कार्ड्स और स्कोरकार्ड री-रेंडर करें
+              var analyticsZone = document.getElementById('analytics-view-zone');
+              if (analyticsZone && analyticsZone.style.display !== 'none') {
+                if (typeof triggerPostFilterUpdates === "function") triggerPostFilterUpdates();
+              }
             }
 
             if(bar) bar.className = "sync-status-bar success";
@@ -3114,8 +3138,8 @@ body.dark-mode .view-tab-btn.active-view-tab {
         {
           id: "rpt_main_pole_revisit",
           name: "Main and Pole Exception (For Revisit)",
-          conditions: "CUSTOM_REVISIT_LOGIC",
-          columns: "CUSTOM_MATRIX_VIEW"
+          conditions: "",
+          columns: "ACCOUNT_NO, FROM_DATE, TO_DATE, USER_CODE, REASON, CONSUMER NAME, ADDRESS, LAST MONTH METER NUMBER, LAST MONTH METER MAKE, FINAL VISITED METER NUMBER, FINAL VISITED METER MAKE, EXCEPTION TYPE, SITE REMARK, CONSUMER TYPE, MR NAME"
         },
         {
           id: "rpt_master_unbilled",
@@ -3345,14 +3369,8 @@ body.dark-mode .view-tab-btn.active-view-tab {
               loadMrMismatchLiveReport(rpt, this, border);
             } else if (rpt.id === "rpt_independent_consumers") {
               downloadIndependentConsumersDirectExcel(rpt, this, border);
-            } else if (codeBuiltinReports.some(function(b){ return b.id === rpt.id; }) && 
-                       rpt.id !== "rpt_master_unbilled" && 
-                       rpt.id !== "rpt_dept_master_data") {
-              // 🟢 Pre Feeded Reports को सीधे कार्ड + टेबल लेआउट में खोलें
-              document.querySelectorAll('.report-link').forEach(function(b) { b.classList.remove('active'); });
-              this.classList.add('active');
-              loadPrefeedReportInCardLayout(rpt);
             } else {
+              // 🟢 सब-टैब्स को बायपास करके स्वतंत्र रिपोर्ट व्यू में खोलें
               selectReport(rpt, this, border);
             }
           };
@@ -3514,17 +3532,7 @@ body.dark-mode .view-tab-btn.active-view-tab {
           bulkBtn.style.display = isMismatchReport ? "inline-flex" : "none";
         }
 
-        // 🟢 अगर Pre Feeded Report चुनी गई है तो उसे इमेज 2 वाले लेआउट में स्विच करें
-        var isPrefeed = codeBuiltinReports.some(function(b){ return b.id === rpt.id; }) && 
-                        rpt.id !== "rpt_master_unbilled" && 
-                        rpt.id !== "rpt_dept_master_data" && 
-                        rpt.id !== "rpt_independent_consumers";
-
-        if (isPrefeed) {
-          loadPrefeedReportInCardLayout(rpt);
-          return;
-        }
-
+        // 🟢 प्री-फीडेड रिपोर्ट सीधे अपनी स्वतंत्र टेबल में प्रोसेस होगी
         processClientFilterQuery();
       }
 
@@ -3635,6 +3643,152 @@ body.dark-mode .view-tab-btn.active-view-tab {
         var searchInputEl = document.getElementById('live-search-input');
         var searchQuery = searchInputEl ? searchInputEl.value.trim().toUpperCase() : "";
 
+        // 🟢 पहली रिपोर्ट: Main and Pole Exception (For Revisit) का कस्टम 2-पास जनरेटर
+        if (activeReportMeta && activeReportMeta.id === "rpt_main_pole_revisit") {
+          var monthsShort = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+          var todayDt = new Date();
+          var fromDay = String(todayDt.getDate()).padStart(2, '0');
+          var fromMonth = monthsShort[todayDt.getMonth()];
+          var fromYear = todayDt.getFullYear();
+          var fromDateStr = fromDay + "-" + fromMonth + "-" + fromYear;
+
+          // उसी माह की अंतिम तारीख (Month End)
+          var lastDateObj = new Date(todayDt.getFullYear(), todayDt.getMonth() + 1, 0);
+          var toDay = String(lastDateObj.getDate()).padStart(2, '0');
+          var toMonth = monthsShort[lastDateObj.getMonth()];
+          var toYear = lastDateObj.getFullYear();
+          var toDateStr = toDay + "-" + toMonth + "-" + toYear;
+
+          function isTrueCheck(v) {
+            var s = String(v || "").trim().toUpperCase();
+            return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+          }
+
+          function cleanAccTenDigits(acc) {
+            var clean = String(acc || "").trim().replace(/_P$/i, '').replace(/\.0$/, '');
+            var digits = clean.replace(/[^0-9]/g, '');
+            return (digits.length > 0 && digits.length < 10) ? ("0000000000" + digits).slice(-10) : clean;
+          }
+
+          function getRevisitReason(siteRemark) {
+            var s = String(siteRemark || "").trim().toUpperCase();
+            if (s.includes("MRI DONE") || s.includes("CMRI DONE") || s.includes("OK APP") || s.includes("OK (APP") || s.includes("OK(APP")) {
+              return "RevisiT For MRI";
+            }
+            return "RevisiT For Non MRI To MRI";
+          }
+
+          var revisitRowsList = [];
+          var dbLen = cachedDatabase.length;
+
+          for (var rIdx = 0; rIdx < dbLen; rIdx++) {
+            var rawRow = cachedDatabase[rIdx];
+            if (!rawRow) continue;
+            var u = rawRow._uMap || rawRow || {};
+
+            if (searchQuery !== "" && rawRow._searchBlob && !rawRow._searchBlob.includes(searchQuery)) continue;
+
+            var dVal = String(u["DIVISION"] || "").toUpperCase().trim();
+            var sdVal = String(u["SUB DIVISION NAME"] || u["SUB DIVISION"] || u["SUBDIVISION"] || "").toUpperCase().trim();
+            var ctVal = String(u["CONSUMER TYPE"] || "").toUpperCase().trim();
+            var mrVal = String(u["VISIT LAST MONTH"] || u["MR NAME"] || "").toUpperCase().trim();
+            var catVal = String(u["CONSUMER CATOGARY"] || u["CONSUMER CATEGORY"] || u["TARIFF"] || "").toUpperCase().trim();
+            var grpVal = String(u["LOAD GROUP (5-10-50)"] || u["LOAD GROUP"] || "").toUpperCase().replace(/\s+/g, '');
+
+            if (selectedDivisions.length > 0 && !selectedDivisions.includes(dVal)) continue;
+            if (selectedSubDivisions.length > 0 && !selectedSubDivisions.includes(sdVal)) continue;
+            if (selectedConsumerTypes.length > 0 && !selectedConsumerTypes.includes(ctVal)) continue;
+            if (selectedTypes.length > 0 && !selectedTypes.includes(catVal)) continue;
+            if (selectedReaders.length > 0 && !selectedReaders.includes(mrVal)) continue;
+            if (selectedGroups.length > 0 && !selectedGroups.some(function(g){ return grpVal.includes(g.replace(/\s+/g, '').toUpperCase()); })) continue;
+
+            var rawAcc = cleanAccTenDigits(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "");
+            if (!rawAcc) continue;
+
+            var cName = String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "-").trim();
+            var cAddress = (typeof cleanAddressGlobal === "function") ? cleanAddressGlobal(u["ADDRESS"] || u["COMPLETE ADRESS"] || "-") : String(u["ADDRESS"] || "-").trim();
+            var userCode = String(u["MR LOGIN (UGO)"] || u["MR LOGIN"] || u["LOGIN ID"] || u["MR EMP CODE"] || "-").trim();
+            var loadKw = parseFloat(String(u["LOAD IN KW"] || u["LOAD_KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
+            var displayMr = String(u["VISIT LAST MONTH"] || u["MR NAME"] || "-").trim();
+
+            var mEx = String(u["EXCEPTION TYPE (MAIN METER)"] || u["EXCEPTION TYPE"] || "").toUpperCase().trim();
+            var mRem = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "").trim();
+            var isMriM = isTrueCheck(u["IS MRI AVAILABLE (MAIN METER)"] || u["IS MRI AVAILABLE"]);
+
+            var pEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
+            var pRem = String(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "").trim();
+            var isMriP = isTrueCheck(u["IS MRI AVAILABLE (POLE METER)"]);
+
+            // 1. Pass 1: Main Meter Exception
+            if (mEx !== "" && mEx !== "NAN" && mEx !== "VISIT PENDING" && !isMriM && !mRem.toUpperCase().includes("MRD CORRPUT") && !mRem.toUpperCase().includes("MRD CORRUPT")) {
+              revisitRowsList.push({
+                "ACCOUNT_NO": rawAcc,
+                "FROM_DATE": fromDateStr,
+                "TO_DATE": toDateStr,
+                "USER_CODE": userCode,
+                "REASON": getRevisitReason(mRem),
+                "CONSUMER NAME": cName,
+                "ADDRESS": cAddress,
+                "LAST MONTH METER NUMBER": String(u["LAST MONTH FINAL MM NO."] || "-").trim(),
+                "LAST MONTH METER MAKE": String(u["LAST MONTH FINAL MM MAKE"] || "-").trim(),
+                "FINAL VISITED METER NUMBER": String(u["FINAL VISITED MAIN METER NUMBER"] || "-").trim(),
+                "FINAL VISITED METER MAKE": String(u["FINAL VISITED MAIN METER MAKE"] || "-").trim(),
+                "EXCEPTION TYPE": mEx || "-",
+                "SITE REMARK": mRem || "-",
+                "CONSUMER TYPE": "MAIN METER",
+                "MR NAME": displayMr,
+                _meterScope: "MAIN",
+                _uMap: u
+              });
+            }
+
+            // 2. Pass 2: Pole Meter Exception (>= 10 KW) -> Account ID ke aage _P
+            if (loadKw >= 10 && pEx !== "" && pEx !== "NAN" && pEx !== "VISIT PENDING" && !isMriP && !pRem.toUpperCase().includes("MRD CORRPUT") && !pRem.toUpperCase().includes("MRD CORRUPT")) {
+              revisitRowsList.push({
+                "ACCOUNT_NO": rawAcc + "_P",
+                "FROM_DATE": fromDateStr,
+                "TO_DATE": toDateStr,
+                "USER_CODE": userCode,
+                "REASON": getRevisitReason(pRem),
+                "CONSUMER NAME": cName,
+                "ADDRESS": cAddress,
+                "LAST MONTH METER NUMBER": String(u["LAST MONTH FINAL PM NO."] || "-").trim(),
+                "LAST MONTH METER MAKE": String(u["LAST MONTH FINAL PM MAKE"] || "-").trim(),
+                "FINAL VISITED METER NUMBER": String(u["FINAL VISITED POLE METER NO."] || "-").trim(),
+                "FINAL VISITED METER MAKE": String(u["FINAL VISITED POLE METER MAKE"] || "-").trim(),
+                "EXCEPTION TYPE": pEx || "-",
+                "SITE REMARK": pRem || "-",
+                "CONSUMER TYPE": "POLE METER",
+                "MR NAME": displayMr,
+                _meterScope: "POLE",
+                _uMap: u
+              });
+            }
+          }
+
+          clientRenderedRows = revisitRowsList;
+          window.activeRevisitFullDataset = revisitRowsList;
+
+          if (document.getElementById('table-loader')) document.getElementById('table-loader').style.display = 'none';
+          var counterBadge = document.getElementById('report-live-counter');
+          if (counterBadge) {
+            counterBadge.innerText = "Total: " + clientRenderedRows.length;
+            counterBadge.style.background = "#1a73e8";
+          }
+
+          var revisitCols = [
+            "ACCOUNT_NO", "FROM_DATE", "TO_DATE", "USER_CODE", "REASON", 
+            "CONSUMER NAME", "ADDRESS", "LAST MONTH METER NUMBER", "LAST MONTH METER MAKE", 
+            "FINAL VISITED METER NUMBER", "FINAL VISITED METER MAKE", "EXCEPTION TYPE", "SITE REMARK", 
+            "CONSUMER TYPE", "MR NAME"
+          ];
+
+          buildUniversalSubSheetTabs();
+          document.getElementById('table-zone').style.display = 'flex';
+          renderClientTable(revisitCols);
+          return;
+        }
+
         var len = cachedDatabase.length;
         for (var r = 0; r < len; r++) {
           var row = cachedDatabase[r];
@@ -3732,15 +3886,46 @@ body.dark-mode .view-tab-btn.active-view-tab {
             if (!isMatch) break;
           }
 
-          // 🟢 MAIN AND POLE EXCEPTION (FOR REVISIT) GENERATION LOGIC
+          // 🟢 MAIN AND POLE EXCEPTION (FOR REVISIT) LOGIC
           if (activeReportMeta && activeReportMeta.id === "rpt_main_pole_revisit") {
-            continue; // Is report ka data niche customized two-pass scan se banega
+            function isTrueVal(v) {
+              var s = String(v || "").trim().toUpperCase();
+              return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+            }
+
+            var loadKwVal = parseFloat(String(upperRowMap["LOAD IN KW"] || upperRowMap["LOAD_KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
+            var mExVal = String(upperRowMap["EXCEPTION TYPE (MAIN METER)"] || upperRowMap["EXCEPTION TYPE"] || "").toUpperCase().trim();
+            var mRemVal = String(upperRowMap["FINAL_MAIN_METER_SITE_REMARK"] || upperRowMap["SITE REMARK"] || "").toUpperCase().trim();
+            var isMriMVal = isTrueVal(upperRowMap["IS MRI AVAILABLE (MAIN METER)"] || upperRowMap["IS MRI AVAILABLE"]);
+
+            var pExVal = String(upperRowMap["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
+            var pRemVal = String(upperRowMap["FINAL_POLE_METER_SITE_REMARK"] || upperRowMap["SITE REMARK (POLE)"] || "").toUpperCase().trim();
+            var isMriPVal = isTrueVal(upperRowMap["IS MRI AVAILABLE (POLE METER)"]);
+
+            var isMainEx = (mExVal !== "" && mExVal !== "NAN" && mExVal !== "VISIT PENDING" && !isMriMVal && !mRemVal.includes("MRD CORRPUT") && !mRemVal.includes("MRD CORRUPT"));
+            var isPoleEx = (loadKwVal >= 10 && pExVal !== "" && pExVal !== "NAN" && pExVal !== "VISIT PENDING" && !isMriPVal && !pRemVal.includes("MRD CORRPUT") && !pRemVal.includes("MRD CORRUPT"));
+
+            if (!isMainEx && !isPoleEx) {
+              continue;
+            }
+          } else {
+            if (!isMatch) continue;
           }
 
-          if (!isMatch) continue;
-
-          // 🟢 Unbilled Master Report: Visit Pending बाहर + फ़ील्ड/साइट मीटर मैपिंग और मिसमैच चेक
+          // 🟢 Unbilled Master Report: केवल UNBILLED और Non-Visit-Pending रिकॉर्ड्स
           if (activeReportMeta && (activeReportMeta.id === "rpt_master_unbilled" || activeReportMeta.name.toLowerCase().includes("unbilled master"))) {
+            var rawBillStat = String(
+              upperRowMap["FINAL BILLING TAG"] || 
+              upperRowMap["BILLING STATUS"] || 
+              upperRowMap["BILLING  STATUS"] || 
+              ""
+            ).toUpperCase().trim();
+
+            // अगर Billed है तो Unbilled Master में नहीं आएगा
+            if (rawBillStat.includes("BILLED") && !rawBillStat.includes("UNBILLED")) {
+              continue;
+            }
+
             var rawEx = String(
               upperRowMap["EXCEPTION TYPE (MAIN METER)"] || 
               upperRowMap["EXCEPTION TYPE"] || 
@@ -5124,9 +5309,9 @@ body.dark-mode .view-tab-btn.active-view-tab {
             
             <!-- Main Meter Box -->
             <div style="background:#eff6ff; border-radius:8px; border:1.5px solid #bfdbfe; padding:12px 14px;">
-              <div style="font-size:12px; font-weight:800; color:#1d4ed8; border-bottom:1.5px solid #93c5fd; padding-bottom:4px; margin-bottom:8px; display:flex; justify-content:space-between;">
+              <div style="font-size:12px; font-weight:800; color:#1d4ed8; border-bottom:1.5px solid #93c5fd; padding-bottom:4px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
                 <span><i class="fa-solid fa-gauge me-1"></i> MAIN METER STATUS</span>
-                <span class="badge ${getV(["IS MRI AVAILABLE (MAIN METER)"]).toUpperCase() === 'TRUE' ? 'bg-success' : 'bg-danger'}">MRI: ${getV(["IS MRI AVAILABLE (MAIN METER)"])}</span>
+                <span class="badge ${getV(["IS MRI AVAILABLE (MAIN METER)"]).toUpperCase() === 'TRUE' ? 'bg-success' : 'bg-danger'}" style="padding: 3px 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; line-height: 1.2;">MRI: ${getV(["IS MRI AVAILABLE (MAIN METER)"])}</span>
               </div>
               <div style="display:flex; flex-direction:column; gap:5px; font-size:11.5px;">
                 <div><span class="detail-label" style="width:130px;">Billed Meter No:</span> <span class="detail-value">${getV(["BILLED METER NUMBER", "MASTER METER NUMBER"])}</span></div>
@@ -5147,9 +5332,9 @@ body.dark-mode .view-tab-btn.active-view-tab {
 
             <!-- Pole Meter Box With RDG Readings Mapping -->
             <div style="background:#f0fdf4; border-radius:8px; border:1.5px solid #bbf7d0; padding:12px 14px;">
-              <div style="font-size:12px; font-weight:800; color:#047857; border-bottom:1.5px solid #86efac; padding-bottom:4px; margin-bottom:8px; display:flex; justify-content:space-between;">
+              <div style="font-size:12px; font-weight:800; color:#047857; border-bottom:1.5px solid #86efac; padding-bottom:4px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
                 <span><i class="fa-solid fa-tower-cell me-1"></i> POLE METER STATUS & RDG READINGS</span>
-                <span class="badge ${getV(["IS MRI AVAILABLE (POLE METER)"]).toUpperCase() === 'TRUE' ? 'bg-success' : 'bg-secondary'}">MRI: ${getV(["IS MRI AVAILABLE (POLE METER)"])}</span>
+                <span class="badge ${getV(["IS MRI AVAILABLE (POLE METER)"]).toUpperCase() === 'TRUE' ? 'bg-success' : 'bg-secondary'}" style="padding: 3px 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; line-height: 1.2;">MRI: ${getV(["IS MRI AVAILABLE (POLE METER)"])}</span>
               </div>
               <div style="display:flex; flex-direction:column; gap:5px; font-size:11.5px;">
                 <div><span class="detail-label" style="width:130px;">LM Pole Meter No:</span> <span class="detail-value font-monospace">${getV(["LAST MONTH FINAL PM NO."])}</span></div>
@@ -5182,9 +5367,35 @@ body.dark-mode .view-tab-btn.active-view-tab {
               <div><span class="detail-label">Bill Basis:</span> <span class="detail-value font-monospace">${getV(["BILL_BASE", "BILLBASE", "BILL_BASIS"])}</span></div>
               <div><span class="detail-label">Assigned MR Name:</span> <span class="detail-value">${toProp(getV(["MR NAME", "VISIT LAST MONTH"]))}</span></div>
               <div>
-  <span class="detail-label">Assigned MR Mobile:</span> 
-  <span class="detail-value font-monospace text-primary" style="font-weight:700;">' + getV(["MR MOBILE NO.", "MR MOBILE NUMBER", "MR MOBILE", "MASTER MOBILE NUMBER"]) + '</span>
-</div>
+                <span class="detail-label">Assigned MR Mobile:</span> 
+                <span class="detail-value font-monospace text-primary" style="font-weight:700;">${getV(["MR MOBILE NO.", "MR MOBILE NUMBER", "MR MOBILE", "MASTER MOBILE NUMBER"])}</span>
+              </div>
+              <div style="grid-column: 1 / -1; margin-top: 4px; padding-top: 6px; border-top: 1px dashed #cbd5e1; display: flex; align-items: center; gap: 8px;">
+                <span class="detail-label" style="color: #dc2626; font-weight: 800; white-space: nowrap;">Unbilled Failure Message:</span> 
+                <span class="detail-value" style="font-weight: 800; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; padding: 3px 10px; border-radius: 4px; display: inline-block;">
+                  ${(function() {
+                    var rejMsg = getV(["FINAL REJECTION", "FAILURE MESSAGE", "EXPORT FAILURE MESSAGE"]);
+                    if (rejMsg && rejMsg !== "-" && !rejMsg.toUpperCase().includes("NO REJECTION")) return rejMsg;
+                    
+                    var reasons = [];
+                    var mRem = String(getV(["FINAL_MAIN_METER_SITE_REMARK", "SITE REMARK"])).toUpperCase();
+                    if (mRem.includes("RTC DEFECTIVE")) reasons.push("Meter RTC Defective");
+                    
+                    var fMtr = String(getV(["FIELD METER NUMBER"])).replace(/[^A-Z0-9]/gi, "");
+                    var vMtr = String(getV(["LAST MONTH FINAL MM NO."])).replace(/[^A-Z0-9]/gi, "");
+                    if (fMtr && vMtr && fMtr !== vMtr) reasons.push("Meter Number Mismatch (" + fMtr + " != " + vMtr + ")");
+                    
+                    var fMk = String(getV(["FIELD METER MAKE"])).replace(/[^A-Z0-9]/gi, "");
+                    var vMk = String(getV(["LAST MONTH FINAL MM MAKE"])).replace(/[^A-Z0-9]/gi, "");
+                    if (fMk && vMk && fMk !== vMk) reasons.push("Meter Make Mismatch (" + fMk + " != " + vMk + ")");
+                    
+                    var expF = String(getV(["EXPORT FAILURE MESSAGE"])).trim();
+                    if (expF && expF !== "0" && expF.toUpperCase() !== "NAN") reasons.push(expF);
+                    
+                    return reasons.length > 0 ? Array.from(new Set(reasons)).join(" | ") : (rejMsg || "No Rejection / Under Process");
+                  })()}
+                </span>
+              </div>
             </div>
           </div>
         `;
@@ -5490,7 +5701,7 @@ body.dark-mode .view-tab-btn.active-view-tab {
         curY += cardH + 8;
 
         // 5. Section 4: Billing Execution (Card 4)
-        var s4H = 50;
+        var s4H = 64; // Height adjusted to accommodate Unbilled Failure Message
         doc.setFillColor(255, 255, 255);
         doc.setDrawColor(203, 213, 225);
         doc.roundedRect(15, curY, 565, s4H, 6, 6, 'FD');
@@ -5503,7 +5714,7 @@ body.dark-mode .view-tab-btn.active-view-tab {
         doc.setLineWidth(1.2);
         doc.line(25, curY + 17, 565, curY + 17);
 
-        var rB1 = curY + 28, rB2 = curY + 40;
+        var rB1 = curY + 28, rB2 = curY + 40, rB3 = curY + 53;
         
         doc.setFontSize(7.2);
         doc.setFont("helvetica", "normal");
@@ -5521,6 +5732,38 @@ body.dark-mode .view-tab-btn.active-view-tab {
         drawRowItem("Bill Basis:", getV(["BILL_BASE", "BILLBASE", "BILL_BASIS"]), 410, rB1, "black");
         drawRowItem("Assigned MR Name:", toProp(getV(["MR NAME", "VISIT LAST MONTH"])), 25, rB2, "black");
         drawRowItem("Assigned MR Mobile:", getV(["MR MOBILE NO.", "MR MOBILE NUMBER", "MR MOBILE", "MASTER MOBILE NUMBER"]), 205, rB2, "blue");
+
+        // Dynamic Unbilled Failure Message evaluation
+        var dynRejMsg = (function() {
+          var rejMsg = getV(["FINAL REJECTION", "FAILURE MESSAGE", "EXPORT FAILURE MESSAGE"]);
+          if (rejMsg && rejMsg !== "-" && !rejMsg.toUpperCase().includes("NO REJECTION")) return rejMsg;
+          
+          var reasons = [];
+          var mRem = String(getV(["FINAL_MAIN_METER_SITE_REMARK", "SITE REMARK"])).toUpperCase();
+          if (mRem.includes("RTC DEFECTIVE")) reasons.push("Meter RTC Defective");
+          
+          var fMtr = String(getV(["FIELD METER NUMBER"])).replace(/[^A-Z0-9]/gi, "");
+          var vMtr = String(getV(["LAST MONTH FINAL MM NO."])).replace(/[^A-Z0-9]/gi, "");
+          if (fMtr && vMtr && fMtr !== vMtr) reasons.push("Meter Number Mismatch (" + fMtr + " != " + vMtr + ")");
+          
+          var fMk = String(getV(["FIELD METER MAKE"])).replace(/[^A-Z0-9]/gi, "");
+          var vMk = String(getV(["LAST MONTH FINAL MM MAKE"])).replace(/[^A-Z0-9]/gi, "");
+          if (fMk && vMk && fMk !== vMk) reasons.push("Meter Make Mismatch (" + fMk + " != " + vMk + ")");
+          
+          var expF = String(getV(["EXPORT FAILURE MESSAGE"])).trim();
+          if (expF && expF !== "0" && expF.toUpperCase() !== "NAN") reasons.push(expF);
+          
+          return reasons.length > 0 ? Array.from(new Set(reasons)).join(" | ") : (rejMsg || "No Rejection / Under Process");
+        })();
+
+        doc.setFontSize(7.2);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(220, 38, 38);
+        doc.text("Unbilled Failure Message:", 25, rB3);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(185, 28, 28);
+        var splitRej = doc.splitTextToSize(dynRejMsg, 430);
+        doc.text(splitRej, 130, rB3);
 
         // 6. Footer Note
         doc.setFontSize(7);
@@ -6155,41 +6398,41 @@ function renderDivisionPerformanceChart(dataset) {
 
     function makeCell(code, val, extraStyle) {
       var activeDivKey = (selectedDivisions && selectedDivisions.length === 1) ? selectedDivisions[0] : "EDC";
-      return '<td class="copyable-cell" style="cursor:pointer; padding:5px 3px; ' + (extraStyle || "") + '" onclick="openScorecardDetailDrilldown(\'' + code + '\', \'' + activeDivKey + '\', \'' + cType + '\', \'' + grpCode + '\')">' + val + '</td>';
+      return '<td class="copyable-cell" style="cursor:pointer; padding:9px 5px; font-size:12.5px; border:1px solid #cbd5e1; ' + (extraStyle || "") + '" onclick="openScorecardDetailDrilldown(\'' + code + '\', \'' + activeDivKey + '\', \'' + cType + '\', \'' + grpCode + '\')">' + val + '</td>';
     }
 
-    var rowHtml = '<tr style="' + rowStyle + '">';
+    var rowHtml = '<tr style="' + rowStyle + ' font-size:12.5px;">';
     if (isFirstRowOfScope) {
-      rowHtml += '<td rowspan="' + totalRowsInScope + '" style="vertical-align:middle; font-weight:800; background:#f8fafc; border:1px solid #cbd5e1; font-size:11px; color:#1a73e8; line-height:1.4;">' + scopeTitle + '</td>';
+      rowHtml += '<td rowspan="' + totalRowsInScope + '" style="vertical-align:middle; font-weight:800; background:#f8fafc; border:1.5px solid #94a3b8; font-size:13px; color:#1a73e8; line-height:1.5; padding:10px 6px;">' + scopeTitle + '</td>';
     }
     if (isFirstRowOfType) {
-      rowHtml += '<td rowspan="5" style="vertical-align:middle; font-weight:800; background:#f1f5f9; border:1px solid #cbd5e1;">' + cType + '</td>';
+      rowHtml += '<td rowspan="5" style="vertical-align:middle; font-weight:800; background:#f1f5f9; border:1.5px solid #94a3b8; font-size:12.5px; padding:8px 4px;">' + cType + '</td>';
     }
 
-    rowHtml += '<td style="font-weight:700; text-align:left; padding-left:8px; border:1px solid #cbd5e1;">' + grpTitle + '</td>';
-    rowHtml += makeCell("TOTAL", b.total, "font-weight:800;");
-    rowHtml += makeCell("NOT_BILLABLE", b.notBillable, "color:#991b1b;");
-    rowHtml += makeCell("BILLABLE", b.billable, "color:#1e40af; font-weight:800;");
-    rowHtml += makeCell("ATTEND", b.attend, "font-weight:700;");
-    rowHtml += '<td style="font-weight:700;">' + attendPct + '</td>';
-    rowHtml += makeCell("MAIN_MRI_DONE", b.mriDone, "color:#15803d; font-weight:800;");
-    rowHtml += '<td style="font-weight:700;">' + mriPct + '</td>';
-    rowHtml += makeCell("MAIN_SURVEY", b.loadSurvey, "color:#0284c7; font-weight:700;");
-    rowHtml += '<td style="font-weight:700;">' + surveyPct + '</td>';
-    rowHtml += makeCell("MAIN_EXCEPTION", b.exception, "color:#ea580c;");
-    rowHtml += makeCell("MAIN_PENDING", b.visitPending, "color:#dc2626; font-weight:700;");
-    rowHtml += makeCell("UPTO_BILLED", b.upToBilled, "color:#16a34a; font-weight:800;");
-    rowHtml += '<td style="font-weight:700;">' + billedPct + '</td>';
-    rowHtml += makeCell("UNBILLED", b.unbilled, "color:#dc2626; font-weight:800;");
-    rowHtml += makeCell("DIST_PENDING", b.billDistPending, "");
-    rowHtml += makeCell("POLE_FOR_VISIT", b.poleForVisit, "");
-    rowHtml += makeCell("POLE_INSTALLED", b.poleInstalled, "color:#0e7490; font-weight:700;");
-    rowHtml += makeCell("POLE_MRI_DONE", b.poleMriDone, "color:#15803d; font-weight:700;");
-    rowHtml += '<td style="font-weight:700;">' + pMriPct + '</td>';
-    rowHtml += makeCell("POLE_SURVEY", b.poleLoadSurvey, "color:#0284c7;");
-    rowHtml += '<td style="font-weight:700;">' + pSurveyPct + '</td>';
-    rowHtml += makeCell("POLE_EXCEPTION", b.poleException, "");
-    rowHtml += makeCell("POLE_NOT_INST", b.poleNotInstalled, "color:#dc2626;");
+    rowHtml += '<td style="font-weight:800; text-align:left; padding:9px 10px; font-size:12px; border:1px solid #cbd5e1;">' + grpTitle + '</td>';
+    rowHtml += makeCell("TOTAL", b.total, "font-weight:900; background:rgba(0,0,0,0.02);");
+    rowHtml += makeCell("NOT_BILLABLE", b.notBillable, "color:#991b1b; font-weight:800;");
+    rowHtml += makeCell("BILLABLE", b.billable, "color:#1e40af; font-weight:900;");
+    rowHtml += makeCell("ATTEND", b.attend, "font-weight:800;");
+    rowHtml += '<td style="padding:9px 4px; font-weight:800; font-size:12px; border:1px solid #cbd5e1;">' + attendPct + '</td>';
+    rowHtml += makeCell("MAIN_MRI_DONE", b.mriDone, "color:#15803d; font-weight:900;");
+    rowHtml += '<td style="padding:9px 4px; font-weight:800; font-size:12px; border:1px solid #cbd5e1;">' + mriPct + '</td>';
+    rowHtml += makeCell("MAIN_SURVEY", b.loadSurvey, "color:#0284c7; font-weight:800;");
+    rowHtml += '<td style="padding:9px 4px; font-weight:800; font-size:12px; border:1px solid #cbd5e1;">' + surveyPct + '</td>';
+    rowHtml += makeCell("MAIN_EXCEPTION", b.exception, "color:#ea580c; font-weight:700;");
+    rowHtml += makeCell("MAIN_PENDING", b.visitPending, "color:#dc2626; font-weight:800;");
+    rowHtml += makeCell("UPTO_BILLED", b.upToBilled, "color:#16a34a; font-weight:900;");
+    rowHtml += '<td style="padding:9px 4px; font-weight:800; font-size:12px; border:1px solid #cbd5e1;">' + billedPct + '</td>';
+    rowHtml += makeCell("UNBILLED", b.unbilled, "color:#dc2626; font-weight:900; background:rgba(239,68,68,0.06);");
+    rowHtml += makeCell("DIST_PENDING", b.billDistPending, "font-weight:700;");
+    rowHtml += makeCell("POLE_FOR_VISIT", b.poleForVisit, "font-weight:700;");
+    rowHtml += makeCell("POLE_INSTALLED", b.poleInstalled, "color:#0e7490; font-weight:800;");
+    rowHtml += makeCell("POLE_MRI_DONE", b.poleMriDone, "color:#15803d; font-weight:800;");
+    rowHtml += '<td style="padding:9px 4px; font-weight:800; font-size:12px; border:1px solid #cbd5e1;">' + pMriPct + '</td>';
+    rowHtml += makeCell("POLE_SURVEY", b.poleLoadSurvey, "color:#0284c7; font-weight:700;");
+    rowHtml += '<td style="padding:9px 4px; font-weight:800; font-size:12px; border:1px solid #cbd5e1;">' + pSurveyPct + '</td>';
+    rowHtml += makeCell("POLE_EXCEPTION", b.poleException, "font-weight:700;");
+    rowHtml += makeCell("POLE_NOT_INST", b.poleNotInstalled, "color:#dc2626; font-weight:800;");
     rowHtml += '</tr>';
     return rowHtml;
   }
@@ -7441,8 +7684,22 @@ window.addEventListener('click', function(event) {
 
       var activeCurrentEditingRowObj = null;
 
-      function openRowEditDirect(rowIndexInRendered, type) {
-        var targetRowObj = clientRenderedRows[rowIndexInRendered];
+      function openRowEditDirect(accountIdentifier, type) {
+        var cleanTarget = String(accountIdentifier).trim().replace(/_P$/i, '').replace(/\.0$/, '');
+        var targetDigits = cleanTarget.replace(/[^0-9]/g, '');
+        var paddedTarget = (targetDigits.length > 0 && targetDigits.length < 10) ? ("0000000000" + targetDigits).slice(-10) : cleanTarget;
+
+        var targetRowObj = clientRenderedRows.find(function(r) {
+          var u = r._uMap || r;
+          var acc = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").trim().replace(/_P$/i, '').replace(/\.0$/, '');
+          var accDigits = acc.replace(/[^0-9]/g, '');
+          var paddedAcc = (accDigits.length > 0 && accDigits.length < 10) ? ("0000000000" + accDigits).slice(-10) : acc;
+          return paddedAcc === paddedTarget || acc === cleanTarget;
+        });
+
+        if (!targetRowObj && typeof accountIdentifier === 'number') {
+          targetRowObj = clientRenderedRows[accountIdentifier];
+        }
         if (!targetRowObj) return;
 
         activeCurrentEditingRowObj = targetRowObj;
@@ -7648,12 +7905,15 @@ window.addEventListener('click', function(event) {
         var headZone = document.getElementById('matrix-head-zone');
         var bodyZone = document.getElementById('matrix-body-zone');
 
+        // 🟢 हमेशा नया फ्रेश डेटा दिखाने के लिए कैश को तुरंत इनवैलिडेट करें
+        if (typeof reportSummaryCache !== 'undefined') {
+          reportSummaryCache = {};
+        }
+
         if(!clientRenderedRows || clientRenderedRows.length === 0 || selectedPivotRowKeys.length === 0) {
           if(bodyZone) bodyZone.innerHTML = '<tr><td colspan="15" style="color:orange; font-weight:bold; padding:20px; font-size: 14px;">कृपया समरी देखने के लिए बाएं रो फ़ील्ड सिलेक्ट करें।</td></tr>';
           return;
         }
-
-        if (typeof reportSummaryCache !== 'undefined') reportSummaryCache = {};
 
         var divisionsSet = new Set(); 
         var matrixMap = {}; 
@@ -7834,12 +8094,7 @@ window.addEventListener('click', function(event) {
         htmlBody += "</tr>";
         bodyZone.innerHTML = htmlBody;
 
-        if (!isHeaderFilterOn) {
-          reportSummaryCache[cacheKey] = {
-            head: headZone.innerHTML,
-            body: htmlBody
-          };
-        }
+        // 🟢 स्टैच्यूरी कैशिंग हटा दी गई है ताकि जब भी नया डेटा आए, काउंट रियल-टाइम दिखे
       }
 
       function forceRecalculateSummary() {
@@ -8153,7 +8408,8 @@ window.addEventListener('click', function(event) {
 
           var bHtml = '<tr class="' + tintClass + '"><td class="sticky-col" style="font-weight:bold;">' + (actualIndex + 1) + '</td>';
           if (isMismatchRpt) {
-            bHtml += '<td style="width:65px; min-width:65px; max-width:70px; text-align:center;"><button type="button" onclick="openRowEditDirect(' + actualIndex + ', &quot;' + rptType + '&quot;)" style="background:#e67e22; color:white; border:none; padding:3px 8px; border-radius:4px; font-size:10.5px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-pen-to-square"></i> Edit</button></td>';
+            var rawAccVal = String(row["ACCOUNT NO"] || row["ACCOUNT ID"] || (row._uMap ? row._uMap["ACCOUNT NO"] : "") || "").trim();
+            bHtml += '<td style="width:65px; min-width:65px; max-width:70px; text-align:center;"><button type="button" onclick="openRowEditDirect(&quot;' + escapeHtml(rawAccVal) + '&quot;, &quot;' + rptType + '&quot;)" style="background:#e67e22; color:white; border:none; padding:3px 8px; border-radius:4px; font-size:10.5px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-pen-to-square"></i> Edit</button></td>';
           }
           
           headers.forEach(function(h) {
@@ -8749,102 +9005,65 @@ window.addEventListener('click', function(event) {
       }
 
       function downloadCombinedSummaryWithListExcel() {
-        if (!clientRenderedRows || clientRenderedRows.length === 0) return;
+        if (!clientRenderedRows || clientRenderedRows.length === 0) {
+          alert("डाउनलोड करने के लिए डेटा उपलब्ध नहीं है!");
+          return;
+        }
         var rName = document.getElementById('active-report-title') ? document.getElementById('active-report-title').innerText : "Report";
 
         var today = new Date();
         var dateString = today.toLocaleDateString('en-GB').replace(/\//g, '-');
         var timeString = today.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}).replace(/:/g, '-');
 
-        // 🟢 SPECIAL HANDLER 1: DUPLICATE METER CONFLICT REPORT EXCEL
-        if (activeReportMeta && activeReportMeta.id === "rpt_duplicate_meter_conflict") {
-          var wbConflict = XLSX.utils.book_new();
-          var conflictHeaders = ["Sr.No.", "Duplicate Meter No.", "Total Conflicts", "Division", "Account No", "Consumer Name", "Found In Meter Column", "Conflict Status"];
-          var conflictData = [conflictHeaders];
+        var rptId = activeReportMeta ? String(activeReportMeta.id || "").toLowerCase() : "";
+        var rptName = activeReportMeta ? String(activeReportMeta.name || "").toLowerCase() : "";
 
-          clientRenderedRows.forEach(function(row, idx) {
-            conflictData.push([
-              row["Sr.No."] !== undefined ? row["Sr.No."] : (idx + 1),
-              String(row["Duplicate Meter No."] || ""),
-              String(row["Total Conflicts"] || ""),
-              String(row["Division"] || ""),
-              String(row["Account No"] || "").padStart(10, '0'),
-              String(row["Consumer Name"] || ""),
-              String(row["Found In Meter Column"] || ""),
-              String(row["Conflict Status"] || "")
-            ]);
-          });
-
-          var wsConflict = XLSX.utils.aoa_to_sheet(conflictData);
-          wsConflict['!cols'] = [
-            { wch: 8 }, { wch: 22 }, { wch: 18 }, { wch: 18 },
-            { wch: 15 }, { wch: 28 }, { wch: 45 }, { wch: 38 }
-          ];
-
-          if (wsConflict['!ref']) {
-            var rangeConf = XLSX.utils.decode_range(wsConflict['!ref']);
-            for (var R = rangeConf.s.r; R <= rangeConf.e.r; ++R) {
-              for (var C = rangeConf.s.c; C <= rangeConf.e.c; ++C) {
-                var cAddr = XLSX.utils.encode_cell({ r: R, c: C });
-                if (!wsConflict[cAddr]) continue;
-                wsConflict[cAddr].t = 's';
-                wsConflict[cAddr].z = '@';
-
-                if (R === 0) {
-                  wsConflict[cAddr].s = {
-                    fill: { fgColor: { rgb: "6B21A8" } },
-                    font: { name: "Segoe UI", sz: 9.5, bold: true, color: { rgb: "FFFFFF" } },
-                    alignment: { horizontal: "center", vertical: "center", wrapText: true }
-                  };
-                } else {
-                  wsConflict[cAddr].s = {
-                    font: { name: "Segoe UI", sz: 8.5 },
-                    alignment: { horizontal: (C === 5 || C === 6) ? "left" : "center", vertical: "center" },
-                    border: {
-                      top: { style: "thin", color: { rgb: "E0E0E0" } },
-                      bottom: { style: "thin", color: { rgb: "E0E0E0" } },
-                      left: { style: "thin", color: { rgb: "E0E0E0" } },
-                      right: { style: "thin", color: { rgb: "E0E0E0" } }
-                    }
-                  };
-                }
-              }
-            }
-          }
-
-          XLSX.utils.book_append_sheet(wbConflict, wsConflict, "Meter Conflicts");
-          XLSX.writeFile(wbConflict, "Duplicate_Meter_Conflicts_" + dateString + "_" + timeString + ".xlsx");
-          return;
+        function cleanMtr(v) {
+          if (!v) return "";
+          var s = String(v).trim().toUpperCase();
+          if (s === "" || s === "NAN" || s === "NULL" || s === "BLANK" || s === "NONE" || s === "-") return "";
+          return s.replace(/[^A-Z0-9]/g, "");
         }
 
-        // 🟢 SPECIAL HANDLER 2: REVISIT REPORT EXCEL EXPORT (15 COLUMNS WITH _P)
-        if (activeReportMeta && activeReportMeta.id === "rpt_main_pole_revisit") {
-          var wbRevisit = XLSX.utils.book_new();
+        function isCheckTrue(v) {
+          var s = String(v || "").trim().toUpperCase();
+          return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+        }
+
+        // =========================================================================
+        // 🟢 नियम 1: पहली रिपोर्ट (Main and Pole Exception Revisit) -> 15 कॉलम्स
+        // =========================================================================
+        if (rptId === "rpt_main_pole_revisit" || rptName.includes("revisit")) {
           var revisitHeaders = [
             "Sr.No.", "ACCOUNT_NO", "FROM_DATE", "TO_DATE", "USER_CODE", "REASON",
             "CONSUMER NAME", "ADDRESS", "LAST MONTH METER NUMBER", "LAST MONTH METER MAKE",
-            "FINAL VISITED METER NUMBER", "FINAL VISITED METER MAKE", "SITE REMARK",
+            "FINAL VISITED METER NUMBER", "FINAL VISITED METER MAKE", "EXCEPTION TYPE", "SITE REMARK",
             "CONSUMER TYPE", "MR NAME"
           ];
 
           var revisitData = [revisitHeaders];
-          clientRenderedRows.forEach(function(row, idx) {
+          var targetRows = (window.activeRevisitFullDataset && window.activeRevisitFullDataset.length > 0)
+                           ? window.activeRevisitFullDataset
+                           : clientRenderedRows;
+
+          targetRows.forEach(function(row, idx) {
             revisitData.push([
               idx + 1,
               String(row["ACCOUNT_NO"] || ""),
               String(row["FROM_DATE"] || ""),
               String(row["TO_DATE"] || ""),
-              String(row["USER_CODE"] || ""),
+              String(row["USER_CODE"] || "-"),
               String(row["REASON"] || ""),
-              String(row["CONSUMER NAME"] || ""),
-              String(row["ADDRESS"] || ""),
-              String(row["LAST MONTH METER NUMBER"] || ""),
-              String(row["LAST MONTH METER MAKE"] || ""),
-              String(row["FINAL VISITED METER NUMBER"] || ""),
-              String(row["FINAL VISITED METER MAKE"] || ""),
-              String(row["SITE REMARK"] || ""),
-              String(row["CONSUMER TYPE"] || ""),
-              String(row["MR NAME"] || "")
+              String(row["CONSUMER NAME"] || "-"),
+              String(row["ADDRESS"] || "-"),
+              String(row["LAST MONTH METER NUMBER"] || "-"),
+              String(row["LAST MONTH METER MAKE"] || "-"),
+              String(row["FINAL VISITED METER NUMBER"] || "-"),
+              String(row["FINAL VISITED METER MAKE"] || "-"),
+              String(row["EXCEPTION TYPE"] || "-"),
+              String(row["SITE REMARK"] || "-"),
+              String(row["CONSUMER TYPE"] || "-"),
+              String(row["MR NAME"] || "-")
             ]);
           });
 
@@ -8852,131 +9071,71 @@ window.addEventListener('click', function(event) {
           wsRevisit['!cols'] = [
             { wch: 8 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 26 },
             { wch: 25 }, { wch: 30 }, { wch: 20 }, { wch: 18 },
-            { wch: 20 }, { wch: 18 }, { wch: 25 }, { wch: 16 }, { wch: 18 }
+            { wch: 20 }, { wch: 18 }, { wch: 20 }, { wch: 25 }, { wch: 16 }, { wch: 18 }
           ];
+          applyStandardExcelFormatting(wsRevisit, { headerBg: "0B3C5D" });
 
-          if (typeof applyStandardExcelFormatting === "function") {
-            applyStandardExcelFormatting(wsRevisit, { headerBg: "0B3C5D" });
-          }
-
+          var wbRevisit = XLSX.utils.book_new();
           XLSX.utils.book_append_sheet(wbRevisit, wsRevisit, "RevisiT_Data");
-          XLSX.writeFile(wbRevisit, "Main_And_Pole_Exception_Revisit_" + dateString + "_" + timeString + ".xlsx");
+          XLSX.writeFile(wbRevisit, "Main_And_Pole_Exception_Revisit_" + dateString + ".xlsx");
           return;
         }
 
-        // 🟢 SPECIAL HANDLER 3: JIN REPORTS MEIN KEVAL METER NUMBER CHAHIYE (EXACT SINGLE COLUMN 'Meter_No')
-        var currentRptId = activeReportMeta ? String(activeReportMeta.id || "").toLowerCase() : "";
-        var currentRptName = activeReportMeta ? String(activeReportMeta.name || "").toLowerCase() : "";
+        // =========================================================================
+        // 🟢 नियम 2: 2, 3, 4 रिपोर्ट -> केवल एक ही कॉलम 'Meter_No'
+        // =========================================================================
+        var isReadMissing = (rptId === "rpt_mri_done_read_missing" || rptName.includes("read missing"));
+        var isMriNotUpload = (rptId === "rpt_mri_not_upload" || (rptName.includes("not upload") && !rptName.includes("read missing")));
+        var isSurveyNotFound = (rptId === "rpt_survey_not_found" || rptName.includes("load survey not found") || rptName.includes("load survay not found"));
 
-        var isMriReadMissingRpt = (currentRptId === "rpt_mri_done_read_missing" || currentRptName.includes("read missing"));
-        var isMriNotUploadRpt = (currentRptId === "rpt_mri_not_upload" || (currentRptName.includes("not upload") && !currentRptName.includes("read missing")));
-        var isSurveyNotFoundRpt = (currentRptId === "rpt_survey_not_found" || currentRptName.includes("load survey not found") || currentRptName.includes("load survay not found"));
+        if (isReadMissing || isMriNotUpload || isSurveyNotFound) {
+          var meterRows = [["Meter_No"]];
+          var meterSet = new Set();
+          var rdg = window.cachedRdgMap || cachedRdgMap || {};
 
-        if (isMriReadMissingRpt || isMriNotUploadRpt || isSurveyNotFoundRpt) {
-          var wbSpecial = XLSX.utils.book_new();
-          var meterRowsData = [["Meter_No"]];
-          var mainMetersList = [];
-          var poleMetersList = [];
+          clientRenderedRows.forEach(function(row) {
+            var u = row._uMap || row;
+            var mainMtr = cleanMtr(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"]);
+            var poleMtr = cleanMtr(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."]);
 
-          function isCheckTrue(v) {
-            var s = String(v || "").trim().toUpperCase();
-            return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
-          }
-          function cleanMtrStr(v) {
-            if (!v) return "";
-            var s = String(v).trim().toUpperCase();
-            if (s === "" || s === "NAN" || s === "NULL" || s === "BLANK" || s === "NONE" || s === "-") return "";
-            return s.replace(/[^A-Z0-9]/g, "");
-          }
-
-          var activeExcelRowsList = (window.activeRevisitFullDataset && window.activeRevisitFullDataset.length > 0)
-                                    ? window.activeRevisitFullDataset
-                                    : (clientRenderedRows || []);
-
-          activeExcelRowsList.forEach(function(row) {
-            var u = row._uMap || row || {};
-
-            var mainMtrNo = cleanMtrStr(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"] || row["LAST MONTH METER NUMBER"] || row["FINAL VISITED METER NUMBER"] || "");
-            var poleMtrNo = cleanMtrStr(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."] || "");
-
-            if (isMriReadMissingRpt) {
-              var mMriAvail = u["IS MRI AVAILABLE (MAIN METER)"] || u["IS MRI AVAILABLE"];
-              var pMriAvail = u["IS MRI AVAILABLE (POLE METER)"];
-
-              var isMainInRdg = mainMtrNo && cachedRdgMap && cachedRdgMap.hasOwnProperty(mainMtrNo);
-              var isPoleInRdg = poleMtrNo && cachedRdgMap && cachedRdgMap.hasOwnProperty(poleMtrNo);
-
-              if (isCheckTrue(mMriAvail) && mainMtrNo && !isMainInRdg) {
-                if (!mainMetersList.includes(mainMtrNo)) mainMetersList.push(mainMtrNo);
-              }
-              if (isCheckTrue(pMriAvail) && poleMtrNo && !isPoleInRdg) {
-                if (!poleMetersList.includes(poleMtrNo)) poleMetersList.push(poleMtrNo);
-              }
-            } else if (isMriNotUploadRpt) {
-              var mainEx = String(u["EXCEPTION TYPE (MAIN METER)"] || u["EXCEPTION TYPE"] || "").trim().toUpperCase();
-              var mainMriAvail = u["IS MRI AVAILABLE (MAIN METER)"] || u["IS MRI AVAILABLE"];
-              var poleEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").trim().toUpperCase();
-              var poleMriAvail = u["IS MRI AVAILABLE (POLE METER)"];
-
-              if (mainEx === "MRI" && !isCheckTrue(mainMriAvail) && mainMtrNo) {
-                if (!mainMetersList.includes(mainMtrNo)) mainMetersList.push(mainMtrNo);
-              }
-              if (poleEx === "MRI" && !isCheckTrue(poleMriAvail) && poleMtrNo) {
-                if (!poleMetersList.includes(poleMtrNo)) poleMetersList.push(poleMtrNo);
-              }
-            } else if (isSurveyNotFoundRpt) {
-              var mainMriAvail = u["IS MRI AVAILABLE (MAIN METER)"] || u["IS MRI AVAILABLE"];
-              var mSurvey = u["IS LOAD SURVAY AVAILBLE (MAIN MTR)"] || u["IS LOAD SURVEY AVAILABLE (MAIN METER)"];
-              var poleMriAvail = u["IS MRI AVAILABLE (POLE METER)"];
-              var pSurvey = u["IS LOAD SURVAY AVAILBLE (POLE MTR)"] || u["IS LOAD SURVEY AVAILABLE (POLE METER)"];
-
-              if (isCheckTrue(mainMriAvail) && !isCheckTrue(mSurvey) && mainMtrNo) {
-                if (!mainMetersList.includes(mainMtrNo)) mainMetersList.push(mainMtrNo);
-              }
-              if (isCheckTrue(poleMriAvail) && !isCheckTrue(pSurvey) && poleMtrNo) {
-                if (!poleMetersList.includes(poleMtrNo)) poleMetersList.push(poleMtrNo);
-              }
+            if (isReadMissing) {
+              var isMriM = isCheckTrue(u["IS MRI AVAILABLE (MAIN METER)"] || u["IS MRI AVAILABLE"]);
+              var isMriP = isCheckTrue(u["IS MRI AVAILABLE (POLE METER)"]);
+              if (isMriM && mainMtr && !rdg[mainMtr]) meterSet.add(mainMtr);
+              if (isMriP && poleMtr && !rdg[poleMtr]) meterSet.add(poleMtr);
+            } else if (isMriNotUpload) {
+              var mEx = String(u["EXCEPTION TYPE (MAIN METER)"] || "").trim().toUpperCase();
+              var pEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").trim().toUpperCase();
+              if (mEx === "MRI" && !isCheckTrue(u["IS MRI AVAILABLE (MAIN METER)"]) && mainMtr) meterSet.add(mainMtr);
+              if (pEx === "MRI" && !isCheckTrue(u["IS MRI AVAILABLE (POLE METER)"]) && poleMtr) meterSet.add(poleMtr);
+            } else if (isSurveyNotFound) {
+              var isMriM2 = isCheckTrue(u["IS MRI AVAILABLE (MAIN METER)"]);
+              var isMriP2 = isCheckTrue(u["IS MRI AVAILABLE (POLE METER)"]);
+              var sM = isCheckTrue(u["IS LOAD SURVAY AVAILBLE (MAIN MTR)"] || u["IS LOAD SURVEY AVAILABLE (MAIN METER)"]);
+              var sP = isCheckTrue(u["IS LOAD SURVAY AVAILBLE (POLE MTR)"] || u["IS LOAD SURVEY AVAILABLE (POLE METER)"]);
+              if (isMriM2 && !sM && mainMtr) meterSet.add(mainMtr);
+              if (isMriP2 && !sP && poleMtr) meterSet.add(poleMtr);
             }
           });
 
-          // Pehle Main Meters fir Pole Meters
-          mainMetersList.forEach(function(m) { meterRowsData.push([m]); });
-          poleMetersList.forEach(function(p) { meterRowsData.push([p]); });
+          meterSet.forEach(function(m) { meterRows.push([m]); });
 
-          var wsSpecial = XLSX.utils.aoa_to_sheet(meterRowsData);
-          wsSpecial['!cols'] = [{ wch: 24 }];
+          var wsSingle = XLSX.utils.aoa_to_sheet(meterRows);
+          wsSingle['!cols'] = [{ wch: 22 }];
+          applyStandardExcelFormatting(wsSingle, { headerBg: "0B3C5D" });
 
-          var outFileName = isMriReadMissingRpt 
-            ? ("MRI_Done_Read_Missing_Meters_" + dateString + "_" + timeString + ".xlsx")
-            : ((isMriNotUploadRpt ? "Meter_No_Pending_Upload_" : "Meter_No_Load_Survey_Pending_") + dateString + "_" + timeString + ".xlsx");
-
-          XLSX.utils.book_append_sheet(wbSpecial, wsSpecial, "Meter_Numbers");
-          XLSX.writeFile(wbSpecial, outFileName);
+          var wbSingle = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wbSingle, wsSingle, "Meter_No");
+          var fName = isReadMissing ? "MRI_Done_Read_Missing_" : (isMriNotUpload ? "Meter_No_Pending_Upload_" : "Meter_No_Load_Survey_Pending_");
+          XLSX.writeFile(wbSingle, fName + dateString + ".xlsx");
           return;
         }
 
-        // 🟢 BAAKI REPORTS KE LIYE (Config By Sheet / Master Reports / Others): PURE COLUMNS EXPORT HONGE
-        var isMasterUnbilledRpt = activeReportMeta && (activeReportMeta.id === "rpt_master_unbilled" || activeReportMeta.name.toLowerCase().includes("unbilled master"));
-        var reportProperName = isMasterUnbilledRpt 
-          ? "EDC Mainpuri 5 KW And Above Unbilled Consumers Report" 
-          : (rName.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); }) + " MIS");
-
-        calculateClassicPivotMatrix();
-
-        var wb = XLSX.utils.book_new();
-
-        // 1. Summary Grid Sheet (Agar Matrix Table maujood hai)
-        var matrixTable = document.getElementById('matrix-pivot-table');
-        if (matrixTable && matrixTable.rows && matrixTable.rows.length > 0) {
-          var wsSummary = XLSX.utils.table_to_sheet(matrixTable, { raw: false });
-          if (wsSummary && wsSummary['!ref']) {
-            XLSX.utils.book_append_sheet(wb, wsSummary, "Summary Grid");
-          }
-        }
-
-        // 2. Data Records Sheet (Sabhi Assigned Columns)
+        // =========================================================================
+        // 🟢 अन्य सभी रिपोर्ट्स: उनके अपने असाइन किए गए ओरिजिनल कॉलम्स
+        // =========================================================================
         var reqCols = [];
-        if (activeReportMeta && activeReportMeta.columns && activeReportMeta.columns.trim() !== "" && activeReportMeta.columns.trim().toUpperCase() !== "ALL" && activeReportMeta.columns.trim().toUpperCase() !== "CUSTOM_MATRIX_VIEW") {
+        if (activeReportMeta && activeReportMeta.columns && activeReportMeta.columns.trim() !== "" && activeReportMeta.columns.trim().toUpperCase() !== "ALL") {
           reqCols = activeReportMeta.columns.split(",").map(function(c){ return c.trim(); });
         } else if (activeTableHeadersList && activeTableHeadersList.length > 0) {
           reqCols = activeTableHeadersList.slice();
@@ -8986,81 +9145,46 @@ window.addEventListener('click', function(event) {
           reqCols = Object.keys(clientRenderedRows[0]).filter(function(k){ return !k.startsWith("_"); });
         }
 
-        var listHeaderRow = ["Sr.No."].concat(reqCols.map(function(c) {
-          return isMasterUnbilledRpt ? sanitizeDeptHeader(c, true) : String(c).trim();
-        }));
+        var listSheetData = [["Sr.No."].concat(reqCols)];
 
-        var listSheetData = [listHeaderRow];
-
-        var sortedExcelRowsList = clientRenderedRows.slice().sort(function(a, b) {
-          var valA = String(a["VISIT LAST MONTH"] || a["MR NAME"] || "").trim().toUpperCase();
-          var valB = String(b["VISIT LAST MONTH"] || b["MR NAME"] || "").trim().toUpperCase();
-          return valA.localeCompare(valB);
-        });
-
-        sortedExcelRowsList.forEach(function(targetRowObj, idx) {
-          var rowData = [idx + 1];
-          var uMap = targetRowObj._uMap || targetRowObj;
+        clientRenderedRows.forEach(function(row, idx) {
+          var u = row._uMap || row;
+          var rArr = [idx + 1];
 
           reqCols.forEach(function(col) {
-            var cellVal = "";
-            var targetK = col.toUpperCase().trim();
-            var targetClean = targetK.replace(/[^A-Z0-9]/gi, '');
+            var norm = col.toUpperCase().replace(/[^A-Z0-9]/g, "");
+            var val = "";
 
-            if (targetRowObj[col] !== undefined && targetRowObj[col] !== null && String(targetRowObj[col]).trim() !== "") {
-              cellVal = targetRowObj[col];
+            if (row[col] !== undefined && row[col] !== null && String(row[col]).trim() !== "") {
+              val = row[col];
             } else {
-              for (var k in targetRowObj) {
-                if (k.replace(/[^A-Z0-9]/gi, '').toUpperCase() === targetClean) {
-                  cellVal = targetRowObj[k];
+              for (var k in u) {
+                if (k.replace(/[^A-Z0-9]/g, "") === norm) {
+                  val = u[k];
                   break;
                 }
               }
-              if ((cellVal === "" || cellVal === undefined) && uMap) {
-                for (var uk in uMap) {
-                  if (uk.replace(/[^A-Z0-9]/gi, '').toUpperCase() === targetClean) {
-                    cellVal = uMap[uk];
-                    break;
-                  }
-                }
+            }
+
+            if (norm.includes("ACCOUNT") && val) {
+              var sVal = String(val).trim();
+              if (/^\d+$/.test(sVal) && sVal.length < 10) {
+                val = ("0000000000" + sVal).slice(-10);
               }
             }
 
-            if ((targetClean.includes("ACCOUNT") || targetClean.includes("ACCTID")) && cellVal) {
-              var cleanStr = String(cellVal).trim();
-              if (/^\d+$/.test(cleanStr) && cleanStr.length < 10) {
-                cellVal = ("0000000000" + cleanStr).slice(-10);
-              }
-            }
-
-            rowData.push(cellVal !== undefined && cellVal !== null ? String(cellVal) : "");
+            rArr.push(val !== undefined && val !== null ? String(val) : "");
           });
-          listSheetData.push(rowData);
+
+          listSheetData.push(rArr);
         });
 
         var wsData = XLSX.utils.aoa_to_sheet(listSheetData);
-        if (wsData && wsData['!ref']) {
-          var rangeData = XLSX.utils.decode_range(wsData['!ref']);
-          var colWidths = [];
-          for (var C = rangeData.s.c; C <= rangeData.e.c; ++C) {
-            var maxLen = 0;
-            for (var R = rangeData.s.r; R <= rangeData.e.r; ++R) {
-              var cellAddr = XLSX.utils.encode_cell({ r: R, c: C });
-              if (wsData[cellAddr] && wsData[cellAddr].v) {
-                var cellLen = String(wsData[cellAddr].v).length;
-                if (cellLen > maxLen) maxLen = cellLen;
-              }
-            }
-            colWidths.push({ wch: Math.min(Math.max(maxLen + 3, 10), 45) });
-          }
-          wsData['!cols'] = colWidths;
-          wsData['!autofilter'] = { ref: wsData['!ref'] };
-          wsData['!views'] = [{ state: 'frozen', ySplit: 1, xSplit: 1, activeCell: 'B2' }];
-        }
+        applyStandardExcelFormatting(wsData, { headerBg: "0B3C5D" });
 
-        XLSX.utils.book_append_sheet(wb, wsData, "Data Records");
-        var fileName = reportProperName.replace(/[^a-zA-Z0-9_]/g, "_") + "_" + dateString + "_" + timeString + ".xlsx";
-        XLSX.writeFile(wb, fileName);
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, wsData, "Data_Records");
+        XLSX.writeFile(wb, rName.replace(/[^a-zA-Z0-9_]/g, "_") + "_" + dateString + ".xlsx");
       }
 
       function downloadExcel() { downloadCombinedSummaryWithListExcel(); }
@@ -10693,13 +10817,26 @@ window.addEventListener('click', function(event) {
           tdElem.innerText = newVal;
 
           if (newVal !== currentText) {
+            // 1. cachedDatabase अपडेट करें
             var row = cachedDatabase.find(function(r){
               var u = r._uMap || r;
               return String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").padStart(10, '0') === accountNo;
             });
             if (row) {
               row[columnName] = newVal;
-              if (row._uMap) row._uMap[columnName.toUpperCase()] = newVal;
+              if (row._uMap) row._uMap[columnName.toUpperCase().trim()] = newVal;
+            }
+
+            // 2. clientRenderedRows को भी सिंक करें (Fixes Re-render Desync)
+            if (clientRenderedRows && clientRenderedRows.length > 0) {
+              var activeRow = clientRenderedRows.find(function(cr){
+                var cu = cr._uMap || cr;
+                return String(cu["ACCOUNT NO"] || cu["ACCOUNT ID"] || cr["ACCOUNT_NO"] || "").padStart(10, '0') === accountNo;
+              });
+              if (activeRow) {
+                activeRow[columnName] = newVal;
+                if (activeRow._uMap) activeRow._uMap[columnName.toUpperCase().trim()] = newVal;
+              }
             }
 
             if (window.google && google.script && google.script.run && typeof google.script.run.updateSpecificColumnsInSheet === "function") {
@@ -11081,6 +11218,47 @@ window.addEventListener('click', function(event) {
       function closePendencyFinderModal() {
         document.getElementById('pendency-finder-modal').style.display = 'none';
         document.getElementById('pendency-status-msg').innerText = '';
+      }
+
+      // 🟢 Pendency Finder Template Download Handler
+      function downloadPendencyTemplateExcel() {
+        var templateData = [
+          ["ACCOUNT NO"],
+          ["0001234567"],
+          ["0009876543"]
+        ];
+
+        var ws = XLSX.utils.aoa_to_sheet(templateData);
+        ws['!cols'] = [{ wch: 22 }];
+
+        // 10-डिजिट ज़ीरो को सुरक्षित रखने के लिए टेक्स्ट फ़ॉर्मैटिंग (@)
+        if (ws['!ref']) {
+          var range = XLSX.utils.decode_range(ws['!ref']);
+          for (var R = range.s.r; R <= range.e.r; ++R) {
+            for (var C = range.s.c; C <= range.e.c; ++C) {
+              var addr = XLSX.utils.encode_cell({ r: R, c: C });
+              if (!ws[addr]) continue;
+              ws[addr].t = 's';
+              ws[addr].z = '@';
+              if (R === 0) {
+                ws[addr].s = {
+                  fill: { fgColor: { rgb: "0284C7" } },
+                  font: { name: "Segoe UI", sz: 10, bold: true, color: { rgb: "FFFFFF" } },
+                  alignment: { horizontal: "center", vertical: "center" }
+                };
+              } else {
+                ws[addr].s = {
+                  font: { name: "Segoe UI", sz: 9 },
+                  alignment: { horizontal: "center", vertical: "center" }
+                };
+              }
+            }
+          }
+        }
+
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "DATA");
+        XLSX.writeFile(wb, "Template_Pendency_Input.xlsx");
       }
 
       
@@ -11615,6 +11793,11 @@ window.addEventListener('click', function(event) {
         // 4. लोकल मेमोरी से डायरेक्ट फ़िल्टर रन करें
         processClientFilterQuery();
       }
+      // 🟢 Exact Clone Exporter for Independent_Consumers (Values Only, Sheet Colors, Height & Width, Font 9)
+      function showIndependentConsumersReport(rpt, element, borderCol) {
+        downloadIndependentConsumersDirectExcel(rpt, element, borderCol);
+      }
+
       function downloadIndependentConsumersDirectExcel(rpt, element, borderCol) {
         var statusToast = document.getElementById("global-copy-toast");
         if (!statusToast) {
@@ -11623,79 +11806,132 @@ window.addEventListener('click', function(event) {
           document.body.appendChild(statusToast);
         }
 
-        statusToast.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right:6px; color:#f1c40f;"></i> Excel File तैयार हो रही है...';
+        statusToast.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right:6px; color:#f1c40f;"></i> Google Sheet से Independent_Consumers डेटा लोड हो रहा है...';
         statusToast.style.display = "block";
 
-        // 🟢 Fallback direct client-side Excel generation (Works everywhere)
-        function generateLocalIndependentExcel() {
+        function cleanHex(hex, fallback) {
+          if (!hex || hex === "none" || hex === "transparent") return fallback || "FFFFFF";
+          var s = String(hex).replace("#", "").trim().toUpperCase();
+          if (s.length === 3) s = s[0] + s[0] + s[1] + s[1] + s[2] + s[2];
+          return s.length === 6 ? s : (fallback || "FFFFFF");
+        }
+
+        function processAndDownloadWorkbook(result) {
           try {
-            var targetRows = (window.clientRenderedRows && window.clientRenderedRows.length > 0) ? window.clientRenderedRows : (cachedDatabase || []);
-            if (!targetRows || targetRows.length === 0) {
-              statusToast.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#e74c3c; margin-right:6px;"></i> डाउनलोड के लिए कोई डेटा नहीं मिला!';
-              setTimeout(function() { statusToast.style.display = "none"; }, 3000);
-              return;
-            }
+            var values = result.values;
+            var bgColors = result.bgColors || [];
+            var fontColors = result.fontColors || [];
+            var fontWeights = result.fontWeights || [];
+            var hAligns = result.hAligns || [];
 
-            var exportHeaders = (originalSheetHeadersList && originalSheetHeadersList.length > 0) 
-              ? originalSheetHeadersList 
-              : Object.keys(targetRows[0]).filter(function(k){ return !k.startsWith("_"); });
+            var ws = XLSX.utils.aoa_to_sheet(values);
+            if (result.merges && result.merges.length > 0) ws['!merges'] = result.merges;
+            if (result.colWidths && result.colWidths.length > 0) ws['!cols'] = result.colWidths;
+            if (result.rowHeights && result.rowHeights.length > 0) ws['!rows'] = result.rowHeights;
 
-            var excelData = [["Sr.No."].concat(exportHeaders)];
+            var range = XLSX.utils.decode_range(ws['!ref']);
 
-            targetRows.forEach(function(row, idx) {
-              var u = row._uMap || row;
-              var rowArr = [idx + 1];
-              exportHeaders.forEach(function(h) {
-                var val = (row[h] !== undefined && row[h] !== null && String(row[h]).trim() !== "") ? row[h] : u[h.toUpperCase().trim()];
-                rowArr.push(val !== undefined && val !== null ? String(val) : "");
-              });
-              excelData.push(rowArr);
-            });
+            for (var R = range.s.r; R <= range.e.r; ++R) {
+              var isTitleRow = (R === 0);
 
-            var ws = XLSX.utils.aoa_to_sheet(excelData);
-            if (typeof applyStandardExcelFormatting === "function") {
-              applyStandardExcelFormatting(ws, { headerBg: "4338CA" });
+              for (var C = range.s.c; C <= range.e.c; ++C) {
+                var cellAddr = XLSX.utils.encode_cell({ r: R, c: C });
+                if (!ws[cellAddr]) continue;
+
+                // 1. Formula strip karke text mode me karein
+                ws[cellAddr].t = 's';
+                ws[cellAddr].z = '@';
+                if (ws[cellAddr].f) delete ws[cellAddr].f;
+
+                // 2. Exact Colors Google Sheet se
+                var rawBg = (bgColors[R] && bgColors[R][C]) ? bgColors[R][C] : "#FFFFFF";
+                var rawFont = (fontColors[R] && fontColors[R][C]) ? fontColors[R][C] : "#000000";
+                var rawWeight = (fontWeights[R] && fontWeights[R][C]) ? fontWeights[R][C] : "normal";
+                var rawAlign = (hAligns[R] && hAligns[R][C]) ? hAligns[R][C] : "center";
+
+                var bgHex = cleanHex(rawBg, "FFFFFF");
+                var fontHex = cleanHex(rawFont, "000000");
+
+                if (bgHex === "FF0000" && fontHex === "000000") fontHex = "FFFFFF";
+
+                var isBold = (rawWeight === "bold") || (R <= 1);
+                var alignH = "center";
+                if (rawAlign === "left") alignH = "left";
+                else if (rawAlign === "right") alignH = "right";
+
+                // Title row ko chhodkar baki sabhi cells ka Font Size = 9
+                var fontSize = isTitleRow ? 13 : 9;
+
+                ws[cellAddr].s = {
+                  fill: { fgColor: { rgb: bgHex } },
+                  font: {
+                    name: "Calibri",
+                    sz: fontSize,
+                    bold: isBold,
+                    color: { rgb: fontHex }
+                  },
+                  alignment: {
+                    horizontal: alignH,
+                    vertical: "center",
+                    wrapText: true
+                  },
+                  border: {
+                    top: { style: "thin", color: { rgb: "7F7F7F" } },
+                    bottom: { style: "thin", color: { rgb: "7F7F7F" } },
+                    left: { style: "thin", color: { rgb: "7F7F7F" } },
+                    right: { style: "thin", color: { rgb: "7F7F7F" } }
+                  }
+                };
+              }
             }
 
             var wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Independent_Consumers");
-            
-            var today = new Date();
-            var dateStr = today.toLocaleDateString('en-GB').replace(/\//g, '-');
-            XLSX.writeFile(wb, "Independent_Consumers_List_" + dateStr + ".xlsx");
 
-            statusToast.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#2ecc71; margin-right:6px;"></i> Independent Consumers Excel डाउनलोड हो गई!';
+            var today = new Date();
+            var dStr = today.toLocaleDateString('en-GB').replace(/\//g, '-');
+            XLSX.writeFile(wb, "Independent_Consumers_Energy_Report_" + dStr + ".xlsx");
+
+            statusToast.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#2ecc71; margin-right:6px;"></i> Independent_Consumers Excel डाउनलोड हो गई!';
             setTimeout(function() { statusToast.style.display = "none"; }, 2500);
+
           } catch(err) {
-            statusToast.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#e74c3c; margin-right:6px;"></i> Excel Error: ' + err.message;
+            statusToast.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#e74c3c; margin-right:6px;"></i> Formatting Error: ' + err.message;
             setTimeout(function() { statusToast.style.display = "none"; }, 3500);
           }
         }
 
-        if (window.google && google.script && google.script.run && typeof google.script.run.getIndependentConsumersExactCloneUrl === "function") {
+        // 🟢 Google Script Direct Run / Web App Fetch with auto-fallback
+        if (window.google && google.script && google.script.run && typeof google.script.run.getIndependentConsumersData === "function") {
           google.script.run
-            .withSuccessHandler(function(res) {
-              if (res && res.success && res.url) {
-                var iframe = document.getElementById("hidden-download-frame");
-                if (!iframe) {
-                  iframe = document.createElement("iframe");
-                  iframe.id = "hidden-download-frame";
-                  iframe.style.display = "none";
-                  document.body.appendChild(iframe);
-                }
-                iframe.src = res.url;
-                statusToast.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#2ecc71; margin-right:6px;"></i> Exact Formatting के साथ Excel डाउनलोड हो गई!';
-                setTimeout(function() { statusToast.style.display = "none"; }, 2500);
+            .withSuccessHandler(function(result) {
+              if (result && result.success) {
+                processAndDownloadWorkbook(result);
               } else {
-                generateLocalIndependentExcel();
+                statusToast.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#e74c3c; margin-right:6px;"></i> ' + (result ? result.error : "Data nahi mila");
+                setTimeout(function() { statusToast.style.display = "none"; }, 3500);
               }
             })
-            .withFailureHandler(function() {
-              generateLocalIndependentExcel();
+            .withFailureHandler(function(err) {
+              statusToast.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#e74c3c; margin-right:6px;"></i> Server Error: ' + err.message;
+              setTimeout(function() { statusToast.style.display = "none"; }, 3500);
             })
-            .getIndependentConsumersExactCloneUrl();
+            .getIndependentConsumersData();
         } else {
-          generateLocalIndependentExcel();
+          fetch(APPS_SCRIPT_WEBAPP_URL + "?action=getIndependentConsumersData")
+            .then(function(res) { return res.json(); })
+            .then(function(result) {
+              if (result && result.success && result.values && result.values.length > 0) {
+                processAndDownloadWorkbook(result);
+              } else {
+                statusToast.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#e74c3c; margin-right:6px;"></i> ' + (result ? result.error : "Data nahi mila");
+                setTimeout(function() { statusToast.style.display = "none"; }, 3500);
+              }
+            })
+            .catch(function(err) {
+              statusToast.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#e74c3c; margin-right:6px;"></i> Fetch Error: ' + err.message;
+              setTimeout(function() { statusToast.style.display = "none"; }, 3500);
+            });
         }
       }
       function runDuplicateMeterConflictFinder(event) {
@@ -11812,11 +12048,6 @@ window.addEventListener('click', function(event) {
           }
         });
 
-        if (conflictRows.length === 0) {
-          alert("शानदार! डेटाबेस में कोई भी गलत मीटर कॉन्फ्लिक्ट नहीं मिला।");
-          return;
-        }
-
         activeReportMeta = {
           id: "rpt_duplicate_meter_conflict",
           name: "Duplicate Meter Serial & Account Conflict Report",
@@ -11827,25 +12058,42 @@ window.addEventListener('click', function(event) {
         clientRenderedRows = conflictRows;
         currentPageNumber = 1;
 
-        document.getElementById('home-view-zone').style.display = 'none';
-        document.getElementById('analytics-view-zone').style.display = 'none';
-        document.getElementById('pivot-page-zone').style.display = 'none';
-        document.getElementById('table-zone').style.display = 'flex';
+        // 🟢 सभी अन्य पैनल्स छुपाएँ
+        var zonesToHide = ['home-view-zone', 'analytics-view-zone', 'pivot-page-zone', 'external-app-view-zone', 'table-loader'];
+        zonesToHide.forEach(function(zid) {
+          var el = document.getElementById(zid);
+          if (el) el.style.display = 'none';
+        });
+
+        // 🟢 टॉप कंट्रोल बार, हेडर और टेबल ज़ोन को तुरंत खोलें
+        var topCtrlWrapper = document.getElementById('main-top-control-wrapper');
+        if (topCtrlWrapper) topCtrlWrapper.style.setProperty('display', 'flex', 'important');
+
+        var filtersPanel = document.getElementById('filters-panel-wrapper');
+        if (filtersPanel) filtersPanel.style.display = 'grid';
+
+        var tableZone = document.getElementById('table-zone');
+        if (tableZone) tableZone.style.setProperty('display', 'flex', 'important');
+
+        var backBtn = document.getElementById('btn-back-to-analytics');
+        if (backBtn) backBtn.style.setProperty('display', 'inline-flex', 'important');
 
         var titleHeader = document.getElementById('active-report-title');
         if (titleHeader) {
-          titleHeader.innerText = `Duplicate Meter Conflict Report (${serialCounter - 1} Conflicts Found)`;
+          titleHeader.innerText = `Duplicate Meter Conflict Report (${serialCounter > 1 ? serialCounter - 1 : 0} Conflicts Found)`;
           titleHeader.style.color = "#9333ea";
         }
 
         var counterBadge = document.getElementById('report-live-counter');
         if (counterBadge) {
-          counterBadge.innerText = "Total Rows: " + conflictRows.length;
+          counterBadge.innerText = "Total: " + conflictRows.length;
           counterBadge.style.background = "#9333ea";
         }
 
         var displayCols = ["Sr.No.", "Duplicate Meter No.", "Total Conflicts", "Division", "Account No", "Consumer Name", "Found In Meter Column", "Conflict Status"];
         renderClientTable(displayCols);
+
+        if (tableZone) tableZone.scrollTop = 0;
       }
       async function triggerMonthlyRolloverProcess(event) {
   if (event) event.stopPropagation();
@@ -12101,21 +12349,49 @@ function openCustomBulkModal() {
   container.innerHTML = "";
 
   customBulkAllowedColumns.forEach(function(col, idx) {
-    if (col === "ACCOUNT NO") return; // Account No हमेशा डिफ़ॉल्ट रूप से शामिल रहेगा
+    if (col === "ACCOUNT NO") return;
 
+    var optId = "chk_col_" + idx;
     var div = document.createElement("div");
-    div.style = "display:flex; align-items:center; gap:6px; font-size:11px; font-weight:600; color:#1e293b;";
+    // 🟢 Clean Modern Selectable Tile Layout
+    div.style = "display:flex; align-items:center; gap:8px; padding:6px 8px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; font-size:11px; font-weight:700; color:#1e293b; font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; transition:all 0.15s; cursor:pointer;";
     
+    div.onmouseover = function() { this.style.borderColor = "#93c5fd"; this.style.background = "#eff6ff"; };
+    div.onmouseout = function() {
+      var c = document.getElementById(optId);
+      if (c && c.checked) {
+        this.style.borderColor = "#6366f1";
+        this.style.background = "#eef2ff";
+      } else {
+        this.style.borderColor = "#e2e8f0";
+        this.style.background = "#f8fafc";
+      }
+    };
+    
+    div.onclick = function(e) {
+      if (e.target.tagName !== 'INPUT') {
+        var c = document.getElementById(optId);
+        if (c) {
+          c.checked = !c.checked;
+          c.dispatchEvent(new Event('change'));
+        }
+      }
+    };
+
     var chk = document.createElement("input");
     chk.type = "checkbox";
-    chk.id = "chk_col_" + idx;
+    chk.id = optId;
     chk.value = col;
-    chk.style = "cursor:pointer;";
+    chk.style = "width:15px; height:15px; cursor:pointer; flex-shrink:0; accent-color:#6366f1;";
+    chk.onchange = function() {
+      div.style.borderColor = this.checked ? "#6366f1" : "#e2e8f0";
+      div.style.background = this.checked ? "#eef2ff" : "#f8fafc";
+    };
 
     var lbl = document.createElement("label");
-    lbl.htmlFor = "chk_col_" + idx;
+    lbl.htmlFor = optId;
     lbl.innerText = col;
-    lbl.style = "cursor:pointer; user-select:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;";
+    lbl.style = "cursor:pointer; user-select:none; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:'Inter', sans-serif !important; letter-spacing:0.2px;";
 
     div.appendChild(chk);
     div.appendChild(lbl);
@@ -12227,6 +12503,7 @@ async function executeCustomBulkUpdate() {
       }
 
       var payloadUpdates = [];
+      var nowStamp = new Date().toLocaleDateString('en-GB') + " " + new Date().toLocaleTimeString();
 
       jsonData.forEach(function(row) {
         var rawAcc = String(row[accKey] || "").trim();
@@ -12237,14 +12514,25 @@ async function executeCustomBulkUpdate() {
         var paddedAcc = digitsOnly.length > 0 ? ("0000000000" + digitsOnly).slice(-10) : cleanAcc;
 
         var changes = {};
+        var auditEntries = [];
+
         Object.keys(row).forEach(function(col) {
           if (col === accKey) return;
-          changes[col] = String(row[col] || "").trim();
+          var newVal = String(row[col] || "").trim();
+          changes[col] = newVal;
+          auditEntries.push({
+            timestamp: nowStamp,
+            accountNo: paddedAcc,
+            columnModified: col,
+            newValue: newVal,
+            actionType: "CUSTOM_BULK_UPDATE"
+          });
         });
 
         payloadUpdates.push({
           accountNo: paddedAcc,
-          changes: changes
+          changes: changes,
+          auditTrail: auditEntries
         });
       });
 
@@ -14622,74 +14910,84 @@ function executeRejTableFiltersSync() {
 // 🟢 Download Excel with Updated Title & Exact Sequence
 function downloadRejectionAfterMriExcel() {
   var data = computeRejectionAfterMriData();
-  if (data.length === 0) {
+  if (!data || data.length === 0) {
     alert("डाउनलोड करने के लिए कोई डेटा उपलब्ध नहीं है!");
     return;
   }
 
-  var isAllMri = (currentMriRejectionFilterMode === 'all');
-  var isNonMriPole = (currentMriRejectionFilterMode === 'non_mri_pole');
-  var isNonMriMain = (currentMriRejectionFilterMode === 'non_mri_main');
-  var isTotalEx = (currentMriRejectionFilterMode === 'total_exception');
-
-  var scopeTag = isAllMri ? "Rejection_After_MRI" : 
-                (isNonMriMain ? "Non_MRI_Main_Meter" : 
-                (isNonMriPole ? "Non_MRI_Pole_Meter" : "Total_Exception_And_Rejection"));
-
-  var headers = [];
-  var excelRows = [];
-
-  // 🟢 Excel Export me 'Meter Scope' शुरू में जोड़ा गया
-  if (isAllMri) {
-    headers = [
-      "Sr.", "Meter Scope", "Division", "Account No", "Consumer Type", "Tariff", "Consumer Name", "Address", "Load",
-      "Billed Mtr", "Field Mtr", "Field Make", "Visited Mtr", "Visited Make",
-      "Failure Message / Rejection Reason", "MR Name", "MR Mobile"
-    ];
-    excelRows.push(headers);
-
-    data.forEach(function(item, idx) {
-      var meterScopeText = (item.category && item.category.includes("Pole")) || currentMriRejectionFilterMode === 'non_mri_pole' ? "Pole Meter" : "Main Meter";
-      excelRows.push([
-        idx + 1, meterScopeText, item.division, item.accountNo, item.consumerType, item.tariff, item.consumerName, item.address, item.load,
-        item.billedMtr, item.fieldMtr, item.fieldMake, item.visitedMtr, item.visitedMake,
-        item.failureMessage, item.mrName, item.mrMobile
-      ]);
-    });
-  } else {
-    var mtrCol = isNonMriPole ? "Visited Pole Meter No" : (isNonMriMain ? "Visited Main Meter No" : "Visited Meter No");
-    var makeCol = isNonMriPole ? "Visited Pole Make" : (isNonMriMain ? "Visited Main Make" : "Visited Make");
-    var remCol = isNonMriPole ? "Pole Site Remark" : (isNonMriMain ? "Main Site Remark" : "Remark / Exception Reason");
-
-    headers = [
-      "Sr.", "Meter Scope", "Division", "Account No", "Consumer Type", "Tariff", "Consumer Name", "Address", "Load",
-      ...(isTotalEx ? ["Category"] : []),
-      mtrCol, makeCol, remCol, "MR Name", "MR Mobile"
-    ];
-    excelRows.push(headers);
-
-    data.forEach(function(item, idx) {
-      var meterScopeText = (item.category && item.category.includes("Pole")) || currentMriRejectionFilterMode === 'non_mri_pole' ? "Pole Meter" : "Main Meter";
-      var rowArr = [
-        idx + 1, meterScopeText, item.division, item.accountNo, item.consumerType, item.tariff, item.consumerName, item.address, item.load
-      ];
-      if (isTotalEx) rowArr.push(item.category);
-      rowArr.push(item.visitedMtr, item.visitedMake, item.failureMessage, item.mrName, item.mrMobile);
-      excelRows.push(rowArr);
-    });
-  }
-
-  var ws = XLSX.utils.aoa_to_sheet(excelRows);
-  applyStandardExcelFormatting(ws, { headerBg: "0F172A" });
-
   var now = new Date();
   var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
   var timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).replace(/:/g, '-');
-  var fileName = "EDC_Mainpuri_" + scopeTag + "_Report_" + dateStr + "_" + timeStr + ".xlsx";
+  var rptTitle = (activeReportMeta && activeReportMeta.name) ? activeReportMeta.name : "Report";
+  var excelRows = [];
+
+  // 🟢 1. आपकी रिपोर्ट में असाइन किए गए ओरिजिनल कॉलम्स प्राप्त करें
+  var targetCols = [];
+
+  if (activeReportMeta && activeReportMeta.columns && activeReportMeta.columns.trim() !== "" && activeReportMeta.columns.trim().toUpperCase() !== "ALL" && activeReportMeta.columns.trim().toUpperCase() !== "CUSTOM_MATRIX_VIEW") {
+    targetCols = activeReportMeta.columns.split(",").map(function(c) { return c.trim(); });
+  } else if (originalSheetHeadersList && originalSheetHeadersList.length > 0) {
+    targetCols = originalSheetHeadersList.slice();
+  } else if (cachedDatabase && cachedDatabase.length > 0) {
+    targetCols = Object.keys(cachedDatabase[0]).filter(function(k) { return !k.startsWith("_"); });
+  }
+
+  // 🟢 2. हेडर में वही असली कॉलम नाम जाएँगे जो आपके कोड/डेटाबेस में हैं
+  excelRows.push(["Sr.No."].concat(targetCols));
+
+  // 🟢 3. डेटा को बिना किसी नाम बदले ओरिजिनल फ़ील्ड्स से मैप करें
+  data.forEach(function(item, idx) {
+    var rawRow = item.rawRow || item;
+    var uMap = rawRow._uMap || rawRow;
+    var rowArr = [idx + 1];
+
+    targetCols.forEach(function(col) {
+      var targetClean = col.toUpperCase().replace(/[^A-Z0-9]/gi, '');
+      var cellVal = "";
+
+      // डायरेक्ट वैल्यू मैच
+      if (rawRow[col] !== undefined && rawRow[col] !== null && String(rawRow[col]).trim() !== "") {
+        cellVal = rawRow[col];
+      } else {
+        // केस और स्पेस इनसेंसिटिव मैच
+        for (var k in rawRow) {
+          if (k.replace(/[^A-Z0-9]/gi, '').toUpperCase() === targetClean) {
+            cellVal = rawRow[k];
+            break;
+          }
+        }
+        if ((cellVal === "" || cellVal === undefined) && uMap) {
+          for (var uk in uMap) {
+            if (uk.replace(/[^A-Z0-9]/gi, '').toUpperCase() === targetClean) {
+              cellVal = uMap[uk];
+              break;
+            }
+          }
+        }
+      }
+
+      // अकाउंट नंबर के आगे का 0 सुरक्षित रखें
+      if (targetClean.includes("ACCOUNT") && cellVal) {
+        var sVal = String(cellVal).trim();
+        if (/^\d+$/.test(sVal) && sVal.length < 10) {
+          cellVal = ("0000000000" + sVal).slice(-10);
+        }
+      }
+
+      rowArr.push(cellVal !== undefined && cellVal !== null ? String(cellVal) : "");
+    });
+
+    excelRows.push(rowArr);
+  });
+
+  var ws = XLSX.utils.aoa_to_sheet(excelRows);
+  if (typeof applyStandardExcelFormatting === "function") {
+    applyStandardExcelFormatting(ws, { headerBg: "0B3C5D" });
+  }
 
   var wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Rejection_Data");
-  XLSX.writeFile(wb, fileName);
+  XLSX.utils.book_append_sheet(wb, ws, "Data_Records");
+  XLSX.writeFile(wb, rptTitle.replace(/[^a-zA-Z0-9_]/g, "_") + "_" + dateStr + "_" + timeStr + ".xlsx");
 }
 
 function downloadRejectionAfterMriPDF() {
@@ -16044,25 +16342,179 @@ function downloadTestDistSummaryPDF() {
         var table = document.getElementById("mr-pendency-main-table");
         if (!table) return;
         var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
-        if (!jsPDFObj) return;
+        if (!jsPDFObj) {
+          alert("PDF लाइब्रेरी लोड नहीं हो सकी!");
+          return;
+        }
 
+        // A4 Landscape: 842 x 595 pt
         var doc = new jsPDFObj('l', 'pt', 'a4');
-        doc.setFontSize(13);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(15, 23, 42);
-        doc.text("METER READERS WISE PENDENCY SUMMARY REPORT", 14, 22);
-
-        doc.autoTable({
-          html: table,
-          startY: 30,
-          margin: { left: 8, right: 8 },
-          theme: 'grid',
-          styles: { fontSize: 6.5, halign: 'center', cellPadding: 2 },
-          headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' }
-        });
-
         var now = new Date();
         var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+        var genTimeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        // 🟢 Top Title Banner (UI Theme)
+        doc.setFillColor(11, 60, 93);
+        doc.rect(8, 10, 826, 24, 'F');
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(255, 255, 255);
+        doc.text("METER READERS WISE PENDENCY SUMMARY REPORT", 16, 26);
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "normal");
+        doc.text("EDC Mainpuri | Date: " + dateStr + " " + genTimeStr, 670, 26);
+
+        // 🟢 UI के हूबहू मल्टी-कलर हेडर्स (Main=Yellow, Pole=Blue, Bill Dist=Green)
+        var head = [
+          [
+            { content: "Reports / Pendency Name", rowSpan: 2, styles: { fillColor: [203, 213, 225], textColor: [0, 0, 0], valign: 'middle', halign: 'center', fontStyle: 'bold' } },
+            { content: "Previous\nDay Visit", rowSpan: 2, styles: { fillColor: [226, 232, 240], textColor: [0, 0, 0], valign: 'middle', halign: 'center', fontStyle: 'bold' } },
+            { content: "Main Meters", colSpan: 6, styles: { fillColor: [254, 240, 138], textColor: [0, 0, 0], halign: 'center', fontStyle: 'bold', fontSize: 8.5 } },
+            { content: "Pole Meters (>=10 KW)", colSpan: 7, styles: { fillColor: [191, 219, 254], textColor: [0, 0, 0], halign: 'center', fontStyle: 'bold', fontSize: 8.5 } },
+            { content: "Bill Distribution", colSpan: 6, styles: { fillColor: [187, 247, 208], textColor: [0, 0, 0], halign: 'center', fontStyle: 'bold', fontSize: 8.5 } }
+          ],
+          [
+            // Main Meters (6)
+            { content: "Visit\nPending", styles: { fillColor: [254, 249, 195], textColor: [0, 0, 0] } },
+            { content: "MRI Not\nUpload", styles: { fillColor: [254, 249, 195], textColor: [0, 0, 0] } },
+            { content: "Survey\nAvail %", styles: { fillColor: [254, 249, 195], textColor: [0, 0, 0] } },
+            { content: "Survey\nNot Avail", styles: { fillColor: [254, 249, 195], textColor: [0, 0, 0] } },
+            { content: "Exception\n(Def/Lock)", styles: { fillColor: [254, 249, 195], textColor: [0, 0, 0] } },
+            { content: "Manual\n(Lead/MRD)", styles: { fillColor: [254, 249, 195], textColor: [0, 0, 0] } },
+            // Pole Meters (7)
+            { content: "Pole Visit\nPending", styles: { fillColor: [219, 234, 254], textColor: [0, 0, 0] } },
+            { content: "Pole MRI\nNot Upload", styles: { fillColor: [219, 234, 254], textColor: [0, 0, 0] } },
+            { content: "Pole Survey\nAvail %", styles: { fillColor: [219, 234, 254], textColor: [0, 0, 0] } },
+            { content: "Pole Survey\nNot Avail", styles: { fillColor: [219, 234, 254], textColor: [0, 0, 0] } },
+            { content: "Exception\n(Def/Lock)", styles: { fillColor: [219, 234, 254], textColor: [0, 0, 0] } },
+            { content: "Manual\n(Lead/MRD)", styles: { fillColor: [219, 234, 254], textColor: [0, 0, 0] } },
+            { content: "No Meter\nAt Site", styles: { fillColor: [219, 234, 254], textColor: [0, 0, 0] } },
+            // Bill Distribution (6)
+            { content: "Assigned\nFor Dist.", styles: { fillColor: [220, 252, 231], textColor: [0, 0, 0] } },
+            { content: "Bill\nUpload", styles: { fillColor: [220, 252, 231], textColor: [0, 0, 0] } },
+            { content: "Billed No\nUpload", styles: { fillColor: [220, 252, 231], textColor: [0, 0, 0] } },
+            { content: "Delivered", styles: { fillColor: [220, 252, 231], textColor: [0, 0, 0] } },
+            { content: "Dist.\nPending", styles: { fillColor: [220, 252, 231], textColor: [0, 0, 0] } },
+            { content: "Tower\nPending", styles: { fillColor: [220, 252, 231], textColor: [0, 0, 0] } }
+          ]
+        ];
+
+        // 🟢 Extract Data Directly from Screen DOM Table Rows
+        var body = [];
+        var rows = table.querySelectorAll("tbody tr");
+
+        rows.forEach(function(tr) {
+          var rowData = [];
+          var tds = tr.querySelectorAll("td");
+          tds.forEach(function(td) {
+            rowData.push(td.innerText.trim());
+          });
+          if (rowData.length >= 21) {
+            body.push(rowData);
+          }
+        });
+
+        // 🟢 Precise Column Widths (Sum = 826 pt, Fits 100% on A4 Landscape)
+        var colWidthStyles = {
+          0:  { cellWidth: 76, halign: 'left', fontStyle: 'bold' }, // Reader Name
+          1:  { cellWidth: 36, halign: 'center' }, // Prev Day
+          2:  { cellWidth: 36, halign: 'center' }, // Main Visit Pend
+          3:  { cellWidth: 36, halign: 'center' }, // Main MRI Not Up
+          4:  { cellWidth: 39, halign: 'center', fontStyle: 'bold' }, // Main Survey %
+          5:  { cellWidth: 36, halign: 'center' }, // Main Survey Not Avail
+          6:  { cellWidth: 38, halign: 'center' }, // Main Exception
+          7:  { cellWidth: 37, halign: 'center' }, // Main Manual
+          8:  { cellWidth: 37, halign: 'center' }, // Pole Visit Pend
+          9:  { cellWidth: 37, halign: 'center' }, // Pole MRI Not Up
+          10: { cellWidth: 39, halign: 'center', fontStyle: 'bold' }, // Pole Survey %
+          11: { cellWidth: 37, halign: 'center' }, // Pole Survey Not Avail
+          12: { cellWidth: 38, halign: 'center' }, // Pole Exception
+          13: { cellWidth: 37, halign: 'center' }, // Pole Manual
+          14: { cellWidth: 36, halign: 'center' }, // Pole No Meter
+          15: { cellWidth: 38, halign: 'center', fontStyle: 'bold' }, // Bill Assigned
+          16: { cellWidth: 36, halign: 'center' }, // Bill Upload
+          17: { cellWidth: 36, halign: 'center' }, // Billed No Upload
+          18: { cellWidth: 36, halign: 'center' }, // Delivered
+          19: { cellWidth: 36, halign: 'center' }, // Dist Pending
+          20: { cellWidth: 38, halign: 'center', fontStyle: 'bold' }  // Tower Pending
+        };
+
+        doc.autoTable({
+          head: head,
+          body: body,
+          startY: 38,
+          margin: { left: 8, right: 8, bottom: 16 },
+          theme: 'grid',
+          styles: {
+            fontSize: 6.8,
+            cellPadding: { top: 3.5, bottom: 3.5, left: 1, right: 1 },
+            halign: 'center',
+            valign: 'middle',
+            lineWidth: 0.35,
+            lineColor: [148, 163, 184],
+            textColor: [15, 23, 42],
+            overflow: 'linebreak'
+          },
+          headStyles: {
+            fontSize: 6.2,
+            fontStyle: 'bold',
+            halign: 'center',
+            valign: 'middle',
+            lineWidth: 0.45,
+            lineColor: [71, 85, 105]
+          },
+          columnStyles: colWidthStyles,
+          didParseCell: function(data) {
+            // Row-level Dynamic Coloring matching UI
+            if (data.row.section === 'body') {
+              var isGrandTotal = (data.row.index === body.length - 1);
+
+              if (isGrandTotal) {
+                data.cell.styles.fillColor = [254, 240, 138]; // Yellow UI Grand Total
+                data.cell.styles.fontStyle = 'bold';
+                data.cell.styles.textColor = [0, 0, 0];
+                data.cell.styles.fontSize = 7.5;
+                if (data.column.index === 0) data.cell.styles.halign = 'center';
+              } else {
+                // UI Column Tintings
+                if (data.column.index === 0) {
+                  data.cell.styles.fillColor = [248, 250, 252];
+                } else if (data.column.index === 4) {
+                  data.cell.styles.fillColor = [236, 253, 245]; // Main Survey % (Green)
+                  data.cell.styles.textColor = [5, 150, 105];
+                } else if (data.column.index === 10) {
+                  data.cell.styles.fillColor = [239, 246, 255]; // Pole Survey % (Blue)
+                  data.cell.styles.textColor = [2, 132, 199];
+                } else if (data.column.index === 15) {
+                  data.cell.styles.fillColor = [240, 253, 244]; // Bill Assigned
+                  data.cell.styles.textColor = [30, 64, 175];
+                } else if (data.column.index === 20) {
+                  data.cell.styles.fillColor = [250, 245, 255]; // Tower Pending
+                  data.cell.styles.textColor = [124, 58, 237];
+                }
+
+                // Alert colors for Pending / Not uploaded numbers
+                var numVal = parseInt(data.cell.text[0], 10);
+                if (!isNaN(numVal) && numVal > 0) {
+                  if ([2, 3, 8, 9, 14, 17].includes(data.column.index)) {
+                    data.cell.styles.textColor = [220, 38, 38]; // Red
+                    data.cell.styles.fontStyle = 'bold';
+                  }
+                }
+              }
+            }
+          }
+        });
+
+        // 🟢 Footer Page Numbers
+        var totalPages = doc.internal.getNumberOfPages();
+        for (var p = 1; p <= totalPages; p++) {
+          doc.setPage(p);
+          doc.setFontSize(7.5);
+          doc.setTextColor(100, 116, 139);
+          doc.text("Sai Computers Ltd RMS Engine | Page " + p + " of " + totalPages, doc.internal.pageSize.width - 160, doc.internal.pageSize.height - 6);
+        }
+
         doc.save("Meter_Readers_Wise_Pendency_Summary_" + dateStr + ".pdf");
       }
 
@@ -16377,6 +16829,7 @@ function downloadTestDistSummaryPDF() {
               <th style="padding:6px;">LM MAKE</th>
               <th style="padding:6px;">VISITED METER NO</th>
               <th style="padding:6px;">VISITED MAKE</th>
+              <th style="padding:6px; background:#0284c7;">EXCEPTION TYPE</th>
               <th style="padding:6px;">SITE REMARK</th>
               <th style="padding:6px; background:#7c3aed;">CONSUMER TYPE</th>
               <th style="padding:6px;">MR NAME</th>
@@ -16401,6 +16854,7 @@ function downloadTestDistSummaryPDF() {
               <td style="padding:5px;">${row["LAST MONTH METER MAKE"]}</td>
               <td style="padding:5px; font-family:monospace; font-weight:700;">${row["FINAL VISITED METER NUMBER"]}</td>
               <td style="padding:5px;">${row["FINAL VISITED METER MAKE"]}</td>
+              <td style="padding:5px; font-weight:700; color:#0369a1;">${row["EXCEPTION TYPE"]}</td>
               <td style="padding:5px; font-weight:700;">${row["SITE REMARK"]}</td>
               <td style="padding:5px; font-weight:800; color:${isPole ? '#7c3aed' : '#1d4ed8'};">${row["CONSUMER TYPE"]}</td>
               <td style="padding:5px; font-weight:600;">${row["MR NAME"]}</td>
