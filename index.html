@@ -1562,11 +1562,11 @@ body.dark-mode .view-tab-btn.active-view-tab {
             <i class="fa-solid fa-file-invoice-dollar" style="color:#10b981"></i> Unbilled Master (5KW & Above)
           </button>
 
-          <button class="report-link" id="btn-rpt-dept-master" style="border-left: 4px solid #3b82f6; background: #eff6ff; color: #1e40af;" onclick="selectReport(codeBuiltinReports[9], this, '#3b82f6')">
+          <button class="report-link" id="btn-rpt-dept-master" style="border-left: 4px solid #3b82f6; background: #eff6ff; color: #1e40af;" onclick="selectReport(codeBuiltinReports.find(function(r){ return r.id === 'rpt_dept_master_data'; }), this, '#3b82f6')">
             <i class="fa-solid fa-table-list" style="color:#3b82f6"></i> Department Master Data
           </button>
 
-          <button class="report-link" id="btn-rpt-indep-consumers" style="border-left: 4px solid #8b5cf6; background: #f5f3ff; color: #5b21b6;" onclick="downloadIndependentConsumersDirectExcel(codeBuiltinReports[10] || { id: 'rpt_independent_consumers', name: 'Independent Consumers List' }, this, '#8b5cf6')">
+          <button class="report-link" id="btn-rpt-indep-consumers" style="border-left: 4px solid #8b5cf6; background: #f5f3ff; color: #5b21b6;" onclick="downloadIndependentConsumersDirectExcel(codeBuiltinReports.find(function(r){ return r.id === 'rpt_independent_consumers'; }) || { id: 'rpt_independent_consumers', name: 'Independent Consumers List' }, this, '#8b5cf6')">
             <i class="fa-solid fa-file-excel" style="color:#8b5cf6"></i> Independent Consumers List
           </button>
         </div>
@@ -5341,7 +5341,7 @@ body.dark-mode .view-tab-btn.active-view-tab {
                 <div><span class="detail-label" style="width:130px;">LM Pole Make:</span> <span class="detail-value">${getV(["LAST MONTH FINAL PM MAKE"])}</span></div>
                 <div><span class="detail-label" style="width:130px;">Exception Type:</span> <span class="detail-value text-danger font-monospace">${getV(["EXCEPTION TYPE (POLE METER)"])}</span></div>
                 <div><span class="detail-label" style="width:130px;">Site Observation:</span> <span class="detail-value">${getV(["FINAL_POLE_METER_SITE_REMARK", "SITE REMARK (POLE)"])}</span></div>
-                <div><span class="detail-label" style="width:130px;">Field Remark:</span> <span class="detail-value">${getV(["REMARK", "M_REMARK"])}</span></div>
+                <div><span class="detail-label" style="width:130px;">Field Remark:</span> <span class="detail-value">${getV(["REMARK"])}</span></div>
                 
                 <!-- 🟢 RDG Sheet से मैप्ड पोल मीटर रीडिंग -->
                 <div style="margin-top:4px; padding-top:4px; border-top:1px dashed #bbf7d0; font-weight:bold; color:#065f46;">
@@ -5370,29 +5370,82 @@ body.dark-mode .view-tab-btn.active-view-tab {
                 <span class="detail-label">Assigned MR Mobile:</span> 
                 <span class="detail-value font-monospace text-primary" style="font-weight:700;">${getV(["MR MOBILE NO.", "MR MOBILE NUMBER", "MR MOBILE", "MASTER MOBILE NUMBER"])}</span>
               </div>
-              <div style="grid-column: 1 / -1; margin-top: 4px; padding-top: 6px; border-top: 1px dashed #cbd5e1; display: flex; align-items: center; gap: 8px;">
-                <span class="detail-label" style="color: #dc2626; font-weight: 800; white-space: nowrap;">Unbilled Failure Message:</span> 
-                <span class="detail-value" style="font-weight: 800; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; padding: 3px 10px; border-radius: 4px; display: inline-block;">
+              <div style="grid-column: 1 / -1; margin-top: 6px; padding-top: 8px; border-top: 1px dashed #cbd5e1; display: flex; align-items: flex-start; gap: 8px;">
+                <span class="detail-label" style="color: #dc2626; font-weight: 800; white-space: nowrap; margin-top: 3px;">Unbilled Failure Message:</span> 
+                <span class="detail-value" style="font-weight: 800; color: #991b1b; background: #fef2f2; border: 1.5px solid #fca5a5; padding: 4px 12px; border-radius: 6px; line-height: 1.4; display: inline-block;">
                   ${(function() {
-                    var rejMsg = getV(["FINAL REJECTION", "FAILURE MESSAGE", "EXPORT FAILURE MESSAGE"]);
-                    if (rejMsg && rejMsg !== "-" && !rejMsg.toUpperCase().includes("NO REJECTION")) return rejMsg;
-                    
                     var reasons = [];
-                    var mRem = String(getV(["FINAL_MAIN_METER_SITE_REMARK", "SITE REMARK"])).toUpperCase();
-                    if (mRem.includes("RTC DEFECTIVE")) reasons.push("Meter RTC Defective");
                     
-                    var fMtr = String(getV(["FIELD METER NUMBER"])).replace(/[^A-Z0-9]/gi, "");
-                    var vMtr = String(getV(["LAST MONTH FINAL MM NO."])).replace(/[^A-Z0-9]/gi, "");
-                    if (fMtr && vMtr && fMtr !== vMtr) reasons.push("Meter Number Mismatch (" + fMtr + " != " + vMtr + ")");
+                    // 1. Meter RTC Defective Check
+                    var mRem = String(getV(["FINAL_MAIN_METER_SITE_REMARK", "SITE REMARK"])).toUpperCase().trim();
+                    if (mRem.includes("RTC DEFECTIVE") || mRem.includes("RTC DEFECT")) {
+                      reasons.push("Meter RTC Defective");
+                    }
                     
-                    var fMk = String(getV(["FIELD METER MAKE"])).replace(/[^A-Z0-9]/gi, "");
-                    var vMk = String(getV(["LAST MONTH FINAL MM MAKE"])).replace(/[^A-Z0-9]/gi, "");
-                    if (fMk && vMk && fMk !== vMk) reasons.push("Meter Make Mismatch (" + fMk + " != " + vMk + ")");
+                    // 2. Export Failure Message from Billing System
+                    var expF = String(getV(["EXPORT FAILURE MESSAGE", "EXPORT_FAILURE_MESSAGE"])).trim();
+                    if (expF !== "" && expF !== "0" && expF !== "-" && expF.toUpperCase() !== "NAN" && expF.toUpperCase() !== "NULL") {
+                      reasons.push(expF.toUpperCase().includes("REJECT") ? expF : ("Reject By Infinite: " + expF));
+                    }
                     
-                    var expF = String(getV(["EXPORT FAILURE MESSAGE"])).trim();
-                    if (expF && expF !== "0" && expF.toUpperCase() !== "NAN") reasons.push(expF);
+                    // 3. Exact Meter Number & Make Mismatch Check (Same as Rejection After MRI Tab)
+                    function cleanM(v) {
+                      if (!v) return "";
+                      var s = String(v).trim().toUpperCase();
+                      if (s === "" || s === "NAN" || s === "NULL" || s === "BLANK" || s === "NONE" || s === "-") return "";
+                      return s.replace(/[^A-Z0-9]/gi, "");
+                    }
                     
-                    return reasons.length > 0 ? Array.from(new Set(reasons)).join(" | ") : (rejMsg || "No Rejection / Under Process");
+                    var fieldMtr = cleanM(getV(["FIELD METER NUMBER"]));
+                    var visitedMtr = cleanM(getV(["LAST MONTH FINAL MM NO.", "FINAL VISITED MAIN METER NUMBER"]));
+                    var isMismatchNo = (fieldMtr !== "" && visitedMtr !== "" && fieldMtr !== visitedMtr);
+                    
+                    var rawFieldMake = getV(["FIELD METER MAKE"]);
+                    var rawVisitedMake = getV(["LAST MONTH FINAL MM MAKE", "FINAL VISITED MAIN METER MAKE"]);
+                    var normFieldMake = typeof normalizeMeterMake === "function" ? normalizeMeterMake(rawFieldMake) : cleanM(rawFieldMake);
+                    var normVisitedMake = typeof normalizeMeterMake === "function" ? normalizeMeterMake(rawVisitedMake) : cleanM(rawVisitedMake);
+                    var isMismatchMake = (normFieldMake !== "" && normVisitedMake !== "" && normFieldMake !== normVisitedMake);
+                    
+                    if (isMismatchNo && isMismatchMake) {
+                      reasons.push("Meter No. & Make Mismatch (" + fieldMtr + " != " + visitedMtr + " | " + normFieldMake + " != " + normVisitedMake + ")");
+                    } else if (isMismatchNo) {
+                      reasons.push("Meter Number Mismatch (" + fieldMtr + " != " + visitedMtr + ")");
+                    } else if (isMismatchMake) {
+                      reasons.push("Meter Make Mismatch (" + normFieldMake + " != " + normVisitedMake + ")");
+                    }
+                    
+                    // 4. MRI Done But Reads Missing Check
+                    var isMainMriAvail = (function(v) {
+                      var s = String(v || "").trim().toUpperCase();
+                      return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+                    })(getV(["IS MRI AVAILABLE (MAIN METER)", "IS MRI AVAILABLE"]));
+                    
+                    if (isMainMriAvail) {
+                      var rdgMap = window.cachedRdgMap || {};
+                      var meterToCheck = visitedMtr || fieldMtr;
+                      if (meterToCheck) {
+                        var noZ = meterToCheck.replace(/^0+/, "");
+                        if (!rdgMap[meterToCheck] && (!noZ || !rdgMap[noZ])) {
+                          reasons.push("MRI Done But Reads Missing");
+                        }
+                      }
+                    }
+                    
+                    // 5. Final Rejection fallback check
+                    var rejMsg = String(getV(["FINAL REJECTION", "FAILURE MESSAGE"])).trim();
+                    if (reasons.length === 0 && rejMsg !== "" && rejMsg !== "-" && !rejMsg.toUpperCase().includes("NO REJECTION") && rejMsg.toUpperCase() !== "NAN") {
+                      reasons.push(rejMsg);
+                    }
+                    
+                    if (reasons.length > 0) {
+                      return '<i class="fa-solid fa-triangle-exclamation me-1 text-danger"></i> ' + Array.from(new Set(reasons)).join(" | ");
+                    }
+                    
+                    var billStat = String(getV(["BILLING STATUS", "FINAL BILLING TAG"])).toUpperCase();
+                    if (billStat.includes("BILLED") && !billStat.includes("UNBILLED")) {
+                      return '<span style="color:#15803d;"><i class="fa-solid fa-circle-check me-1"></i> Billed Successfully (No Rejection)</span>';
+                    }
+                    return '<span style="color:#64748b;">No Rejection Found / Under Process</span>';
                   })()}
                 </span>
               </div>
