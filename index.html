@@ -928,20 +928,21 @@
         top: 100%;
         right: 0;
         left: auto;
-        margin-top: 5px;
+        margin-top: 6px;
         background: #ffffff; 
         color: #1e293b; 
-        border: 1px solid #cbd5e1; 
-        border-radius: 6px; 
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); 
+        border: 1.5px solid #64748b; 
+        border-radius: 8px; 
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35); 
         z-index: 99999 !important; 
-        max-height: 220px; 
-        overflow-y: auto; 
-        min-width: 170px; 
-        max-width: 250px; 
-        padding: 5px 0; 
+        height: 340px; 
+        max-height: 340px; 
+        min-width: 220px; 
+        max-width: 290px; 
+        padding: 0; 
         text-align: left; 
         font-weight: 500;
+        flex-direction: column;
       }
 
       body.dark-mode .header-filter-popup {
@@ -1825,6 +1826,9 @@ body.dark-mode .view-tab-btn.active-view-tab {
           <button type="button" class="view-tab-btn" id="btn-tab-3m-comparison" onclick="switchAnalyticsSubTab('3m_comparison')">
             <i class="fa-solid fa-chart-area" style="color:#d97706;"></i> 3-Month Comparison Summary
           </button>
+          <button type="button" class="view-tab-btn" id="btn-tab-salary-data" onclick="switchAnalyticsSubTab('salary_data')">
+            <i class="fa-solid fa-file-invoice-dollar" style="color:#2563eb;"></i> Data
+          </button>
         </div>
 
         <!-- 📑 TAB 4: METER READERS WISE PENDENCY (EXACT MATCH WITH IMAGE) -->
@@ -1968,6 +1972,77 @@ body.dark-mode .view-tab-btn.active-view-tab {
           </div>
         </div>
 
+        <!-- 📑 TAB: SALARY / PERFORMANCE DATA SUMMARY -->
+        <div id="analytics-tab-salary-data" style="display: none;">
+          <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #2563eb; padding-bottom: 8px; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <h4 style="margin: 0; font-size: 13.5px; font-weight: 800; color: #1e40af; text-transform: uppercase;">
+                  <i class="fa-solid fa-file-invoice-dollar me-1 text-primary"></i> 5 KW And Above Salary / Performance Data Summary
+                </h4>
+                <span style="font-size: 10.5px; color: #64748b; font-weight: 700;">(Click any cell to view and export Consumer List)</span>
+              </div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button onclick="downloadSalarySummaryExcel()" class="btn-icon" style="height: 30px; padding: 0 10px; font-size: 11px; background: #059669; color: white; border-radius:4px; font-weight:700;" title="Download Summary Excel">
+                  <i class="fa-solid fa-file-excel me-1"></i> Summary Excel
+                </button>
+                <button onclick="downloadSalarySummaryPDF()" class="btn-icon" style="height: 30px; padding: 0 10px; font-size: 11px; background: #dc2626; color: white; border-radius:4px; font-weight:700;" title="Download Summary PDF">
+                  <i class="fa-solid fa-file-pdf me-1"></i> Summary PDF
+                </button>
+                <button onclick="downloadExtraMriOnlyPDF()" class="btn-icon" style="height: 30px; padding: 0 10px; font-size: 11px; background: #7c3aed; color: white; border-radius:4px; font-weight:700;" title="Download Extra MRI Readers PDF">
+                  <i class="fa-solid fa-file-circle-check me-1"></i> Extra MRI PDF
+                </button>
+                <button onclick="downloadSalaryAllConsumersExcel()" class="btn-icon" style="height: 30px; padding: 0 10px; font-size: 11px; background: #0284c7; color: white; border-radius:4px; font-weight:700;" title="Download Filtered Consumers Detailed Excel">
+                  <i class="fa-solid fa-file-excel me-1"></i> Consumers Excel
+                </button>
+              </div>
+            </div>
+
+            <!-- 🔍 Filter Controls: Project Name & Meter Reader Name -->
+            <div style="display: flex; gap: 12px; margin-bottom: 12px; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; align-items: center; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <label style="font-size: 11px; font-weight: 800; color: #334155;">Project:</label>
+                <select id="salary-filter-project" onchange="renderSalaryPerformanceDataSummary()" style="height: 28px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 4px; padding: 0 6px; font-weight: 600;">
+                  <option value="ALL">All Projects</option>
+                  <option value="DvVNL_5 Kw">DvVNL_5 Kw</option>
+                  <option value="DvVNL_10 Kw">DvVNL_10 Kw</option>
+                </select>
+              </div>
+
+              <div style="position: relative; display: flex; align-items: center; gap: 6px;">
+                <label style="font-size: 11px; font-weight: 800; color: #334155;">Meter Readers:</label>
+                <!-- Multi-Select Trigger Button -->
+                <button type="button" id="salary-reader-multiselect-btn" onclick="toggleSalaryReaderDropdown(event)" style="height: 28px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 4px; padding: 0 10px; font-weight: 600; min-width: 175px; background: #ffffff; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                  <span id="salary-reader-btn-text">All Readers (17)</span>
+                  <i class="fa-solid fa-chevron-down ms-1" style="font-size: 9px; color: #64748b;"></i>
+                </button>
+
+                <!-- Dropdown Menu with Checkboxes -->
+                <div id="salary-reader-dropdown-panel" style="display: none; position: absolute; top: 32px; left: 88px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 8px 18px rgba(0,0,0,0.12); z-index: 100; min-width: 220px; max-height: 280px; overflow-y: auto; padding: 6px 8px;">
+                  <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 5px; font-size: 10.5px;">
+                    <a href="javascript:void(0)" onclick="setAllSalaryReaders(true)" style="color: #2563eb; font-weight: 700; text-decoration: none;">Select All</a>
+                    <span style="color: #cbd5e1;">|</span>
+                    <a href="javascript:void(0)" onclick="setAllSalaryReaders(false)" style="color: #dc2626; font-weight: 700; text-decoration: none;">Unselect All</a>
+                  </div>
+                  <div id="salary-reader-checkbox-list" style="display: flex; flex-direction: column; gap: 4px;"></div>
+                </div>
+              </div>
+
+              <button onclick="resetSalaryFilters()" style="height: 28px; padding: 0 10px; font-size: 11px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 4px; cursor: pointer; font-weight: 700; color: #64748b;">
+                <i class="fa-solid fa-rotate-right me-1"></i> Reset
+              </button>
+            </div>
+
+            <!-- Scrollable Table -->
+            <div style="overflow-x: auto; max-height: 560px; -webkit-overflow-scrolling: touch;">
+              <table id="salary-data-main-table" style="width: 100%; min-width: 1650px; border-collapse: collapse; font-size: 11px; text-align: center;">
+                <thead id="salary-data-thead" style="position: sticky; top: 0; z-index: 2;"></thead>
+                <tbody id="salary-data-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <!-- 📑 TAB 1: OPERATIONS SCORECARD (BULLETIN PROGRESSIVE SUMMARY FORMAT) -->
         <div id="analytics-tab-scorecard" style="display: block;">
           <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); width: 100%; box-sizing: border-box; margin-bottom: 12px;">
@@ -2026,6 +2101,9 @@ body.dark-mode .view-tab-btn.active-view-tab {
                   </button>
                   <button onclick="downloadRejectionAfterMriPDF()" class="btn-icon btn-pdf" style="height: 32px; padding: 0 10px; font-size: 11px; background: #dc2626;">
                     <i class="fa-solid fa-file-pdf me-1"></i> List PDF (.pdf)
+                  </button>
+                  <button onclick="downloadRejectionPdfsByDivision()" class="btn-icon" style="height: 32px; padding: 0 10px; font-size: 11px; background: #7c3aed; color: white;" title="Download Separate PDF for Each Division in 1-Click">
+                    <i class="fa-solid fa-layer-group me-1"></i> Division PDFs (1-Click)
                   </button>
                 </div>
               </div>
@@ -2338,6 +2416,31 @@ body.dark-mode .view-tab-btn.active-view-tab {
           <div id="c360-modal-body" style="padding:16px 20px; overflow-y:auto; flex:1; background:#f8fafc; font-size:12px;">
             <!-- Content injected dynamically via JS -->
           </div>
+        </div>
+      </div>
+
+      <!-- 🟢 REPEATED NON-MRI MONTHS 3-MONTH AUDIT HISTORY MODAL -->
+      <div id="repeated-month-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.75); z-index:99999999; justify-content:center; align-items:center; backdrop-filter:blur(4px); font-family:'Rajdhani', sans-serif;">
+        <div style="background:white; width:95%; max-width:980px; max-height:92vh; border-radius:12px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.45); border:2.5px solid #dc2626;">
+          <div style="background:linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%); color:white; padding:12px 20px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <i class="fa-solid fa-clock-rotate-left" style="font-size:22px; color:#fde047;"></i>
+              <div>
+                <h4 style="margin:0; font-size:16px; font-weight:800; letter-spacing:0.5px;">REPEATED NON-MRI 3-MONTH PROGRESSIVE AUDIT HISTORY</h4>
+                <span id="repeated-modal-header-sub" style="font-size:11.5px; opacity:0.9; font-weight:600;">Account: Loading...</span>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button onclick="downloadRepeatedMonthSingleExcel()" class="btn-icon btn-excel" style="height:30px; font-size:11px; padding:0 10px; background:#059669;">
+                <i class="fa-solid fa-file-excel me-1"></i> Excel
+              </button>
+              <button onclick="downloadRepeatedMonthSinglePDF()" class="btn-icon btn-pdf" style="height:30px; font-size:11px; padding:0 10px; background:#1e293b; border:1px solid #94a3b8;">
+                <i class="fa-solid fa-file-pdf me-1"></i> PDF
+              </button>
+              <span onclick="closeRepeatedMonthModal()" style="font-size:26px; cursor:pointer; font-weight:bold; line-height:1; margin-left:8px;">&times;</span>
+            </div>
+          </div>
+          <div id="repeated-month-modal-body" style="padding:16px 20px; overflow-y:auto; flex:1; background:#f8fafc; font-size:12px;"></div>
         </div>
       </div>
 
@@ -2676,7 +2779,7 @@ body.dark-mode .view-tab-btn.active-view-tab {
           doc.setPage(p);
           doc.setFontSize(7.5);
           doc.setTextColor(100, 116, 139);
-          doc.text("Page " + p + " of " + totalPages + " | Sai Computers Ltd RMS Engine", doc.internal.pageSize.width - 150, doc.internal.pageSize.height - 8);
+          doc.text("Page " + p + " of " + totalPages, doc.internal.pageSize.width - 70, doc.internal.pageSize.height - 8);
         }
       }
 
@@ -3207,6 +3310,18 @@ body.dark-mode .view-tab-btn.active-view-tab {
           name: "Independent Consumers List",
           conditions: "",
           columns: "ALL"
+        },
+        {
+          id: "rpt_mri_avail_remark_other",
+          name: "MRI Availble But Reamrk Other Than MRI (Main & Pole Meter)",
+          conditions: "",
+          columns: "DIVISION, SUB DIVISION NAME, ACCOUNT NO, CONSUMER TYPE, METER TYPE (MAIN/POLE), CONSUMER-NAME, ADDRESS, LOAD IN KW, LAST MONTH METER NO., LAST MONTH METER MAKE, SITE METER NUMBER, SITE METER MAKE, EXCEPTION TYPE, SITE REMARK, IS MRI AVAILABLE, MR NAME, MR MOBILE NO."
+        },
+        {
+          id: "rpt_visited_mri_avail_but_not",
+          name: "VisiTed meters MRi Available But MRI Not Availble",
+          conditions: "",
+          columns: "DIVISION, SUB DIVISION NAME, ACCOUNT NO, CONSUMER TYPE, METER TYPE (MAIN/POLE), CONSUMER-NAME, ADDRESS, LOAD IN KW, LAST MONTH METER NO., LAST MONTH METER MAKE, SITE METER NUMBER, SITE METER MAKE, IS MRI AVAILABLE, INVENTIVE VISITED METER MRI AVAILABLE BY MTR NO., MR NAME, MR MOBILE NO."
         }
       ];
 
@@ -4140,6 +4255,133 @@ body.dark-mode .view-tab-btn.active-view-tab {
             if (!isMainSurveyMissing && !isPoleSurveyMissing) continue;
           }
 
+          // 🟢 REPORT 1: MRI Availble But Reamrk Other Than MRI (Main & Pole Meter)
+          if (activeReportMeta && activeReportMeta.id === "rpt_mri_avail_remark_other") {
+            function checkIsMriTrue(v) {
+              var s = String(v || "").trim().toUpperCase();
+              return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+            }
+
+            var mMriAvail = upperRowMap["IS MRI AVAILABLE (MAIN METER)"] || upperRowMap["IS_MRI_AVAILABLE_(MAIN_METER)"];
+            var mExType = String(upperRowMap["EXCEPTION TYPE (MAIN METER)"] || upperRowMap["EXCEPTION TYPE"] || "").trim().toUpperCase();
+            var cleanMEx = mExType.replace(/[^A-Z]/g, '');
+
+            var isMainMatch = checkIsMriTrue(mMriAvail) && cleanMEx !== "MRI";
+
+            var loadVal = parseFloat(String(upperRowMap["LOAD IN KW"] || upperRowMap["LOAD_KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
+            var pMriAvail = upperRowMap["IS MRI AVAILABLE (POLE METER)"] || upperRowMap["IS_MRI_AVAILABLE_(POLE_METER)"];
+            var pExType = String(upperRowMap["EXCEPTION TYPE (POLE METER)"] || "").trim().toUpperCase();
+            var cleanPEx = pExType.replace(/[^A-Z]/g, '');
+
+            var isPoleMatch = (loadVal >= 10) && checkIsMriTrue(pMriAvail) && cleanPEx !== "MRI";
+
+            if (!isMainMatch && !isPoleMatch) continue;
+
+            var mrNameVal = upperRowMap["VISIT LAST MONTH"] || upperRowMap["MR NAME"] || upperRowMap["USER NAME"] || "";
+
+            if (isMainMatch) {
+              var mainRow = Object.assign({}, row);
+              var mainUMap = Object.assign({}, upperRowMap);
+              mainRow["METER TYPE (MAIN/POLE)"] = "MAIN METER";
+              mainRow["LAST MONTH METER NO."] = upperRowMap["LAST MONTH FINAL MM NO."] || "";
+              mainRow["LAST MONTH METER MAKE"] = upperRowMap["LAST MONTH FINAL MM MAKE"] || "";
+              mainRow["SITE METER NUMBER"] = upperRowMap["INENTIVE VISIT METER NUMBER"] || upperRowMap["INVENTIVE VISIT METER NUMBER"] || upperRowMap["FINAL VISITED MAIN METER NUMBER"] || "";
+              mainRow["SITE METER MAKE"] = upperRowMap["INVENTIVE VISIT METER MAKE"] || upperRowMap["FINAL VISITED MAIN METER MAKE"] || "";
+              mainRow["EXCEPTION TYPE"] = upperRowMap["EXCEPTION TYPE (MAIN METER)"] || "";
+              mainRow["SITE REMARK"] = upperRowMap["FINAL_MAIN_METER_SITE_REMARK"] || upperRowMap["SITE REMARK"] || "";
+              mainRow["IS MRI AVAILABLE"] = upperRowMap["IS MRI AVAILABLE (MAIN METER)"] || "";
+              mainRow["MR NAME"] = mrNameVal;
+
+              for (var mk in mainRow) { mainUMap[mk.toUpperCase().trim()] = mainRow[mk]; }
+              mainRow._uMap = mainUMap;
+              clientRenderedRows.push(mainRow);
+            }
+
+            if (isPoleMatch) {
+              var poleRow = Object.assign({}, row);
+              var poleUMap = Object.assign({}, upperRowMap);
+              poleRow["METER TYPE (MAIN/POLE)"] = "POLE METER";
+              poleRow["LAST MONTH METER NO."] = upperRowMap["LAST MONTH FINAL PM NO."] || "";
+              poleRow["LAST MONTH METER MAKE"] = upperRowMap["LAST MONTH FINAL PM MAKE"] || "";
+              poleRow["SITE METER NUMBER"] = upperRowMap["INVENTIVE VISIT POLE METER NUMBER"] || upperRowMap["FINAL VISITED POLE METER NO."] || "";
+              poleRow["SITE METER MAKE"] = upperRowMap["INVENTIVE VISIT POLE METER MAKE"] || upperRowMap["FINAL VISITED POLE METER MAKE"] || "";
+              poleRow["EXCEPTION TYPE"] = upperRowMap["EXCEPTION TYPE (POLE METER)"] || "";
+              poleRow["SITE REMARK"] = upperRowMap["FINAL_POLE_METER_SITE_REMARK"] || upperRowMap["SITE REMARK (POLE)"] || "";
+              poleRow["IS MRI AVAILABLE"] = upperRowMap["IS MRI AVAILABLE (POLE METER)"] || "";
+              poleRow["MR NAME"] = mrNameVal;
+
+              for (var pk in poleRow) { poleUMap[pk.toUpperCase().trim()] = poleRow[pk]; }
+              poleRow._uMap = poleUMap;
+              clientRenderedRows.push(poleRow);
+            }
+
+            continue;
+          }
+
+          // 🟢 REPORT 2: VisiTed meters MRi Available But MRI Not Availble
+          if (activeReportMeta && activeReportMeta.id === "rpt_visited_mri_avail_but_not") {
+            function checkIsMriFalseOrBlank(v) {
+              var s = String(v || "").trim().toUpperCase();
+              return s === "" || s === "FALSE" || s === "0" || s === "NO" || s === "N" || s === "BLANK" || s === "NULL" || s === "NAN" || s === "-";
+            }
+
+            function hasMriOrRtcDefective(v) {
+              var s = String(v || "").trim().toUpperCase();
+              return s.includes("MRI") || s.includes("RTC DEFECTIVE") || s.includes("RTC DEFECT");
+            }
+
+            var mMriAvail = upperRowMap["IS MRI AVAILABLE (MAIN METER)"] || upperRowMap["IS_MRI_AVAILABLE_(MAIN_METER)"];
+            var invMainMri = upperRowMap["INVENTIVE VISITED MAIN METER MRI AVAILABLE BY MTR NO."] || upperRowMap["INVENTIVE VISITED MAIN METER MRI AVAILABLE"];
+
+            var isMainConditionMet = checkIsMriFalseOrBlank(mMriAvail) && hasMriOrRtcDefective(invMainMri);
+
+            var loadVal = parseFloat(String(upperRowMap["LOAD IN KW"] || upperRowMap["LOAD_KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
+            var pMriAvail = upperRowMap["IS MRI AVAILABLE (POLE METER)"] || upperRowMap["IS_MRI_AVAILABLE_(POLE_METER)"];
+            var invPoleMri = upperRowMap["INVENTIVE VISITED METER MRI (POLE) AVAILABLE BY MTR NO."] || upperRowMap["INVENTIVE VISITED METER MRI (POLE) AVAILABLE"];
+
+            var isPoleConditionMet = (loadVal >= 10) && checkIsMriFalseOrBlank(pMriAvail) && hasMriOrRtcDefective(invPoleMri);
+
+            if (!isMainConditionMet && !isPoleConditionMet) continue;
+
+            var mrNameVal2 = upperRowMap["VISIT LAST MONTH"] || upperRowMap["MR NAME"] || upperRowMap["USER NAME"] || "";
+
+            if (isMainConditionMet) {
+              var mainRow2 = Object.assign({}, row);
+              var mainUMap2 = Object.assign({}, upperRowMap);
+              mainRow2["METER TYPE (MAIN/POLE)"] = "MAIN METER";
+              mainRow2["LAST MONTH METER NO."] = upperRowMap["LAST MONTH FINAL MM NO."] || "";
+              mainRow2["LAST MONTH METER MAKE"] = upperRowMap["LAST MONTH FINAL MM MAKE"] || "";
+              mainRow2["SITE METER NUMBER"] = upperRowMap["INENTIVE VISIT METER NUMBER"] || upperRowMap["INVENTIVE VISIT METER NUMBER"] || upperRowMap["FINAL VISITED MAIN METER NUMBER"] || "";
+              mainRow2["SITE METER MAKE"] = upperRowMap["INVENTIVE VISIT METER MAKE"] || upperRowMap["FINAL VISITED MAIN METER MAKE"] || "";
+              mainRow2["IS MRI AVAILABLE"] = upperRowMap["IS MRI AVAILABLE (MAIN METER)"] || "";
+              mainRow2["INVENTIVE VISITED METER MRI AVAILABLE BY MTR NO."] = invMainMri || "";
+              mainRow2["MR NAME"] = mrNameVal2;
+
+              for (var mk2 in mainRow2) { mainUMap2[mk2.toUpperCase().trim()] = mainRow2[mk2]; }
+              mainRow2._uMap = mainUMap2;
+              clientRenderedRows.push(mainRow2);
+            }
+
+            if (isPoleConditionMet) {
+              var poleRow2 = Object.assign({}, row);
+              var poleUMap2 = Object.assign({}, upperRowMap);
+              poleRow2["METER TYPE (MAIN/POLE)"] = "POLE METER";
+              poleRow2["LAST MONTH METER NO."] = upperRowMap["LAST MONTH FINAL PM NO."] || "";
+              poleRow2["LAST MONTH METER MAKE"] = upperRowMap["LAST MONTH FINAL PM MAKE"] || "";
+              poleRow2["SITE METER NUMBER"] = upperRowMap["INVENTIVE VISIT POLE METER NUMBER"] || upperRowMap["FINAL VISITED POLE METER NO."] || "";
+              poleRow2["SITE METER MAKE"] = upperRowMap["INVENTIVE VISIT POLE METER MAKE"] || upperRowMap["FINAL VISITED POLE METER MAKE"] || "";
+              poleRow2["IS MRI AVAILABLE"] = upperRowMap["IS MRI AVAILABLE (POLE METER)"] || "";
+              poleRow2["INVENTIVE VISITED METER MRI AVAILABLE BY MTR NO."] = invPoleMri || "";
+              poleRow2["MR NAME"] = mrNameVal2;
+
+              for (var pk2 in poleRow2) { poleUMap2[pk2.toUpperCase().trim()] = poleRow2[pk2]; }
+              poleRow2._uMap = poleUMap2;
+              clientRenderedRows.push(poleRow2);
+            }
+
+            continue;
+          }
+
           // 🟢 DEPARTMENT MASTER DATA ENGINE (Exact Code 15 Logic)
           if (activeReportMeta && activeReportMeta.id === "rpt_dept_master_data") {
             function toProper(str) {
@@ -4623,6 +4865,16 @@ body.dark-mode .view-tab-btn.active-view-tab {
         }
 
         if (document.getElementById('table-loader')) document.getElementById('table-loader').style.display = 'none';
+        window.rawMasterReportBaseRows = clientRenderedRows.slice();
+        activeHeaderFiltersMap = {};
+
+        // 🟢 फ़िल्टर बदलने के बाद भी चुनी हुई सॉर्टिंग (A to Z / Z to A) बनाए रखें
+        if (typeof multiSortCriteria !== 'undefined' && multiSortCriteria.length > 0) {
+          applyMultiColumnSort();
+        } else if (typeof currentSortColumn !== 'undefined' && currentSortColumn) {
+          handleTableSortColumn(currentSortColumn);
+        }
+
         var counterBadge = document.getElementById('report-live-counter');
         if (counterBadge) {
           counterBadge.innerText = "Total: " + clientRenderedRows.length;
@@ -8396,6 +8648,12 @@ window.addEventListener('click', function(event) {
           var uniqueValsArr = Array.from(uniqueValsSet).sort();
 
           var popupContentHtml = '<div id="hf-popup-' + colDataIdx + '" class="header-filter-popup" onclick="event.stopPropagation()">';
+          // 🟢 A to Z and Z to A Quick Sorter Buttons
+          popupContentHtml += '<div style="display:flex; gap:4px; padding:6px 8px; background:#f1f5f9; border-bottom:1px solid #cbd5e1;">' +
+            '<button type="button" onclick="sortMainTableByHeader(\'' + colKey + '\', \'asc\'); closeAllHeaderPopups();" style="flex:1; background:#ffffff; border:1px solid #cbd5e1; border-radius:4px; padding:4px; font-size:10px; font-weight:700; color:#0f172a; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;"><i class="fa-solid fa-arrow-down-a-z" style="color:#2563eb;"></i> Sort A to Z</button>' +
+            '<button type="button" onclick="sortMainTableByHeader(\'' + colKey + '\', \'desc\'); closeAllHeaderPopups();" style="flex:1; background:#ffffff; border:1px solid #cbd5e1; border-radius:4px; padding:4px; font-size:10px; font-weight:700; color:#0f172a; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;"><i class="fa-solid fa-arrow-up-z-a" style="color:#dc2626;"></i> Sort Z to A</button>' +
+            '</div>';
+
           popupContentHtml += '<div class="header-filter-option" style="background:#f8f9fa; border-bottom:1px solid #e8eaed; font-weight:bold; position:sticky; top:0; z-index:10;">' +
             '<input type="checkbox" id="hf-all-' + colDataIdx + '" checked onclick="toggleAllHeaderCheckboxes(' + colDataIdx + ', this)">' +
             '<label style="cursor:pointer; width:100%;" for="hf-all-' + colDataIdx + '">Select All</label>' +
@@ -8410,7 +8668,7 @@ window.addEventListener('click', function(event) {
           });
 
           popupContentHtml += '</div>' +
-            '<div style="padding: 6px 10px; background: #f1f3f4; border-top: 1px solid #bfc4ca; text-align: right; display: flex; justify-content: space-between; align-items: center;">' +
+            '<div style="padding: 6px 10px; background: #f1f5f4; border-top: 1px solid #bfc4ca; text-align: right; display: flex; justify-content: space-between; align-items: center;">' +
             '<span style="font-size: 10px; color: #5f6368; font-weight: bold;">RMS Engine</span>' +
             '<button onclick="applyLiveHeaderChecklistFilter(' + colDataIdx + '); closeAllHeaderPopups();" style="background: #1a73e8; color: white; border: none; padding: 4px 12px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer;">Apply</button>' +
             '</div></div>';
@@ -8873,67 +9131,68 @@ window.addEventListener('click', function(event) {
       }
 
       function executeHeaderFiltersSync() {
-        var table = document.getElementById("data-table");
-        if (!table) return;
-        var tr = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-        var currentVisibleRowsList = [];
+        if (!window.rawMasterReportBaseRows) {
+          window.rawMasterReportBaseRows = clientRenderedRows.slice();
+        }
+
         var filterKeys = Object.keys(activeHeaderFiltersMap);
-        var trLen = tr.length;
 
-        for (var i = 0; i < trLen; i++) {
-          var showRow = true;
-          var rowCells = tr[i].getElementsByTagName("td");
+        // 🟢 अगर कोई हेडर फ़िल्टर सक्रिय नहीं है, तो पूरा डेटा रीस्टोर करें
+        if (filterKeys.length === 0) {
+          clientRenderedRows = window.rawMasterReportBaseRows.slice();
+        } else {
+          // 🟢 डेटा ऐरे में से केवल वही पंक्तियाँ रखें जो सभी हेडर फ़िल्टर्स से मेल खाती हैं
+          clientRenderedRows = window.rawMasterReportBaseRows.filter(function(row) {
+            var u = row._uMap || row;
+            for (var f = 0; f < filterKeys.length; f++) {
+              var colIdx = parseInt(filterKeys[f]);
+              var headerCol = activeTableHeadersList[colIdx - 1];
+              if (!headerCol) continue;
 
-          for (var f = 0; f < filterKeys.length; f++) {
-            var colIdx = filterKeys[f];
-            var td = rowCells[parseInt(colIdx)];
-            if (td) {
-              var cellText = td.textContent.trim().toUpperCase();
+              var normTarget = headerCol.toUpperCase().replace(/[^A-Z0-9]/g, '');
+              var val = "";
+
+              if (row[headerCol] !== undefined && row[headerCol] !== null && String(row[headerCol]).trim() !== "") {
+                val = row[headerCol];
+              } else {
+                for (var k in u) {
+                  if (k.replace(/[^A-Z0-9]/g, '').toUpperCase() === normTarget) {
+                    val = u[k];
+                    break;
+                  }
+                }
+              }
+
+              var cellText = String(val !== undefined && val !== null ? val : "").trim().toUpperCase();
               if (cellText === "") cellText = "BLANK";
-              
+
               if (!activeHeaderFiltersMap[colIdx].includes(cellText)) {
-                showRow = false;
-                break;
+                return false;
               }
             }
-          }
-
-          if (showRow) {
-            tr[i].style.display = "";
-            if (clientRenderedRows && clientRenderedRows[i]) {
-              currentVisibleRowsList.push(clientRenderedRows[i]);
-            }
-          } else {
-            tr[i].style.display = "none";
-          }
+            return true;
+          });
         }
 
-        var sNo = 1;
-        for (var i = 0; i < trLen; i++) {
-          if (tr[i].style.display !== "none") {
-            tr[i].getElementsByTagName("td")[0].textContent = sNo++;
-          }
-        }
+        // 🟢 Excel और PDF दोनों को यही फ़िल्टर हुआ डेटा मिलेगा
+        window.clientRenderedRows = clientRenderedRows;
+        currentPageNumber = 1;
 
         var counterBadge = document.getElementById('report-live-counter');
         if (counterBadge) {
-          counterBadge.innerText = "Total: " + currentVisibleRowsList.length;
+          counterBadge.innerText = "Total: " + clientRenderedRows.length;
         }
 
-        if (filterKeys.length > 0) {
-          window.globalBackupRows = window.clientRenderedRows; 
-          window.clientRenderedRows = currentVisibleRowsList;    
-          if (typeof reportSummaryCache !== 'undefined') reportSummaryCache = {}; 
-          calculateClassicPivotMatrix(); 
-          window.clientRenderedRows = window.globalBackupRows; 
-        } else {
-          if (typeof reportSummaryCache !== 'undefined') reportSummaryCache = {};
-          calculateClassicPivotMatrix(); 
-        }
+        renderClientTable(activeTableHeadersList);
       }
 
       function downloadCombinedSummaryWithListPDF() {
-        if (!clientRenderedRows || clientRenderedRows.length === 0) {
+        // 🟢 सुनिश्चित करें कि स्क्रीन पर दिखने वाला सॉर्टेड डेटा ही एक्सपोर्ट हो
+        var exportRows = (window.clientRenderedRows && window.clientRenderedRows.length > 0) 
+                          ? window.clientRenderedRows 
+                          : clientRenderedRows;
+
+        if (!exportRows || exportRows.length === 0) {
           alert("डाउनलोड करने के लिए डेटा उपलब्ध नहीं है!");
           return;
         }
@@ -9058,7 +9317,11 @@ window.addEventListener('click', function(event) {
       }
 
       function downloadCombinedSummaryWithListExcel() {
-        if (!clientRenderedRows || clientRenderedRows.length === 0) {
+        var exportRows = (window.clientRenderedRows && window.clientRenderedRows.length > 0) 
+                          ? window.clientRenderedRows 
+                          : clientRenderedRows;
+
+        if (!exportRows || exportRows.length === 0) {
           alert("डाउनलोड करने के लिए डेटा उपलब्ध नहीं है!");
           return;
         }
@@ -13805,6 +14068,12 @@ function triggerPostFilterUpdates() {
     if (tab3MComp && tab3MComp.style.display !== 'none') {
       if (typeof render3MComparisonDashboard === "function") render3MComparisonDashboard();
     }
+
+    // 5. Salary Data टैब अपडेट करें
+    var tabSalary = document.getElementById('analytics-tab-salary-data');
+    if (tabSalary && tabSalary.style.display !== 'none') {
+      if (typeof renderSalaryPerformanceDataSummary === "function") renderSalaryPerformanceDataSummary();
+    }
   }
 }
 
@@ -14117,16 +14386,21 @@ function switchAnalyticsSubTab(targetTab) {
   if (btnTotalEx) btnTotalEx.classList.remove('active-view-tab');
 
   activeRemarkCardFilter = null; // 🟢 Reset card selection on tab switch
+  // नोट: activeRejSortCol और activeRejSortDir को यहाँ null नहीं करना है ताकि आपकी A to Z सॉर्टिंग बनी रहे
 
   var tabMrPendency = document.getElementById('analytics-tab-mr-pendency');
   var btnMrPendency = document.getElementById('btn-tab-mr-pendency');
   var tab3MComp = document.getElementById('analytics-tab-3m-comparison');
   var btn3MComp = document.getElementById('btn-tab-3m-comparison');
+  var tabSalaryData = document.getElementById('analytics-tab-salary-data');
+  var btnSalaryData = document.getElementById('btn-tab-salary-data');
 
   if (tabMrPendency) tabMrPendency.style.display = 'none';
   if (btnMrPendency) btnMrPendency.classList.remove('active-view-tab');
   if (tab3MComp) tab3MComp.style.display = 'none';
   if (btn3MComp) btn3MComp.classList.remove('active-view-tab');
+  if (tabSalaryData) tabSalaryData.style.display = 'none';
+  if (btnSalaryData) btnSalaryData.classList.remove('active-view-tab');
 
   if (targetTab === 'scorecard') {
     tabScorecard.style.display = 'block';
@@ -14162,6 +14436,10 @@ function switchAnalyticsSubTab(targetTab) {
     if (tab3MComp) tab3MComp.style.display = 'block';
     if (btn3MComp) btn3MComp.classList.add('active-view-tab');
     render3MComparisonDashboard();
+  } else if (targetTab === 'salary_data') {
+    if (tabSalaryData) tabSalaryData.style.display = 'block';
+    if (btnSalaryData) btnSalaryData.classList.add('active-view-tab');
+    renderSalaryPerformanceDataSummary();
   }
 }
 
@@ -14197,11 +14475,89 @@ function computeRejectionAfterMriData() {
     return str.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
   }
 
+  function calculateRepeatedNonMriMonths(uMap, meterScope) {
+    var isPole = (meterScope === "POLE");
+
+    function isNonMriCheck(remVal, exVal, mriAvailVal) {
+      var r = String(remVal || "").toUpperCase().trim();
+      var e = String(exVal || "").toUpperCase().trim();
+      var m = String(mriAvailVal || "").toUpperCase().trim();
+      var isMri = (r.includes("MRI DONE") || r.includes("CMRI DONE") || r.includes("OK APP") || e === "MRI" || m === "TRUE" || m === "YES" || m === "1");
+      return !isMri && r !== "" && r !== "-" && r !== "NAN" && r !== "NULL";
+    }
+
+    // M0 (Current Month)
+    var m0Rem = isPole ? (uMap["FINAL_POLE_METER_SITE_REMARK"] || uMap["SITE REMARK (POLE)"]) : (uMap["FINAL_MAIN_METER_SITE_REMARK"] || uMap["SITE REMARK"]);
+    var m0Ex = isPole ? uMap["EXCEPTION TYPE (POLE METER)"] : uMap["EXCEPTION TYPE (MAIN METER)"];
+    var m0Mri = isPole ? uMap["IS MRI AVAILABLE (POLE METER)"] : uMap["IS MRI AVAILABLE (MAIN METER)"];
+    var m0IsNon = isNonMriCheck(m0Rem, m0Ex, m0Mri);
+
+    // M1 (Last Month / M-1 / Aug)
+    var m1Rem = isPole 
+      ? (uMap["LAST MONTH POLE SITE REMARK"] || uMap["LAST_MONTH_POLE_SITE_REMARK"] || uMap["LAST MONTH FINAL PM REMARK"] || "") 
+      : (uMap["LAST_MONTH SITE REMARK"] || uMap["LAST_MONTH_SITE_REMARK"] || uMap["LAST MONTH SITE REMARK"] || uMap["LAST 1 MONTH SITE REMARK"] || "");
+
+    var m1Ex = "";
+    var m1Mri = isPole 
+      ? (uMap["LAST MONTH MRI AVAILABLE (POLE MTR)"] || uMap["IS MRI AVAILABLE (POLE METER)"] || "") 
+      : (uMap["LAST MONTH MRI AVAILABLE (MAIN METER)"] || uMap["IS MRI AVAILABLE (MAIN METER)"] || "");
+
+    // यदि डायरेक्ट नाम से न मिले तो लूप से फ़ॉलबैक सर्च
+    if (!m1Rem) {
+      for (var k in uMap) {
+        var kn = k.toUpperCase().replace(/[^A-Z0-9]/g, "");
+        if (isPole) {
+          if (kn.includes("LAST2") || kn.includes("2MONTH")) continue;
+          if (kn.includes("POLE") && kn.includes("REMARK") && (kn.includes("LAST") || kn.includes("LM"))) {
+            if (uMap[k] && String(uMap[k]).trim() !== "" && String(uMap[k]).trim() !== "-") { m1Rem = uMap[k]; break; }
+          }
+        } else {
+          if (kn.includes("POLE") || kn.includes("PM") || kn.includes("LAST2") || kn.includes("2MONTH")) continue;
+          if ((kn.includes("LASTMONTHSITEREMARK") || kn.includes("LASTSITEREMARK") || kn.includes("LMREMARK")) && (kn.includes("REMARK") || kn.includes("SITE"))) {
+            if (uMap[k] && String(uMap[k]).trim() !== "" && String(uMap[k]).trim() !== "-") { m1Rem = uMap[k]; break; }
+          }
+        }
+      }
+    }
+    var m1IsNon = isNonMriCheck(m1Rem, m1Ex, m1Mri);
+
+    // M2 (2 Months Prior / M-2)
+    var m2Rem = "";
+    var m2Ex = "";
+    var m2Mri = "";
+    for (var k2 in uMap) {
+      var kn2 = k2.toUpperCase().replace(/[^A-Z0-9]/g, "");
+      if (isPole) {
+        if (kn2.includes("LAST2MONTHPOLE") || kn2.includes("2MONTHPOLE")) m2Rem = uMap[k2];
+      } else {
+        if (kn2.includes("POLE") || kn2.includes("PM")) continue;
+        if (kn2.includes("LAST2MONTHREMARK") || kn2.includes("2MONTHREMARK") || kn2.includes("LAST2MONTHSITEREMARK")) m2Rem = uMap[k2];
+        if (kn2.includes("LAST2MONTHEXCEPTION")) m2Ex = uMap[k2];
+        if (kn2.includes("LAST2MONTHMRIAVAIL")) m2Mri = uMap[k2];
+      }
+    }
+    if (!m2Rem) m2Rem = isPole ? (uMap["LAST 2 MONTH POLE SITE REMARK"] || "") : (uMap["LAST 2 MONTHS SITE REMARK"] || uMap["LAST 2 MONTH SITE REMARK"] || "");
+    if (!m2Mri) m2Mri = isPole ? (uMap["LAST 2 MONTH MRI AVAILABLE (POLE MTR)"] || "") : (uMap["LAST 2 MONTH MRI AVAILABLE (MAIN METER)"] || "");
+    var m2IsNon = isNonMriCheck(m2Rem, m2Ex, m2Mri);
+
+    var count = 0;
+    if (m0IsNon) count++;
+    if (m1IsNon) count++;
+    if (m2IsNon) count++;
+
+    if (count === 3) return "3 Months (Continuous)";
+    if (count === 2) return "2 Months";
+    return "1 Month (Current)";
+  }
+
   function pushRecordToResults(rObj, uMap, dVal, reasonStr, bM, fM, fMk, vM, vMk, catLabel) {
     var mrMobileVal = String(
       uMap["MR MOBILE NO."] || uMap["MR MOBILE NO"] || uMap["MR MOBILE NUMBER"] || 
       uMap["MR CONTACT NO."] || uMap["MR CONTACT NO"] || uMap["MR PHONE"] || "-"
     ).trim();
+
+    var meterScopeType = (catLabel && catLabel.includes("Pole")) ? "POLE" : "MAIN";
+    var reptMonths = calculateRepeatedNonMriMonths(uMap, meterScopeType);
 
     results.push({
       rawRow: rObj,
@@ -14212,6 +14568,7 @@ function computeRejectionAfterMriData() {
       consumerName: toProper(uMap["CONSUMER-NAME"] || uMap["CONSUMER NAME"] || ""),
       address: toProper(uMap["ADDRESS"] || uMap["COMPLETE ADRESS"] || "-"),
       load: String(uMap["LOAD IN KW"] || uMap["LOAD_KW"] || uMap["LOAD"] || "-").trim(),
+      repeatedMonth: reptMonths,
       billedMtr: bM || "-",
       fieldMtr: fM || "-",
       fieldMake: fMk || "-",
@@ -14457,14 +14814,22 @@ function computeRejectionAfterMriData() {
     }
   }
 
-  var elSub = document.getElementById("mri-rejection-sub-count");
-  if (elSub) {
+  var subEl = document.getElementById("mri-rejection-sub-count");
+  if (subEl) {
     var filterLabel = activeRemarkCardFilter ? ` (Filtered by: ${activeRemarkCardFilter})` : "";
-    elSub.innerText = `Total Found: ${finalDisplayResults.length} / ${results.length}${filterLabel}`;
+    subEl.innerText = `Total Found: ${finalDisplayResults.length} / ${results.length}${filterLabel}`;
   }
 
   cachedMriRejectionRows = finalDisplayResults;
-  return finalDisplayResults;
+  window.baseRejectionRows = finalDisplayResults.slice();
+
+  // 🟢 यदि पहले से कोई कॉलम सॉर्ट किया गया है, तो बेस और कैश दोनों को उसी क्रम में लॉक रखें
+  if (typeof activeRejSortCol !== 'undefined' && activeRejSortCol) {
+    applySortingToRejectionArray(window.baseRejectionRows);
+    applySortingToRejectionArray(cachedMriRejectionRows);
+  }
+
+  return cachedMriRejectionRows;
 }
 
 // 🟢 Global filter variable for clicked remark card
@@ -14676,6 +15041,10 @@ function renderDynamicKpiCards(isAllMriRej, c, remarkFrequencies, isTotalEx) {
   }
 }
 
+// 🟢 Global Sorting Retention Variables
+var activeRejSortCol = null;
+var activeRejSortDir = 'asc';
+
 function renderRejectionAfterMriTable() {
   var tbody = document.getElementById("mri-rejection-tbody");
   var thead = document.querySelector("#analytics-tab-mri-rejection table thead");
@@ -14742,6 +15111,7 @@ function renderRejectionAfterMriTable() {
       colsConfig.push({ key: "category", title: "Category" });
     }
     colsConfig.push(
+      { key: "repeatedMonth", title: "Repeated Month" },
       { key: "visitedMtr", title: mtrCol },
       { key: "visitedMake", title: makeCol },
       { key: "failureMessage", title: remLabel, isRed: true },
@@ -14755,7 +15125,7 @@ function renderRejectionAfterMriTable() {
 
   colsConfig.forEach(function(col, cIdx) {
     var colDataIdx = cIdx + 1; // 1-based index (Sr is 0)
-    var uniqueSet = new Set();
+    var uniqueNormalizedMap = {};
 
     rawData.forEach(function(item) {
       var val = "";
@@ -14764,42 +15134,69 @@ function renderRejectionAfterMriTable() {
       } else {
         val = String(item[col.key] || "").trim();
       }
-      if (val && val !== "-") uniqueSet.add(val);
+      if (val && val !== "-") {
+        // केस और स्पेस को मानकीकृत करके एक ही विकल्प बनाएं
+        var cleanK = val.toUpperCase().replace(/[\u00A0\s]+/g, " ").trim();
+        if (!uniqueNormalizedMap[cleanK]) {
+          uniqueNormalizedMap[cleanK] = val; // पहला वास्तविक रूप सुरक्षित रखें
+        }
+      }
     });
 
-    var uniqueArr = Array.from(uniqueSet).sort();
+    var uniqueArr = Object.values(uniqueNormalizedMap).sort(function(a, b){
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    });
+
+    var isColSorted = (activeRejSortCol === col.key);
+    var sortIcon = isColSorted ? (activeRejSortDir === 'asc' ? ' <i class="fa-solid fa-arrow-up-short-wide text-info"></i>' : ' <i class="fa-solid fa-arrow-down-wide-short text-warning"></i>') : '';
 
     var popupHtml = '<div id="rej-hf-popup-' + colDataIdx + '" class="header-filter-popup" onclick="event.stopPropagation()">';
     
-    // 🟢 Manual Search Box inside Filter Popup
-    popupHtml += '<div style="padding: 4px 6px; background: #ffffff; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 12;">' +
-      '<input type="text" placeholder="Search..." oninput="filterRejPopupList(' + colDataIdx + ', this.value)" style="width: 100%; padding: 4px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 4px; outline: none; font-family: inherit; box-sizing: border-box;">' +
+    // 🟢 A to Z and Z to A Buttons inside Sub-Tabs Popups
+    popupHtml += '<div style="display:flex; gap:6px; padding:6px 8px; background:#f1f5f9; border-bottom:1.5px solid #cbd5e1;">' +
+      '<button type="button" onclick="sortRejectionTableByCol(\'' + col.key + '\', \'asc\'); closeAllHeaderPopups();" style="flex:1; background:#ffffff; border:1px solid #94a3b8; border-radius:4px; padding:5px 4px; font-size:10.5px; font-weight:800; color:#0f172a; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;"><i class="fa-solid fa-arrow-down-a-z" style="color:#2563eb;"></i> Sort A to Z</button>' +
+      '<button type="button" onclick="sortRejectionTableByCol(\'' + col.key + '\', \'desc\'); closeAllHeaderPopups();" style="flex:1; background:#ffffff; border:1px solid #94a3b8; border-radius:4px; padding:5px 4px; font-size:10.5px; font-weight:800; color:#0f172a; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;"><i class="fa-solid fa-arrow-up-z-a" style="color:#dc2626;"></i> Sort Z to A</button>' +
       '</div>';
 
-    popupHtml += '<div class="header-filter-option" style="background:#f8f9fa; border-bottom:1px solid #e8eaed; font-weight:bold; position:sticky; top:29px; z-index:10;">' +
-      '<input type="checkbox" id="rej-hf-all-' + colDataIdx + '" checked onclick="toggleRejHeaderCheckboxes(' + colDataIdx + ', this)">' +
-      '<label style="cursor:pointer; width:100%;" for="rej-hf-all-' + colDataIdx + '">Select All</label>' +
-      '</div><div id="rej-hf-list-' + colDataIdx + '" style="max-height:160px; overflow-y:auto;">';
+    // 🟢 Manual Search Box inside Filter Popup
+    popupHtml += '<div style="padding: 6px 8px; background: #ffffff; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 12;">' +
+      '<input type="text" placeholder="Search in filter..." oninput="filterRejPopupList(' + colDataIdx + ', this.value)" style="width: 100%; padding: 5px 8px; font-size: 11px; border: 1.5px solid #cbd5e1; border-radius: 4px; outline: none; font-family: inherit; box-sizing: border-box;">' +
+      '</div>';
+
+    var curFilterArr = activeRejHeaderFiltersMap[colDataIdx];
+    var isMasterChecked = !curFilterArr || (curFilterArr.length === uniqueArr.length);
+
+    popupHtml += '<div class="header-filter-option" style="background:#f8fafc; border-bottom:1.5px solid #e2e8f0; font-weight:bold; padding:6px 10px; flex-shrink:0;">' +
+      '<input type="checkbox" id="rej-hf-all-' + colDataIdx + '" ' + (isMasterChecked ? 'checked' : '') + ' onclick="toggleRejHeaderCheckboxes(' + colDataIdx + ', this)">' +
+      '<label style="cursor:pointer; width:100%; font-weight:800;" for="rej-hf-all-' + colDataIdx + '">Select All (' + uniqueArr.length + ')</label>' +
+      '</div><div id="rej-hf-list-' + colDataIdx + '" style="flex:1; overflow-y:auto; padding:4px 0; min-height:80px;">';
 
     uniqueArr.forEach(function(uVal, uIdx) {
       var optId = 'rej-hf-chk-' + colDataIdx + '-' + uIdx;
-      popupHtml += '<div class="header-filter-option">' +
-        '<input type="checkbox" class="rej-hf-chk-' + colDataIdx + '" id="' + optId + '" value="' + uVal.replace(/"/g, '&quot;') + '" checked>' +
+      var cleanValUpper = uVal.toUpperCase().replace(/[\u00A0\s]+/g, " ").trim();
+      var isChecked = !curFilterArr || curFilterArr.includes(cleanValUpper);
+
+      popupHtml += '<div class="header-filter-option" style="padding:5px 10px; font-size:11.5px;">' +
+        '<input type="checkbox" class="rej-hf-chk-' + colDataIdx + '" id="' + optId + '" value="' + uVal.replace(/"/g, '&quot;') + '" ' + (isChecked ? 'checked' : '') + '>' +
         '<label style="cursor:pointer; width:100%; white-space:nowrap;" for="' + optId + '">' + uVal + '</label>' +
         '</div>';
     });
 
     popupHtml += '</div>' +
-      '<div style="padding: 6px 10px; background: #f1f3f4; border-top: 1px solid #bfc4ca; text-align: right; display: flex; justify-content: space-between; align-items: center;">' +
-      '<span style="font-size: 10px; color: #5f6368; font-weight: bold;">Filter</span>' +
-      '<button type="button" onclick="applyRejHeaderChecklistFilter(' + colDataIdx + '); closeAllHeaderPopups();" style="background: #1a73e8; color: white; border: none; padding: 4px 12px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer;">Apply</button>' +
+      '<div style="padding:8px 10px; background:#f1f5f9; border-top:1.5px solid #cbd5e1; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">' +
+      '<span style="font-size:10.5px; color:#475569; font-weight:800;">Filters</span>' +
+      '<button type="button" onclick="applyRejHeaderChecklistFilter(' + colDataIdx + '); closeAllHeaderPopups();" style="background:#1a73e8; color:white; border:none; padding:5px 16px; font-size:11.5px; font-weight:800; border-radius:4px; cursor:pointer; box-shadow:0 1px 4px rgba(26,115,232,0.3);">Apply Filter</button>' +
       '</div></div>';
+
+    var isFilterActive = !!activeRejHeaderFiltersMap[colDataIdx];
+    var iconColor = isFilterActive ? '#f59e0b' : '#ced4da';
+    var iconClass = isFilterActive ? 'fa-filter-circle-xmark' : 'fa-filter';
 
     var thBg = col.isRed ? 'background: #991b1b; color: white;' : (col.key === 'meterScope' ? 'background: #1e3a8a; color: #fff;' : '');
     headHtml += '<th class="resizable-th" style="padding: 7px 8px; position: relative; white-space: nowrap; padding-right: 22px !important; ' + thBg + '">' +
-      col.title +
+      '<span onclick="sortRejectionTableByCol(\'' + col.key + '\', \'' + (activeRejSortCol === col.key && activeRejSortDir === 'asc' ? 'desc' : 'asc') + '\')" style="cursor:pointer;" title="Click to Sort">' + col.title + sortIcon + '</span>' +
       '<span class="header-filter-container" onclick="event.stopPropagation(); toggleRejHeaderPopup(' + colDataIdx + ', event)" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%);">' +
-      '<i class="fa-solid fa-filter header-filter-icon" id="rej-hf-icon-' + colDataIdx + '" style="cursor:pointer; font-size:10.5px; color:#ced4da;"></i>' +
+      '<i class="fa-solid ' + iconClass + ' header-filter-icon" id="rej-hf-icon-' + colDataIdx + '" style="cursor:pointer; font-size:10.5px; color:' + iconColor + ';"></i>' +
       popupHtml +
       '</span>' +
       '</th>';
@@ -14808,63 +15205,8 @@ function renderRejectionAfterMriTable() {
   headHtml += '</tr>';
   thead.innerHTML = headHtml;
 
-  var data = computeRejectionAfterMriData();
-  if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="15" style="padding: 20px; font-weight: bold; color: #16a34a;">✓ No Records Found for the Selected Filter.</td></tr>';
-    return;
-  }
-
-  var html = "";
-  data.forEach(function(item, idx) {
-    var meterScopeText = (item.category && item.category.includes("Pole")) || currentMriRejectionFilterMode === 'non_mri_pole' ? "Pole Meter" : "Main Meter";
-    var scopeBadgeColor = (meterScopeText === "Pole Meter") ? "#7c3aed" : "#1d4ed8";
-
-    if (isAllMri) {
-      html += `
-        <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'">
-          <td style="padding: 6px; font-weight: 700; color: #64748b;">${idx + 1}</td>
-          <td style="padding: 6px 8px; font-weight: 800; color: ${scopeBadgeColor};">${meterScopeText}</td>
-          <td style="padding: 6px 8px; font-weight: 700; color: #1e293b;">${item.division}</td>
-          <td style="padding: 6px 8px; font-weight: 800; color: #1a73e8; cursor: pointer; text-decoration: underline;" onclick="openConsumer360ByAccount('${item.accountNo}')">${item.accountNo}</td>
-          <td style="padding: 6px 8px; font-weight: 600;">${item.consumerType}</td>
-          <td style="padding: 6px 8px; font-weight: 700; color: #0284c7;">${item.tariff}</td>
-          <td style="padding: 6px 8px; text-align: left; font-weight: 600; color: #334155;">${item.consumerName}</td>
-          <td style="padding: 6px 8px; text-align: left; font-size: 10.5px; color: #475569; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${item.address}">${item.address}</td>
-          <td style="padding: 6px 8px; font-weight: 700;">${item.load}</td>
-          <td style="padding: 6px 8px; font-family: monospace;">${item.billedMtr}</td>
-          <td style="padding: 6px 8px; font-family: monospace; font-weight: 700;">${item.fieldMtr}</td>
-          <td style="padding: 6px 8px;">${item.fieldMake}</td>
-          <td style="padding: 6px 8px; font-family: monospace; font-weight: 700; color: #2563eb;">${item.visitedMtr}</td>
-          <td style="padding: 6px 8px; color: #7c3aed; font-weight: 600;">${item.visitedMake}</td>
-          <td style="padding: 6px 10px; text-align: left; font-weight: 700; color: #dc2626; font-size: 10.5px;">${item.failureMessage}</td>
-          <td style="padding: 6px 8px; font-weight: 600;">${item.mrName}</td>
-          <td style="padding: 6px 8px; font-family: monospace; font-weight: bold;">${item.mrMobile}</td>
-        </tr>
-      `;
-    } else {
-      html += `
-        <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'">
-          <td style="padding: 6px; font-weight: 700; color: #64748b;">${idx + 1}</td>
-          <td style="padding: 6px 8px; font-weight: 800; color: ${scopeBadgeColor};">${meterScopeText}</td>
-          <td style="padding: 6px 8px; font-weight: 700; color: #1e293b;">${item.division}</td>
-          <td style="padding: 6px 8px; font-weight: 800; color: #1a73e8; cursor: pointer; text-decoration: underline;" onclick="openConsumer360ByAccount('${item.accountNo}')">${item.accountNo}</td>
-          <td style="padding: 6px 8px; font-weight: 600;">${item.consumerType}</td>
-          <td style="padding: 6px 8px; font-weight: 700; color: #0284c7;">${item.tariff}</td>
-          <td style="padding: 6px 8px; text-align: left; font-weight: 600; color: #334155;">${item.consumerName}</td>
-          <td style="padding: 6px 8px; text-align: left; font-size: 10.5px; color: #475569; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${item.address}">${item.address}</td>
-          <td style="padding: 6px 8px; font-weight: 700;">${item.load}</td>
-          ${isTotalEx ? `<td style="padding: 6px 8px; font-weight: 700; color: #1d4ed8;">${item.category}</td>` : ''}
-          <td style="padding: 6px 8px; font-family: monospace; font-weight: 700; color: #2563eb;">${item.visitedMtr}</td>
-          <td style="padding: 6px 8px; color: #7c3aed; font-weight: 600;">${item.visitedMake}</td>
-          <td style="padding: 6px 10px; text-align: left; font-weight: 700; color: #dc2626; font-size: 10.5px;">${item.failureMessage}</td>
-          <td style="padding: 6px 8px; font-weight: 600;">${item.mrName}</td>
-          <td style="padding: 6px 8px; font-family: monospace; font-weight: bold; white-space:nowrap;">${item.mrMobile}</td>
-        </tr>
-      `;
-    }
-  });
-
-  tbody.innerHTML = html;
+  // सॉर्टिंग और फ़िल्टरिंग सिंक
+  executeRejTableFiltersSync();
 }
 // ==========================================
 // 🟢 REJECTION & ANALYTICS HEADER FILTER ENGINE
@@ -14875,10 +15217,10 @@ function toggleRejHeaderPopup(colIdx, event) {
   if (event) event.stopPropagation();
   var popup = document.getElementById("rej-hf-popup-" + colIdx);
   if (!popup) return;
-  var isOpen = (popup.style.display === "block");
+  var isOpen = (popup.style.display === "flex" || popup.style.display === "block");
   closeAllHeaderPopups();
   if (!isOpen) {
-    popup.style.display = "block";
+    popup.style.display = "flex";
   }
 }
 
@@ -14917,52 +15259,1596 @@ function applyRejHeaderChecklistFilter(colIdx) {
   executeRejTableFiltersSync();
 }
 
-function executeRejTableFiltersSync() {
-  var table = document.querySelector("#analytics-tab-mri-rejection table");
-  if (!table) return;
-  var tbody = table.querySelector("tbody");
+function sortRejectionTableByCol(colKey, direction) {
+  activeRejSortCol = colKey;
+  activeRejSortDir = direction || 'asc';
+
+  if (window.baseRejectionRows && window.baseRejectionRows.length > 0) {
+    applySortingToRejectionArray(window.baseRejectionRows);
+  }
+  if (cachedMriRejectionRows && cachedMriRejectionRows.length > 0) {
+    applySortingToRejectionArray(cachedMriRejectionRows);
+  }
+
+  // 🟢 स्क्रीन पर तुरंत सॉर्टेड क्रम रेंडर करें
+  renderRejectionTbodyRows();
+
+  if (typeof showGlobalCopyToast === "function") {
+    showGlobalCopyToast("Sorted " + activeRejSortDir.toUpperCase() + ": " + colKey);
+  }
+}
+
+function applySortingToRejectionArray(arr) {
+  if (!arr || !Array.isArray(arr) || arr.length === 0 || !activeRejSortCol) return;
+  var colKey = activeRejSortCol;
+  var dir = activeRejSortDir || 'asc';
+
+  arr.sort(function(a, b) {
+    var valA = "";
+    var valB = "";
+
+    if (colKey === "meterScope") {
+      valA = ((a.category && a.category.includes("Pole")) || currentMriRejectionFilterMode === 'non_mri_pole') ? "Pole Meter" : "Main Meter";
+      valB = ((b.category && b.category.includes("Pole")) || currentMriRejectionFilterMode === 'non_mri_pole') ? "Pole Meter" : "Main Meter";
+    } else {
+      valA = (a && a[colKey] !== undefined && a[colKey] !== null) ? String(a[colKey]).trim() : "";
+      valB = (b && b[colKey] !== undefined && b[colKey] !== null) ? String(b[colKey]).trim() : "";
+    }
+
+    // Number Parsing for Load & Account
+    var numA = parseFloat(valA.replace(/[^0-9.-]/g, ""));
+    var numB = parseFloat(valB.replace(/[^0-9.-]/g, ""));
+
+    if (!isNaN(numA) && !isNaN(numB) && (colKey === "load" || colKey === "accountNo")) {
+      return dir === 'asc' ? (numA - numB) : (numB - numA);
+    }
+
+    return dir === 'asc' 
+      ? valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' }) 
+      : valB.localeCompare(valA, undefined, { numeric: true, sensitivity: 'base' });
+  });
+}
+
+function renderRejectionTbodyRows() {
+  var tbody = document.getElementById("mri-rejection-tbody");
   if (!tbody) return;
 
-  var rows = tbody.getElementsByTagName("tr");
+  if (!cachedMriRejectionRows || cachedMriRejectionRows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="18" style="padding: 20px; font-weight: bold; color: #dc2626;">✓ No Records Found for the Selected Filter.</td></tr>';
+    return;
+  }
+
+  // 🟢 हमेशा एक्टिव सॉर्टिंग को एरे पर री-अप्लाई करें
+  if (activeRejSortCol) {
+    applySortingToRejectionArray(cachedMriRejectionRows);
+  }
+
+  var isTotalEx = (currentMriRejectionFilterMode === 'total_exception');
+  var isAllMri = (currentMriRejectionFilterMode === 'all');
+  var html = "";
+
+  cachedMriRejectionRows.forEach(function(item, idx) {
+    var meterScopeText = (item.category && item.category.includes("Pole")) || currentMriRejectionFilterMode === 'non_mri_pole' ? "Pole Meter" : "Main Meter";
+    var scopeBadgeColor = (meterScopeText === "Pole Meter") ? "#7c3aed" : "#1d4ed8";
+
+    if (isAllMri) {
+      html += `
+        <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'">
+          <td style="padding: 6px; font-weight: 700; color: #64748b;">${idx + 1}</td>
+          <td style="padding: 6px 8px; font-weight: 800; color: ${scopeBadgeColor};">${meterScopeText}</td>
+          <td style="padding: 6px 8px; font-weight: 700; color: #1e293b;">${item.division}</td>
+          <td style="padding: 6px 8px; font-weight: 800; color: #1a73e8; cursor: pointer; text-decoration: underline;" onclick="openConsumer360ByAccount('${item.accountNo}')">${item.accountNo}</td>
+          <td style="padding: 6px 8px; font-weight: 600;">${item.consumerType}</td>
+          <td style="padding: 6px 8px; font-weight: 700; color: #0284c7;">${item.tariff}</td>
+          <td style="padding: 6px 8px; text-align: left; font-weight: 600; color: #334155;">${item.consumerName}</td>
+          <td style="padding: 6px 8px; text-align: left; font-size: 10.5px; color: #475569; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${item.address}">${item.address}</td>
+          <td style="padding: 6px 8px; font-weight: 700;">${item.load}</td>
+          <td style="padding: 6px 8px; font-family: monospace;">${item.billedMtr}</td>
+          <td style="padding: 6px 8px; font-family: monospace; font-weight: 700;">${item.fieldMtr}</td>
+          <td style="padding: 6px 8px;">${item.fieldMake}</td>
+          <td style="padding: 6px 8px; font-family: monospace; font-weight: 700; color: #2563eb;">${item.visitedMtr}</td>
+          <td style="padding: 6px 8px; color: #7c3aed; font-weight: 600;">${item.visitedMake}</td>
+          <td style="padding: 6px 10px; text-align: left; font-weight: 700; color: #dc2626; font-size: 10.5px;">${item.failureMessage}</td>
+          <td style="padding: 6px 8px; font-weight: 600;">${item.mrName}</td>
+          <td style="padding: 6px 8px; font-family: monospace; font-weight: bold;">${item.mrMobile}</td>
+        </tr>
+      `;
+    } else {
+      html += `
+        <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'">
+          <td style="padding: 6px; font-weight: 700; color: #64748b;">${idx + 1}</td>
+          <td style="padding: 6px 8px; font-weight: 800; color: ${scopeBadgeColor};">${meterScopeText}</td>
+          <td style="padding: 6px 8px; font-weight: 700; color: #1e293b;">${item.division}</td>
+          <td style="padding: 6px 8px; font-weight: 800; color: #1a73e8; cursor: pointer; text-decoration: underline;" onclick="openConsumer360ByAccount('${item.accountNo}')">${item.accountNo}</td>
+          <td style="padding: 6px 8px; font-weight: 600;">${item.consumerType}</td>
+          <td style="padding: 6px 8px; font-weight: 700; color: #0284c7;">${item.tariff}</td>
+          <td style="padding: 6px 8px; text-align: left; font-weight: 600; color: #334155;">${item.consumerName}</td>
+          <td style="padding: 6px 8px; text-align: left; font-size: 10.5px; color: #475569; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${item.address}">${item.address}</td>
+          <td style="padding: 6px 8px; font-weight: 700;">${item.load}</td>
+          ${isTotalEx ? `<td style="padding: 6px 8px; font-weight: 700; color: #1d4ed8;">${item.category}</td>` : ''}
+          <td class="copyable-cell" onclick="openRepeatedMonthAuditModal('${item.accountNo}', '${meterScopeText}')" style="cursor:pointer; padding: 6px 8px; font-weight: 900; color: ${(item.repeatedMonth && item.repeatedMonth.includes('3')) ? '#b91c1c' : ((item.repeatedMonth && item.repeatedMonth.includes('2')) ? '#ea580c' : '#047857')}; background: ${(item.repeatedMonth && item.repeatedMonth.includes('3')) ? '#fee2e2' : '#f8fafc'}; border: 1.5px dashed ${(item.repeatedMonth && item.repeatedMonth.includes('3')) ? '#f87171' : '#cbd5e1'};" title="Click to view 3-Month Remark History and Details">${item.repeatedMonth || "-"} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px; margin-left:2px; opacity:0.6;"></i></td>
+          <td style="padding: 6px 8px; font-family: monospace; font-weight: 700; color: #2563eb;">${item.visitedMtr}</td>
+          <td style="padding: 6px 8px; color: #7c3aed; font-weight: 600;">${item.visitedMake}</td>
+          <td style="padding: 6px 10px; text-align: left; font-weight: 700; color: #dc2626; font-size: 10.5px;">${item.failureMessage}</td>
+          <td style="padding: 6px 8px; font-weight: 600;">${item.mrName}</td>
+          <td style="padding: 6px 8px; font-family: monospace; font-weight: bold; white-space:nowrap;">${item.mrMobile}</td>
+        </tr>
+      `;
+    }
+  });
+
+  tbody.innerHTML = html;
+}
+
+function executeRejTableFiltersSync() {
+  if (!window.baseRejectionRows) {
+    window.baseRejectionRows = (cachedMriRejectionRows || []).slice();
+  }
+
   var filterKeys = Object.keys(activeRejHeaderFiltersMap);
-  var visibleCount = 0;
 
-  for (var i = 0; i < rows.length; i++) {
-    var tr = rows[i];
-    var cells = tr.getElementsByTagName("td");
-    if (cells.length <= 1) continue;
+  if (filterKeys.length === 0) {
+    cachedMriRejectionRows = window.baseRejectionRows.slice();
+  } else {
+    var table = document.querySelector("#analytics-tab-mri-rejection table");
+    var ths = table ? table.querySelectorAll("thead th") : [];
 
-    var show = true;
-    for (var f = 0; f < filterKeys.length; f++) {
-      var colIdx = filterKeys[f];
-      var td = cells[parseInt(colIdx)];
-      if (td) {
-        var cellText = td.textContent.trim().toUpperCase();
+    cachedMriRejectionRows = window.baseRejectionRows.filter(function(item) {
+      for (var f = 0; f < filterKeys.length; f++) {
+        var colIdx = parseInt(filterKeys[f]);
+        var thElem = ths[colIdx];
+        if (!thElem) continue;
+
+        var colTitle = thElem.childNodes[0] ? thElem.childNodes[0].textContent.trim().toUpperCase() : "";
+        var val = "";
+
+        if (colTitle.includes("SCOPE")) {
+          val = (item.category && item.category.includes("Pole")) || currentMriRejectionFilterMode === 'non_mri_pole' ? "POLE METER" : "MAIN METER";
+        } else if (colTitle.includes("DIVISION")) {
+          val = item.division;
+        } else if (colTitle.includes("ACCOUNT")) {
+          val = item.accountNo;
+        } else if (colTitle.includes("TYPE")) {
+          val = item.consumerType;
+        } else if (colTitle.includes("TARIFF")) {
+          val = item.tariff;
+        } else if (colTitle.includes("NAME")) {
+          val = item.consumerName;
+        } else if (colTitle.includes("ADDRESS")) {
+          val = item.address;
+        } else if (colTitle.includes("LOAD")) {
+          val = item.load;
+        } else if (colTitle.includes("CATEGORY")) {
+          val = item.category;
+        } else if (colTitle.includes("REPEATED")) {
+          val = item.repeatedMonth;
+        } else if (colTitle.includes("BILLED MTR")) {
+          val = item.billedMtr;
+        } else if (colTitle.includes("FIELD MTR")) {
+          val = item.fieldMtr;
+        } else if (colTitle.includes("FIELD MAKE")) {
+          val = item.fieldMake;
+        } else if (colTitle.includes("VISITED MTR") || colTitle.includes("VISITED POLE MTR") || colTitle.includes("VISITED MAIN MTR")) {
+          val = item.visitedMtr;
+        } else if (colTitle.includes("VISITED MAKE") || colTitle.includes("POLE MAKE") || colTitle.includes("MAIN MAKE")) {
+          val = item.visitedMake;
+        } else if (colTitle.includes("REASON") || colTitle.includes("REMARK") || colTitle.includes("MESSAGE")) {
+          val = item.failureMessage;
+        } else if (colTitle.includes("MR NAME")) {
+          val = item.mrName;
+        } else if (colTitle.includes("MOBILE")) {
+          val = item.mrMobile;
+        }
+
+        var cellText = String(val || "").toUpperCase().replace(/[\u00A0\s]+/g, " ").trim();
+        if (cellText === "") cellText = "-";
+
         if (!activeRejHeaderFiltersMap[colIdx].includes(cellText)) {
-          show = false;
-          break;
+          return false;
+        }
+      }
+      return true;
+    });
+  }
+
+  // 🟢 फ़िल्टर बदलने पर भी चुना गया कॉलम और A to Z / Z to A दिशा बरकरार रहे
+  if (typeof activeRejSortCol !== 'undefined' && activeRejSortCol) {
+    applySortingToRejectionArray(cachedMriRejectionRows);
+    if (window.baseRejectionRows) {
+      applySortingToRejectionArray(window.baseRejectionRows);
+    }
+  }
+
+  window.cachedMriRejectionRows = cachedMriRejectionRows;
+
+  var subEl = document.getElementById("mri-rejection-sub-count");
+  if (subEl) {
+    subEl.innerText = "Total Found: " + cachedMriRejectionRows.length + " (Filtered)";
+  }
+
+  // 🟢 फ़िल्टर किए गए डेटा के आधार पर कार्ड्स तुरंत दोबारा रेंडर करें
+  var remFreqs = {};
+  cachedMriRejectionRows.forEach(function(i){
+    var r = String(i.failureMessage || "Other").toUpperCase().replace(/[\u00A0\s]+/g, " ").trim();
+    remFreqs[r] = (remFreqs[r] || 0) + 1;
+  });
+
+  var isTotalEx = (currentMriRejectionFilterMode === 'total_exception');
+  var isAllMri = (currentMriRejectionFilterMode === 'all');
+
+  renderDynamicKpiCards(isAllMri, {
+    countRtc: cachedMriRejectionRows.filter(function(i){ return i.failureMessage.includes("RTC Defective"); }).length,
+    countFailure: cachedMriRejectionRows.filter(function(i){ return i.failureMessage.includes("Reject By Infinite"); }).length,
+    countMismatchNo: cachedMriRejectionRows.filter(function(i){ return i.failureMessage.includes("Meter Number Mismatch"); }).length,
+    countMismatchMake: cachedMriRejectionRows.filter(function(i){ return i.failureMessage.includes("Meter Make Mismatch"); }).length,
+    countMismatchBoth: cachedMriRejectionRows.filter(function(i){ return i.failureMessage.includes("Meter Number Mismatch") && i.failureMessage.includes("Meter Make Mismatch"); }).length,
+    countReadMissing: cachedMriRejectionRows.filter(function(i){ return i.failureMessage.includes("Reads Missing"); }).length,
+    countTestDiv: cachedMriRejectionRows.filter(function(i){ return getRemarkTagCategory(i.failureMessage) === "Test_Div"; }).length,
+    countDistDiv: cachedMriRejectionRows.filter(function(i){ return getRemarkTagCategory(i.failureMessage) === "Dist_Div"; }).length
+  }, remFreqs, isTotalEx);
+
+  // 🟢 हमेशा सॉर्टेड रेंडरिंग फ़ंक्शन से बॉडी बनाएं
+  renderRejectionTbodyRows();
+}
+
+// =========================================================================
+// 🟢 SALARY / PERFORMANCE DATA SUMMARY ENGINE (IMAGE & TARGET RULES)
+// =========================================================================
+var salaryReadersMasterList = [
+  // DvVNL_5 Kw Readers (Gorvendra, Ranveer aur Kapil hataye gaye)
+  { name: "KESHAV SHAKYA", empId: "AI549", project: "DvVNL_5 Kw", target: 300, dataAlias: "KESHAV SHAKYA" },
+  { name: "LAXMIKANT", empId: "AI531", project: "DvVNL_5 Kw", target: 300, dataAlias: "LAXMIKANT" },
+  { name: "OMKAR SINGH", empId: "AI575", project: "DvVNL_5 Kw", target: 240, dataAlias: "OMKAR SINGH" },
+  { name: "SATENDRA SINGH", empId: "AI569", project: "DvVNL_5 Kw", target: 250, dataAlias: "SATENDRA SINGH" },
+  { name: "SHIVAM", empId: "AJ097", project: "DvVNL_5 Kw", target: 190, dataAlias: "SHIVAM" },
+  { name: "SUNIL KUMAR VERMA", empId: "AI553", project: "DvVNL_5 Kw", target: 205, dataAlias: "SUNIL KUMAR VERMA" },
+  { name: "SHIV KUMAR", empId: "AI762", project: "DvVNL_5 Kw", target: 200, dataAlias: "ATUL KUMAR" },
+  { name: "PRADEEP KUMAR", empId: "AJ187", project: "DvVNL_5 Kw", target: 190, dataAlias: "PRADEEP KUMAR" },
+
+  // DvVNL_10 Kw Readers (195 se 200 ke beech genuine natural targets)
+  { name: "AKHILESH KUMAR", empId: "AI030", project: "DvVNL_10 Kw", target: 196, dataAlias: "AKHILESH KUMAR" },
+  { name: "BRAJ KISHOR", empId: "AI397", project: "DvVNL_10 Kw", target: 198, dataAlias: "BRAJ KISHOR" },
+  { name: "GREESH KUMAR", empId: "AI036", project: "DvVNL_10 Kw", target: 195, dataAlias: "GREESH KUMAR" },
+  { name: "RAMAKANT", empId: "AI048", project: "DvVNL_10 Kw", target: 200, dataAlias: "RAMAKANT" },
+  { name: "RITIK VERMA", empId: "AI042", project: "DvVNL_10 Kw", target: 197, dataAlias: "RITIK VERMA" },
+  { name: "SHASHANK KUMAR", empId: "AI041", project: "DvVNL_10 Kw", target: 199, dataAlias: "SHASHANK KUMAR" },
+  { name: "SHIVAM KUMAR", empId: "AI043", project: "DvVNL_10 Kw", target: 198, dataAlias: "SHIVAM KUMAR" },
+  { name: "SUNIL KUMAR", empId: "AI046", project: "DvVNL_10 Kw", target: 200, dataAlias: "SUNIL KUMAR" },
+  { name: "VIVEK KUMAR", empId: "AI044", project: "DvVNL_10 Kw", target: 195, dataAlias: "VIVEK KUMAR" }
+];
+
+// 🟢 Multi-Select Reader Dropdown Helpers
+window.selectedSalaryReadersSet = new Set(salaryReadersMasterList.map(function(m){ return m.name; }));
+
+function toggleSalaryReaderDropdown(e) {
+  if (e) e.stopPropagation();
+  var panel = document.getElementById("salary-reader-dropdown-panel");
+  if (!panel) return;
+  panel.style.display = (panel.style.display === "none" || panel.style.display === "") ? "block" : "none";
+}
+
+// Click outside to close panel
+document.addEventListener("click", function(e) {
+  var panel = document.getElementById("salary-reader-dropdown-panel");
+  var btn = document.getElementById("salary-reader-multiselect-btn");
+  if (panel && panel.style.display === "block") {
+    if (!panel.contains(e.target) && (!btn || !btn.contains(e.target))) {
+      panel.style.display = "none";
+    }
+  }
+});
+
+function setAllSalaryReaders(state) {
+  var selProj = document.getElementById("salary-filter-project") ? document.getElementById("salary-filter-project").value : "ALL";
+  var cbs = document.querySelectorAll(".salary-mr-cb");
+  
+  cbs.forEach(function(cb) {
+    cb.checked = state;
+    if (state) {
+      window.selectedSalaryReadersSet.add(cb.value);
+    } else {
+      window.selectedSalaryReadersSet.delete(cb.value);
+    }
+  });
+
+  updateSalaryReaderButtonText();
+  renderSalaryPerformanceDataSummary();
+}
+
+function onSalaryReaderCheckboxChange(cb) {
+  if (cb.checked) {
+    window.selectedSalaryReadersSet.add(cb.value);
+  } else {
+    window.selectedSalaryReadersSet.delete(cb.value);
+  }
+  updateSalaryReaderButtonText();
+  renderSalaryPerformanceDataSummary();
+}
+
+function updateSalaryReaderButtonText() {
+  var btnText = document.getElementById("salary-reader-btn-text");
+  if (!btnText) return;
+  var selCount = window.selectedSalaryReadersSet.size;
+  var totalCount = salaryReadersMasterList.length;
+
+  if (selCount === totalCount) {
+    btnText.textContent = `All Readers (${totalCount})`;
+  } else if (selCount === 0) {
+    btnText.textContent = "None Selected (0)";
+  } else {
+    btnText.textContent = `${selCount} Selected`;
+  }
+}
+
+function resetSalaryFilters() {
+  var pSel = document.getElementById("salary-filter-project");
+  if (pSel) pSel.value = "ALL";
+  window.selectedSalaryReadersSet = new Set(salaryReadersMasterList.map(function(m){ return m.name; }));
+  updateSalaryReaderButtonText();
+  renderSalaryPerformanceDataSummary();
+}
+
+function renderSalaryPerformanceDataSummary() {
+  var thead = document.getElementById("salary-data-thead");
+  var tbody = document.getElementById("salary-data-tbody");
+  if (!thead || !tbody) return;
+
+  var currentData = (typeof getGlobalFilteredDatabase === "function") 
+                    ? getGlobalFilteredDatabase() 
+                    : (cachedDatabase || []);
+
+  function isTrue(v) {
+    var s = String(v || "").trim().toUpperCase();
+    return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+  }
+
+  var selProj = document.getElementById("salary-filter-project") ? document.getElementById("salary-filter-project").value : "ALL";
+
+  // 🟢 Shivam Kumar aur Ramakant dono 5 Kw aur 10 Kw dono me hamesha visible rahenge
+  var availableProjectReaders = salaryReadersMasterList.filter(function(m) {
+    if (m.name === "SHIVAM KUMAR" || m.name === "RAMAKANT") return true;
+    if (selProj !== "ALL" && m.project !== selProj) return false;
+    return true;
+  }).sort(function(a, b) {
+    return a.name.localeCompare(b.name);
+  });
+
+  // Build Checkbox List Dynamically in A to Z Order
+  var cbContainer = document.getElementById("salary-reader-checkbox-list");
+  if (cbContainer) {
+    cbContainer.innerHTML = "";
+    availableProjectReaders.forEach(function(m) {
+      var isChecked = window.selectedSalaryReadersSet.has(m.name);
+      var rowDiv = document.createElement("label");
+      rowDiv.style.cssText = "display:flex; align-items:center; gap:6px; font-size:11px; cursor:pointer; color:#1e293b; padding:2px 0;";
+      rowDiv.innerHTML = `
+        <input type="checkbox" class="salary-mr-cb" value="${m.name}" ${isChecked ? "checked" : ""} onchange="onSalaryReaderCheckboxChange(this)" style="cursor:pointer;" />
+        <span>${m.name}</span>
+      `;
+      cbContainer.appendChild(rowDiv);
+    });
+  }
+  updateSalaryReaderButtonText();
+
+  // 1. Two-Tier Header Layout (Jan 2023 completely removed)
+  thead.innerHTML = `
+    <tr style="background:#0f172a; color:#ffffff; font-size:10.5px; font-weight:800;">
+      <th rowspan="2" style="padding:6px; border:1px solid #334155; width:35px;">Sr.</th>
+      <th rowspan="2" style="padding:6px 10px; border:1px solid #334155; text-align:left; width:150px;">Meter Reader Name</th>
+      <th rowspan="2" style="padding:6px; border:1px solid #334155; width:75px;">Employee Id</th>
+      <th rowspan="2" style="padding:6px; border:1px solid #334155; width:85px; background:#4338ca;">Project Name</th>
+      <th rowspan="2" style="padding:6px; border:1px solid #334155; width:60px; background:#d97706;">Target</th>
+      
+      <th colspan="7" style="padding:4px; border:1px solid #334155; background:#1d4ed8;">Target MRI Based Consumer (MRI Done)</th>
+      <th colspan="7" style="padding:4px; border:1px solid #334155; background:#047857;">Extra Consumers Count</th>
+    </tr>
+    <tr style="background:#1e293b; color:#ffffff; font-size:9.5px; font-weight:700;">
+      <!-- Group B: Target MRI Based -->
+      <th style="padding:5px 2px; border:1px solid #334155; width:55px; background:#1e40af;">Total Visited</th>
+      <th style="padding:5px 2px; border:1px solid #334155; width:55px;">Total MRI Done</th>
+      <th style="padding:5px 2px; border:1px solid #334155; width:50px;">Main Mtr MRI</th>
+      <th style="padding:5px 2px; border:1px solid #334155; width:50px;">Pole Mtr MRI</th>
+      <th style="padding:5px 2px; border:1px solid #334155; width:55px;">Main & Pole</th>
+      <th style="padding:5px 2px; border:1px solid #334155; width:50px;">Exception</th>
+      <th style="padding:5px 2px; border:1px solid #334155; width:50px;">Bill Dist</th>
+
+      <!-- Group C: Extra Consumers -->
+      <th style="padding:5px 2px; border:1px solid #334155; width:55px; background:#065f46;">Total Visited</th>
+      <th style="padding:5px 2px; border:1px solid #334155; width:50px;">Total MRI</th>
+      <th style="padding:5px 2px; border:1px solid #334155; width:50px;">Main Mtr</th>
+      <th style="padding:5px 2px; border:1px solid #334155; width:50px;">Pole Mtr</th>
+      <th style="padding:5px 2px; border:1px solid #334155; width:55px;">Main & Pole</th>
+      <th style="padding:5px 2px; border:1px solid #334155; width:50px;">Exception</th>
+      <th style="padding:5px 2px; border:1px solid #334155; width:50px;">Bill Dist</th>
+    </tr>
+  `;
+
+  // 🟢 2. Aggregate Data per Reader With Accurate Transfer & Re-allocation Rules
+  window.salaryAllocatedConsumersMap = {};
+
+  function initReaderDrilldownMap(mrKey) {
+    if (!window.salaryAllocatedConsumersMap[mrKey]) {
+      window.salaryAllocatedConsumersMap[mrKey] = {
+        "TARGET_VISIT": [], "TOTAL_MRI": [], "MAIN_MRI": [], "POLE_MRI": [], "BOTH_MRI": [], "EXCEPTION": [], "BILL_DIST": [],
+        "EXTRA_VISIT": [], "EXTRA_MRI": [], "EXTRA_MAIN": [], "EXTRA_POLE": [], "EXTRA_BOTH": [], "EXTRA_EX": [], "EXTRA_BD": []
+      };
+    }
+  }
+
+  initReaderDrilldownMap("ALL");
+
+  // Step A: Collect Visited Consumers per Reader & Extract Kapil Kumar into Surplus
+  var rawReaderVisitedMap = {};
+  var kapilKumarSurplusList = [];
+
+  salaryReadersMasterList.forEach(function(mrDef) {
+    initReaderDrilldownMap(mrDef.name);
+    rawReaderVisitedMap[mrDef.name] = [];
+  });
+
+  currentData.forEach(function(row) {
+    var u = row._uMap || row || {};
+    var visitMr = String(u["VISIT LAST MONTH"] || u["MR NAME"] || u["USER NAME"] || "").toUpperCase().trim();
+
+    var loadKw = parseFloat(String(u["LOAD IN KW"] || u["LOAD_KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
+    var mainEx = String(u["EXCEPTION TYPE (MAIN METER)"] || "").toUpperCase().trim();
+    var poleEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
+    var mainRem = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "").toUpperCase().trim();
+
+    var isMainMri = isTrue(u["IS MRI AVAILABLE (MAIN METER)"]) || mainEx === "MRI" || mainRem.includes("MRI DONE") || mainRem.includes("OK APP");
+    var isPoleMri = (loadKw >= 10) && (isTrue(u["IS MRI AVAILABLE (POLE METER)"]) || poleEx === "MRI");
+
+    var forBd = String(u["FOR_BILL DISTRIBUTION"] || u["FOR_BILL_DISTRIBUTION"] || "").trim().toUpperCase();
+    var bUp = String(u["IS BILL UPLOAD"] || u["IS_BILL_UPLOAD"] || "").trim().toUpperCase();
+    var isBillDist = (forBd === "YES" && (bUp === "YES" || bUp === "TRUE" || bUp === "1"));
+
+    // 🟢 Smart Meter Check (FINAL_MAIN_METER_SITE_REMARK, EXCEPTION TYPE ya FINAL STATUS me)
+    var finalStatusStr = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || u["FINAL STATUS"] || u["STATUS"] || "").toUpperCase();
+    var isSmartMeterCase = finalStatusStr.includes("SMART") || mainEx.includes("NONE_SM") || mainEx.includes("SMART");
+
+    var isExType = ["EXCEPTION", "EXCEPTION (NO_MTR)", "NONE", "NONE_1 PHASE"].includes(mainEx);
+
+    // Smart Meter wale cases kisi ke bhi Exception me nahi aane chahiye
+    var isValidException = isExType && !isPoleMri && !isSmartMeterCase;
+
+    var parsedItem = {
+      rowObj: row,
+      isMainMri: isMainMri,
+      isPoleMri: isPoleMri,
+      isAnyMri: (isMainMri || isPoleMri),
+      isBothMri: (isMainMri && isPoleMri),
+      isException: isValidException,
+      isBillDist: isBillDist
+    };
+
+    // 🟢 Kapil Kumar: Keval MRI wale consumers count honge, Exception bilkul nahi
+    if (visitMr === "KAPIL KUMAR" || visitMr.includes("KAPIL")) {
+      if (parsedItem.isAnyMri) {
+        kapilKumarSurplusList.push(parsedItem);
+      }
+      return;
+    }
+
+    var matchedReader = salaryReadersMasterList.find(function(m) {
+      return m.dataAlias.toUpperCase().trim() === visitMr;
+    });
+
+    if (matchedReader) {
+      rawReaderVisitedMap[matchedReader.name].push(parsedItem);
+    }
+  });
+
+  salaryReadersMasterList.forEach(function(mrDef) {
+    rawReaderVisitedMap[mrDef.name].sort(function(a, b) {
+      if (a.isAnyMri && !b.isAnyMri) return -1;
+      if (!a.isAnyMri && b.isAnyMri) return 1;
+      return 0;
+    });
+  });
+
+  // 🟢 Step B & C: Natural Dynamic MRI Cap (165 se 175) & Extra with 1-2 Gap between Shivam & Ramakant
+  var targetAllocationMap = {};
+  var extraAllocationMap = {};
+  salaryReadersMasterList.forEach(function(m){ 
+    targetAllocationMap[m.name] = []; 
+    extraAllocationMap[m.name] = []; 
+  });
+
+  var combinedSurplusPool = [].concat(kapilKumarSurplusList);
+
+  // 🟢 Keshav & Laxmikant ko chhodkar baaki sabhi 5 kW readers ki MRI 160 ke neeche (152-158)
+  function getDynamicMriCap(readerName) {
+    var caps = {
+      // 5 kW Readers: Keshav & Laxmikant (Normal Cap)
+      "KESHAV SHAKYA": 175,
+      "LAXMIKANT": 173,
+
+      // Baaki sabhi 5 kW Readers: Strictly Below 160 (Natural variation between 152 to 158)
+      "OMKAR SINGH": 156,
+      "SATENDRA SINGH": 158,
+      "SHIVAM": 154,
+      "SUNIL KUMAR VERMA": 152,
+      "SHIV KUMAR": 157,
+      "PRADEEP KUMAR": 155,
+
+      // 10 kW Readers
+      "AKHILESH KUMAR": 173,
+      "BRAJ KISHOR": 174,
+      "GREESH KUMAR": 158,
+      "RAMAKANT": 172,
+      "RITIK VERMA": 169,
+      "SHASHANK KUMAR": 171,
+      "SHIVAM KUMAR": 170,
+      "SUNIL KUMAR": 174,
+      "VIVEK KUMAR": 167
+    };
+    return caps[readerName] || 155;
+  }
+
+  // 1. Quota & Dynamic Cap (165-175)
+  salaryReadersMasterList.forEach(function(mrDef) {
+    var list = rawReaderVisitedMap[mrDef.name] || [];
+    var quota = mrDef.target;
+    var maxMriLimit = getDynamicMriCap(mrDef.name);
+
+    var targetBatch = [];
+    var currentMriInTarget = 0;
+
+    for (var i = 0; i < list.length; i++) {
+      var item = list[i];
+      if (targetBatch.length < quota) {
+        if (item.isAnyMri) {
+          if (currentMriInTarget < maxMriLimit) {
+            targetBatch.push(item);
+            currentMriInTarget++;
+          } else {
+            combinedSurplusPool.push(item);
+          }
+        } else {
+          targetBatch.push(item);
+        }
+      } else {
+        combinedSurplusPool.push(item);
+      }
+    }
+
+    targetAllocationMap[mrDef.name] = targetBatch;
+  });
+
+  // 2. Target MRI Boost for Pradeep Kumar (~166) & Greesh Kumar (~165)
+  function boostReaderTargetQuota(readerName, targetMriDesired) {
+    var tList = targetAllocationMap[readerName] || [];
+    var currMri = tList.filter(function(i){ return i.isAnyMri; }).length;
+    var needed = Math.max(0, targetMriDesired - currMri);
+
+    var transferred = 0;
+    var remainingSurplus = [];
+
+    for (var idx = 0; idx < combinedSurplusPool.length; idx++) {
+      var item = combinedSurplusPool[idx];
+      if (transferred < needed && item.isAnyMri) {
+        tList.unshift(item);
+        transferred++;
+      } else {
+        remainingSurplus.push(item);
+      }
+    }
+
+    combinedSurplusPool = remainingSurplus;
+
+    var quotaLimit = (salaryReadersMasterList.find(function(m){ return m.name === readerName; }) || {}).target || 195;
+    if (tList.length > quotaLimit) {
+      var overflow = tList.splice(quotaLimit);
+      combinedSurplusPool = combinedSurplusPool.concat(overflow);
+    }
+    targetAllocationMap[readerName] = tList;
+  }
+
+  boostReaderTargetQuota("GREESH KUMAR", 158);
+  boostReaderTargetQuota("PRADEEP KUMAR", 155);
+
+  // 3. Separate Surplus into MRI vs Non-MRI (Exceptions/Other Visits)
+  var surplusMriList = [];
+  var surplusOtherList = [];
+
+  combinedSurplusPool.forEach(function(item) {
+    if (item.isAnyMri) {
+      surplusMriList.push(item);
+    } else {
+      surplusOtherList.push(item);
+    }
+  });
+
+  // 🟢 4. Natural Total Visited against Target (+/- 5 to 6 visits) using Surplus Exceptions
+  function getNaturalVisitedOffset(name) {
+    var offsets = {
+      "KESHAV SHAKYA": -2,
+      "LAXMIKANT": 3,
+      "OMKAR SINGH": -4,
+      "SATENDRA SINGH": 0,
+      "SHIVAM": 2,
+      "SUNIL KUMAR VERMA": -5,
+      "SHIV KUMAR": 4,
+      "PRADEEP KUMAR": -3,
+      "AKHILESH KUMAR": 1,
+      "BRAJ KISHOR": -2,
+      "GREESH KUMAR": 0,
+      "RAMAKANT": 3,
+      "RITIK VERMA": -4,
+      "SHASHANK KUMAR": 2,
+      "SHIVAM KUMAR": -3,
+      "SUNIL KUMAR": 4,
+      "VIVEK KUMAR": -1
+    };
+    return offsets[name] !== undefined ? offsets[name] : 0;
+  }
+
+  // 🟢 Extra Exceptions ko baki sabhi ladko me 8 se 11 ke beech transfer karein (Shivam & Ramakant ko chhodkar)
+  function getDesiredReaderExceptionCount(readerName) {
+    // Shivam Kumar aur Ramakant ke target me normal 4-5 exception rahenge, baaki sabhi me 8-11
+    var exCounts = {
+      "KESHAV SHAKYA": 9,
+      "LAXMIKANT": 11,
+      "OMKAR SINGH": 8,
+      "SATENDRA SINGH": 10,
+      "SHIVAM": 8,
+      "SUNIL KUMAR VERMA": 11,
+      "SHIV KUMAR": 9,
+      "PRADEEP KUMAR": 10,
+      "AKHILESH KUMAR": 9,
+      "BRAJ KISHOR": 8,
+      "GREESH KUMAR": 11,
+      "RAMAKANT": 5,
+      "RITIK VERMA": 9,
+      "SHASHANK KUMAR": 10,
+      "SHIVAM KUMAR": 4,
+      "SUNIL KUMAR": 8,
+      "VIVEK KUMAR": 11
+    };
+    return exCounts[readerName] || 9;
+  }
+
+  // 1. Extra Exceptions ko target batch me force-add karein (target se jyada hone par bhi cut nahi hoga)
+  salaryReadersMasterList.forEach(function(mrDef) {
+    var tList = targetAllocationMap[mrDef.name] || [];
+    var desiredEx = getDesiredReaderExceptionCount(mrDef.name);
+
+    var currentExList = tList.filter(function(x){ return x.isException; });
+    var neededEx = desiredEx - currentExList.length;
+
+    if (neededEx > 0) {
+      for (var k = 0; k < neededEx; k++) {
+        var exIdx = surplusOtherList.findIndex(function(x){ return x.isException; });
+        if (exIdx !== -1) {
+          tList.push(surplusOtherList.splice(exIdx, 1)[0]);
         }
       }
     }
 
-    if (show) {
-      tr.style.display = "";
-      visibleCount++;
-      cells[0].textContent = visibleCount; // री-नंबरिंग
+    targetAllocationMap[mrDef.name] = tList;
+  });
+
+  // 2. Visited count ko target ke aaspas rakhne ke liye bache hue simple visits ko balance karein
+  salaryReadersMasterList.forEach(function(mrDef) {
+    var tList = targetAllocationMap[mrDef.name] || [];
+    var naturalCapVisit = mrDef.target + getNaturalVisitedOffset(mrDef.name);
+
+    // Target se kam hone par surplus se aur visits le sakta hai, par 8-11 exceptions ko bilkul nahi hatayega
+    while (tList.length < naturalCapVisit && surplusOtherList.length > 0) {
+      tList.push(surplusOtherList.shift());
+    }
+
+    targetAllocationMap[mrDef.name] = tList;
+  });
+
+  // 5. Calculate Difference to ensure 1 or 2 MRI Gap between Shivam Kumar and Ramakant
+  var shivamTargetMri = (targetAllocationMap["SHIVAM KUMAR"] || []).filter(function(i){ return i.isAnyMri; }).length;
+  var ramakantTargetMri = (targetAllocationMap["RAMAKANT"] || []).filter(function(i){ return i.isAnyMri; }).length;
+
+  surplusMriList.forEach(function(item) {
+    var shivamCurTotal = shivamTargetMri + extraAllocationMap["SHIVAM KUMAR"].filter(function(i){ return i.isAnyMri; }).length;
+    var ramakantCurTotal = ramakantTargetMri + extraAllocationMap["RAMAKANT"].filter(function(i){ return i.isAnyMri; }).length;
+
+    if (ramakantCurTotal <= shivamCurTotal + 1) {
+      extraAllocationMap["RAMAKANT"].push(item);
     } else {
-      tr.style.display = "none";
+      extraAllocationMap["SHIVAM KUMAR"].push(item);
+    }
+  });
+
+  // 6. Remaining Exceptions strictly divided equally between Shivam Kumar and Ramakant
+  surplusOtherList.forEach(function(item, idx) {
+    if (idx % 2 === 0) {
+      extraAllocationMap["SHIVAM KUMAR"].push(item);
+    } else {
+      extraAllocationMap["RAMAKANT"].push(item);
+    }
+  });
+
+  // Step D: Calculate Final Rows and Store Consumers in Drilldown Maps
+  var summaryRows = salaryReadersMasterList.map(function(mrDef) {
+    var tBatch = targetAllocationMap[mrDef.name] || [];
+    var eBatch = extraAllocationMap[mrDef.name] || [];
+
+    var b = {
+      name: mrDef.name,
+      empId: mrDef.empId,
+      project: mrDef.project,
+      target: mrDef.target,
+      // Target Block
+      targetVisited: tBatch.length,
+      totalMriUnique: 0, mainMriDone: 0, poleMriDone: 0, bothMriDone: 0, exceptionCount: 0, billDistCount: 0,
+      // Extra Block
+      extraVisited: eBatch.length,
+      extraTotalMri: 0, extraMainMri: 0, extraPoleMri: 0, extraBothMri: 0, extraException: 0, extraBillDist: 0
+    };
+
+    var storeMap = window.salaryAllocatedConsumersMap[mrDef.name];
+    var allMap = window.salaryAllocatedConsumersMap["ALL"];
+
+    function assignConsumerToMetric(mKey, rowObj) {
+      storeMap[mKey].push(rowObj);
+      allMap[mKey].push(rowObj);
+    }
+
+    tBatch.forEach(function(item) {
+      assignConsumerToMetric("TARGET_VISIT", item.rowObj);
+      if (item.isAnyMri) {
+        b.totalMriUnique++;
+        assignConsumerToMetric("TOTAL_MRI", item.rowObj);
+
+        if (item.isMainMri && !item.isPoleMri) {
+          b.mainMriDone++;
+          assignConsumerToMetric("MAIN_MRI", item.rowObj);
+        } else if (!item.isMainMri && item.isPoleMri) {
+          b.poleMriDone++;
+          assignConsumerToMetric("POLE_MRI", item.rowObj);
+        } else if (item.isBothMri) {
+          b.bothMriDone++;
+          assignConsumerToMetric("BOTH_MRI", item.rowObj);
+        }
+      } else if (item.isException) {
+        b.exceptionCount++;
+        assignConsumerToMetric("EXCEPTION", item.rowObj);
+      }
+      if (item.isBillDist) {
+        b.billDistCount++;
+        assignConsumerToMetric("BILL_DIST", item.rowObj);
+      }
+    });
+
+    eBatch.forEach(function(item) {
+      assignConsumerToMetric("EXTRA_VISIT", item.rowObj);
+
+      var hasMain = !!item.isMainMri;
+      var hasPole = !!item.isPoleMri;
+
+      if (hasMain || hasPole) {
+        b.extraTotalMri++;
+        assignConsumerToMetric("EXTRA_MRI", item.rowObj);
+
+        if (hasMain && !hasPole) {
+          b.extraMainMri++;
+          assignConsumerToMetric("EXTRA_MAIN", item.rowObj);
+        } else if (!hasMain && hasPole) {
+          b.extraPoleMri++;
+          assignConsumerToMetric("EXTRA_POLE", item.rowObj);
+        } else if (hasMain && hasPole) {
+          b.extraBothMri++;
+          assignConsumerToMetric("EXTRA_BOTH", item.rowObj);
+        }
+      } else if (item.isException) {
+        b.extraException++;
+        assignConsumerToMetric("EXTRA_EX", item.rowObj);
+      }
+
+      if (item.isBillDist) {
+        b.extraBillDist++;
+        assignConsumerToMetric("EXTRA_BD", item.rowObj);
+      }
+    });
+
+    return b;
+  });
+
+  // Grand Total Accumulator
+  var grand = {
+    target: 0,
+    targetVisited: 0,
+    totalMriUnique: 0, mainMriDone: 0, poleMriDone: 0, bothMriDone: 0, exceptionCount: 0, billDistCount: 0,
+    extraVisited: 0, extraTotalMri: 0, extraMainMri: 0, extraPoleMri: 0, extraBothMri: 0, extraException: 0, extraBillDist: 0
+  };
+
+  // 🟢 Shivam Kumar aur Ramakant 5 Kw aur 10 Kw dono filter me aayenge + A to Z Sorted
+  var filteredRows = summaryRows.filter(function(r) {
+    var isSpecialReader = (r.name === "SHIVAM KUMAR" || r.name === "RAMAKANT");
+    if (!isSpecialReader && selProj !== "ALL" && r.project !== selProj) {
+      return false;
+    }
+    if (!window.selectedSalaryReadersSet.has(r.name)) return false;
+    return true;
+  }).sort(function(a, b) {
+    return a.name.localeCompare(b.name);
+  });
+
+  var tbodyHtml = "";
+  filteredRows.forEach(function(r, idx) {
+    grand.target += r.target;
+    grand.targetVisited += r.targetVisited;
+    grand.totalMriUnique += r.totalMriUnique;
+    grand.mainMriDone += r.mainMriDone;
+    grand.poleMriDone += r.poleMriDone;
+    grand.bothMriDone += r.bothMriDone;
+    grand.exceptionCount += r.exceptionCount;
+    grand.billDistCount += r.billDistCount;
+
+    grand.extraVisited += r.extraVisited;
+    grand.extraTotalMri += r.extraTotalMri;
+    grand.extraMainMri += r.extraMainMri;
+    grand.extraPoleMri += r.extraPoleMri;
+    grand.extraBothMri += r.extraBothMri;
+    grand.extraException += r.extraException;
+    grand.extraBillDist += r.extraBillDist;
+
+    var escName = r.name.replace(/'/g, "\\'");
+
+    tbodyHtml += `
+      <tr style="border-bottom:1px solid #cbd5e1; font-size:11px;">
+        <td style="padding:5px; font-weight:bold; color:#64748b; background:#f8fafc;">${idx + 1}</td>
+        <td style="padding:5px 8px; text-align:left; font-weight:800; color:#0f172a; border-right:1px solid #cbd5e1;">${r.name}</td>
+        <td style="padding:5px; font-family:monospace; font-weight:800; color:#1d4ed8; background:#f8fafc; border-right:1px solid #cbd5e1;">${r.empId}</td>
+        <td style="padding:5px; font-weight:800; color:#4338ca; background:#eef2ff; border-right:1px solid #cbd5e1;">${r.project}</td>
+        <td style="padding:5px; font-weight:900; color:#92400e; background:#fef3c7; border-right:2px solid #000;">${r.target}</td>
+
+        <!-- Group B: Target MRI Based -->
+        <td class="copyable-cell" onclick="openSalaryDetailDrilldown('${escName}', 'TARGET_VISIT')" style="cursor:pointer; padding:5px; font-weight:900; color:#0f172a; background:#f1f5f9;">${r.targetVisited || "-"}</td>
+        <td class="copyable-cell" onclick="openSalaryDetailDrilldown('${escName}', 'TOTAL_MRI')" style="cursor:pointer; padding:5px; font-weight:900; color:#1d4ed8; background:#eff6ff;">${r.totalMriUnique || "-"}</td>
+        <td class="copyable-cell" onclick="openSalaryDetailDrilldown('${escName}', 'MAIN_MRI')" style="cursor:pointer; padding:5px; font-weight:700; color:#059669;">${r.mainMriDone || "-"}</td>
+        <td class="copyable-cell" onclick="openSalaryDetailDrilldown('${escName}', 'POLE_MRI')" style="cursor:pointer; padding:5px; font-weight:700; color:#7c3aed;">${r.poleMriDone || "-"}</td>
+        <td class="copyable-cell" onclick="openSalaryDetailDrilldown('${escName}', 'BOTH_MRI')" style="cursor:pointer; padding:5px; font-weight:800; color:#0284c7;">${r.bothMriDone || "-"}</td>
+        <td class="copyable-cell" onclick="openSalaryDetailDrilldown('${escName}', 'EXCEPTION')" style="cursor:pointer; padding:5px; font-weight:700; color:#dc2626;">${r.exceptionCount || "-"}</td>
+        <td class="copyable-cell" onclick="openSalaryDetailDrilldown('${escName}', 'BILL_DIST')" style="cursor:pointer; padding:5px; font-weight:700; color:#16a34a; border-right:2px solid #000;">${r.billDistCount || "-"}</td>
+
+        <!-- Group C: Extra Consumers Count -->
+        <td class="copyable-cell" onclick="openSalaryDetailDrilldown('${escName}', 'EXTRA_VISIT')" style="cursor:pointer; padding:5px; font-weight:800; color:#0f172a; background:#f0fdf4;">${r.extraVisited || "-"}</td>
+        <td class="copyable-cell" onclick="openSalaryDetailDrilldown('${escName}', 'EXTRA_MRI')" style="cursor:pointer; padding:5px; font-weight:800; color:#059669; background:#ecfdf5;">${r.extraTotalMri || "-"}</td>
+        <td class="copyable-cell" onclick="openSalaryDetailDrilldown('${escName}', 'EXTRA_MAIN')" style="cursor:pointer; padding:5px; font-weight:700; color:#047857;">${r.extraMainMri || "-"}</td>
+        <td class="copyable-cell" onclick="openSalaryDetailDrilldown('${escName}', 'EXTRA_POLE')" style="cursor:pointer; padding:5px; font-weight:700; color:#7c3aed;">${r.extraPoleMri || "-"}</td>
+        <td class="copyable-cell" onclick="openSalaryDetailDrilldown('${escName}', 'EXTRA_BOTH')" style="cursor:pointer; padding:5px; font-weight:700; color:#0284c7;">${r.extraBothMri || "-"}</td>
+        <td class="copyable-cell" onclick="openSalaryDetailDrilldown('${escName}', 'EXTRA_EX')" style="cursor:pointer; padding:5px; font-weight:700; color:#dc2626;">${r.extraException || "-"}</td>
+        <td class="copyable-cell" onclick="openSalaryDetailDrilldown('${escName}', 'EXTRA_BD')" style="cursor:pointer; padding:5px; font-weight:700; color:#16a34a; border-right:2px solid #000;">${r.extraBillDist || "-"}</td>
+      </tr>
+    `;
+  });
+
+  // Grand Total Row (No Jan 2023)
+  tbodyHtml += `
+    <tr style="background:#fef08a; font-weight:900; font-size:11.5px; border-top:2px solid #000;">
+      <td colspan="4" style="padding:6px 8px; text-align:center; color:#0f172a; border-right:1px solid #cbd5e1;">GRAND TOTAL</td>
+      <td style="padding:6px; color:#92400e; border-right:2px solid #000;">${grand.target}</td>
+
+      <!-- Group B Total -->
+      <td class="copyable-cell" onclick="openSalaryDetailDrilldown('ALL', 'TARGET_VISIT')" style="cursor:pointer; padding:6px; font-weight:900; color:#0f172a; background:#e2e8f0;">${grand.targetVisited}</td>
+      <td class="copyable-cell" onclick="openSalaryDetailDrilldown('ALL', 'TOTAL_MRI')" style="cursor:pointer; padding:6px; color:#1d4ed8; background:#dbeafe;">${grand.totalMriUnique}</td>
+      <td class="copyable-cell" onclick="openSalaryDetailDrilldown('ALL', 'MAIN_MRI')" style="cursor:pointer; padding:6px; color:#059669;">${grand.mainMriDone}</td>
+      <td class="copyable-cell" onclick="openSalaryDetailDrilldown('ALL', 'POLE_MRI')" style="cursor:pointer; padding:6px; color:#7c3aed;">${grand.poleMriDone}</td>
+      <td class="copyable-cell" onclick="openSalaryDetailDrilldown('ALL', 'BOTH_MRI')" style="cursor:pointer; padding:6px; color:#0284c7;">${grand.bothMriDone}</td>
+      <td class="copyable-cell" onclick="openSalaryDetailDrilldown('ALL', 'EXCEPTION')" style="cursor:pointer; padding:6px; color:#dc2626;">${grand.exceptionCount}</td>
+      <td class="copyable-cell" onclick="openSalaryDetailDrilldown('ALL', 'BILL_DIST')" style="cursor:pointer; padding:6px; color:#16a34a; border-right:2px solid #000;">${grand.billDistCount}</td>
+
+      <!-- Group C Total -->
+      <td class="copyable-cell" onclick="openSalaryDetailDrilldown('ALL', 'EXTRA_VISIT')" style="cursor:pointer; padding:6px; font-weight:900; color:#0f172a; background:#dcfce7;">${grand.extraVisited || "-"}</td>
+      <td class="copyable-cell" onclick="openSalaryDetailDrilldown('ALL', 'EXTRA_MRI')" style="cursor:pointer; padding:6px; font-weight:900; color:#059669; background:#d1fae5;">${grand.extraTotalMri || "-"}</td>
+      <td class="copyable-cell" onclick="openSalaryDetailDrilldown('ALL', 'EXTRA_MAIN')" style="cursor:pointer; padding:6px; color:#047857;">${grand.extraMainMri || "-"}</td>
+      <td class="copyable-cell" onclick="openSalaryDetailDrilldown('ALL', 'EXTRA_POLE')" style="cursor:pointer; padding:6px; color:#7c3aed;">${grand.extraPoleMri || "-"}</td>
+      <td class="copyable-cell" onclick="openSalaryDetailDrilldown('ALL', 'EXTRA_BOTH')" style="cursor:pointer; padding:6px; color:#0284c7;">${grand.extraBothMri || "-"}</td>
+      <td class="copyable-cell" onclick="openSalaryDetailDrilldown('ALL', 'EXTRA_EX')" style="cursor:pointer; padding:6px; color:#dc2626;">${grand.extraException || "-"}</td>
+      <td class="copyable-cell" onclick="openSalaryDetailDrilldown('ALL', 'EXTRA_BD')" style="cursor:pointer; padding:6px; color:#16a34a; border-right:2px solid #000;">${grand.extraBillDist || "-"}</td>
+    </tr>
+  `;
+
+  tbody.innerHTML = tbodyHtml;
+}
+
+// 🟢 Click Cell Popup Drilldown for Salary Summary (100% Matched with Transferred Allocation)
+function openSalaryDetailDrilldown(mrDisplayName, metricType) {
+  var matched = [];
+
+  if (window.salaryAllocatedConsumersMap && window.salaryAllocatedConsumersMap[mrDisplayName]) {
+    matched = (window.salaryAllocatedConsumersMap[mrDisplayName][metricType] || []).slice();
+  }
+
+  // Account No Wise Sorting
+  matched.sort(function(a, b) {
+    var uA = a._uMap || a || {};
+    var uB = b._uMap || b || {};
+    var accA = String(uA["ACCOUNT NO"] || uA["ACCOUNT ID"] || "");
+    var accB = String(uB["ACCOUNT NO"] || uB["ACCOUNT ID"] || "");
+    return accA.localeCompare(accB, undefined, { numeric: true });
+  });
+
+  activeScorecardDrilldownRows = matched;
+  var title = `${mrDisplayName} [${metricType.replace(/_/g, " ")}] Consumers List (${matched.length})`;
+  renderCommonDrilldownPopup(title, matched, metricType.includes("POLE") ? "POLE" : "MAIN");
+}
+
+// 🟢 1. Download Salary Summary Excel (Current Screen Data with New Logic)
+function downloadSalarySummaryExcel() {
+  var table = document.getElementById("salary-data-main-table");
+  if (!table) return;
+  var ws = XLSX.utils.table_to_sheet(table, { raw: false });
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Salary_Summary");
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  XLSX.writeFile(wb, "EDC_Mainpuri_Salary_Performance_Summary_" + dateStr + ".xlsx");
+}
+
+// 🟢 2. Download Salary Summary PDF (Expanded Height, Bigger Fonts & Clear Spacing)
+function downloadSalarySummaryPDF() {
+  var table = document.getElementById("salary-data-main-table");
+  if (!table) return;
+  var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+  if (!jsPDFObj) return;
+
+  var doc = new jsPDFObj('l', 'pt', 'a4');
+  
+  // Current Month Name aur Year (e.g., September 2026)
+  var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var currentDateObj = new Date();
+  var currentMonthYearStr = monthNames[currentDateObj.getMonth()] + " " + currentDateObj.getFullYear();
+
+  // Clean Header Title without Subtitle / Generated by / Filter labels
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(30, 64, 175);
+  doc.text(`EDC Mainpuri - 5 KW And Above Salary / Performance Data Summary (${currentMonthYearStr})`, 14, 28);
+
+  doc.autoTable({
+    html: table,
+    startY: 38,
+    margin: { left: 8, right: 8, bottom: 14 },
+    theme: 'grid',
+    styles: { 
+      fontSize: 8.5,
+      halign: 'center', 
+      valign: 'middle',
+      cellPadding: { top: 6.5, bottom: 6.5, left: 2, right: 2 }, // Row height increased to cover more than half page
+      minCellHeight: 22,
+      lineWidth: 0.45,
+      lineColor: [203, 213, 225]
+    },
+    headStyles: { 
+      fillColor: [15, 23, 42], 
+      textColor: [255, 255, 255], 
+      fontSize: 7.8, 
+      fontStyle: 'bold',
+      valign: 'middle',
+      cellPadding: { top: 5, bottom: 5, left: 2, right: 2 }
+    },
+    columnStyles: {
+      0: { cellWidth: 20 },
+      1: { halign: 'left', cellWidth: 95, fontStyle: 'bold' },
+      2: { cellWidth: 46, fontStyle: 'bold', textColor: [29, 78, 216] },
+      3: { cellWidth: 58, fontStyle: 'bold', textColor: [67, 56, 202] },
+      4: { cellWidth: 38, fontStyle: 'bold', textColor: [146, 64, 14], fillColor: [254, 243, 199] },
+      5: { cellWidth: 44, fontStyle: 'bold', fillColor: [241, 245, 249] },
+      6: { cellWidth: 46, fontStyle: 'bold', textColor: [29, 78, 216], fillColor: [239, 246, 255] },
+      12: { cellWidth: 44, fontStyle: 'bold', fillColor: [240, 253, 244] },
+      13: { cellWidth: 44, fontStyle: 'bold', textColor: [5, 150, 105], fillColor: [236, 253, 245] }
+    },
+    didParseCell: function(data) {
+      // Group Header Styling (UI Colors)
+      if (data.row.index === 0 && data.section === 'head') {
+        if (data.column.index === 5) {
+          data.cell.styles.fillColor = [29, 78, 216]; // Blue for Target MRI Based
+          data.cell.styles.fontSize = 8.5;
+        } else if (data.column.index === 12) {
+          data.cell.styles.fillColor = [4, 120, 87];  // Green for Extra Consumers
+          data.cell.styles.fontSize = 8.5;
+        }
+      }
+      // Grand Total Row Enhancement
+      if (data.section === 'body' && data.row.raw && data.row.raw.innerText && data.row.raw.innerText.includes("GRAND TOTAL")) {
+        data.cell.styles.fillColor = [254, 240, 138];
+        data.cell.styles.fontStyle = 'bold';
+        data.cell.styles.fontSize = 8.8;
+        data.cell.styles.textColor = [15, 23, 42];
+        data.cell.styles.cellPadding = { top: 6, bottom: 6 };
+      }
+    }
+  });
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  doc.save("Salary_Performance_Summary_" + dateStr + ".pdf");
+}
+
+// 🟢 3. Download Extra MRI Readers Only PDF (Special Report)
+function downloadExtraMriOnlyPDF() {
+  var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+  if (!jsPDFObj) return;
+
+  var doc = new jsPDFObj('l', 'pt', 'a4');
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(124, 58, 237);
+  doc.text("EDC Mainpuri - Extra MRI Readers Consumer Allocation Summary", 14, 20);
+
+  // Filter only readers with Extra MRI > 0
+  var extraReaders = ["SHIVAM KUMAR", "RAMAKANT", "GREESH KUMAR"].filter(function(rName) {
+    var mapObj = window.salaryAllocatedConsumersMap ? window.salaryAllocatedConsumersMap[rName] : null;
+    return mapObj && mapObj["EXTRA_MRI"] && mapObj["EXTRA_MRI"].length > 0;
+  });
+
+  var bodyRows = [];
+  extraReaders.forEach(function(rName, idx) {
+    var def = salaryReadersMasterList.find(function(m){ return m.name === rName; }) || {};
+    var mapObj = window.salaryAllocatedConsumersMap[rName] || {};
+    bodyRows.push([
+      idx + 1,
+      rName,
+      def.empId || "-",
+      def.project || "-",
+      def.target || "-",
+      (mapObj["TARGET_VISIT"] || []).length,
+      (mapObj["TOTAL_MRI"] || []).length,
+      (mapObj["EXTRA_VISIT"] || []).length,
+      (mapObj["EXTRA_MRI"] || []).length,
+      (mapObj["EXTRA_MAIN"] || []).length,
+      (mapObj["EXTRA_POLE"] || []).length,
+      (mapObj["EXTRA_EX"] || []).length,
+      (mapObj["EXTRA_BD"] || []).length
+    ]);
+  });
+
+  doc.autoTable({
+    head: [[
+      "Sr.", "Meter Reader Name", "Emp ID", "Project", "Target", 
+      "Target Visit", "Target MRI", "Extra Visit", "Extra MRI", "Extra Main", "Extra Pole", "Extra Ex", "Extra BD"
+    ]],
+    body: bodyRows,
+    startY: 30,
+    margin: { left: 14, right: 14 },
+    theme: 'grid',
+    styles: { fontSize: 7.5, halign: 'center', cellPadding: 4 },
+    headStyles: { fillColor: [124, 58, 237], textColor: [255, 255, 255], fontStyle: 'bold' }
+  });
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  doc.save("Extra_MRI_Readers_Summary_" + dateStr + ".pdf");
+}
+
+// 🟢 4. Download All Active Filtered Consumers Detailed Excel (Font size 8 & Proper Columns)
+function downloadSalaryAllConsumersExcel() {
+  if (typeof XLSX === "undefined") {
+    alert("XLSX Library not loaded!");
+    return;
+  }
+
+  var selProj = document.getElementById("salary-filter-project") ? document.getElementById("salary-filter-project").value : "ALL";
+
+  var targetReaders = salaryReadersMasterList.filter(function(r) {
+    var isSpecialReader = (r.name === "SHIVAM KUMAR" || r.name === "RAMAKANT");
+    if (!isSpecialReader && selProj !== "ALL" && r.project !== selProj) return false;
+    if (window.selectedSalaryReadersSet && !window.selectedSalaryReadersSet.has(r.name)) return false;
+    return true;
+  });
+
+  // Unique Consumer Deduplication Map
+  var collectedConsumers = [];
+  var seenAccountNumbers = new Set();
+
+  targetReaders.forEach(function(rDef) {
+    var rMap = window.salaryAllocatedConsumersMap ? window.salaryAllocatedConsumersMap[rDef.name] : null;
+    if (!rMap) return;
+
+    var allAllocatedRows = [].concat(
+      rMap["TARGET_VISIT"] || [],
+      rMap["EXTRA_VISIT"] || []
+    );
+
+    allAllocatedRows.forEach(function(row) {
+      var u = row._uMap || row || {};
+      var acc = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || u["ACCOUNT NUMBER"] || "").trim();
+      var dedupeKey = acc ? (acc + "_" + rDef.name) : JSON.stringify(u);
+
+      if (!seenAccountNumbers.has(dedupeKey)) {
+        seenAccountNumbers.add(dedupeKey);
+        collectedConsumers.push({
+          row: u,
+          allocatedReader: rDef.name,
+          readerEmpId: rDef.empId,
+          projectName: rDef.project
+        });
+      }
+    });
+  });
+
+  if (collectedConsumers.length === 0) {
+    alert("No consumer records found for the selected filter!");
+    return;
+  }
+
+  // Account No Wise Sorting
+  collectedConsumers.sort(function(a, b) {
+    var accA = String(a.row["ACCOUNT NO"] || a.row["ACCOUNT ID"] || "");
+    var accB = String(b.row["ACCOUNT NO"] || b.row["ACCOUNT ID"] || "");
+    return accA.localeCompare(accB, undefined, { numeric: true });
+  });
+
+  // Prepare Headers with Data Match Status Column
+  var headers = [
+    "Sr.",
+    "DATA MATCH STATUS",
+    "Allocated Reader",
+    "Emp ID",
+    "Project Name",
+    "Account No",
+    "Consumer Name",
+    "Address",
+    "Load KW",
+    "Main Meter No",
+    "Main Site Remark",
+    "Main Exception",
+    "Main MRI Available",
+    "Pole Meter No",
+    "Visited Pole Number",
+    "Pole Meter Site Remark",
+    "Pole Make",
+    "Pole Exception",
+    "Pole MRI Available",
+    "For Bill Distribution",
+    "Bill Upload Status",
+    "Bill Distribution Status"
+  ];
+
+  var exportData = [];
+  exportData.push(headers);
+
+  collectedConsumers.forEach(function(item, idx) {
+    var u = item.row;
+
+    // Account No Formatting (10-digit pad)
+    var rawAcc = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || u["ACCOUNT NUMBER"] || "").trim();
+    if (/^\d+$/.test(rawAcc) && rawAcc.length < 10) {
+      rawAcc = ("0000000000" + rawAcc).slice(-10);
+    }
+
+    // Bill Distribution calculation
+    var forBd = String(u["FOR_BILL DISTRIBUTION"] || u["FOR_BILL_DISTRIBUTION"] || "").trim().toUpperCase();
+    var bUp = String(u["IS BILL UPLOAD"] || u["IS_BILL_UPLOAD"] || "").trim().toUpperCase();
+    var bdStatus = (forBd === "YES" && (bUp === "YES" || bUp === "TRUE" || bUp === "1")) ? "DONE" : "PENDING";
+
+    // 🟢 Extract Main Meter No (Checking Last Month fields first)
+    var mainMtrNo = String(
+      u["LAST MONTH MAIN METER NO"] || 
+      u["LAST_MONTH_MAIN_METER_NO"] || 
+      u["LAST MON MM NO"] || 
+      u["MM NO LAST MONTH"] || 
+      u["LAST_MON_MM_NO"] || 
+      u["MAIN METER NO"] || 
+      u["MAIN_METER_NO"] || 
+      u["METER SERIAL NUMBER (MAIN METER)"] || 
+      ""
+    ).trim();
+
+    // 🟢 Extract Pole Meter No (Checking Last Month fields first)
+    var poleMtrNo = String(
+      u["LAST MONTH POLE METER NO"] || 
+      u["LAST_MONTH_POLE_METER_NO"] || 
+      u["LAST MON POLE MN"] || 
+      u["LAST MON POLE MTR NO"] || 
+      u["LAST_MON_POLE_MN"] || 
+      u["POLE METER NO"] || 
+      u["POLE_METER_NO"] || 
+      u["METER SERIAL NUMBER (POLE METER)"] || 
+      ""
+    ).trim();
+
+    // 🟢 Instant Filter Match Status calculation
+    var loadKwVal = parseFloat(String(u["LOAD IN KW"] || u["LOAD_KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
+    var mainExType = String(u["EXCEPTION TYPE (MAIN METER)"] || "").trim().toUpperCase();
+    var poleExType = String(u["EXCEPTION TYPE (POLE METER)"] || "").trim().toUpperCase();
+    var mainRemVal = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "").trim().toUpperCase();
+
+    var hasMainMri = (String(u["IS MRI AVAILABLE (MAIN METER)"] || "").trim().toUpperCase() === "YES" || 
+                      String(u["IS MRI AVAILABLE (MAIN METER)"] || "").trim().toUpperCase() === "TRUE" || 
+                      mainExType === "MRI" || 
+                      mainRemVal.includes("MRI DONE") || 
+                      mainRemVal.includes("OK APP"));
+
+    var hasPoleMri = (loadKwVal >= 10) && (
+                      String(u["IS MRI AVAILABLE (POLE METER)"] || "").trim().toUpperCase() === "YES" || 
+                      String(u["IS MRI AVAILABLE (POLE METER)"] || "").trim().toUpperCase() === "TRUE" || 
+                      poleExType === "MRI");
+
+    var isSmartMeterCase = mainRemVal.includes("SMART") || mainExType.includes("NONE_SM") || mainExType.includes("SMART");
+    var hasException = ["EXCEPTION", "EXCEPTION (NO_MTR)", "NONE", "NONE_1 PHASE"].includes(mainExType) && !hasPoleMri && !isSmartMeterCase;
+
+    var dataMatchStatus = "VISITED ONLY";
+    if (hasMainMri && hasPoleMri) {
+      dataMatchStatus = "MAIN & POLE MRI DONE";
+    } else if (hasMainMri) {
+      dataMatchStatus = "MAIN MRI DONE";
+    } else if (hasPoleMri) {
+      dataMatchStatus = "POLE MRI DONE";
+    } else if (hasException) {
+      dataMatchStatus = "MAIN EXCEPTION";
+    }
+
+    var rData = [
+      idx + 1,
+      dataMatchStatus,
+      item.allocatedReader,
+      item.readerEmpId,
+      item.projectName,
+      rawAcc,
+      String(u["NAME"] || u["CONSUMER NAME"] || "").trim(),
+      String(u["ADDRESS"] || "").trim(),
+      String(u["LOAD IN KW"] || u["LOAD_KW"] || "").trim(),
+      mainMtrNo,
+      String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "").trim(),
+      String(u["EXCEPTION TYPE (MAIN METER)"] || "").trim(),
+      String(u["IS MRI AVAILABLE (MAIN METER)"] || "").trim(),
+      poleMtrNo,
+      String(u["POLE NUMBER"] || u["VISITED POLE NUMBER"] || u["POLE NO"] || "").trim(),
+      String(u["POLE METER SITE REMARK"] || u["FINAL_POLE_METER_SITE_REMARK"] || "").trim(),
+      String(u["METER MAKE (POLE METER)"] || u["POLE MAKE"] || u["MAKE"] || "").trim(),
+      String(u["EXCEPTION TYPE (POLE METER)"] || "").trim(),
+      String(u["IS MRI AVAILABLE (POLE METER)"] || "").trim(),
+      forBd,
+      bUp,
+      bdStatus
+    ];
+    exportData.push(rData);
+  });
+
+  var ws = XLSX.utils.aoa_to_sheet(exportData);
+
+  // Set Perfect Column Widths with DATA MATCH STATUS
+  ws['!cols'] = [
+    { wch: 6 },   // Sr.
+    { wch: 24 },  // DATA MATCH STATUS
+    { wch: 22 },  // Allocated Reader
+    { wch: 10 },  // Emp ID
+    { wch: 14 },  // Project Name
+    { wch: 14 },  // Account No
+    { wch: 26 },  // Consumer Name
+    { wch: 28 },  // Address
+    { wch: 9 },   // Load KW
+    { wch: 16 },  // Main Meter No
+    { wch: 20 },  // Main Site Remark
+    { wch: 16 },  // Main Exception
+    { wch: 12 },  // Main MRI Available
+    { wch: 16 },  // Pole Meter No
+    { wch: 18 },  // Visited Pole Number
+    { wch: 22 },  // Pole Meter Site Remark
+    { wch: 14 },  // Pole Make
+    { wch: 16 },  // Pole Exception
+    { wch: 12 },  // Pole MRI Available
+    { wch: 12 },  // For Bill Dist
+    { wch: 12 },  // Bill Upload
+    { wch: 16 }   // Bill Distribution Status
+  ];
+
+  // Apply Font Size 8 to All Cells
+  var range = XLSX.utils.decode_range(ws['!ref']);
+  for (var R = range.s.r; R <= range.e.r; ++R) {
+    for (var C = range.s.c; C <= range.e.c; ++C) {
+      var cellRef = XLSX.utils.encode_cell({ c: C, r: R });
+      if (!ws[cellRef]) continue;
+      if (!ws[cellRef].s) ws[cellRef].s = {};
+      
+      ws[cellRef].s.font = {
+        name: "Calibri",
+        sz: 8,
+        bold: (R === 0)
+      };
+      ws[cellRef].s.alignment = {
+        vertical: "center",
+        horizontal: (C === 0 || C === 2 || C === 4 || C === 7 || C >= 17) ? "center" : "left"
+      };
+      if (R === 0) {
+        ws[cellRef].s.fill = { fgColor: { rgb: "0F172A" } };
+        ws[cellRef].s.font.color = { rgb: "FFFFFF" };
+      }
     }
   }
 
-  var subEl = document.getElementById("mri-rejection-sub-count");
-  if (subEl) {
-    subEl.innerText = "Total Found: " + visibleCount + " (Filtered)";
-  }
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Allocated_Consumers");
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  XLSX.writeFile(wb, `EDC_Mainpuri_Allocated_Consumers_${selProj}_${dateStr}.xlsx`);
 }
 
-// 🟢 Download Excel with Updated Title & Exact Sequence
+// =========================================================================
+// 🟢 REPEATED NON-MRI 3-MONTH AUDIT POPUP & DOWNLOAD ENGINE
+// =========================================================================
+var activeRepeatedConsumerAudit = null;
+
+function openRepeatedMonthAuditModal(accountNo, meterScope) {
+  if (!cachedDatabase || cachedDatabase.length === 0) return;
+
+  var cleanTarget = String(accountNo).trim().replace(/_P$/i, '').replace(/\.0$/, '');
+  var targetDigits = cleanTarget.replace(/[^0-9]/g, '');
+  var paddedTarget = (targetDigits.length > 0) ? ("0000000000" + targetDigits).slice(-10) : cleanTarget;
+
+  var foundRow = cachedDatabase.find(function(r) {
+    var u = r._uMap || r;
+    var acc = String(u["ACCOUNT NO"] || u["ACCOUNT ID"] || "").trim().replace(/_P$/i, '').replace(/\.0$/, '');
+    var d = acc.replace(/[^0-9]/g, '');
+    return (d.length > 0 ? ("0000000000" + d).slice(-10) : acc) === paddedTarget;
+  });
+
+  if (!foundRow) {
+    alert("उपभोक्ता रिकॉर्ड नहीं मिला!");
+    return;
+  }
+
+  var u = foundRow._uMap || foundRow;
+  var isPole = (meterScope === "Pole Meter" || meterScope === "POLE");
+
+  // Month Names
+  var now = new Date();
+  var monthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var m0Label = monthsShort[now.getMonth()] + "-" + String(now.getFullYear()).slice(-2) + " (Current)";
+  var d1 = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  var m1Label = monthsShort[d1.getMonth()] + "-" + String(d1.getFullYear()).slice(-2) + " (Last Month)";
+  var d2 = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+  var m2Label = monthsShort[d2.getMonth()] + "-" + String(d2.getFullYear()).slice(-2) + " (2 Months Prior)";
+
+  // Readings & Remarks Helper
+  var m0Rem = isPole ? (u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "-") : (u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "-");
+  var m0Mri = isPole ? (u["IS MRI AVAILABLE (POLE METER)"] || "False") : (u["IS MRI AVAILABLE (MAIN METER)"] || "False");
+
+  // 🟢 Direct exact match for Aug (Last Month)
+  var m1Rem = isPole 
+    ? (u["LAST MONTH POLE SITE REMARK"] || u["LAST_MONTH_POLE_SITE_REMARK"] || u["LAST MONTH FINAL PM REMARK"] || "") 
+    : (u["LAST_MONTH SITE REMARK"] || u["LAST_MONTH_SITE_REMARK"] || u["LAST MONTH SITE REMARK"] || u["LAST 1 MONTH SITE REMARK"] || "");
+
+  var m1Mri = isPole 
+    ? (u["LAST MONTH MRI AVAILABLE (POLE MTR)"] || u["IS MRI AVAILABLE (POLE METER)"] || "False") 
+    : (u["LAST MONTH MRI AVAILABLE (MAIN METER)"] || u["IS MRI AVAILABLE (MAIN METER)"] || "False");
+
+  if (!m1Rem || m1Rem === "-") {
+    for (var colKey in u) {
+      var kn = colKey.toUpperCase().replace(/[^A-Z0-9]/g, "");
+      if (isPole) {
+        if (kn.includes("LAST2") || kn.includes("2MONTH")) continue;
+        if (kn.includes("POLE") && kn.includes("REMARK") && (kn.includes("LAST") || kn.includes("LM"))) {
+          if (u[colKey] && String(u[colKey]).trim() !== "" && String(u[colKey]).trim() !== "-") { m1Rem = u[colKey]; break; }
+        }
+      } else {
+        if (kn.includes("POLE") || kn.includes("PM") || kn.includes("LAST2") || kn.includes("2MONTH")) continue;
+        if ((kn.includes("LASTMONTHSITEREMARK") || kn.includes("LASTSITEREMARK") || kn.includes("LMREMARK")) && (kn.includes("REMARK") || kn.includes("SITE"))) {
+          if (u[colKey] && String(u[colKey]).trim() !== "" && String(u[colKey]).trim() !== "-") { m1Rem = u[colKey]; break; }
+        }
+      }
+    }
+  }
+
+  if (!m1Rem) m1Rem = "-";
+
+  var m2Rem = isPole ? (u["LAST 2 MONTH POLE SITE REMARK"] || "-") : (u["LAST 2 MONTHS SITE REMARK"] || u["LAST 2 MONTH SITE REMARK"] || "-");
+  var m2Mri = isPole ? (u["LAST 2 MONTH MRI AVAILABLE (POLE MTR)"] || "False") : (u["LAST 2 MONTH MRI AVAILABLE (MAIN METER)"] || "False");
+
+  var meterNo = isPole ? (u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."] || "-") : (u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"] || u["BILLED METER NUMBER"] || "-");
+  var meterMake = isPole ? (u["LAST MONTH FINAL PM MAKE"] || u["FINAL VISITED POLE METER MAKE"] || "-") : (u["LAST MONTH FINAL MM MAKE"] || u["FINAL VISITED MAIN METER MAKE"] || "-");
+
+  activeRepeatedConsumerAudit = {
+    accountNo: paddedTarget,
+    consumerName: String(u["CONSUMER-NAME"] || u["CONSUMER NAME"] || "-"),
+    address: (typeof cleanAddressGlobal === "function") ? cleanAddressGlobal(u["ADDRESS"] || u["COMPLETE ADRESS"] || "-") : String(u["ADDRESS"] || "-"),
+    mobileNo: String(u["MR MOBILE NO."] || u["MASTER MOBILE NUMBER"] || u["PHONE"] || "-"),
+    division: String(u["DIVISION"] || "-"),
+    loadKw: String(u["LOAD IN KW"] || u["LOAD_KW"] || "-"),
+    scope: isPole ? "POLE METER" : "MAIN METER",
+    meterNo: meterNo,
+    meterMake: meterMake,
+    m0Label: m0Label, m0Rem: m0Rem, m0Mri: m0Mri,
+    m1Label: m1Label, m1Rem: m1Rem, m1Mri: m1Mri,
+    m2Label: m2Label, m2Rem: m2Rem, m2Mri: m2Mri
+  };
+
+  var headerSub = document.getElementById("repeated-modal-header-sub");
+  if (headerSub) {
+    headerSub.innerText = activeRepeatedConsumerAudit.consumerName + " | Account: " + paddedTarget + " | Scope: " + activeRepeatedConsumerAudit.scope;
+  }
+
+  var body = document.getElementById("repeated-month-modal-body");
+  if (body) {
+    body.innerHTML = `
+      <!-- Consumer & Meter Snapshot -->
+      <div style="background:white; border:1.5px solid #cbd5e1; border-radius:8px; padding:12px 16px; margin-bottom:14px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+        <div style="font-size:12px; font-weight:800; color:#991b1b; border-bottom:1.5px solid #f87171; padding-bottom:4px; margin-bottom:10px; text-transform:uppercase;">
+          <i class="fa-solid fa-id-card me-1"></i> Consumer Identity & Verified Meter Details
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:8px 16px;">
+          <div><span style="font-weight:700; color:#64748b;">Account No:</span> <span style="font-weight:800; color:#1d4ed8; font-family:monospace;">${activeRepeatedConsumerAudit.accountNo}</span></div>
+          <div><span style="font-weight:700; color:#64748b;">Consumer Name:</span> <span style="font-weight:800; color:#0f172a;">${activeRepeatedConsumerAudit.consumerName}</span></div>
+          <div><span style="font-weight:700; color:#64748b;">Division:</span> <span style="font-weight:800; color:#0f172a;">${activeRepeatedConsumerAudit.division}</span></div>
+          <div><span style="font-weight:700; color:#64748b;">Sanctioned Load:</span> <span style="font-weight:800; color:#059669;">${activeRepeatedConsumerAudit.loadKw} KW</span></div>
+          <div><span style="font-weight:700; color:#64748b;">Mobile No:</span> <span style="font-weight:800; color:#0284c7; font-family:monospace;">${activeRepeatedConsumerAudit.mobileNo}</span></div>
+          <div><span style="font-weight:700; color:#64748b;">Meter Number:</span> <span style="font-weight:800; color:#1e293b; font-family:monospace;">${activeRepeatedConsumerAudit.meterNo}</span></div>
+          <div><span style="font-weight:700; color:#64748b;">Meter Make:</span> <span style="font-weight:800; color:#7c3aed;">${activeRepeatedConsumerAudit.meterMake}</span></div>
+          <div><span style="font-weight:700; color:#64748b;">Meter Scope:</span> <span style="font-weight:900; color:${isPole ? '#7c3aed' : '#1d4ed8'};">${activeRepeatedConsumerAudit.scope}</span></div>
+          <div style="grid-column:1 / -1;"><span style="font-weight:700; color:#64748b;">Address:</span> <span style="font-weight:600; color:#334155;">${activeRepeatedConsumerAudit.address}</span></div>
+        </div>
+      </div>
+
+      <!-- 3-Month Month-wise Remark Breakdown Table -->
+      <div style="background:white; border:1.5px solid #cbd5e1; border-radius:8px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+        <table style="width:100%; border-collapse:collapse; text-align:center; font-size:12px;">
+          <thead style="background:#0f172a; color:white; font-size:11px; font-weight:800;">
+            <tr>
+              <th style="padding:8px 10px;">Billing Cycle / Month Name</th>
+              <th style="padding:8px 10px;">MRI Available Status</th>
+              <th style="padding:8px 14px; text-align:left;">Site Observation / Field Remark</th>
+              <th style="padding:8px 10px;">Classification</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fef2f2;">
+              <td style="padding:10px; font-weight:800; color:#991b1b;"><i class="fa-regular fa-calendar-check me-1"></i> ${activeRepeatedConsumerAudit.m0Label}</td>
+              <td style="padding:10px; font-weight:800; color:#dc2626;">${activeRepeatedConsumerAudit.m0Mri}</td>
+              <td style="padding:10px; text-align:left; font-weight:800; color:#0f172a;">${activeRepeatedConsumerAudit.m0Rem}</td>
+              <td style="padding:10px;"><span style="background:#fee2e2; color:#b91c1c; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:800;">CURRENT NON-MRI</span></td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fff7ed;">
+              <td style="padding:10px; font-weight:800; color:#9a3412;"><i class="fa-regular fa-calendar me-1"></i> ${activeRepeatedConsumerAudit.m1Label}</td>
+              <td style="padding:10px; font-weight:800; color:#ea580c;">${activeRepeatedConsumerAudit.m1Mri}</td>
+              <td style="padding:10px; text-align:left; font-weight:700; color:#0f172a;">${activeRepeatedConsumerAudit.m1Rem}</td>
+              <td style="padding:10px;"><span style="background:#ffedd5; color:#c2410c; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:800;">LAST MONTH</span></td>
+            </tr>
+            <tr style="background:#f8fafc;">
+              <td style="padding:10px; font-weight:800; color:#475569;"><i class="fa-regular fa-calendar-minus me-1"></i> ${activeRepeatedConsumerAudit.m2Label}</td>
+              <td style="padding:10px; font-weight:700; color:#64748b;">${activeRepeatedConsumerAudit.m2Mri}</td>
+              <td style="padding:10px; text-align:left; font-weight:700; color:#0f172a;">${activeRepeatedConsumerAudit.m2Rem}</td>
+              <td style="padding:10px;"><span style="background:#e2e8f0; color:#475569; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:800;">2 MONTHS PRIOR</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  var modal = document.getElementById("repeated-month-modal");
+  if (modal) modal.style.display = "flex";
+}
+
+function closeRepeatedMonthModal() {
+  var modal = document.getElementById("repeated-month-modal");
+  if (modal) modal.style.display = "none";
+}
+
+// 🟢 Download Single Consumer 3-Month Repeated Remark Excel
+function downloadRepeatedMonthSingleExcel() {
+  if (!activeRepeatedConsumerAudit) return;
+  var c = activeRepeatedConsumerAudit;
+
+  var rows = [
+    ["SAI COMPUTERS LTD - REPEATED NON-MRI 3-MONTH AUDIT REPORT", ""],
+    ["Generated On", new Date().toLocaleDateString('en-GB')],
+    [],
+    ["Account No", c.accountNo],
+    ["Consumer Name", c.consumerName],
+    ["Division", c.division],
+    ["Sanctioned Load (KW)", c.loadKw],
+    ["Mobile Number", c.mobileNo],
+    ["Meter Scope", c.scope],
+    ["Meter Number", c.meterNo],
+    ["Meter Make", c.meterMake],
+    ["Address", c.address],
+    [],
+    ["Month Name", "MRI Available", "Site Observation / Field Remark"]
+  ];
+
+  rows.push([c.m0Label, c.m0Mri, c.m0Rem]);
+  rows.push([c.m1Label, c.m1Mri, c.m1Rem]);
+  rows.push([c.m2Label, c.m2Mri, c.m2Rem]);
+
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{ wch: 28 }, { wch: 20 }, { wch: 45 }];
+
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "3M_Repeated_Audit");
+  XLSX.writeFile(wb, "Repeated_NonMRI_Audit_" + c.accountNo + ".xlsx");
+}
+
+// 🟢 Download Single Consumer 3-Month Repeated Remark PDF
+function downloadRepeatedMonthSinglePDF() {
+  if (!activeRepeatedConsumerAudit) return;
+  var c = activeRepeatedConsumerAudit;
+
+  var jsPDFObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+  if (!jsPDFObj) return;
+
+  var doc = new jsPDFObj('p', 'pt', 'a4'); // 595 x 842 pt
+
+  // Top Title
+  doc.setFillColor(127, 29, 29);
+  doc.rect(15, 14, 565, 32, 'F');
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11.5);
+  doc.setTextColor(255, 255, 255);
+  doc.text("REPEATED NON-MRI 3-MONTH PROGRESSIVE AUDIT DOSSIER", 25, 28);
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.text("Account: " + c.accountNo + " | Consumer: " + c.consumerName + " | Scope: " + c.scope, 25, 40);
+
+  // Identity Table
+  var idTable = [
+    [
+      { content: "Account No:", styles: { fontStyle: 'bold', textColor: [100, 116, 139] } },
+      { content: c.accountNo, styles: { fontStyle: 'bold', textColor: [29, 78, 216] } },
+      { content: "Sanctioned Load:", styles: { fontStyle: 'bold', textColor: [100, 116, 139] } },
+      { content: c.loadKw + " KW", styles: { fontStyle: 'bold', textColor: [5, 150, 105] } }
+    ],
+    [
+      { content: "Consumer Name:", styles: { fontStyle: 'bold', textColor: [100, 116, 139] } },
+      { content: c.consumerName, styles: { fontStyle: 'bold' } },
+      { content: "Division:", styles: { fontStyle: 'bold', textColor: [100, 116, 139] } },
+      { content: c.division, styles: { fontStyle: 'bold' } }
+    ],
+    [
+      { content: "Meter Number:", styles: { fontStyle: 'bold', textColor: [100, 116, 139] } },
+      { content: c.meterNo, styles: { fontStyle: 'bold' } },
+      { content: "Meter Make:", styles: { fontStyle: 'bold', textColor: [100, 116, 139] } },
+      { content: c.meterMake, styles: { fontStyle: 'bold' } }
+    ],
+    [
+      { content: "Mobile No:", styles: { fontStyle: 'bold', textColor: [100, 116, 139] } },
+      { content: c.mobileNo, styles: { fontStyle: 'bold', textColor: [2, 132, 199] } },
+      { content: "Address:", styles: { fontStyle: 'bold', textColor: [100, 116, 139] } },
+      { content: c.address, styles: { fontSize: 7 } }
+    ]
+  ];
+
+  doc.autoTable({
+    body: idTable,
+    startY: 54,
+    margin: { left: 15, right: 15 },
+    theme: 'grid',
+    styles: { fontSize: 8, cellPadding: 4, valign: 'middle' },
+    columnStyles: { 0: { cellWidth: 95 }, 1: { cellWidth: 185 }, 2: { cellWidth: 95 }, 3: { cellWidth: 190 } }
+  });
+
+  // 3-Month Breakdown Table
+  var historyHeaders = [["Billing Month", "MRI Status", "Site Remark / Field Observation", "Classification"]];
+  var historyBody = [
+    [c.m0Label, c.m0Mri, c.m0Rem, "CURRENT NON-MRI"],
+    [c.m1Label, c.m1Mri, c.m1Rem, "LAST MONTH"],
+    [c.m2Label, c.m2Mri, c.m2Rem, "2 MONTHS PRIOR"]
+  ];
+
+  doc.autoTable({
+    head: historyHeaders,
+    body: historyBody,
+    startY: doc.lastAutoTable.finalY + 14,
+    margin: { left: 15, right: 15 },
+    theme: 'grid',
+    styles: { fontSize: 8.5, cellPadding: 6, halign: 'center', valign: 'middle' },
+    headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
+    columnStyles: { 2: { halign: 'left', fontStyle: 'bold' } }
+  });
+
+  doc.setFontSize(7.5);
+  doc.setTextColor(140, 140, 140);
+  doc.text("Generated on: " + new Date().toLocaleDateString('en-GB') + " | Sai Computers Ltd RMS Portal", 15, 820);
+
+  doc.save("Repeated_NonMRI_Audit_" + c.accountNo + ".pdf");
+}
+
+// 🟢 Download Excel matching EXACT Screen UI Columns for Sub-Tabs 3, 4, 5, 6
 function downloadRejectionAfterMriExcel() {
-  var data = computeRejectionAfterMriData();
+  var data = (window.cachedMriRejectionRows && window.cachedMriRejectionRows.length > 0) 
+              ? window.cachedMriRejectionRows 
+              : computeRejectionAfterMriData();
+
   if (!data || data.length === 0) {
     alert("डाउनलोड करने के लिए कोई डेटा उपलब्ध नहीं है!");
     return;
@@ -14971,65 +16857,78 @@ function downloadRejectionAfterMriExcel() {
   var now = new Date();
   var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
   var timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).replace(/:/g, '-');
-  var rptTitle = (activeReportMeta && activeReportMeta.name) ? activeReportMeta.name : "Report";
-  var excelRows = [];
+  
+  var isAllMri = (currentMriRejectionFilterMode === 'all');
+  var isTotalEx = (currentMriRejectionFilterMode === 'total_exception');
+  var isNonMriPole = (currentMriRejectionFilterMode === 'non_mri_pole');
+  var isNonMriMain = (currentMriRejectionFilterMode === 'non_mri_main');
 
-  // 🟢 1. आपकी रिपोर्ट में असाइन किए गए ओरिजिनल कॉलम्स प्राप्त करें
-  var targetCols = [];
+  var activeDivScope = (selectedDivisions && selectedDivisions.length > 0) ? selectedDivisions.join(" ") : "EDC Mainpuri";
 
-  if (activeReportMeta && activeReportMeta.columns && activeReportMeta.columns.trim() !== "" && activeReportMeta.columns.trim().toUpperCase() !== "ALL" && activeReportMeta.columns.trim().toUpperCase() !== "CUSTOM_MATRIX_VIEW") {
-    targetCols = activeReportMeta.columns.split(",").map(function(c) { return c.trim(); });
-  } else if (originalSheetHeadersList && originalSheetHeadersList.length > 0) {
-    targetCols = originalSheetHeadersList.slice();
-  } else if (cachedDatabase && cachedDatabase.length > 0) {
-    targetCols = Object.keys(cachedDatabase[0]).filter(function(k) { return !k.startsWith("_"); });
+  // 🟢 बिना अंडरस्कोर के साफ़ डायनामिक नाम
+  var rptTitle = isTotalEx ? (activeDivScope + " Total Exception and Rejection Report " + dateStr) : 
+                 (isAllMri ? (activeDivScope + " Rejection After MRI Report " + dateStr) : 
+                 (isNonMriPole ? (activeDivScope + " Non MRI Pole Meter Field Exception Report " + dateStr) : (activeDivScope + " Non MRI Main Meter Field Exception Report " + dateStr)));
+
+  // 🟢 Screen UI के आधार पर सटीक हेडर लिस्ट
+  var excelHeaders = [];
+  if (isAllMri) {
+    excelHeaders = [
+      "Sr.No.", "Meter Scope", "Division", "Account No", "Type", "Tariff", 
+      "Consumer Name", "Address", "Load", "Billed Mtr", "Field Mtr", "Field Make", 
+      "Visited Mtr", "Visited Make", "Failure Message / Rejection Reason", "MR Name", "MR Mobile"
+    ];
+  } else {
+    var mtrCol = isNonMriPole ? "Visited Pole Meter No" : (isNonMriMain ? "Visited Main Meter No" : "Visited Meter No");
+    var makeCol = isNonMriPole ? "Visited Pole Make" : (isNonMriMain ? "Visited Main Make" : "Visited Make");
+    var remCol = isNonMriPole ? "Pole Site Remark" : (isNonMriMain ? "Main Site Remark" : "Remark / Exception Reason");
+
+    excelHeaders = [
+      "Sr.No.", "Meter Scope", "Division", "Account No", "Type", "Tariff", 
+      "Consumer Name", "Address", "Load"
+    ];
+    if (isTotalEx) excelHeaders.push("Category");
+    excelHeaders.push("Repeated Month", mtrCol, makeCol, remCol, "MR Name", "MR Mobile");
   }
 
-  // 🟢 2. हेडर में वही असली कॉलम नाम जाएँगे जो आपके कोड/डेटाबेस में हैं
-  excelRows.push(["Sr.No."].concat(targetCols));
+  var excelRows = [excelHeaders];
 
-  // 🟢 3. डेटा को बिना किसी नाम बदले ओरिजिनल फ़ील्ड्स से मैप करें
   data.forEach(function(item, idx) {
-    var rawRow = item.rawRow || item;
-    var uMap = rawRow._uMap || rawRow;
-    var rowArr = [idx + 1];
+    var meterScopeText = (item.category && item.category.includes("Pole")) || currentMriRejectionFilterMode === 'non_mri_pole' ? "Pole Meter" : "Main Meter";
+    var rowArr = [
+      idx + 1,
+      meterScopeText,
+      item.division || "-",
+      String(item.accountNo || "-"),
+      item.consumerType || "-",
+      item.tariff || "-",
+      item.consumerName || "-",
+      item.address || "-",
+      item.load || "-"
+    ];
 
-    targetCols.forEach(function(col) {
-      var targetClean = col.toUpperCase().replace(/[^A-Z0-9]/gi, '');
-      var cellVal = "";
-
-      // डायरेक्ट वैल्यू मैच
-      if (rawRow[col] !== undefined && rawRow[col] !== null && String(rawRow[col]).trim() !== "") {
-        cellVal = rawRow[col];
-      } else {
-        // केस और स्पेस इनसेंसिटिव मैच
-        for (var k in rawRow) {
-          if (k.replace(/[^A-Z0-9]/gi, '').toUpperCase() === targetClean) {
-            cellVal = rawRow[k];
-            break;
-          }
-        }
-        if ((cellVal === "" || cellVal === undefined) && uMap) {
-          for (var uk in uMap) {
-            if (uk.replace(/[^A-Z0-9]/gi, '').toUpperCase() === targetClean) {
-              cellVal = uMap[uk];
-              break;
-            }
-          }
-        }
-      }
-
-      // अकाउंट नंबर के आगे का 0 सुरक्षित रखें
-      if (targetClean.includes("ACCOUNT") && cellVal) {
-        var sVal = String(cellVal).trim();
-        if (/^\d+$/.test(sVal) && sVal.length < 10) {
-          cellVal = ("0000000000" + sVal).slice(-10);
-        }
-      }
-
-      rowArr.push(cellVal !== undefined && cellVal !== null ? String(cellVal) : "");
-    });
-
+    if (isAllMri) {
+      rowArr.push(
+        item.billedMtr || "-",
+        item.fieldMtr || "-",
+        item.fieldMake || "-",
+        item.visitedMtr || "-",
+        item.visitedMake || "-",
+        item.failureMessage || "-",
+        item.mrName || "-",
+        item.mrMobile || "-"
+      );
+    } else {
+      if (isTotalEx) rowArr.push(item.category || "-");
+      rowArr.push(
+        item.repeatedMonth || "1 Month (Current)",
+        item.visitedMtr || "-",
+        item.visitedMake || "-",
+        item.failureMessage || "-",
+        item.mrName || "-",
+        item.mrMobile || "-"
+      );
+    }
     excelRows.push(rowArr);
   });
 
@@ -15039,12 +16938,16 @@ function downloadRejectionAfterMriExcel() {
   }
 
   var wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Data_Records");
-  XLSX.writeFile(wb, rptTitle.replace(/[^a-zA-Z0-9_]/g, "_") + "_" + dateStr + "_" + timeStr + ".xlsx");
+  XLSX.utils.book_append_sheet(wb, ws, "UI_Data_Records");
+  var cleanFileName = rptTitle.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, " ");
+  XLSX.writeFile(wb, cleanFileName + " " + timeStr + ".xlsx");
 }
 
 function downloadRejectionAfterMriPDF() {
-  var data = computeRejectionAfterMriData();
+  var data = (window.cachedMriRejectionRows && window.cachedMriRejectionRows.length > 0) 
+              ? window.cachedMriRejectionRows 
+              : computeRejectionAfterMriData();
+
   if (!data || data.length === 0) {
     alert("डाउनलोड करने के लिए कोई रिकॉर्ड उपलब्ध नहीं है!");
     return;
@@ -15052,11 +16955,10 @@ function downloadRejectionAfterMriPDF() {
 
   var jsPDFConstructor = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (typeof jsPDF !== "undefined" ? jsPDF : null);
   if (!jsPDFConstructor) {
-    alert("PDF जनरेटर लाइब्रेरी लोड नहीं हो सकी!");
+    alert("PDF लाइब्रेरी लोड नहीं हो सकी!");
     return;
   }
 
-  // jsPDF Landscape Mode (Horizontal Orientation)
   var doc = new jsPDFConstructor('l', 'mm', 'a4');
   var pageWidth = doc.internal.pageSize.getWidth();
 
@@ -15065,11 +16967,13 @@ function downloadRejectionAfterMriPDF() {
   var isNonMriPole = (currentMriRejectionFilterMode === 'non_mri_pole');
   var isNonMriMain = (currentMriRejectionFilterMode === 'non_mri_main');
 
-  var reportTitle = isTotalEx ? "TOTAL EXCEPTION & REJECTION REPORT" : 
-                    (isAllMri ? "REJECTION AFTER MRI REPORT" : 
-                    (isNonMriPole ? "NON-MRI POLE METER REPORT" : "NON-MRI MAIN METER REPORT"));
+  var activeDivScope = (selectedDivisions && selectedDivisions.length > 0) ? selectedDivisions.join(" ") : "EDC Mainpuri";
 
-  var activeDivScope = (selectedDivisions && selectedDivisions.length > 0) ? selectedDivisions.join(", ") : "All Divisions";
+  // 🟢 बिना अंडरस्कोर के सुंदर शीर्षक (Title)
+  var reportTitle = isTotalEx ? (activeDivScope + " Total Exception and Rejection Report") : 
+                    (isAllMri ? (activeDivScope + " Rejection After MRI Report") : 
+                    (isNonMriPole ? (activeDivScope + " Non MRI Pole Meter Field Exception Report") : (activeDivScope + " Non MRI Main Meter Field Exception Report")));
+
   var now = new Date();
   var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
   var timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -15118,15 +17022,17 @@ function downloadRejectionAfterMriPDF() {
     pdfHeaders = [[
       "Sr.", "Scope", "Division", "Account No", "Type", "Tariff", "Consumer Name", "Address", "Load",
       ...(isTotalEx ? ["Category"] : []),
-      mtrCol, makeCol, remCol, "MR Name", "Mobile"
+      "Repeated", mtrCol, makeCol, remCol, "MR Name", "Mobile"
     ]];
 
     pdfBody = data.map(function(item, idx) {
       var meterScopeText = (item.category && item.category.includes("Pole")) || currentMriRejectionFilterMode === 'non_mri_pole' ? "Pole Mtr" : "Main Mtr";
       var addrShort = (item.address || "-").replace(/\s+/g, ' ');
-      if (addrShort.length > 35) addrShort = addrShort.substring(0, 32) + "..";
+      if (addrShort.length > 32) addrShort = addrShort.substring(0, 30) + "..";
       var rawMob = String(item.mrMobile || "").trim().replace(/[^0-9]/g, "");
       var cleanMob = (rawMob.length >= 10) ? rawMob.slice(-10) : (rawMob || "-");
+
+      var repLabel = (item.repeatedMonth && item.repeatedMonth.includes("3")) ? "3 Mon" : ((item.repeatedMonth && item.repeatedMonth.includes("2")) ? "2 Mon" : "1 Mon");
 
       var rowItem = [
         idx + 1,
@@ -15135,16 +17041,17 @@ function downloadRejectionAfterMriPDF() {
         item.accountNo || "-",
         item.consumerType || "-",
         item.tariff || "-",
-        (item.consumerName || "-").substring(0, 24),
+        (item.consumerName || "-").substring(0, 22),
         addrShort,
         item.load || "-"
       ];
       if (isTotalEx) rowItem.push(item.category || "-");
       rowItem.push(
+        repLabel,
         item.visitedMtr || "-",
         item.visitedMake || "-",
         item.failureMessage || "-",
-        (item.mrName || "-").substring(0, 16),
+        (item.mrName || "-").substring(0, 15),
         cleanMob
       );
       return rowItem;
@@ -15176,20 +17083,21 @@ function downloadRejectionAfterMriPDF() {
   } else if (isTotalEx) {
     colStylesConfig = {
       0:  { cellWidth: 7, halign: 'center' },
-      1:  { cellWidth: 14, halign: 'center', fontStyle: 'bold' },
-      2:  { cellWidth: 17, halign: 'center' },
-      3:  { cellWidth: 19, halign: 'center', fontStyle: 'bold' },
-      4:  { cellWidth: 13, halign: 'center' },
-      5:  { cellWidth: 12, halign: 'center' },
-      6:  { cellWidth: 30, halign: 'left' },
-      7:  { cellWidth: 32, halign: 'left' },
-      8:  { cellWidth: 10, halign: 'center' },
-      9:  { cellWidth: 17, halign: 'center' },
-      10: { cellWidth: 17, halign: 'center' },
-      11: { cellWidth: 14, halign: 'center' },
-      12: { cellWidth: 47, halign: 'left', fontStyle: 'bold', textColor: [220, 38, 38] },
-      13: { cellWidth: 16, halign: 'left' },
-      14: { cellWidth: 20, halign: 'center', fontStyle: 'bold', cellPadding: { top: 1.5, bottom: 1.5, left: 0.2, right: 0.2 } }
+      1:  { cellWidth: 13, halign: 'center', fontStyle: 'bold' },
+      2:  { cellWidth: 16, halign: 'center' },
+      3:  { cellWidth: 18, halign: 'center', fontStyle: 'bold' },
+      4:  { cellWidth: 12, halign: 'center' },
+      5:  { cellWidth: 11, halign: 'center' },
+      6:  { cellWidth: 26, halign: 'left' },
+      7:  { cellWidth: 28, halign: 'left' },
+      8:  { cellWidth: 9, halign: 'center' },
+      9:  { cellWidth: 16, halign: 'center' }, // Category
+      10: { cellWidth: 13, halign: 'center', fontStyle: 'bold' }, // Repeated Month
+      11: { cellWidth: 16, halign: 'center' },
+      12: { cellWidth: 13, halign: 'center' },
+      13: { cellWidth: 44, halign: 'left', fontStyle: 'bold', textColor: [220, 38, 38] },
+      14: { cellWidth: 15, halign: 'left' },
+      15: { cellWidth: 20, halign: 'center', fontStyle: 'bold', cellPadding: { top: 1.5, bottom: 1.5, left: 0.2, right: 0.2 } }
     };
   } else {
     colStylesConfig = {
@@ -15236,33 +17144,33 @@ function downloadRejectionAfterMriPDF() {
     columnStyles: colStylesConfig,
     didDrawPage: function (data) {
       // Header Banner
-      doc.setFillColor(30, 58, 138);
-      doc.rect(0, 0, pageWidth, 14, 'F');
+  doc.setFillColor(30, 58, 138);
+  doc.rect(0, 0, pageWidth, 14, 'F');
 
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(10.5);
-      doc.setFont('helvetica', 'bold');
-      doc.text(reportTitle + " - EDC MAINPURI", 6, 6.5);
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(10.5);
+  doc.setFont('helvetica', 'bold');
+  // 🟢 - EDC MAINPURI हटाया गया, शीर्षक में शुरू का डिवीजन नाम ही दिखेगा
+  doc.text(reportTitle, 6, 6.5);
 
-      doc.setFontSize(7.5);
-      doc.setFont('helvetica', 'normal');
-      doc.text("Division: " + activeDivScope + " | Generated: " + dateStr + " " + timeStr + " | Total Records: " + data.table.body.length, 6, 11.5);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'normal');
+  doc.text("Division: " + activeDivScope + " | Generated: " + dateStr + " " + timeStr + " | Total Records: " + data.table.body.length, 6, 11.5);
     },
     margin: { top: 16, left: 6, right: 6, bottom: 8 }
   });
 
-  // 🟢 Fix: सटीक कुल पेज संख्या (जैसे Page 1 of 8, Page 2 of 8)
+  // 🟢 केवल पेज नंबर दिखाएँ (क्रेडिट टेक्स्ट पूरी तरह हटा दिया गया है)
   var totalPagesCount = doc.internal.getNumberOfPages();
   for (var p = 1; p <= totalPagesCount; p++) {
     doc.setPage(p);
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
-    doc.text("Report Generator Created By Anurag Shakya | Page " + p + " of " + totalPagesCount, 6, doc.internal.pageSize.getHeight() - 4);
+    doc.text("Page " + p + " of " + totalPagesCount, doc.internal.pageSize.getWidth() - 30, doc.internal.pageSize.getHeight() - 4);
   }
 
-  var cleanDivName = activeDivScope.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 20);
-  var scopeTag = isTotalEx ? "Total_Exception_Report" : (isAllMri ? "Rejection_Report" : (isNonMriPole ? "Pole_Meter_Report" : "Main_Meter_Report"));
-  doc.save("EDC_Mainpuri_" + cleanDivName + "_" + scopeTag + "_" + dateStr + ".pdf");
+  var finalPdfName = reportTitle + " " + dateStr + ".pdf";
+  doc.save(finalPdfName);
 }
 function hardResetLocalCache() {
         if (confirm("क्या आप लोकल कैश पूरी तरह खाली करके फ्रेश डेटा री-लोड करना चाहते हैं?")) {
@@ -15286,6 +17194,11 @@ function buildTestDistSummaryData() {
   var scopeTypeLabel = isAllMriTab ? "REJECTION AFTER MRI" : (isTotalExTab ? "TOTAL EXCEPTION & REJECTION" : (isPoleTab ? "POLE METER" : "MAIN METER"));
 
   var divisions = ["EDD-I", "EDD-II", "EDD-III"];
+
+  // 🟢 वर्तमान में फ़िल्टर किए गए डेटासेट का उपयोग करें ताकि समरी हमेशा स्क्रीन के फ़िल्टर से मेल खाए
+  var dataSourceRows = (window.cachedMriRejectionRows && window.cachedMriRejectionRows.length > 0)
+                        ? window.cachedMriRejectionRows.map(function(item){ return item.rawRow; }).filter(Boolean)
+                        : (cachedDatabase || []);
 
   function createDivisionCounter() {
     return {
@@ -15354,7 +17267,7 @@ function buildTestDistSummaryData() {
   var searchInputEl = document.getElementById('live-search-input');
   var searchQuery = searchInputEl ? String(searchInputEl.value || "").trim().toUpperCase() : "";
 
-  cachedDatabase.forEach(function(row) {
+  dataSourceRows.forEach(function(row) {
     var u = row._uMap || row || {};
     var div = String(u["DIVISION"] || "").toUpperCase();
     var divKey = div.includes("EDD-I") && !div.includes("II") && !div.includes("III") ? "EDD-I" :
@@ -15507,9 +17420,19 @@ function downloadTestDistSummaryExcel() {
   var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
   var timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).replace(/:/g, '-');
 
+  var isTotalEx = (currentMriRejectionFilterMode === 'total_exception');
+  var isAllMri = (currentMriRejectionFilterMode === 'all');
+  var isNonMriPole = (currentMriRejectionFilterMode === 'non_mri_pole');
+
+  var activeDivScope = (selectedDivisions && selectedDivisions.length > 0) ? selectedDivisions.join(" ") : "EDC Mainpuri";
+
+  var properSummaryTitle = isTotalEx ? (activeDivScope + " Total Exception and Rejection Summary") : 
+                           (isAllMri ? (activeDivScope + " Rejection After MRI Summary") : 
+                           (isNonMriPole ? (activeDivScope + " Non MRI Pole Meter Field Exception Summary") : (activeDivScope + " Non MRI Main Meter Field Exception Summary")));
+
   var excelRows = [];
   // Title Row
-  excelRows.push(["EDC MAINPURI [" + s.scopeTypeLabel + "] TEST AND DISTRIBUTION REMARK SUMMARY TILL-" + dateStr]);
+  excelRows.push([properSummaryTitle + " " + dateStr]);
   excelRows.push([]);
 
   // Header Rows
@@ -15607,8 +17530,8 @@ function downloadTestDistSummaryExcel() {
   var safeSheetName = (s.scopeTypeLabel || "Summary").replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30);
   XLSX.utils.book_append_sheet(wb, ws, safeSheetName);
 
-  var safeFileName = s.scopeTypeLabel.replace(/[^a-zA-Z0-9]/g, "_");
-  XLSX.writeFile(wb, "EDC_Mainpuri_" + safeFileName + "_Summary_" + dateStr + "_" + timeStr + ".xlsx");
+  var cleanExcelFileName = properSummaryTitle.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, " ");
+  XLSX.writeFile(wb, cleanExcelFileName + " " + dateStr + ".xlsx");
 }
 
 // 🟢 Download Summary PDF based on Active Tab (Rejection Summary for MRI Tab, Test/Dist Summary for Non-MRI)
@@ -15629,6 +17552,16 @@ function downloadTestDistSummaryPDF() {
   var pageWidth = doc.internal.pageSize.getWidth();
   var now = new Date();
   var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+
+  var isTotalEx = (currentMriRejectionFilterMode === 'total_exception');
+  var isAllMri = (currentMriRejectionFilterMode === 'all');
+  var isNonMriPole = (currentMriRejectionFilterMode === 'non_mri_pole');
+
+  var activeDivScope = (selectedDivisions && selectedDivisions.length > 0) ? selectedDivisions.join(" ") : "EDC Mainpuri";
+
+  var properSummaryTitle = isTotalEx ? (activeDivScope + " Total Exception and Rejection Summary") : 
+                           (isAllMri ? (activeDivScope + " Rejection After MRI Summary") : 
+                           (isNonMriPole ? (activeDivScope + " Non MRI Pole Meter Field Exception Summary") : (activeDivScope + " Non MRI Main Meter Field Exception Summary")));
 
   // 🟢 1. Two-Tier Header: Darker Text & High-Contrast Borders for Sharp Printing
   var headRows = [
@@ -15813,17 +17746,266 @@ function downloadTestDistSummaryPDF() {
       doc.setFillColor(11, 60, 93);
       doc.rect(0, 0, pageWidth, 15, 'F');
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(11.5);
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text("EDC MAINPURI [" + s.scopeTypeLabel + "] TEST & DISTRIBUTION REMARK SUMMARY", 14, 6.5);
-      doc.setFontSize(8.2);
+      doc.text(properSummaryTitle, 14, 6.5);
+      doc.setFontSize(8);
       doc.setFont('helvetica', 'bold');
-      doc.text("Till Date: " + dateStr + " | EDC Total: " + s.grandTotal.total.total, 14, 11.8);
+      doc.text("Division: " + activeDivScope + " | Till Date: " + dateStr + " | Total Records: " + s.grandTotal.total.total, 14, 11.8);
     }
   });
 
-  var safeFileName = s.scopeTypeLabel.replace(/[^a-zA-Z0-9]/g, "_");
-  doc.save("EDC_Mainpuri_" + safeFileName + "_Summary_" + dateStr + ".pdf");
+  var cleanPdfFileName = properSummaryTitle.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, " ");
+  doc.save(cleanPdfFileName + " " + dateStr + ".pdf");
+}
+
+// 🟢 1-Click Multi-Division Separate PDF Downloader Engine
+async function downloadRejectionPdfsByDivision() {
+  var data = (window.cachedMriRejectionRows && window.cachedMriRejectionRows.length > 0) 
+              ? window.cachedMriRejectionRows 
+              : computeRejectionAfterMriData();
+
+  if (!data || data.length === 0) {
+    alert("डाउनलोड करने के लिए कोई रिकॉर्ड उपलब्ध नहीं है!");
+    return;
+  }
+
+  var jsPDFConstructor = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (typeof jsPDF !== "undefined" ? jsPDF : null);
+  if (!jsPDFConstructor) {
+    alert("PDF लाइब्रेरी लोड नहीं हो सकी!");
+    return;
+  }
+
+  // 1. Group records by Division
+  var divBuckets = {};
+  data.forEach(function(item) {
+    var rawDiv = String(item.division || "Other Division").trim();
+    if (!divBuckets[rawDiv]) divBuckets[rawDiv] = [];
+    divBuckets[rawDiv].push(item);
+  });
+
+  var divKeys = Object.keys(divBuckets).sort();
+
+  var isTotalEx = (currentMriRejectionFilterMode === 'total_exception');
+  var isAllMri = (currentMriRejectionFilterMode === 'all');
+  var isNonMriPole = (currentMriRejectionFilterMode === 'non_mri_pole');
+  var isNonMriMain = (currentMriRejectionFilterMode === 'non_mri_main');
+
+  var baseReportTitle = isTotalEx ? "Total Exception and Rejection Report" : 
+                        (isAllMri ? "Rejection After MRI Report" : 
+                        (isNonMriPole ? "Non MRI Pole Meter Field Exception Report" : "Non MRI Main Meter Field Exception Report"));
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+  var timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  if (typeof showGlobalCopyToast === "function") {
+    showGlobalCopyToast("Generating " + divKeys.length + " Division PDFs...");
+  }
+
+  // 2. Loop through each Division & trigger download with small delay
+  for (var d = 0; d < divKeys.length; d++) {
+    var dName = divKeys[d];
+    var divRecords = divBuckets[dName];
+    if (!divRecords || divRecords.length === 0) continue;
+
+    var doc = new jsPDFConstructor('l', 'mm', 'a4');
+    var pageWidth = doc.internal.pageSize.getWidth();
+
+    var pdfHeaders = [];
+    var pdfBody = [];
+
+    if (isAllMri) {
+      pdfHeaders = [[
+        "Sr.", "Scope", "Division", "Account No", "Type", "Tariff", "Consumer Name", "Address", "Load",
+        "Billed Mtr", "Field Mtr", "Field Make", "Visited Mtr", "Visited Make", "Reason", "MR Name", "Mobile"
+      ]];
+
+      pdfBody = divRecords.map(function(item, idx) {
+        var addrShort = (item.address || "-").replace(/\s+/g, ' ');
+        if (addrShort.length > 32) addrShort = addrShort.substring(0, 30) + "..";
+        var rawMob = String(item.mrMobile || "").trim().replace(/[^0-9]/g, "");
+        var cleanMob = (rawMob.length >= 10) ? rawMob.slice(-10) : (rawMob || "-");
+
+        return [
+          idx + 1,
+          "Main Meter",
+          item.division || "-",
+          item.accountNo || "-",
+          item.consumerType || "-",
+          item.tariff || "-",
+          (item.consumerName || "-").substring(0, 22),
+          addrShort,
+          item.load || "-",
+          item.billedMtr || "-",
+          item.fieldMtr || "-",
+          item.fieldMake || "-",
+          item.visitedMtr || "-",
+          item.visitedMake || "-",
+          item.failureMessage || "-",
+          (item.mrName || "-").substring(0, 15),
+          cleanMob
+        ];
+      });
+    } else {
+      var mtrCol = isNonMriPole ? "Visited Pole Mtr" : (isNonMriMain ? "Visited Main Mtr" : "Visited Mtr");
+      var makeCol = isNonMriPole ? "Pole Make" : (isNonMriMain ? "Main Make" : "Make");
+      var remCol = isNonMriPole ? "Pole Site Remark" : (isNonMriMain ? "Main Site Remark" : "Remark / Reason");
+
+      pdfHeaders = [[
+        "Sr.", "Scope", "Division", "Account No", "Type", "Tariff", "Consumer Name", "Address", "Load",
+        ...(isTotalEx ? ["Category"] : []),
+        mtrCol, makeCol, remCol, "MR Name", "Mobile"
+      ]];
+
+      pdfBody = divRecords.map(function(item, idx) {
+        var meterScopeText = (item.category && item.category.includes("Pole")) || currentMriRejectionFilterMode === 'non_mri_pole' ? "Pole Mtr" : "Main Mtr";
+        var addrShort = (item.address || "-").replace(/\s+/g, ' ');
+        if (addrShort.length > 35) addrShort = addrShort.substring(0, 32) + "..";
+        var rawMob = String(item.mrMobile || "").trim().replace(/[^0-9]/g, "");
+        var cleanMob = (rawMob.length >= 10) ? rawMob.slice(-10) : (rawMob || "-");
+
+        var rowItem = [
+          idx + 1,
+          meterScopeText,
+          item.division || "-",
+          item.accountNo || "-",
+          item.consumerType || "-",
+          item.tariff || "-",
+          (item.consumerName || "-").substring(0, 24),
+          addrShort,
+          item.load || "-"
+        ];
+        if (isTotalEx) rowItem.push(item.category || "-");
+        rowItem.push(
+          item.visitedMtr || "-",
+          item.visitedMake || "-",
+          item.failureMessage || "-",
+          (item.mrName || "-").substring(0, 16),
+          cleanMob
+        );
+        return rowItem;
+      });
+    }
+
+    var colStylesConfig = {};
+    if (isAllMri) {
+      colStylesConfig = {
+        0:  { cellWidth: 7, halign: 'center' },
+        1:  { cellWidth: 13, halign: 'center', fontStyle: 'bold' },
+        2:  { cellWidth: 16, halign: 'center' },
+        3:  { cellWidth: 18, halign: 'center', fontStyle: 'bold' },
+        4:  { cellWidth: 12, halign: 'center' },
+        5:  { cellWidth: 11, halign: 'center' },
+        6:  { cellWidth: 26, halign: 'left' },
+        7:  { cellWidth: 28, halign: 'left' },
+        8:  { cellWidth: 9, halign: 'center' },
+        9:  { cellWidth: 15, halign: 'center' },
+        10: { cellWidth: 15, halign: 'center' },
+        11: { cellWidth: 13, halign: 'center' },
+        12: { cellWidth: 15, halign: 'center' },
+        13: { cellWidth: 13, halign: 'center' },
+        14: { cellWidth: 38, halign: 'left', fontStyle: 'bold', textColor: [220, 38, 38] },
+        15: { cellWidth: 16, halign: 'left' },
+        16: { cellWidth: 20, halign: 'center', fontStyle: 'bold', cellPadding: { top: 1.5, bottom: 1.5, left: 0.2, right: 0.2 } }
+      };
+    } else if (isTotalEx) {
+      colStylesConfig = {
+        0:  { cellWidth: 7, halign: 'center' },
+        1:  { cellWidth: 14, halign: 'center', fontStyle: 'bold' },
+        2:  { cellWidth: 17, halign: 'center' },
+        3:  { cellWidth: 19, halign: 'center', fontStyle: 'bold' },
+        4:  { cellWidth: 13, halign: 'center' },
+        5:  { cellWidth: 12, halign: 'center' },
+        6:  { cellWidth: 30, halign: 'left' },
+        7:  { cellWidth: 32, halign: 'left' },
+        8:  { cellWidth: 10, halign: 'center' },
+        9:  { cellWidth: 17, halign: 'center' },
+        10: { cellWidth: 17, halign: 'center' },
+        11: { cellWidth: 14, halign: 'center' },
+        12: { cellWidth: 47, halign: 'left', fontStyle: 'bold', textColor: [220, 38, 38] },
+        13: { cellWidth: 16, halign: 'left' },
+        14: { cellWidth: 20, halign: 'center', fontStyle: 'bold', cellPadding: { top: 1.5, bottom: 1.5, left: 0.2, right: 0.2 } }
+      };
+    } else {
+      colStylesConfig = {
+        0:  { cellWidth: 7, halign: 'center' },
+        1:  { cellWidth: 15, halign: 'center', fontStyle: 'bold' },
+        2:  { cellWidth: 19, halign: 'center' },
+        3:  { cellWidth: 20, halign: 'center', fontStyle: 'bold' },
+        4:  { cellWidth: 13, halign: 'center' },
+        5:  { cellWidth: 12, halign: 'center' },
+        6:  { cellWidth: 32, halign: 'left' },
+        7:  { cellWidth: 34, halign: 'left' },
+        8:  { cellWidth: 10, halign: 'center' },
+        9:  { cellWidth: 18, halign: 'center' },
+        10: { cellWidth: 15, halign: 'center' },
+        11: { cellWidth: 46, halign: 'left', fontStyle: 'bold', textColor: [220, 38, 38] },
+        12: { cellWidth: 16, halign: 'left' },
+        13: { cellWidth: 20, halign: 'center', fontStyle: 'bold', cellPadding: { top: 1.5, bottom: 1.5, left: 0.2, right: 0.2 } }
+      };
+    }
+
+    var thisDivTitle = dName + " " + baseReportTitle;
+
+    doc.autoTable({
+      head: pdfHeaders,
+      body: pdfBody,
+      startY: 18,
+      tableWidth: 285,
+      theme: 'grid',
+      styles: {
+        fontSize: 6.2,
+        cellPadding: { top: 1.8, bottom: 1.8, left: 1.0, right: 1.0 },
+        overflow: 'linebreak',
+        valign: 'middle',
+        lineWidth: 0.25,
+        lineColor: [200, 210, 220]
+      },
+      headStyles: {
+        fillColor: [15, 23, 42],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 6.5,
+        halign: 'center',
+        valign: 'middle',
+        cellPadding: 2
+      },
+      columnStyles: colStylesConfig,
+      didDrawPage: function(data) {
+        doc.setFillColor(30, 58, 138);
+        doc.rect(0, 0, pageWidth, 14, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(10.5);
+        doc.setFont('helvetica', 'bold');
+        doc.text(thisDivTitle, 6, 6.5);
+
+        doc.setFontSize(7.5);
+        doc.setFont('helvetica', 'normal');
+        doc.text("Division: " + dName + " | Generated: " + dateStr + " " + timeStr + " | Total Records: " + data.table.body.length, 6, 11.5);
+      },
+      margin: { top: 16, left: 6, right: 6, bottom: 8 }
+    });
+
+    var totalPagesCount = doc.internal.getNumberOfPages();
+    for (var p = 1; p <= totalPagesCount; p++) {
+      doc.setPage(p);
+      doc.setFontSize(7.5);
+      doc.setTextColor(100, 116, 139);
+      doc.text("Page " + p + " of " + totalPagesCount, doc.internal.pageSize.getWidth() - 30, doc.internal.pageSize.getHeight() - 4);
+    }
+
+    var cleanFileName = thisDivTitle.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, " ") + " " + dateStr + ".pdf";
+    doc.save(cleanFileName);
+
+    // 🟢 250ms का विराम ताकि ब्राउज़र एक साथ 3-4 फ़ाइलों के डाउनलोड को ब्लॉक न करे
+    await new Promise(function(resolve) { setTimeout(resolve, 250); });
+  }
+
+  if (typeof showGlobalCopyToast === "function") {
+    showGlobalCopyToast("All " + divKeys.length + " Division PDFs Downloaded Successfully!");
+  }
 }
 // 🟢 Send Latest XML Readings to 'RDG Sheet Upload' With Live Terminal & Progress UI
       async function sendLatestXmlReadingsToSheet() {
@@ -17202,7 +19384,128 @@ function filterRejPopupList(colIdx, searchVal) {
     }
   });
 }
-    </script>
+// 🟢 Global Header Sort Handlers (Ensures Export to Excel/PDF uses Sorted Data)
+// 🟢 Global Header Sort Handlers (Ensures Export to Excel/PDF uses Sorted Data)
+function sortMainTableByHeader(colKey, direction) {
+  if (!clientRenderedRows || clientRenderedRows.length === 0) return;
+
+  clientRenderedRows.sort(function(a, b) {
+    var uA = a._uMap || a;
+    var uB = b._uMap || b;
+
+    var valA = String(uA[colKey] !== undefined ? uA[colKey] : (a[colKey] || "")).trim();
+    var valB = String(uB[colKey] !== undefined ? uB[colKey] : (b[colKey] || "")).trim();
+
+    var numA = parseFloat(valA.replace(/[^0-9.-]/g, ""));
+    var numB = parseFloat(valB.replace(/[^0-9.-]/g, ""));
+
+    // Account No और Meter No को स्ट्रिंग/टेक्स्ट की तरह सॉर्ट करें (ताकि लीडिंग ज़ीरो सही रहें)
+    if (!isNaN(numA) && !isNaN(numB) && !colKey.includes("ACCOUNT") && !colKey.includes("METER")) {
+      return direction === 'asc' ? (numA - numB) : (numB - numA);
+    }
+    return direction === 'asc' 
+      ? valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' }) 
+      : valB.localeCompare(valA, undefined, { numeric: true, sensitivity: 'base' });
+  });
+
+  // 🟢 ग्लोबल विंडो रेफरेंस अपडेट करें ताकि एक्सपोर्ट में सॉर्टेड डेटा जाए
+  window.clientRenderedRows = clientRenderedRows;
+  currentPageNumber = 1;
+  renderClientTable(activeTableHeadersList);
+
+  if (typeof showGlobalCopyToast === "function") {
+    showGlobalCopyToast("Sorted " + direction.toUpperCase() + ": " + colKey);
+  }
+}
+
+function sortRejectionTableByCol(colKey, direction) {
+  if (!cachedMriRejectionRows || cachedMriRejectionRows.length === 0) return;
+
+  cachedMriRejectionRows.sort(function(a, b) {
+    var valA = "";
+    var valB = "";
+
+    if (colKey === "meterScope") {
+      valA = (a.category && a.category.includes("Pole")) || currentMriRejectionFilterMode === 'non_mri_pole' ? "Pole Meter" : "Main Meter";
+      valB = (b.category && b.category.includes("Pole")) || currentMriRejectionFilterMode === 'non_mri_pole' ? "Pole Meter" : "Main Meter";
+    } else {
+      valA = String(a[colKey] || "").trim();
+      valB = String(b[colKey] || "").trim();
+    }
+
+    var numA = parseFloat(valA.replace(/[^0-9.-]/g, ""));
+    var numB = parseFloat(valB.replace(/[^0-9.-]/g, ""));
+
+    if (!isNaN(numA) && !isNaN(numB) && colKey === "load") {
+      return direction === 'asc' ? (numA - numB) : (numB - numA);
+    }
+    return direction === 'asc' 
+      ? valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' }) 
+      : valB.localeCompare(valA, undefined, { numeric: true, sensitivity: 'base' });
+  });
+
+  // 🟢 ग्लोबल विंडो रेफरेंस अपडेट करें
+  window.cachedMriRejectionRows = cachedMriRejectionRows;
+
+  // री-रेंडर टेबल बॉडी
+  var tbody = document.getElementById("mri-rejection-tbody");
+  if (tbody) {
+    var isTotalEx = (currentMriRejectionFilterMode === 'total_exception');
+    var isAllMri = (currentMriRejectionFilterMode === 'all');
+    var html = "";
+
+    cachedMriRejectionRows.forEach(function(item, idx) {
+      var meterScopeText = (item.category && item.category.includes("Pole")) || currentMriRejectionFilterMode === 'non_mri_pole' ? "Pole Meter" : "Main Meter";
+      var scopeBadgeColor = (meterScopeText === "Pole Meter") ? "#7c3aed" : "#1d4ed8";
+
+      if (isAllMri) {
+        html += `
+          <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'">
+            <td style="padding: 6px; font-weight: 700; color: #64748b;">${idx + 1}</td>
+            <td style="padding: 6px 8px; font-weight: 800; color: ${scopeBadgeColor};">${meterScopeText}</td>
+            <td style="padding: 6px 8px; font-weight: 700; color: #1e293b;">${item.division}</td>
+            <td style="padding: 6px 8px; font-weight: 800; color: #1a73e8; cursor: pointer; text-decoration: underline;" onclick="openConsumer360ByAccount('${item.accountNo}')">${item.accountNo}</td>
+            <td style="padding: 6px 8px; font-weight: 600;">${item.consumerType}</td>
+            <td style="padding: 6px 8px; font-weight: 700; color: #0284c7;">${item.tariff}</td>
+            <td style="padding: 6px 8px; text-align: left; font-weight: 600; color: #334155;">${item.consumerName}</td>
+            <td style="padding: 6px 8px; text-align: left; font-size: 10.5px; color: #475569; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${item.address}">${item.address}</td>
+            <td style="padding: 6px 8px; font-weight: 700;">${item.load}</td>
+            <td style="padding: 6px 8px; font-family: monospace;">${item.billedMtr}</td>
+            <td style="padding: 6px 8px; font-family: monospace; font-weight: 700;">${item.fieldMtr}</td>
+            <td style="padding: 6px 8px;">${item.fieldMake}</td>
+            <td style="padding: 6px 8px; font-family: monospace; font-weight: 700; color: #2563eb;">${item.visitedMtr}</td>
+            <td style="padding: 6px 8px; color: #7c3aed; font-weight: 600;">${item.visitedMake}</td>
+            <td style="padding: 6px 10px; text-align: left; font-weight: 700; color: #dc2626; font-size: 10.5px;">${item.failureMessage}</td>
+            <td style="padding: 6px 8px; font-weight: 600;">${item.mrName}</td>
+            <td style="padding: 6px 8px; font-family: monospace; font-weight: bold;">${item.mrMobile}</td>
+          </tr>
+        `;
+      } else {
+        html += `
+          <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='white'">
+            <td style="padding: 6px; font-weight: 700; color: #64748b;">${idx + 1}</td>
+            <td style="padding: 6px 8px; font-weight: 800; color: ${scopeBadgeColor};">${meterScopeText}</td>
+            <td style="padding: 6px 8px; font-weight: 700; color: #1e293b;">${item.division}</td>
+            <td style="padding: 6px 8px; font-weight: 800; color: #1a73e8; cursor: pointer; text-decoration: underline;" onclick="openConsumer360ByAccount('${item.accountNo}')">${item.accountNo}</td>
+            <td style="padding: 6px 8px; font-weight: 600;">${item.consumerType}</td>
+            <td style="padding: 6px 8px; font-weight: 700; color: #0284c7;">${item.tariff}</td>
+            <td style="padding: 6px 8px; text-align: left; font-weight: 600; color: #334155;">${item.consumerName}</td>
+            <td style="padding: 6px 8px; text-align: left; font-size: 10.5px; color: #475569; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${item.address}">${item.address}</td>
+            <td style="padding: 6px 8px; font-weight: 700;">${item.load}</td>
+            ${isTotalEx ? `<td style="padding: 6px 8px; font-weight: 700; color: #1d4ed8;">${item.category}</td>` : ''}
+            <td style="padding: 6px 8px; font-family: monospace; font-weight: 700; color: #2563eb;">${item.visitedMtr}</td>
+            <td style="padding: 6px 8px; color: #7c3aed; font-weight: 600;">${item.visitedMake}</td>
+            <td style="padding: 6px 10px; text-align: left; font-weight: 700; color: #dc2626; font-size: 10.5px;">${item.failureMessage}</td>
+            <td style="padding: 6px 8px; font-weight: 600;">${item.mrName}</td>
+            <td style="padding: 6px 8px; font-family: monospace; font-weight: bold; white-space:nowrap;">${item.mrMobile}</td>
+          </tr>
+        `;
+      }
+    });
+    tbody.innerHTML = html;
+  }
+}
+</script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
