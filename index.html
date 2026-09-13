@@ -2941,7 +2941,10 @@ body.dark-mode .view-tab-btn.active-view-tab {
         if (upper === "FINALPOLEMETERSITEREMARK") return "Site Status (Pole)";
         if (upper === "POLEMETERMFSAIPORTAL" || upper === "POLEMETERMF") return "Pole Meter MF";
         if (upper === "MAINMETERMF") return "Main Meter MF";
-        if (upper === "BILLINGSTATUS" || upper === "FINALBILLINGTAG") return "Billing Status";
+        if (upper === "BILLINGSTATUS" || upper === "FINALBILLINGTAG" || upper === "UNBILLEDSTATUS" || upper === "UNBILLED_STATUS") return "Billing Status";
+        if (upper === "FINALREJECTION" || upper === "FINAL_REJECTION") return "Rejection After MRI";
+        if (upper === "SITEREMARK" || upper === "SITE_REMARK" || upper === "FINALMAINMETERSITEREMARK" || upper === "SITESTATUSMAINMETER") return "Site Remark";
+        if (upper === "FINALSTATUS" || upper === "FINAL_STATUS") return "Final Status";
         if (upper === "MRNAME") return "MR Name";
         if (upper === "MRMOBILENO" || upper === "MASTERMOBILENUMBER") return "Mobile No";
 
@@ -3244,11 +3247,11 @@ body.dark-mode .view-tab-btn.active-view-tab {
           conditions: "",
           columns: "ACCOUNT_NO, FROM_DATE, TO_DATE, USER_CODE, REASON, CONSUMER NAME, ADDRESS, LAST MONTH METER NUMBER, LAST MONTH METER MAKE, FINAL VISITED METER NUMBER, FINAL VISITED METER MAKE, EXCEPTION TYPE, SITE REMARK, CONSUMER TYPE, MR NAME"
         },
-        {
+                {
           id: "rpt_master_unbilled",
           name: "5 KW & Above Unbilled Master Report (v153.0)",
           conditions: "FINAL BILLING TAG = UNBILLED, EXCEPTION TYPE (MAIN METER) != VISIT PENDING",
-          columns: "DIVISION, SUBDIVISION, ACCOUNT ID, CONSUMER_TYPE, TARIFF, CONSUMER NAME, ADDRESS, LOAD IN KW, LOAD GROUP, METER NO., METER_MAKE, SITE METER NO., SITE METER MAKE, VISIT DATE, STATUS, FINAL_STATUS, FINAL REJECTION, IS MRI AVAILABLE, READING TYPE, RTC DATE (XML), RTC DATE (VISIT), KWH, KVAH, MD KW, MD KVA, ATR, COMPLAINT NO., UNBILLED STATUS, MRI KWH, MRI KVAH, MRI MD KW, MRI MD KVA, MANUAL KWH, MANUAL KVAH, MANUAL KW, MANUAL KVA, XML KWH, XML KVAH, XML KW, XML KVA"
+          columns: "DIVISION, SUBDIVISION, ACCOUNT ID, CONSUMER_TYPE, TARIFF, CONSUMER NAME, ADDRESS, LOAD IN KW, LOAD GROUP, METER NO., METER_MAKE, SITE METER NO., SITE METER MAKE, VISIT DATE, STATUS, SITE REMARK, FINAL REJECTION, IS MRI AVAILABLE, READING TYPE, RTC DATE (XML), RTC DATE (VISIT), KWH, KVAH, MD KW, MD KVA, ATR, COMPLAINT NO., UNBILLED STATUS, FINAL_STATUS, MRI KWH, MRI KVAH, MRI MD KW, MRI MD KVA, MANUAL KWH, MANUAL KVAH, MANUAL KW, MANUAL KVA, XML KWH, XML KVAH, XML KW, XML KVA"
         },
         {
           id: "rpt_mri_done_read_missing",
@@ -4161,20 +4164,111 @@ body.dark-mode .view-tab-btn.active-view-tab {
                 rejReasons.push("MRI Done But Reads Missing");
               }
 
-              // 🟢 Set FINAL REJECTION and STATUS strictly
-              if (rejReasons.length > 0) {
-                var finalRejText = Array.from(new Set(rejReasons)).join(" | ");
-                row["FINAL REJECTION"] = finalRejText;
-                upperRowMap["FINAL REJECTION"] = finalRejText;
-                row["STATUS"] = "REJECT BY BILLING SYSTEM";
-                upperRowMap["STATUS"] = "REJECT BY BILLING SYSTEM";
-              } else {
-                row["FINAL REJECTION"] = "No Rejection Found From Infinite";
-                upperRowMap["FINAL REJECTION"] = "No Rejection Found From Infinite";
-                row["STATUS"] = "Data Sent For Billing";
-                upperRowMap["STATUS"] = "Data Sent For Billing";
-              }
+                          // 🟢 NEW RULE: MRI=True + (Rejection blank / "No Rejection Found From Infinite") + KWH/KVAH/MD KW/MD KVA all 0/blank
+            // → FINAL REJECTION = "Read/Demand History Missing", STATUS = "REJECT BY BILLING SYSTEM"
+            function isZeroOrBlank(v) {
+              if (v === undefined || v === null) return true;
+              var s = String(v).trim().toUpperCase();
+              if (s === "" || s === "0" || s === "0.0" || s === "0.00" || s === "NAN" || s === "NULL" || s === "BLANK" || s === "-") return true;
+              var n = parseFloat(s.replace(/[^0-9.-]/g, ""));
+              return (isNaN(n) || n === 0);
             }
+
+            // 🟢 Robust Fuzzy Column Finder (handles KWH, KWH_H1, KWH I, KVAH_H1, MD KW, MD_KW, etc.)
+            function findColValue(uMap, candidates) {
+              // 1. Exact match first
+              for (var ci = 0; ci < candidates.length; ci++) {
+                var exactKey = candidates[ci];
+                if (uMap[exactKey] !== undefined && uMap[exactKey] !== null && String(uMap[exactKey]).trim() !== "") {
+                  return uMap[exactKey];
+                }
+              }
+              // 2. Normalized fuzzy match (removes spaces, underscores, brackets)
+              for (var ci2 = 0; ci2 < candidates.length; ci2++) {
+                var normCand = candidates[ci2].toUpperCase().replace(/[^A-Z0-9]/g, "");
+                for (var k in uMap) {
+                  var normKey = k.toUpperCase().replace(/[^A-Z0-9]/g, "");
+                  // Exact normalized match
+                  if (normKey === normCand) {
+                    var v = uMap[k];
+                    if (v !== undefined && v !== null && String(v).trim() !== "") return v;
+                  }
+                }
+              }
+              // 3. Loose contains match (KWH_H1 contains KWH)
+              for (var ci3 = 0; ci3 < candidates.length; ci3++) {
+                var normCand3 = candidates[ci3].toUpperCase().replace(/[^A-Z0-9]/g, "");
+                for (var k3 in uMap) {
+                  var normKey3 = k3.toUpperCase().replace(/[^A-Z0-9]/g, "");
+                  if (normKey3.indexOf(normCand3) !== -1 || normCand3.indexOf(normKey3) !== -1) {
+                    var v3 = uMap[k3];
+                    if (v3 !== undefined && v3 !== null && String(v3).trim() !== "") return v3;
+                  }
+                }
+              }
+              return "";
+            }
+
+            // 🟢 बहुत सारे संभावित नामों को try करें
+            var kwhVal   = findColValue(upperRowMap, ["KWH", "KWH_H1", "KWH I", "KWH IMP", "KWHI", "MRI KWH", "MRIKWH", "XML KWH", "MANUAL KWH", "APPSHEET-KWH"]);
+            var kvahVal  = findColValue(upperRowMap, ["KVAH", "KVAH_H1", "KVAH I", "KVAH IMP", "KVAHI", "MRI KVAH", "MRIKVAH", "XML KVAH", "MANUAL KVAH", "APPSHEET-KVAH"]);
+            var mdKwVal  = findColValue(upperRowMap, ["MD KW", "MD_KW", "MDKW", "KW", "KW_H1", "KW_H2", "MAX KW", "MRI MD KW", "MRIMDKW", "MRI KW UHI", "XML KW", "MANUAL KW", "APPSHEET-KW"]);
+            var mdKvaVal = findColValue(upperRowMap, ["MD KVA", "MD_KVA", "MDKVA", "KVA", "KVA_H1", "KVA_H2", "MAX KVA", "MRI MD KVA", "MRIMDKVA", "MRI KVA UHI", "XML KVA", "MANUAL KVA", "APPSHEET-KVA"]);
+
+            // 🟢 Debug log (Browser Console में देखें — F12 दबाकर)
+            if (typeof activeReportMeta !== "undefined" && activeReportMeta && activeReportMeta.id === "rpt_master_unbilled") {
+              console.log("=== Unbilled Master Debug ===", {
+                account: upperRowMap["ACCOUNT NO"] || upperRowMap["ACCOUNT ID"],
+                isMainMriAvailable: isMainMriAvailable,
+                kwhVal: kwhVal,
+                kvahVal: kvahVal,
+                mdKwVal: mdKwVal,
+                mdKvaVal: mdKvaVal,
+                rejReasonsBefore: rejReasons.slice()
+              });
+            }
+
+            var allReadingsMissing = (
+              isZeroOrBlank(kwhVal) &&
+              isZeroOrBlank(kvahVal) &&
+              isZeroOrBlank(mdKwVal) &&
+              isZeroOrBlank(mdKvaVal)
+            );
+
+            // 🟢 "No Rejection Found" check (Backend से "No Rejection From Billing Agency" आता है, Frontend में "No Rejection Found From Infinite" होता है)
+            function isNoRejectionMessage(msg) {
+              if (!msg) return true;
+              var m = String(msg).toUpperCase().trim();
+              if (m === "") return true;
+              if (m.includes("NO REJECTION")) return true;
+              if (m === "NO REJECTION FOUND FROM INFINITE") return true;
+              if (m === "NO REJECTION FROM BILLING AGENCY") return true;
+              if (m === "DATA SENT FOR BILLING BUT NO REMARK FOUND") return true;
+              return false;
+            }
+
+            // 🟢 अगर MRI Available है, कोई असली rejection नहीं मिला, और सभी readings 0/blank हैं
+            var hasAnyRealRejection = rejReasons.some(function(r) { return !isNoRejectionMessage(r); });
+            if (isMainMriAvailable && !hasAnyRealRejection && allReadingsMissing) {
+              // पहले पुराने "No Rejection" मैसेज हटाएँ
+              rejReasons = rejReasons.filter(function(r) { return !isNoRejectionMessage(r); });
+              rejReasons.push("Read/Demand History Missing");
+            }
+
+            // 🟢 Set FINAL REJECTION and STATUS strictly
+            if (rejReasons.length > 0) {
+              var finalRejText = Array.from(new Set(rejReasons)).join(" | ");
+              row["FINAL REJECTION"] = finalRejText;
+              upperRowMap["FINAL REJECTION"] = finalRejText;
+              row["STATUS"] = "REJECT BY BILLING SYSTEM";
+              upperRowMap["STATUS"] = "REJECT BY BILLING SYSTEM";
+            } else {
+              row["FINAL REJECTION"] = "No Rejection Found From Infinite";
+              upperRowMap["FINAL REJECTION"] = "No Rejection Found From Infinite";
+              row["STATUS"] = "Data Sent For Billing";
+              upperRowMap["STATUS"] = "Data Sent For Billing";
+            }
+          }
           }
          // 🟢 MRI Done But Read Missing Matcher
           var isMriReadMissingRpt = activeReportMeta && (activeReportMeta.id === "rpt_mri_done_read_missing" || activeReportMeta.name.toLowerCase().includes("read missing"));
@@ -9461,7 +9555,57 @@ window.addEventListener('click', function(event) {
           reqCols = Object.keys(clientRenderedRows[0]).filter(function(k){ return !k.startsWith("_"); });
         }
 
-        var listSheetData = [["Sr.No."].concat(reqCols)];
+        // 🟢 Columns to HIDE in Excel (they remain in data, just hidden — can be unhidden anytime)
+        var hiddenColsForUnbilled = [
+          "FINAL_STATUS", "FINALSTATUS",
+          "MRI KWH", "MRIKWH",
+          "MRI KVAH", "MRIKVAH",
+          "MRI MD KW", "MRIMDKW", "MRI KW UHI",
+          "MRI MD KVA", "MRIMDKVA", "MRI KVA UHI",
+          "MANUAL KWH", "MANUALKWH",
+          "MANUAL KVAH", "MANUALKVAH",
+          "MANUAL KW", "MANUALKW",
+          "MANUAL KVA", "MANUALKVA",
+          "XML KWH", "XMLKWH",
+          "XML KVAH", "XMLKVAH",
+          "XML KW", "XMLKW",
+          "XML KVA", "XMLKVA"
+        ];
+
+        function isHiddenCol(colName) {
+          var norm = String(colName || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+          for (var hc = 0; hc < hiddenColsForUnbilled.length; hc++) {
+            if (hiddenColsForUnbilled[hc].replace(/[^A-Z0-9]/g, "") === norm) return true;
+          }
+          return false;
+        }
+
+        // 🟢 Friendly Header Mapping (Rejection After MRI, Billing Status, Site Remark)
+        function getFriendlyExcelHeader(colName) {
+          var normC = String(colName || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+          if (normC === "FINALREJECTION" || normC === "FINAL_REJECTION") return "Rejection After MRI";
+          if (normC === "UNBILLEDSTATUS" || normC === "UNBILLED_STATUS") return "Billing Status";
+          if (normC === "FINALSTATUS" || normC === "FINAL_STATUS") return "Final Status";
+          if (normC === "SITEREMARK" || normC === "SITE_REMARK" || normC === "FINALMAINMETERSITEREMARK" || normC === "SITESTATUSMAINMETER") return "Site Remark";
+          if (normC === "METERNO" || normC === "METERNUMBER") return "Meter No.";
+          if (normC === "METERMAKE") return "Meter Make";
+          if (normC === "STATUS") return "Status";
+          if (normC === "ACCOUNTID" || normC === "ACCOUNTNO") return "Account No";
+          if (normC === "CONSUMERNAME") return "Consumer Name";
+          if (normC === "SUBDIVISION" || normC === "SUBDIVISIONNAME") return "Sub Division";
+          if (normC === "CONSUMERTYPE") return "Consumer Type";
+          if (normC === "TARIFF" || normC === "CONSUMERCATOGARY" || normC === "CONSUMERCATEGORY") return "Category / Tariff";
+          if (normC === "LOADINKW" || normC === "LOADKW" || normC === "LOAD") return "Load (KW)";
+          if (normC === "LOADGROUP51050" || normC === "LOADGROUP") return "Load Group";
+          if (normC === "VISITDATE" || normC === "FINALVISITDATE") return "Visit Date";
+          if (normC === "ISMIRIAVAILABLE") return "Is MRI Available";
+          if (normC === "READINGTYPE") return "Reading Type";
+          // Default: Title Case
+          return String(colName || "").toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+        }
+
+        var friendlyHeaders = reqCols.map(function(c) { return getFriendlyExcelHeader(c); });
+        var listSheetData = [["Sr.No."].concat(friendlyHeaders)];
 
         clientRenderedRows.forEach(function(row, idx) {
           var u = row._uMap || row;
@@ -9495,12 +9639,106 @@ window.addEventListener('click', function(event) {
           listSheetData.push(rArr);
         });
 
-        var wsData = XLSX.utils.aoa_to_sheet(listSheetData);
+                var wsData = XLSX.utils.aoa_to_sheet(listSheetData);
         applyStandardExcelFormatting(wsData, { headerBg: "0B3C5D" });
+
+        // 🟢 Apply HIDDEN columns (not deleted — user can unhide in Excel if needed)
+        if (activeReportMeta && activeReportMeta.id === "rpt_master_unbilled" && wsData['!ref']) {
+          var colRange = XLSX.utils.decode_range(wsData['!ref']);
+          for (var cc = colRange.s.c; cc <= colRange.e.c; cc++) {
+            // Header name = "Sr.No." at index 0, then reqCols at index 1, 2, 3...
+            var headerName = "";
+            if (cc === 0) headerName = "Sr.No.";
+            else headerName = reqCols[cc - 1] || "";
+
+            if (isHiddenCol(headerName)) {
+              if (!wsData['!cols']) wsData['!cols'] = [];
+              wsData['!cols'][cc] = wsData['!cols'][cc] || {};
+              wsData['!cols'][cc].hidden = true; // ✅ Column hidden but data preserved
+            }
+          }
+        }
+
+        // 🟢 Force Font Size = 8 & Center Align for ALL cells (Header + Data)
+        if (wsData['!ref']) {
+          var fullRange = XLSX.utils.decode_range(wsData['!ref']);
+          var colWidthsList = [];
+
+          for (var C = fullRange.s.c; C <= fullRange.e.c; ++C) {
+            var maxLen = 10;
+            for (var R = fullRange.s.r; R <= fullRange.e.r; ++R) {
+              var addr = XLSX.utils.encode_cell({ r: R, c: C });
+              if (wsData[addr] && wsData[addr].v !== undefined && wsData[addr].v !== null) {
+                maxLen = Math.max(maxLen, String(wsData[addr].v).length);
+              }
+            }
+            colWidthsList.push({ wch: Math.min(maxLen + 3, 40) });
+          }
+          colWidthsList[0] = { wch: 8 };
+          wsData['!cols'] = colWidthsList;
+
+          for (var RR = fullRange.s.r; RR <= fullRange.e.r; ++RR) {
+            for (var CC = fullRange.s.c; CC <= fullRange.e.c; ++CC) {
+              var cellAddr = XLSX.utils.encode_cell({ r: RR, c: CC });
+              if (!wsData[cellAddr]) {
+                wsData[cellAddr] = { t: 's', v: '', s: {} };
+              }
+              if (!wsData[cellAddr].s) wsData[cellAddr].s = {};
+
+              // 🟢 Font Size = 8 (header bold with white color, data normal)
+              wsData[cellAddr].s.font = {
+                name: "Calibri",
+                sz: 8,
+                bold: (RR === 0),
+                color: { rgb: (RR === 0) ? "FFFFFF" : "1E293B" }
+              };
+
+              // 🟢 Center Align for ALL columns (Header + Data)
+              wsData[cellAddr].s.alignment = {
+                horizontal: "center",
+                vertical: "center",
+                wrapText: false
+              };
+
+              // 🟢 Header Background (only for row 0)
+              if (RR === 0) {
+                wsData[cellAddr].s.fill = { fgColor: { rgb: "0B3C5D" } };
+                wsData[cellAddr].s.font.color = { rgb: "FFFFFF" };
+              }
+
+              // 🟢 Thin borders on every cell for a clean grid look
+              wsData[cellAddr].s.border = {
+                top:    { style: "thin", color: { rgb: "D0D7E1" } },
+                bottom: { style: "thin", color: { rgb: "D0D7E1" } },
+                left:   { style: "thin", color: { rgb: "D0D7E1" } },
+                right:  { style: "thin", color: { rgb: "D0D7E1" } }
+              };
+            }
+          }
+        }
 
         var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, wsData, "Data_Records");
-        XLSX.writeFile(wb, rName.replace(/[^a-zA-Z0-9_]/g, "_") + "_" + dateString + ".xlsx");
+
+        // 🟢 Special File Name for Unbilled Master Report: "EDC Mainpuri 5 Kw And Above Unbilled Consumers List As On Date DD-MM-YYYY" (T-1 Date)
+        var isUnbilledMasterRpt = activeReportMeta && (
+          activeReportMeta.id === "rpt_master_unbilled" ||
+          String(activeReportMeta.name || "").toLowerCase().includes("unbilled master")
+        );
+
+        if (isUnbilledMasterRpt) {
+          var t1 = new Date();
+          t1.setDate(t1.getDate() - 1); // One day prior (T-1)
+          var t1Day = String(t1.getDate()).padStart(2, '0');
+          var t1Month = String(t1.getMonth() + 1).padStart(2, '0');
+          var t1Year = t1.getFullYear();
+          var t1DateStr = t1Day + "-" + t1Month + "-" + t1Year;
+
+          var unbilledFileName = "EDC Mainpuri 5 Kw And Above Unbilled Consumers List As On Date " + t1DateStr + ".xlsx";
+          XLSX.writeFile(wb, unbilledFileName);
+        } else {
+          XLSX.writeFile(wb, rName.replace(/[^a-zA-Z0-9_]/g, "_") + "_" + dateString + ".xlsx");
+        }
       }
 
       function downloadExcel() { downloadCombinedSummaryWithListExcel(); }
