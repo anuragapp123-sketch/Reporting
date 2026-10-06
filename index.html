@@ -12287,13 +12287,9 @@ function handleTableSortColumn(colKey) {
 function openExternalApp(url, appName, event) {
   if (event) event.stopPropagation();
 
-  // 🟢 COMPUTER पर: नए tab में खोलें
-  if (window.innerWidth > 850) {
-    window.open(url, '_blank', 'noopener,noreferrer');
-    return;
-  }
+  // 🟢 हमेशा screen के अंदर iframe में खोलें (चाहे mobile हो या desktop)
+  // नए tab में नहीं खोलेंगे
 
-  // 🟢 MOBILE पर: उसी screen में iframe की तरह load करें
   var topCtrl = document.getElementById('main-top-control-wrapper');
   if (topCtrl) topCtrl.style.setProperty('display', 'none', 'important');
 
@@ -12555,7 +12551,7 @@ function downloadTestDistSummaryPDF() {
                 if (catKey === 'tools') {
           subTitle.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i> Tools & Utilities';
           items = [
-            { title: 'Daily Report Upload', icon: 'fa-solid fa-cloud-arrow-up', color: '#8b5cf6', action: function(e){ openExternalApp('https://script.google.com/macros/s/AKfycbzDoVORCwEJ9UJrA70xlzBpZsBZOqJuc-m6O4rBSzWMtEmaBOV75-54kURsmpPWkrJ3xQ/exec', 'Daily Report Uploading Portal', e); } },
+            { title: 'Daily Report Upload', icon: 'fa-solid fa-cloud-arrow-up', color: '#8b5cf6', action: function(e){ openExternalApp('https://script.google.com/macros/s/AKfycbx9iV-lk7j2OPAN6cGdXIVg-l54VqzsJWiUwT3J8iiWn0JyxM5KC8BxRDIOOIuraYWUrw/exec', 'Daily Report Uploading Portal', e); } },
             { title: 'Matching With Data', icon: 'fa-solid fa-code-compare', color: '#0284c7', action: function(e){ openDataMatcherModal(e); } },
             { title: 'Bulk Column Update', icon: 'fa-solid fa-file-pen', color: '#6366f1', action: function(){ openCustomBulkModal(); } },
             { title: 'Pendency For Remark', icon: 'fa-solid fa-file-circle-check', color: '#0284c7', action: function(){ openPendencyFinderModal(); } },
