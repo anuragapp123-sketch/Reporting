@@ -12284,11 +12284,14 @@ function handleTableSortColumn(colKey) {
 }
 
 
+// ==========================================================
+// 🟢 MULTI-APP MINIMIZE MANAGER (एक से ज़्यादा apps minimize)
+// ==========================================================
+var minimizedAppsStack = []; // [{ id, url, name, iframeHtml }]
+var appIdCounter = 0;
+
 function openExternalApp(url, appName, event) {
   if (event) event.stopPropagation();
-
-  // 🟢 हमेशा screen के अंदर iframe में खोलें (चाहे mobile हो या desktop)
-  // नए tab में नहीं खोलेंगे
 
   var topCtrl = document.getElementById('main-top-control-wrapper');
   if (topCtrl) topCtrl.style.setProperty('display', 'none', 'important');
@@ -12310,49 +12313,54 @@ function openExternalApp(url, appName, event) {
 
   if (!appContainer || !iframe) return;
 
-  // 🟢 1. Loader Reset aur Show karein
+  // 🟢 हर बार यूनिक ID बनाएँ
+  var thisAppId = 'ext_app_' + (++appIdCounter);
+
+  // 🟢 Minimize बटन हटाएँ अगर पहले से है
+  var existingMinBtn = document.getElementById('ext-app-minimize-btn');
+  if (existingMinBtn) existingMinBtn.remove();
+
+  // 🟢 नया Minimize बटन — सिर्फ icon
+  var minBtn = document.createElement('button');
+  minBtn.id = 'ext-app-minimize-btn';
+  minBtn.type = 'button';
+  minBtn.title = 'Minimize (Background में चलता रहेगा)';
+  minBtn.innerHTML = '<i class="fa-solid fa-window-minimize" style="font-size:14px;"></i>';
+  minBtn.style.cssText = 'position:absolute; top:10px; right:10px; z-index:9999; background:linear-gradient(135deg,#0f172a,#1e293b); color:white; border:1px solid rgba(255,255,255,0.3); padding:0; width:38px; height:38px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.35); transition:all 0.2s;';
+  minBtn.onmouseover = function() { this.style.transform = 'scale(1.08)'; this.style.background = 'linear-gradient(135deg,#1a73e8,#0ea5e9)'; };
+  minBtn.onmouseout = function() { this.style.transform = 'scale(1)'; this.style.background = 'linear-gradient(135deg,#0f172a,#1e293b)'; };
+  minBtn.onclick = function(e) {
+    e.stopPropagation();
+    minimizeExternalApp(thisAppId, url, appName || 'External App');
+  };
+  appContainer.style.position = 'relative';
+  appContainer.appendChild(minBtn);
+
+  // 🟢 Loader Reset
   if (loader) {
     loader.style.display = 'flex';
     loader.style.opacity = '1';
     loader.style.visibility = 'visible';
   }
-  if (iframe) {
-    iframe.style.opacity = '0';
-  }
-  if (progressBar) {
-    progressBar.style.width = '0%';
-  }
-  if (titleText) {
-    titleText.innerText = appName ? (appName + ' Loading') : 'Loading Application';
-  }
-  if (subtitleText) {
-    subtitleText.innerText = 'कृपया प्रतीक्षा करें, एप्लिकेशन लोड हो रहा है...';
-  }
+  if (iframe) iframe.style.opacity = '0';
+  if (progressBar) progressBar.style.width = '0%';
+  if (titleText) titleText.innerText = appName ? (appName + ' Loading') : 'Loading Application';
+  if (subtitleText) subtitleText.innerText = 'कृपया प्रतीक्षा करें, एप्लिकेशन लोड हो रहा है...';
 
-  // 🟢 2. Animated Dots + Status Messages Engine
-  var dotInterval = null;
-  var statusInterval = null;
-  var progressInterval = null;
+  // 🟢 Animations
+  var dotInterval = null, statusInterval = null, progressInterval = null;
   var currentProgress = 0;
-
-  var statusMessages = [
-    'INITIALIZING CONNECTION...',
-    'ESTABLISHING SECURE LINK...',
-    'FETCHING APPLICATION DATA...',
-    'LOADING INTERFACE...',
-    'ALMOST READY...'
-  ];
+  var statusMessages = ['INITIALIZING CONNECTION...','ESTABLISHING SECURE LINK...','FETCHING APPLICATION DATA...','LOADING INTERFACE...','ALMOST READY...'];
   var statusIdx = 0;
-
   var dotFrames = ['.', '..', '...', '....', '.....'];
   var dotIdx = 0;
+
   if (dotsText) {
     dotInterval = setInterval(function() {
       dotsText.innerText = dotFrames[dotIdx];
       dotIdx = (dotIdx + 1) % dotFrames.length;
     }, 300);
   }
-
   if (statusText) {
     statusText.innerText = statusMessages[0];
     statusInterval = setInterval(function() {
@@ -12360,7 +12368,6 @@ function openExternalApp(url, appName, event) {
       statusText.innerText = statusMessages[statusIdx];
     }, 1200);
   }
-
   if (progressBar) {
     progressInterval = setInterval(function() {
       if (currentProgress < 95) {
@@ -12371,23 +12378,17 @@ function openExternalApp(url, appName, event) {
     }, 200);
   }
 
-  // 🟢 3. Cleanup function
   function stopLoaderAnimations() {
     if (dotInterval) { clearInterval(dotInterval); dotInterval = null; }
     if (statusInterval) { clearInterval(statusInterval); statusInterval = null; }
     if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
   }
 
-  // 🟢 4. iFrame ko Load karein
   iframe.style.height = 'calc(100vh - 65px)';
   iframe.setAttribute('allow', 'clipboard-read; clipboard-write; geolocation; microphone; camera');
 
-  iframe.onload = null;
-
-  // 🟢 5. onload Handler
   iframe.onload = function() {
     stopLoaderAnimations();
-
     if (progressBar) progressBar.style.width = '100%';
     if (statusText) statusText.innerText = 'READY ✓';
     if (dotsText) dotsText.innerText = '';
@@ -12404,32 +12405,6 @@ function openExternalApp(url, appName, event) {
     }, 400);
   };
 
-  // 🟢 6. Fallback Timer
-  var fallbackTimer = setTimeout(function() {
-    if (loader && loader.style.display !== 'none') {
-      stopLoaderAnimations();
-      if (progressBar) progressBar.style.width = '100%';
-      if (statusText) statusText.innerText = 'FINALIZING...';
-
-      setTimeout(function() {
-        if (loader) {
-          loader.style.opacity = '0';
-          setTimeout(function() {
-            loader.style.display = 'none';
-          }, 500);
-        }
-        iframe.style.opacity = '1';
-      }, 400);
-    }
-  }, 15000);
-
-  var originalOnload = iframe.onload;
-  iframe.onload = function() {
-    clearTimeout(fallbackTimer);
-    if (originalOnload) originalOnload.call(this);
-  };
-
-  // 🟢 7. Iframe src set करें
   iframe.src = url;
   appContainer.style.display = 'block';
 
@@ -12438,6 +12413,216 @@ function openExternalApp(url, appName, event) {
   });
   if (event && event.currentTarget) {
     event.currentTarget.classList.add('active');
+  }
+}
+
+// ==========================================================
+// 🟢 Minimize — Hub दिखाए, iframe background में चलता रहे
+// ==========================================================
+function minimizeExternalApp(appId, url, appName) {
+  var appContainer = document.getElementById('external-app-view-zone');
+  var iframe = document.getElementById('external-app-iframe');
+  var minBtn = document.getElementById('ext-app-minimize-btn');
+
+  if (!appContainer || !iframe) return;
+
+  // 1. अगर पहले से minimized नहीं है तो stack में push करें
+  var alreadyInStack = minimizedAppsStack.some(function(a) { return a.url === url && a.name === appName; });
+  if (!alreadyInStack) {
+    minimizedAppsStack.push({
+      id: appId,
+      url: url,
+      name: appName || 'App',
+      icon: getAppIconForName(appName)
+    });
+  }
+
+  // 2. Minimize button हटाएँ
+  if (minBtn) minBtn.remove();
+
+  // 3. App container छुपाएँ (iframe चलता रहेगा — display:none से iframe भी रुकता है, इसलिए visibility trick)
+  appContainer.style.display = 'none';
+
+  // 🟢 iframe को background में चलाने के लिए invisible container में move करें
+  var bgHolder = document.getElementById('bg-apps-holder');
+  if (!bgHolder) {
+    bgHolder = document.createElement('div');
+    bgHolder.id = 'bg-apps-holder';
+    bgHolder.style.cssText = 'position:fixed; left:-99999px; top:0; width:1px; height:1px; overflow:hidden; opacity:0.01; pointer-events:none;';
+    document.body.appendChild(bgHolder);
+  }
+
+  // 4. Hub (main home) वापस दिखाएँ — खाली screen नहीं
+  var homeZone = document.getElementById('home-view-zone');
+  var mainHub = document.getElementById('hub-main-view');
+  var subHub = document.getElementById('hub-sub-view');
+  var c360Hub = document.getElementById('c360-hub-search-view');
+  var topCtrl = document.getElementById('main-top-control-wrapper');
+
+  if (homeZone) {
+    homeZone.style.display = 'flex';
+    homeZone.classList.remove('search-mode-active');
+  }
+  if (mainHub) mainHub.style.display = 'flex';
+  if (subHub) subHub.style.display = 'none';
+  if (c360Hub) c360Hub.style.display = 'none';
+  if (topCtrl) topCtrl.style.setProperty('display', 'none', 'important');
+
+  ['pivot-page-zone', 'table-zone', 'table-loader'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  if (typeof syncHomeTimestampBadge === 'function') syncHomeTimestampBadge();
+  if (typeof updateLiveGreetingWidget === 'function') updateLiveGreetingWidget();
+
+  // 5. Floating buttons row render करें
+  renderMinimizedAppsBar();
+
+  // 6. Toast
+  if (typeof showGlobalCopyToast === 'function') {
+    showGlobalCopyToast('✅ ' + appName + ' minimize हो गया — background में चल रहा है');
+  }
+}
+
+// ==========================================================
+// 🟢 App नाम के हिसाब से icon चुनें
+// ==========================================================
+function getAppIconForName(name) {
+  var n = String(name || "").toUpperCase();
+  if (n.includes("XML")) return "fa-file-code";
+  if (n.includes("ANALYTICS") || n.includes("DASHBOARD")) return "fa-chart-line";
+  if (n.includes("DAILY") || n.includes("UPLOAD")) return "fa-cloud-arrow-up";
+  if (n.includes("ANALYSIS") || n.includes("PDF")) return "fa-file-pdf";
+  if (n.includes("CONSUMPTION")) return "fa-scale-balanced";
+  if (n.includes("MATCH")) return "fa-code-compare";
+  if (n.includes("BULK")) return "fa-file-pen";
+  if (n.includes("PENDENCY")) return "fa-file-circle-check";
+  if (n.includes("CONSUMER") || n.includes("NEW")) return "fa-user-plus";
+  return "fa-window-restore";
+}
+
+// ==========================================================
+// 🟢 Floating Minimized Apps Bar (bottom-right, multiple buttons)
+// ==========================================================
+function renderMinimizedAppsBar() {
+  var bar = document.getElementById('minimized-apps-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'minimized-apps-bar';
+    bar.style.cssText = 'position:fixed; bottom:20px; right:20px; z-index:9999999; display:flex; flex-direction:column-reverse; gap:10px; align-items:flex-end;';
+    document.body.appendChild(bar);
+  }
+
+  bar.innerHTML = '';
+
+  if (minimizedAppsStack.length === 0) {
+    bar.style.display = 'none';
+    return;
+  }
+
+  bar.style.display = 'flex';
+
+  // 🟢 हर minimized app के लिए अलग round icon button
+  minimizedAppsStack.forEach(function(app, idx) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.title = 'Restore: ' + app.name + ' (click to open, right-click to close)';
+    btn.style.cssText = 'width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#1a73e8,#0ea5e9); color:white; border:2.5px solid #ffffff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:20px; box-shadow:0 8px 24px rgba(26,115,232,0.55); position:relative; animation:extFloatPulse 2s infinite; transition:transform 0.2s;';
+    btn.innerHTML = '<i class="fa-solid ' + (app.icon || 'fa-window-restore') + '"></i>' +
+      '<span style="position:absolute; top:-4px; right:-4px; background:#ef4444; color:white; border-radius:50%; width:18px; height:18px; font-size:9px; font-weight:800; display:flex; align-items:center; justify-content:center; border:1.5px solid white;">' + (idx + 1) + '</span>';
+
+    btn.onmouseover = function() { this.style.transform = 'scale(1.12)'; };
+    btn.onmouseout = function() { this.style.transform = 'scale(1)'; };
+
+    // Click = Restore
+    btn.onclick = function(e) {
+      e.stopPropagation();
+      restoreExternalApp(app.id);
+    };
+
+    // Right-click = Close & remove from stack
+    btn.oncontextmenu = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (confirm('क्या आप "' + app.name + '" को बंद करना चाहते हैं?')) {
+        closeMinimizedApp(app.id);
+      }
+    };
+
+    bar.appendChild(btn);
+  });
+
+  // 🟢 "All Restore" button अगर 1 से ज़्यादा हैं
+  if (minimizedAppsStack.length > 1) {
+    var allBtn = document.createElement('button');
+    allBtn.type = 'button';
+    allBtn.title = 'Restore All (सबसे नया खोलें)';
+    allBtn.style.cssText = 'height:32px; padding:0 12px; border-radius:16px; background:linear-gradient(135deg,#0f172a,#1e293b); color:white; border:1.5px solid rgba(255,255,255,0.4); cursor:pointer; font-size:10.5px; font-weight:800; display:flex; align-items:center; gap:5px; box-shadow:0 4px 14px rgba(0,0,0,0.35);';
+    allBtn.innerHTML = '<i class="fa-solid fa-layer-group"></i> ' + minimizedAppsStack.length + ' Apps';
+    allBtn.onclick = function(e) {
+      e.stopPropagation();
+      // सबसे ऊपर वाला (last one) restore करें
+      var top = minimizedAppsStack[minimizedAppsStack.length - 1];
+      if (top) restoreExternalApp(top.id);
+    };
+    bar.appendChild(allBtn);
+  }
+
+  // 🟢 Pulse animation CSS inject
+  if (!document.getElementById('ext-app-float-css')) {
+    var style = document.createElement('style');
+    style.id = 'ext-app-float-css';
+    style.innerHTML = '@keyframes extFloatPulse { 0%, 100% { box-shadow: 0 8px 24px rgba(26,115,232,0.5); } 50% { box-shadow: 0 12px 36px rgba(26,115,232,0.9); } }';
+    document.head.appendChild(style);
+  }
+}
+
+// ==========================================================
+// 🟢 Minimized App को Restore करें
+// ==========================================================
+function restoreExternalApp(appId) {
+  var foundIdx = minimizedAppsStack.findIndex(function(a) { return a.id === appId; });
+  if (foundIdx === -1) {
+    // अगर ID नहीं मिली तो सबसे ऊपर वाला restore करें
+    if (minimizedAppsStack.length > 0) {
+      foundIdx = minimizedAppsStack.length - 1;
+    } else {
+      return;
+    }
+  }
+
+  var app = minimizedAppsStack[foundIdx];
+
+  // 1. Stack से हटाएँ
+  minimizedAppsStack.splice(foundIdx, 1);
+
+  // 2. Floating bar update करें
+  renderMinimizedAppsBar();
+
+  // 3. External app फिर से load करें
+  var fakeEvent = { stopPropagation: function(){}, currentTarget: null };
+  openExternalApp(app.url, app.name, fakeEvent);
+}
+
+// ==========================================================
+// 🟢 Minimized App पूरी तरह Close करें (background process बंद)
+// ==========================================================
+function closeMinimizedApp(appId) {
+  var foundIdx = minimizedAppsStack.findIndex(function(a) { return a.id === appId; });
+  if (foundIdx === -1) return;
+
+  minimizedAppsStack.splice(foundIdx, 1);
+  renderMinimizedAppsBar();
+
+  // अगर कोई और app नहीं बचा तो bg holder साफ़ करें
+  if (minimizedAppsStack.length === 0) {
+    var bgHolder = document.getElementById('bg-apps-holder');
+    if (bgHolder) bgHolder.remove();
+  }
+
+  if (typeof showGlobalCopyToast === 'function') {
+    showGlobalCopyToast('❌ App बंद कर दिया गया');
   }
 }
 
@@ -12517,8 +12702,8 @@ function downloadTestDistSummaryPDF() {
         });
 
         document.querySelectorAll('.report-link').forEach(function(b) {
-          b.classList.remove('active');
-        });
+  b.classList.remove('active');
+});
       }
 
       var currentActiveHubCategory = null; // 🟢 Yaad rakhega ki abhi konsa category sub-tab khula tha
