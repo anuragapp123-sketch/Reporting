@@ -379,13 +379,14 @@ html, body {
         --badge-info-text: #38bdf8;
       }
 
+      @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap');
+
       body { 
-  font-family: var(--font-sans); 
-  font-weight: 500;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; 
+        font-weight: 500;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
         margin: 0; 
         padding: 0; 
         background: var(--bg-main); 
@@ -393,6 +394,31 @@ html, body {
         color: var(--text-main); 
         height: 100vh; 
         overflow: hidden; 
+      }
+
+      /* 🟢 Dropdown ko table ke upar laane ke liye z-index aur overflow fix */
+      .top-control-wrapper {
+        position: relative !important;
+        z-index: 1000 !important;
+        overflow: visible !important;
+      }
+      .filter-bar {
+        position: relative !important;
+        z-index: 1000 !important;
+        overflow: visible !important;
+      }
+      .filter-group {
+        position: relative !important;
+        z-index: 1001 !important;
+      }
+      .multiselect-dropdown-panel {
+        z-index: 999999 !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.22) !important;
+        border: 1.5px solid #94a3b8 !important;
+      }
+      .table-wrapper {
+        position: relative !important;
+        z-index: 1 !important;
       }
 
       /* Monospace numbers for sharp financial/meter scanning */
@@ -869,12 +895,12 @@ table.data-grid {
       }
       .hub-cards-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, 145px);
-        gap: 10px;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 170px));
+        gap: 14px;
         align-items: stretch;
         justify-content: center;
         width: 100%;
-        max-width: 100%;
+        max-width: 980px;
         margin: 0 auto;
       }
       @media (max-width: 1200px) {
@@ -2308,8 +2334,18 @@ table.data-grid {
           </div>
 
           <!-- All Tabs in 1 Single Line Grid (auto-fit) - PERFECTLY CENTERED -->
-          <div class="hub-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, 145px); gap: 10px; align-items: stretch; justify-content: center; margin: 0 auto; width: 100%; max-width: 100%;">
-            <!-- 🟢 Consumer 360° Universal Hub Tab (Soft Cyan/Teal) -->
+          <div class="hub-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 170px)); gap: 14px; align-items: stretch; justify-content: center; margin: 0 auto; width: 100%; max-width: 980px;">
+            <!-- 1. Analytics Dashboard (Sabse Pehle Number Par) -->
+            <div class="hub-card" style="border-left: 3.5px solid #fcd34d; background: linear-gradient(180deg, rgba(255,251,235,0.6) 0%, var(--card-bg) 100%);" onclick="openDynamicAnalyticsApp(event)">
+              <span class="hub-card-badge" style="background: #fef3c7; color: #b45309;">Live</span>
+              <div class="hub-card-icon" style="background: #fef3c7; color: #d97706;">
+                <i class="fa-solid fa-chart-line"></i>
+              </div>
+              <div class="hub-card-title">Analytics Dashboard</div>
+              <div class="hub-card-desc">Performance & KPI Charts</div>
+            </div>
+
+            <!-- 2. Consumer 360° Universal Hub Tab (Soft Cyan/Teal) -->
             <div class="hub-card" style="border-left: 3.5px solid #7dd3d8; background: linear-gradient(180deg, rgba(224,247,250,0.6) 0%, var(--card-bg) 100%);" onclick="openConsumer360HubView()">
               <span class="hub-card-badge" style="background: #e0f7fa; color: #0e7490;">Instant</span>
               <div class="hub-card-icon" style="background: #e0f7fa; color: #06b6d4;">
@@ -2317,18 +2353,6 @@ table.data-grid {
               </div>
               <div class="hub-card-title">Consumer 360°</div>
               <div class="hub-card-desc">Universal Smart Dossier Finder</div>
-            </div>
-
-
-
-            <!-- 2. Analytics Dashboard (Soft Amber/Peach) -->
-            <div class="hub-card" style="border-left: 3px solid #fcd34d; background: linear-gradient(180deg, rgba(255,251,235,0.6) 0%, var(--card-bg) 100%);" onclick="openExternalApp('https://script.google.com/macros/s/AKfycbzQeexHNJAqsdq2Y2xQ-FBwNh1E6amCr2p748MoE34RhydfbgRnZzKPsSD67RM9cH5iVw/exec', 'Analytics Dashboard', event)">
-              <span class="hub-card-badge" style="background: #fef3c7; color: #b45309;">Live</span>
-              <div class="hub-card-icon" style="background: #fef3c7; color: #d97706;">
-                <i class="fa-solid fa-chart-line"></i>
-              </div>
-              <div class="hub-card-title">Analytics Dashboard</div>
-              <div class="hub-card-desc">Performance & KPI Charts</div>
             </div>
 
             <!-- 3. Master Data (Soft Sky Blue) -->
@@ -2343,7 +2367,7 @@ table.data-grid {
 
             <!-- 4. Tools & Utilities (Soft Indigo) -->
             <div class="hub-card" style="border-left: 3px solid #a5b4fc; background: linear-gradient(180deg, rgba(238,242,255,0.6) 0%, var(--card-bg) 100%);" onclick="openHubCategory('tools')">
-              <span class="hub-card-badge" style="background: #e0e7ff; color: #4338ca;">9 Tools</span>
+              <span class="hub-card-badge" style="background: #e0e7ff; color: #4338ca;">Tools</span>
               <div class="hub-card-icon" style="background: #e0e7ff; color: #6366f1;">
                 <i class="fa-solid fa-screwdriver-wrench"></i>
               </div>
@@ -2459,15 +2483,15 @@ table.data-grid {
       </div>
 
       <!-- Integrated Top Controls (Title + Export Buttons + Filters) -->
-      <div class="top-control-wrapper" id="main-top-control-wrapper">
-        <div class="control-header-row">
-          <div style="display: flex; align-items: center; gap: 8px;">
+      <div class="top-control-wrapper" id="main-top-control-wrapper" style="display: none !important;">
+        <div class="control-header-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap:wrap;">
             <!-- 🟢 1 Step Back Navigation Button -->
             <button type="button" class="btn-step-back" onclick="navigateOneStepBack()" title="Peeche jaane ke liye">
               <i class="fa-solid fa-arrow-left"></i> Back
             </button>
-            <h3 id="active-report-title" style="margin: 0; font-size: 15px; font-weight: bold; text-transform: uppercase;">Report Title</h3>
-            <span id="report-live-counter" style="background: #1a73e8; color: white; font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 12px;">Total: 0</span>
+            <h3 id="active-report-title" style="margin: 0; font-size: 16px; font-weight: 900; letter-spacing: 0.3px; text-transform: uppercase;">Report Title</h3>
+            <span id="report-live-counter" style="display: inline-flex !important; align-items: center; gap: 4px; background: linear-gradient(135deg, #1e40af, #2563eb); color: white; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; box-shadow: 0 2px 8px rgba(37,99,235,0.35); font-family: 'JetBrains Mono', monospace;">Total: 0</span>
           </div>
 
           <!-- Top Right Buttons Row (Compact with Unified Export Dropdown) -->
@@ -2508,80 +2532,82 @@ table.data-grid {
           <span id="data-source-badge" style="background: #f59e0b; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 9.5px; font-weight: 800; text-transform: uppercase;">Checking</span>
         </div>
 
-        <!-- Filters Section -->
-        <div id="filters-panel-wrapper" class="filter-bar" style="margin-bottom: 0; padding: 10px 12px; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
-          <div class="filter-group">
-            <label style="font-size: 10px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 4px;">
-              <span style="background: #e0f2fe; color: #0284c7; width: 18px; height: 18px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 9.5px;">
-                <i class="fa-solid fa-magnifying-glass"></i>
-              </span> Search Table
+        <!-- Filters Section (Single Line Clean Desktop Layout) -->
+        <div id="filters-panel-wrapper" class="filter-bar" style="margin-bottom: 0; padding: 8px 10px; gap: 6px; display: flex; flex-wrap: nowrap; overflow-x: auto; width: 100%; box-sizing: border-box; align-items: flex-end;">
+          <div class="filter-group" style="min-width: 140px; flex: 1 1 140px;">
+            <label style="font-size: 9.5px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 3px; white-space: nowrap;">
+              <i class="fa-solid fa-magnifying-glass text-primary"></i> Search Table
             </label>
             <div class="search-box-wrapper">
-              <input type="text" id="live-search-input" placeholder="Filter current list..." style="padding: 5px 8px; border: 1px solid var(--border); border-radius: 5px; font-size: 11px; height: 30px;" oninput="handleSearchInputChange(this.value)">
-              <i class="fa-solid fa-circle-xmark search-clear-btn" id="search-clear-btn" onclick="clearLiveSearchInput()" title="Clear search"></i>
+              <input type="text" id="live-search-input" placeholder="Search..." style="padding: 4px 6px; border: 1px solid var(--border); border-radius: 5px; font-size: 11px; height: 28px;" oninput="handleSearchInputChange(this.value)">
+              <i class="fa-solid fa-circle-xmark search-clear-btn" id="search-clear-btn" onclick="clearLiveSearchInput()" title="Clear"></i>
             </div>
           </div>
 
-          
-
-          <div class="filter-group">
-            <label style="font-size: 10px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 4px;">
-              <span style="background: #ecfdf5; color: #059669; width: 18px; height: 18px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 9.5px;">
-                <i class="fa-solid fa-building"></i>
-              </span> Division
-            </label>
-            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-div', event)" style="padding: 5px 8px; height: 30px; font-size: 11px;"><span id="lbl-div">All Divisions</span> <i class="fa-solid fa-chevron-down" style="font-size: 9px;"></i></div>
+          <div class="filter-group" style="min-width: 110px; flex: 1 1 110px;">
+            <label style="font-size: 9.5px; font-weight: 800; color: #1e293b; white-space: nowrap;"><i class="fa-solid fa-building text-success"></i> Division</label>
+            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-div', event)" style="padding: 4px 6px; height: 28px; font-size: 10.5px;"><span id="lbl-div">All Divisions</span> <i class="fa-solid fa-chevron-down" style="font-size: 8px;"></i></div>
             <div id="panel-div" class="multiselect-dropdown-panel"></div>
           </div>
 
-          <div class="filter-group">
-            <label style="font-size: 10px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 4px;">
-              <span style="background: #fdf4ff; color: #9333ea; width: 18px; height: 18px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 9.5px;">
-                <i class="fa-solid fa-network-wired"></i>
-              </span> Sub Div
-            </label>
-            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-subdiv', event)" style="padding: 5px 8px; height: 30px; font-size: 11px;"><span id="lbl-subdiv">All SubDivs</span> <i class="fa-solid fa-chevron-down" style="font-size: 9px;"></i></div>
+          <div class="filter-group" style="min-width: 105px; flex: 1 1 105px;">
+            <label style="font-size: 9.5px; font-weight: 800; color: #1e293b; white-space: nowrap;"><i class="fa-solid fa-network-wired text-purple"></i> Sub Div</label>
+            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-subdiv', event)" style="padding: 4px 6px; height: 28px; font-size: 10.5px;"><span id="lbl-subdiv">All SubDivs</span> <i class="fa-solid fa-chevron-down" style="font-size: 8px;"></i></div>
             <div id="panel-subdiv" class="multiselect-dropdown-panel"></div>
           </div>
 
-          <div class="filter-group">
-            <label style="font-size: 10px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 4px;">
-              <span style="background: #eef2ff; color: #4f46e5; width: 18px; height: 18px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 9.5px;">
-                <i class="fa-solid fa-users-line"></i>
-              </span> Consumer Type
-            </label>
-            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-ctype', event)" style="padding: 5px 8px; height: 30px; font-size: 11px;"><span id="lbl-ctype">All Types</span> <i class="fa-solid fa-chevron-down" style="font-size: 9px;"></i></div>
+          <div class="filter-group" style="min-width: 100px; flex: 1 1 100px;">
+            <label style="font-size: 9.5px; font-weight: 800; color: #1e293b; white-space: nowrap;"><i class="fa-solid fa-users text-indigo"></i> Type</label>
+            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-ctype', event)" style="padding: 4px 6px; height: 28px; font-size: 10.5px;"><span id="lbl-ctype">All Types</span> <i class="fa-solid fa-chevron-down" style="font-size: 8px;"></i></div>
             <div id="panel-ctype" class="multiselect-dropdown-panel"></div>
           </div>
 
-          <div class="filter-group">
-            <label style="font-size: 10px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 4px;">
-              <span style="background: #fff7ed; color: #ea580c; width: 18px; height: 18px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 9.5px;">
-                <i class="fa-solid fa-layer-group"></i>
-              </span> LMV Wise
-            </label>
-            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-type', event)" style="padding: 5px 8px; height: 30px; font-size: 11px;"><span id="lbl-type">All LMV</span> <i class="fa-solid fa-chevron-down" style="font-size: 9px;"></i></div>
+          <div class="filter-group" style="min-width: 95px; flex: 1 1 95px;">
+            <label style="font-size: 9.5px; font-weight: 800; color: #1e293b; white-space: nowrap;"><i class="fa-solid fa-layer-group text-warning"></i> LMV</label>
+            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-type', event)" style="padding: 4px 6px; height: 28px; font-size: 10.5px;"><span id="lbl-type">All LMV</span> <i class="fa-solid fa-chevron-down" style="font-size: 8px;"></i></div>
             <div id="panel-type" class="multiselect-dropdown-panel"></div>
           </div>
 
-          <div class="filter-group">
-            <label style="font-size: 10px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 4px;">
-              <span style="background: #eff6ff; color: #2563eb; width: 18px; height: 18px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 9.5px;">
-                <i class="fa-solid fa-user-clock"></i>
-              </span> Reader
-            </label>
-            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-mr', event)" style="padding: 5px 8px; height: 30px; font-size: 11px;"><span id="lbl-mr">All Readers</span> <i class="fa-solid fa-chevron-down" style="font-size: 9px;"></i></div>
+          <div class="filter-group" style="min-width: 110px; flex: 1 1 110px;">
+            <label style="font-size: 9.5px; font-weight: 800; color: #1e293b; white-space: nowrap;"><i class="fa-solid fa-user-clock text-primary"></i> Reader</label>
+            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-mr', event)" style="padding: 4px 6px; height: 28px; font-size: 10.5px;"><span id="lbl-mr">All Readers</span> <i class="fa-solid fa-chevron-down" style="font-size: 8px;"></i></div>
             <div id="panel-mr" class="multiselect-dropdown-panel"></div>
           </div>
 
-          <div class="filter-group">
-            <label style="font-size: 10px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 4px;">
-              <span style="background: #fef2f2; color: #dc2626; width: 18px; height: 18px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 9.5px;">
-                <i class="fa-solid fa-bolt"></i>
-              </span> Load Group
-            </label>
-            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-grp', event)" style="padding: 5px 8px; height: 30px; font-size: 11px;"><span id="lbl-grp">All Groups</span> <i class="fa-solid fa-chevron-down" style="font-size: 9px;"></i></div>
+          <div class="filter-group" style="min-width: 105px; flex: 1 1 105px;">
+            <label style="font-size: 9.5px; font-weight: 800; color: #1e293b; white-space: nowrap;"><i class="fa-solid fa-bolt text-danger"></i> Load Group</label>
+            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-grp', event)" style="padding: 4px 6px; height: 28px; font-size: 10.5px;"><span id="lbl-grp">All Groups</span> <i class="fa-solid fa-chevron-down" style="font-size: 8px;"></i></div>
             <div id="panel-grp" class="multiselect-dropdown-panel"></div>
+          </div>
+
+          <div class="filter-group" style="min-width: 110px; flex: 1 1 110px;">
+            <label style="font-size: 9.5px; font-weight: 800; color: #1e293b; white-space: nowrap;"><i class="fa-regular fa-calendar-check text-info"></i> Visit Date</label>
+            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-vdate', event)" style="padding: 4px 6px; height: 28px; font-size: 10.5px;"><span id="lbl-vdate">All Dates</span> <i class="fa-solid fa-chevron-down" style="font-size: 8px;"></i></div>
+            <div id="panel-vdate" class="multiselect-dropdown-panel"></div>
+          </div>
+
+          <div class="filter-group" style="min-width: 115px; flex: 1 1 115px;">
+            <label style="font-size: 9.5px; font-weight: 800; color: #1e293b; white-space: nowrap;"><i class="fa-solid fa-triangle-exclamation text-danger"></i> Ex Type (Main)</label>
+            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-exmain', event)" style="padding: 4px 6px; height: 28px; font-size: 10.5px;"><span id="lbl-exmain">All Ex (Main)</span> <i class="fa-solid fa-chevron-down" style="font-size: 8px;"></i></div>
+            <div id="panel-exmain" class="multiselect-dropdown-panel"></div>
+          </div>
+
+          <div class="filter-group" style="min-width: 115px; flex: 1 1 115px;">
+            <label style="font-size: 9.5px; font-weight: 800; color: #1e293b; white-space: nowrap;"><i class="fa-solid fa-triangle-exclamation text-warning"></i> Ex Type (Pole)</label>
+            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-expole', event)" style="padding: 4px 6px; height: 28px; font-size: 10.5px;"><span id="lbl-expole">All Ex (Pole)</span> <i class="fa-solid fa-chevron-down" style="font-size: 8px;"></i></div>
+            <div id="panel-expole" class="multiselect-dropdown-panel"></div>
+          </div>
+
+          <div class="filter-group" style="min-width: 120px; flex: 1 1 120px;">
+            <label style="font-size: 9.5px; font-weight: 800; color: #1e293b; white-space: nowrap;"><i class="fa-solid fa-comment-dots text-primary"></i> Site Rem (Main)</label>
+            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-remmain', event)" style="padding: 4px 6px; height: 28px; font-size: 10.5px;"><span id="lbl-remmain">All Site (Main)</span> <i class="fa-solid fa-chevron-down" style="font-size: 8px;"></i></div>
+            <div id="panel-remmain" class="multiselect-dropdown-panel"></div>
+          </div>
+
+          <div class="filter-group" style="min-width: 120px; flex: 1 1 120px;">
+            <label style="font-size: 9.5px; font-weight: 800; color: #1e293b; white-space: nowrap;"><i class="fa-solid fa-comment-dots text-secondary"></i> Site Rem (Pole)</label>
+            <div class="multiselect-anchor" onclick="toggleMultiDropdownPanel('panel-rempole', event)" style="padding: 4px 6px; height: 28px; font-size: 10.5px;"><span id="lbl-rempole">All Site (Pole)</span> <i class="fa-solid fa-chevron-down" style="font-size: 8px;"></i></div>
+            <div id="panel-rempole" class="multiselect-dropdown-panel"></div>
           </div>
         </div>
         <!-- 🟢 Active Filter Chips Container -->
@@ -2857,70 +2883,84 @@ table.data-grid {
         </div>
       </div>
 
-      <!-- 🟢 CUSTOM BULK COLUMN UPDATE MODAL -->
-      <div id="custom-bulk-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:99999; justify-content:center; align-items:center; font-family:'Rajdhani', sans-serif;">
-        <div style="background:white; width:92%; max-width:680px; max-height:90vh; border-radius:14px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 15px 40px rgba(0,0,0,0.35);">
-          <div style="background:linear-gradient(135deg, #4338ca 0%, #6366f1 100%); color:white; padding:12px 20px; display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="margin:0; font-size:15px; font-weight:700;"><i class="fa-solid fa-file-pen me-1"></i> Bulk Column Update Tool</h3>
+      <!-- 🟢 REDESIGNED EXPANDED BULK COLUMN UPDATE MODAL (Full Width 1280px) -->
+      <div id="custom-bulk-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.75); z-index:99999; justify-content:center; align-items:center; backdrop-filter:blur(5px); font-family:'Plus Jakarta Sans', sans-serif;">
+        <div style="background:#ffffff; width:95%; max-width:1280px; height:90vh; max-height:92vh; border-radius:18px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 30px 70px rgba(0,0,0,0.5); border:1.5px solid #cbd5e1;">
+          
+          <!-- Header -->
+          <div style="background:linear-gradient(135deg, #3730a3 0%, #4f46e5 100%); color:white; padding:14px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #6366f1;">
             <div style="display:flex; align-items:center; gap:12px;">
-              <button id="btn-bulk-minimize" type="button" onclick="toggleBulkModalMinimize()" title="Minimize / Run in Background" style="background:rgba(255,255,255,0.2); border:none; color:white; border-radius:4px; cursor:pointer; padding:2px 8px; font-size:12px; font-weight:bold;">
-                <i class="fa-solid fa-window-minimize"></i>
+              <div style="width:38px; height:38px; border-radius:10px; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; font-size:18px;">
+                <i class="fa-solid fa-table-columns" style="color:#c7d2fe;"></i>
+              </div>
+              <div>
+                <h3 style="margin:0; font-size:16px; font-weight:800; letter-spacing:0.3px;">Bulk Column Update Tool</h3>
+                <p style="margin:2px 0 0 0; font-size:11px; opacity:0.85; font-weight:600;">Choose columns from VisiT_Data sheet to update or blank out via Excel upload</p>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <button id="btn-bulk-minimize" type="button" onclick="toggleBulkModalMinimize()" title="Minimize / Run in Background" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); color:white; border-radius:6px; cursor:pointer; padding:5px 12px; font-size:11.5px; font-weight:700; display:flex; align-items:center; gap:5px;">
+                <i class="fa-solid fa-window-minimize"></i> Minimize
               </button>
-              <span onclick="closeCustomBulkModal()" style="font-size:24px; cursor:pointer; font-weight:bold; line-height:1;">&times;</span>
+              <span onclick="closeCustomBulkModal()" style="font-size:26px; cursor:pointer; font-weight:bold; line-height:1; opacity:0.85; padding:0 4px;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">&times;</span>
             </div>
           </div>
 
-          <div style="padding:16px; overflow-y:auto; flex:1;">
-            <!-- Stepper Bar -->
-            <div class="modal-stepper-bar">
-              <div class="stepper-line"></div>
-              <div class="stepper-step">
-                <div class="step-bubble active-step" id="step-bubble-1">1</div>
-                <span class="step-label">Select Columns</span>
+          <!-- Body -->
+          <div style="padding:20px 24px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:14px; background:#f8fafc;">
+            
+            <!-- Stepper Banner -->
+            <div style="display:flex; justify-content:space-between; align-items:center; background:white; padding:12px 20px; border-radius:12px; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="width:26px; height:26px; border-radius:50%; background:#4f46e5; color:white; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800;">1</span>
+                <div>
+                  <div style="font-size:12.5px; font-weight:800; color:#1e293b;">Select Columns to Update / Clear</div>
+                  <div style="font-size:11px; color:#64748b; font-weight:600;">Checked columns will be exported into the template</div>
+                </div>
               </div>
-              <div class="stepper-step">
-                <div class="step-bubble" id="step-bubble-2">2</div>
-                <span class="step-label">Upload Filled File</span>
-              </div>
-              <div class="stepper-step">
-                <div class="step-bubble" id="step-bubble-3">3</div>
-                <span class="step-label">Complete & Sync</span>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" onclick="toggleAllCustomCols(true)" style="background:#eef2ff; color:#4338ca; border:1.5px solid #c7d2fe; font-size:11.5px; font-weight:800; padding:6px 14px; border-radius:7px; cursor:pointer; transition:0.15s;">
+                  <i class="fa-solid fa-check-double me-1"></i> Select All
+                </button>
+                <button type="button" onclick="toggleAllCustomCols(false)" style="background:#f1f5f9; color:#475569; border:1.5px solid #cbd5e1; font-size:11.5px; font-weight:800; padding:6px 14px; border-radius:7px; cursor:pointer; transition:0.15s;">
+                  <i class="fa-solid fa-xmark me-1"></i> Deselect All
+                </button>
+                <button type="button" onclick="downloadCustomBulkTemplateExcel()" style="padding:6px 16px; background:linear-gradient(135deg, #0284c7, #0369a1); color:white; border:none; border-radius:7px; font-weight:800; font-size:11.5px; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(2,132,199,0.3);">
+                  <i class="fa-solid fa-download"></i> Download Template (.xlsx)
+                </button>
               </div>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
-              <span style="font-size:12px; font-weight:800; color:#1e293b; font-family:'Inter', sans-serif;">Step 1: Choose Columns to Update/Clear:</span>
-              <div style="display:flex; gap:6px;">
-                <button type="button" onclick="toggleAllCustomCols(true)" style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; font-size:11px; font-weight:700; padding:3px 10px; border-radius:5px; cursor:pointer;">Select All</button>
-                <button type="button" onclick="toggleAllCustomCols(false)" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; font-size:11px; font-weight:700; padding:3px 10px; border-radius:5px; cursor:pointer;">Deselect All</button>
+            <!-- 🟢 Big 4-Column Grid for All Columns (Height increased to 380px) -->
+            <div id="custom-cols-checkbox-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; max-height:420px; overflow-y:auto; border:1.5px solid #cbd5e1; border-radius:12px; padding:14px; background:#ffffff; box-shadow:inset 0 1px 4px rgba(0,0,0,0.03);"></div>
+
+            <!-- Step 2: Upload File Box -->
+            <div style="background:white; border:1px solid #e2e8f0; border-radius:12px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
+              <div>
+                <div style="font-size:12.5px; font-weight:800; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                  <span style="width:26px; height:26px; border-radius:50%; background:#10b981; color:white; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800;">2</span>
+                  Upload Modified Template File (.xlsx / .csv):
+                </div>
+                <div style="font-size:11px; color:#64748b; font-weight:600; margin-left:34px; margin-top:2px;">
+                  ACCOUNT NO will remain unchanged. Blank cells will clear the respective fields in VisiT_Data.
+                </div>
               </div>
+              <input type="file" id="customBulkFileInput" accept=".xlsx, .xls, .csv" style="border:1.5px dashed #6366f1; border-radius:8px; padding:8px 12px; font-size:11.5px; background:#f8fafc; cursor:pointer; min-width:280px;">
             </div>
 
-            <!-- 🟢 Clean Responsive Multi-Column Grid (Desktop: 2-3 cols, Mobile: 1 col) -->
-            <div id="custom-cols-checkbox-container" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:8px; max-height:220px; overflow-y:auto; border:1.5px solid #cbd5e1; border-radius:8px; padding:10px; background:#ffffff; margin-bottom:14px; font-family:'Inter', -apple-system, sans-serif !important;"></div>
+            <!-- Progress & Status Box -->
+            <div id="custom-bulk-status-box" style="font-size:12px; font-weight:800; text-align:center; min-height:18px;"></div>
 
-            <div style="display:flex; justify-content:flex-end; margin-bottom:14px;">
-              <button type="button" onclick="downloadCustomBulkTemplateExcel()" style="padding:7px 14px; background:#0284c7; color:white; border:none; border-radius:6px; font-weight:700; font-size:11.5px; cursor:pointer; display:flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-download"></i> Download Update Template (.xlsx)
-              </button>
-            </div>
-
-            <div style="border-top:1px dashed #cbd5e1; padding-top:10px;">
-              <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:6px;">Step 2: Upload Modified Template File (.xlsx / .csv):</label>
-              <input type="file" id="customBulkFileInput" accept=".xlsx, .xls, .csv" style="width:100%; border:1.5px dashed #6366f1; border-radius:8px; padding:10px; font-size:11.5px; background:#f8fafc; cursor:pointer;">
-            </div>
-
-            <div id="custom-bulk-status-box" style="margin-top:10px; font-size:12px; font-weight:700; text-align:center; min-height:18px;"></div>
-
-            <div id="bulk-audit-preview-box" style="display:none; margin-top:10px; background:#0f172a; color:#38bdf8; padding:8px 12px; border-radius:6px; font-family:monospace; font-size:11px; max-height:90px; overflow-y:auto;">
-              <div style="color:#a5b4fc; font-weight:bold; margin-bottom:3px;">Live Audit Log Preview:</div>
+            <div id="bulk-audit-preview-box" style="display:none; background:#0f172a; color:#38bdf8; padding:10px 14px; border-radius:8px; font-family:monospace; font-size:11px; max-height:100px; overflow-y:auto;">
+              <div style="color:#a5b4fc; font-weight:bold; margin-bottom:4px;">Live Audit Log Preview:</div>
               <div id="bulk-audit-log-items"></div>
             </div>
           </div>
 
-          <div style="padding:10px 18px; background:#f1f5f9; border-top:1px solid #cbd5e1; display:flex; justify-content:space-between; align-items:center;">
-            <button type="button" onclick="closeCustomBulkModal()" style="padding:8px 14px; border:1px solid #cbd5e1; background:white; color:#475569; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11.5px;">Cancel</button>
-            <button type="button" id="btn-run-custom-bulk" onclick="executeCustomBulkUpdate()" style="padding:8px 18px; background:linear-gradient(135deg, #10b981, #047857); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:800; font-size:12px; display:flex; align-items:center; gap:6px;">
+          <!-- Footer Action Buttons -->
+          <div style="padding:12px 24px; background:#f1f5f9; border-top:1px solid #cbd5e1; display:flex; justify-content:space-between; align-items:center;">
+            <button type="button" onclick="closeCustomBulkModal()" style="padding:8px 18px; border:1px solid #cbd5e1; background:white; color:#475569; border-radius:7px; cursor:pointer; font-weight:800; font-size:12px;">Cancel</button>
+            <button type="button" id="btn-run-custom-bulk" onclick="executeCustomBulkUpdate()" style="padding:9px 24px; background:linear-gradient(135deg, #10b981, #047857); color:white; border:none; border-radius:7px; cursor:pointer; font-weight:800; font-size:12.5px; display:flex; align-items:center; gap:8px; box-shadow:0 3px 10px rgba(16,185,129,0.3);">
               <i class="fa-solid fa-cloud-arrow-up"></i> Apply Changes & Update Sheet
             </button>
           </div>
@@ -3008,31 +3048,67 @@ table.data-grid {
           </div>
         </div>
       </div>
-      <div id="pendency-finder-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:99999; justify-content:center; align-items:center; font-family:'Rajdhani', sans-serif;">
-        <div style="background:white; width:90%; max-width:500px; border-radius:12px; overflow:hidden; box-shadow:0 12px 35px rgba(0,0,0,0.35); text-align:center;">
-          <div style="background:linear-gradient(135deg, #1e88e5 0%, #0284c7 100%); color:white; padding:12px 20px; display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="margin:0; font-size:15px; font-weight:700;"><i class="fa-solid fa-folder-open"></i> Pendency For Remark (Auto Multi-File Match)</h3>
-            <span onclick="closePendencyFinderModal()" style="font-size:22px; cursor:pointer; font-weight:bold;">&times;</span>
+
+      <!-- 🟢 REDESIGNED PENDENCY FOR REMARK MODAL -->
+      <div id="pendency-finder-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.72); z-index:999999; justify-content:center; align-items:center; backdrop-filter:blur(5px); font-family:'Plus Jakarta Sans', sans-serif;">
+        <div style="background:#ffffff; width:92%; max-width:580px; border-radius:16px; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.45); border:1px solid #e2e8f0; display:flex; flex-direction:column;">
+          
+          <!-- Header -->
+          <div style="background:linear-gradient(135deg, #0b3c5d 0%, #1a73e8 100%); color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:18px;">
+                <i class="fa-solid fa-file-circle-check" style="color:#67e8f9;"></i>
+              </div>
+              <div>
+                <h3 style="margin:0; font-size:15px; font-weight:800; letter-spacing:0.3px;">Pendency For Remark</h3>
+                <p style="margin:2px 0 0 0; font-size:10.5px; opacity:0.85; font-weight:600;">Auto-Detect Scope (Main/Pole), Load & Dynamic File Naming</p>
+              </div>
+            </div>
+            <span onclick="closePendencyFinderModal()" style="font-size:24px; cursor:pointer; font-weight:bold; line-height:1; opacity:0.8;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">&times;</span>
           </div>
-          <div style="padding:20px;">
-            <p style="font-size:12px; color:#475569; margin-top:0; line-height:1.5;">
-              Seniors dwara bheji gayi <b>ek ya ek se zyada (Multiple)</b> Excel/CSV files direct select karein.<br>
-              <span style="color:#0284c7; font-weight:bold;">✨ File ke naam se Pendency aur Account ID auto-detect hogi:</span>
+
+          <!-- Body -->
+          <div style="padding:18px 20px; overflow-y:auto; max-height:75vh;">
+            <p style="font-size:11.5px; color:#475569; margin:0 0 12px 0; line-height:1.5; font-weight:600;">
+              Excel/CSV files upload karein. File name me agar <b>Main / Pole</b> aur <b>10 KW / 5-9 KW</b> hoga, toh columns aur file name usi ke anusaar auto-generate honge.
             </p>
-            
-            <input type="file" id="pendencyFileInput" accept=".csv, .xlsx, .xls" multiple style="margin:12px 0; border:1.5px dashed #0284c7; padding:12px; width:90%; border-radius:8px; background:#f0f9ff; font-size:12px; cursor:pointer;">
-            
-            <button onclick="processPendencyExcelUpload()" style="width:100%; margin-bottom:8px; padding:12px; background:linear-gradient(135deg, #10b981, #047857); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:800; font-size:13px; box-shadow:0 2px 6px rgba(16,185,129,0.25);">
+
+            <!-- Drag & Drop Upload Box -->
+            <div style="border:2px dashed #3b82f6; background:#f8fafc; border-radius:12px; padding:18px; text-align:center; cursor:pointer; transition:0.2s;" onclick="document.getElementById('pendencyFileInput').click()" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8fafc'">
+              <i class="fa-solid fa-cloud-arrow-up" style="font-size:30px; color:#2563eb; margin-bottom:6px;"></i>
+              <div style="font-size:12.5px; font-weight:800; color:#1e293b;">Click to Select Multiple Files</div>
+              <div style="font-size:10.5px; color:#64748b; margin-top:2px; font-weight:600;">Supported: .xlsx, .xls, .csv</div>
+              <input type="file" id="pendencyFileInput" accept=".csv, .xlsx, .xls" multiple style="display:none;" onchange="handlePendencyFileSelectionPreview(this)">
+            </div>
+
+            <!-- Action Button -->
+            <button id="btn-process-pendency" onclick="processPendencyExcelUpload()" style="width:100%; margin-top:12px; padding:11px; background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:800; font-size:12.5px; box-shadow:0 4px 12px rgba(16,185,129,0.3); display:flex; align-items:center; justify-content:center; gap:8px;">
               <i class="fa-solid fa-bolt"></i> Auto Process & Generate Categorized Excel
             </button>
 
-            <!-- 🟢 Download Template Button -->
-            <button type="button" onclick="downloadPendencyTemplateExcel()" style="width:100%; margin-bottom:8px; padding:9px; background:#0284c7; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:12px; display:flex; align-items:center; justify-content:center; gap:6px;">
-              <i class="fa-solid fa-download"></i> Download Template (.xlsx)
-            </button>
-            
-            <div id="pendency-status-msg" style="margin-top:12px; font-size:12.5px; font-weight:bold; min-height:20px;"></div>
+            <!-- Status Progress Message -->
+            <div id="pendency-status-msg" style="margin-top:10px; font-size:11.5px; font-weight:700; text-align:center; min-height:16px;"></div>
+
+            <!-- 🟢 Sheet-Wise Record Count Container -->
+            <div id="pendency-sheet-summary-box" style="display:none; margin-top:12px; border-top:1px dashed #cbd5e1; padding-top:10px;">
+              <div style="font-size:11px; font-weight:800; color:#1e293b; text-transform:uppercase; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                <span><i class="fa-solid fa-list-check text-primary me-1"></i> Sheet-Wise Found Records:</span>
+                <span id="pendency-total-badge" style="background:#dbeafe; color:#1d4ed8; padding:2px 8px; border-radius:10px; font-size:10.5px; font-weight:800;">Total: 0</span>
+              </div>
+              <div id="pendency-sheet-summary-list" style="display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto;"></div>
+            </div>
           </div>
+
+          <!-- Footer -->
+          <div style="padding:10px 20px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+            <button type="button" onclick="downloadPendencyTemplateExcel()" style="background:#f1f5f9; border:1px solid #cbd5e1; color:#334155; font-size:11px; font-weight:700; padding:6px 12px; border-radius:6px; cursor:pointer;">
+              <i class="fa-solid fa-download me-1"></i> Sample Template
+            </button>
+            <button type="button" onclick="closePendencyFinderModal()" style="padding:6px 16px; background:#64748b; color:white; border:none; border-radius:6px; font-weight:700; font-size:11.5px; cursor:pointer;">
+              Close
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -3123,7 +3199,7 @@ table.data-grid {
 
     <script>
       // 🟢 Google Apps Script का डिप्लॉयड Web App URL यहाँ पेस्ट करें
-      var APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxDZsTLRFOUqkytyDFxzko-IEZauU3U0UwngNrPCN1Pn5XxJe7ZCc8ORbzQPoaFSdxaMQ/exec";
+      var APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx6zKIagPsMO5Ym084Y0SyhuJ5qgV6GWUDlpDamAAQ34Y0Ad_XeSScmmLpcDMoWoerdaA/exec";
 
       // 🟢 Missing Helper 1: Auto-Fit Columns Helper for all Excel Sheets
       function autoFitColumns(ws, dataArray) {
@@ -3516,11 +3592,16 @@ window._filterCacheKey = "";
 window._filterCacheResult = null;
 
 var selectedDivisions = [];
-var selectedSubDivisions = [];
-      var selectedConsumerTypes = []; // 🟢 New Consumer Type Filter Array
+      var selectedSubDivisions = [];
+      var selectedConsumerTypes = [];
       var selectedReaders = [];
-      var selectedTypes = [];         // LMV Wise Filter
+      var selectedTypes = [];
       var selectedGroups = [];
+      var selectedVisitDates = [];
+      var selectedExMain = [];
+      var selectedExPole = [];
+      var selectedRemMain = [];
+      var selectedRemPole = [];
       
       var selectedPivotRowKeys = ["SITE REMARK"]; 
       var activeSummaryColsMap = { "G1": true, "G2": true, "G3": true };
@@ -3602,6 +3683,24 @@ var selectedSubDivisions = [];
         setInterval(updateClock, 1000);
       }
 
+      // 🟢 Android Background Discard & State Preservation Handler
+      var isPageVisible = true;
+      document.addEventListener("visibilitychange", function() {
+        if (document.hidden) {
+          isPageVisible = false;
+          // State persist karein
+          try {
+            if (activeReportMeta && activeReportMeta.id) {
+              sessionStorage.setItem("RMS_LAST_ACTIVE_RPT_ID", activeReportMeta.id);
+            }
+          } catch(e) {}
+        } else {
+          isPageVisible = true;
+          // Tab me wapas aane par screen auto-refresh / reload na ho, sirf state restore ho
+          console.log("Tab returned to focus. Preventing unnecessary hard reload.");
+        }
+      });
+
       window.onload = function() {
         startLiveHeaderClock();
         if (typeof updateLiveGreetingWidget === "function") updateLiveGreetingWidget();
@@ -3661,7 +3760,12 @@ var selectedSubDivisions = [];
                 buildMultiSelectPanels(localPacket.filters);
                 buildPivotRowLabelsMultiPanel();
                 renderSidebarMenus();
-                returnToHubHome(); // 🟢 Khulte hi direct screen ke beech me rounded cards aayenge
+
+                // 🟢 Refresh hone par hamesha Main Dashboard Hub Home hi khulega
+                try { sessionStorage.removeItem("RMS_LAST_ACTIVE_RPT_ID"); } catch(e) {}
+                var initTopCtrl = document.getElementById('main-top-control-wrapper');
+                if (initTopCtrl) initTopCtrl.style.setProperty('display', 'none', 'important');
+                returnToHubHome();
                 
                 var timeBox = document.getElementById('update-timestamp-box');
                 var srcBadge = document.getElementById('data-source-badge');
@@ -3955,13 +4059,16 @@ var selectedSubDivisions = [];
                 var blob = "";
 
                 for (var c = 0; c < hLen; c++) {
-                  var k = hdrs[c];
-                  var val = rowArr[c] !== undefined && rowArr[c] !== null ? rowArr[c] : "";
-                  rObj[k] = val;
-                  var valStr = String(val).toUpperCase().trim();
-                  uMap[k.toUpperCase().trim()] = val;
-                  blob += valStr + " ";
-                }
+                var k = hdrs[c];
+                var val = rowArr[c] !== undefined && rowArr[c] !== null ? rowArr[c] : "";
+                if (typeof val === "boolean") val = val ? "True" : "False";
+                rObj[k] = val;
+                var valStr = String(val).toUpperCase().trim();
+                var cleanK = k.toUpperCase().trim();
+                uMap[cleanK] = val;
+                uMap[cleanK.replace(/[^A-Z0-9]/g, "")] = val;
+                blob += valStr + " ";
+              }
                 rObj._uMap = uMap;
                 rObj._searchBlob = blob;
                 cachedDatabase[r] = rObj;
@@ -4002,8 +4109,12 @@ var selectedSubDivisions = [];
               homeBadge.style.color = "#15803d";
             }
 
-            // 🟢 पुराना समरी कैश खाली करके ऑटोमैटिक सभी समरी को नए डेटा से अपडेट करें
+            // 🟢 Flush All Caches on Refresh
             reportSummaryCache = {};
+            window._filterCacheKey = "";
+            window._filterCacheResult = null;
+            window.rawMasterReportBaseRows = null;
+            clientRenderedRows = [];
 
             if (showLog) pushSyncLog('Rebuilding summary caches...', 'info', 3);
 
@@ -4105,13 +4216,13 @@ var selectedSubDivisions = [];
           id: "rpt_mri_not_upload",
           name: "Main & Pole MRI Done But File Not Upload",
           conditions: "",
-          columns: "DIVISION, VISIT LAST MONTH, ACCOUNT NO, CONSUMER-NAME, LAST MONTH FINAL MM NO., EXCEPTION TYPE (MAIN METER), IS MRI AVAILABLE (MAIN METER), LAST MONTH FINAL PM NO., EXCEPTION TYPE (POLE METER), IS MRI AVAILABLE (POLE METER)"
+          columns: "METER SCOPE, DIVISION, VISIT LAST MONTH, ACCOUNT NO, CONSUMER-NAME, LAST MONTH FINAL MM NO., EXCEPTION TYPE (MAIN METER), IS MRI AVAILABLE (MAIN METER), LAST MONTH FINAL PM NO., EXCEPTION TYPE (POLE METER), IS MRI AVAILABLE (POLE METER)"
         },
         {
-          id: "rpt_survey_not_found",
-          name: "MRI Upload But Load Survey Not Found",
+          id: "rpt_load_survey_missing",
+          name: "Load Survey Missing (Main/Pole)",
           conditions: "",
-          columns: "DIVISION, VISIT LAST MONTH, ACCOUNT NO, CONSUMER-NAME, LAST MONTH FINAL MM NO., IS MRI AVAILABLE (MAIN METER), IS LOAD SURVAY AVAILBLE (MAIN MTR), LAST MONTH FINAL PM NO., IS MRI AVAILABLE (POLE METER), IS LOAD SURVAY AVAILBLE (Pole Mtr)"
+          columns: "METER SCOPE, DIVISION, VISIT LAST MONTH, ACCOUNT NO, CONSUMER-NAME, LAST MONTH FINAL MM NO., IS MRI AVAILABLE (MAIN METER), IS LOAD SURVAY AVAILBLE (MAIN MTR), LAST MONTH FINAL PM NO., IS MRI AVAILABLE (POLE METER), IS LOAD SURVAY AVAILBLE (Pole Mtr)"
         },
         
         {
@@ -4333,8 +4444,13 @@ var selectedSubDivisions = [];
 
       
 
-      function selectReport(rpt, element, borderCol) {
+      function selectReport(rpt, element, borderCol, isBackNavigation) {
         if (!rpt) return;
+
+        // 🟢 Mobile back button ke liye history record push karein
+        if (!isBackNavigation) {
+          history.pushState({ view: 'report', rptId: rpt.id, cat: currentActiveHubCategory }, '');
+        }
 
         // Agar direct main card (jaise Master Data) se aaye hain toh sub-category clear karein
         if (rpt.id === 'rpt_all_consumers') {
@@ -4378,8 +4494,26 @@ var selectedSubDivisions = [];
           titleHeader.style.color = borderCol || "#1a73e8";
         }
 
+        var counterBadge = document.getElementById('report-live-counter');
+        if (counterBadge) {
+          counterBadge.style.display = "inline-flex";
+          counterBadge.innerText = "Total: " + (clientRenderedRows ? clientRenderedRows.length : 0);
+        }
+
+        // Active report save karein taaki Android par tab switch hone par khoya na jaye
+        try {
+          sessionStorage.setItem("RMS_LAST_ACTIVE_RPT_ID", rpt.id);
+          sessionStorage.setItem("RMS_LAST_ACTIVE_RPT_NAME", rpt.name || "");
+        } catch(e) {}
+
         activeReportMeta = rpt;
-        currentPageNumber = 1; // Always reset to page 1 for zero lag
+        currentPageNumber = 1;
+
+        // 🟢 Invalidate all caches for fresh calculation
+        window._filterCacheKey = "";
+        window._filterCacheResult = null;
+        window.rawMasterReportBaseRows = null;
+        clientRenderedRows = [];
 
         var storageKey = "RMS_PivotRows_" + rpt.id;
         var savedRows = localStorage.getItem(storageKey);
@@ -4419,31 +4553,11 @@ var selectedSubDivisions = [];
 
       function processClientFilterQuery() {
         if (!activeReportMeta) return;
-        
-        // 🚀 Filter Cache: Skip heavy scan if filters haven't changed
-        try {
-          var _cacheKey = JSON.stringify({
-            rpt: activeReportMeta.id,
-            s: (document.getElementById('live-search-input') || {}).value || "",
-            d: selectedDivisions,
-            sd: selectedSubDivisions,
-            ct: selectedConsumerTypes,
-            r: selectedReaders,
-            t: selectedTypes,
-            g: selectedGroups
-          });
-          if (_cacheKey === window._filterCacheKey && window._filterCacheResult && window._filterCacheResult.length > 0) {
-            clientRenderedRows = window._filterCacheResult.slice();
-            document.getElementById('table-loader').style.display = 'none';
-            document.getElementById('table-zone').style.display = 'flex';
-            var _cb = document.getElementById('report-live-counter');
-            if (_cb) _cb.innerText = "Total: " + clientRenderedRows.length;
-            var _headers = activeTableHeadersList && activeTableHeadersList.length > 0 ? activeTableHeadersList : (originalSheetHeadersList || []);
-            if (_headers.length > 0) renderClientTable(_headers);
-            return;
-          }
-          window._filterCacheKey = _cacheKey;
-        } catch(e) {}
+
+        // 🟢 Reset Cache: Purana cache flush karein taaki fresh calculation ho
+        window._filterCacheKey = "";
+        window._filterCacheResult = null;
+        window.rawMasterReportBaseRows = null;
 
         document.getElementById('table-loader').style.display = 'block';
         document.getElementById('table-zone').style.display = 'none';
@@ -4476,7 +4590,6 @@ var selectedSubDivisions = [];
             
             var upperP = p.toUpperCase();
 
-            // 🟢 Handle IN clause e.g. LOAD TYPE (H-L-T) IN (H, L)
             var inMatch = upperP.match(/\s+IN\s*\(([^)]+)\)/i);
             if (inMatch) {
               var inIdx = upperP.indexOf(inMatch[0]);
@@ -4506,7 +4619,7 @@ var selectedSubDivisions = [];
           });
         }
 
-        // 🟢 Sheet के ओरिजिनल क्रम में कॉलम लोड होंगे (Internal `_sheetRow` को पूरी तरह हटाकर)
+        // 🟢 Column config calculation
         var configCols = [];
         if (!activeReportMeta.columns || activeReportMeta.columns.trim() === "" || activeReportMeta.columns.trim().toUpperCase() === "ALL") {
           if (originalSheetHeadersList && originalSheetHeadersList.length > 0) {
@@ -4527,8 +4640,11 @@ var selectedSubDivisions = [];
           });
         }
 
-        // 🟢 FAST PATH FOR MASTER DATA: शीट के क्रम में तुरंत खुलेगा
-        if (activeReportMeta.id === 'rpt_all_consumers' && parsedConditions.length === 0 && selectedDivisions.length === 0 && selectedSubDivisions.length === 0 && selectedConsumerTypes.length === 0 && selectedReaders.length === 0 && selectedTypes.length === 0 && selectedGroups.length === 0 && (!searchInputEl || searchInputEl.value.trim() === "")) {
+        var searchInputEl = document.getElementById('live-search-input');
+        var searchQuery = searchInputEl ? searchInputEl.value.trim().toUpperCase() : "";
+
+        // 🟢 FAST PATH FOR MASTER DATA
+        if (activeReportMeta.id === 'rpt_all_consumers' && parsedConditions.length === 0 && selectedDivisions.length === 0 && selectedSubDivisions.length === 0 && selectedConsumerTypes.length === 0 && selectedReaders.length === 0 && selectedTypes.length === 0 && selectedGroups.length === 0 && searchQuery === "") {
           clientRenderedRows = cachedDatabase.slice();
           if (document.getElementById('table-loader')) document.getElementById('table-loader').style.display = 'none';
           window.rawMasterReportBaseRows = clientRenderedRows.slice();
@@ -4536,6 +4652,111 @@ var selectedSubDivisions = [];
           if (counterBadge) counterBadge.innerText = "Total: " + clientRenderedRows.length;
           document.getElementById('table-zone').style.display = 'flex';
           renderClientTable(configCols);
+          return;
+        }
+
+        // 🟢 REPORT: Load Survey Missing (Main/Pole)
+        if (activeReportMeta && (activeReportMeta.id === "rpt_load_survey_missing" || activeReportMeta.name.toLowerCase().includes("load survey missing"))) {
+          function isMriAvailableTrue(val) {
+            if (val === true || val === 1) return true;
+            if (!val) return false;
+            var s = String(val).trim().toUpperCase();
+            return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
+          }
+
+          function isSurveyAvailableFalseOrBlank(val) {
+            if (val === false || val === 0) return true;
+            if (!val) return true;
+            var s = String(val).trim().toUpperCase();
+            return s === "FALSE" || s === "NO" || s === "0" || s === "N" || s === "" || s === "-" || s === "BLANK" || s === "NAN" || s === "NULL";
+          }
+
+          function getColByFuzzy(uMap, searchStr) {
+            var target = searchStr.replace(/[^A-Z0-9]/gi, "").toUpperCase();
+            for (var key in uMap) {
+              if (key.replace(/[^A-Z0-9]/gi, "").toUpperCase() === target) {
+                return uMap[key];
+              }
+            }
+            return "";
+          }
+
+          var surveyMissingRows = [];
+          var dbLen = cachedDatabase.length;
+
+          for (var rIdx = 0; rIdx < dbLen; rIdx++) {
+            var rawRow = cachedDatabase[rIdx];
+            if (!rawRow) continue;
+            var u = rawRow._uMap || rawRow || {};
+
+            if (searchQuery !== "" && rawRow._searchBlob && !rawRow._searchBlob.includes(searchQuery)) continue;
+
+            var dVal = String(u["DIVISION"] || "").toUpperCase().trim();
+            var sdVal = String(u["SUB DIVISION NAME"] || u["SUB DIVISION"] || u["SUBDIVISION"] || "").toUpperCase().trim();
+            var ctVal = String(u["CONSUMER TYPE"] || "").toUpperCase().trim();
+            var mrVal = String(u["VISIT LAST MONTH"] || u["MR NAME"] || "").toUpperCase().trim();
+            var catVal = String(u["CONSUMER CATOGARY"] || u["CONSUMER CATEGORY"] || u["TARIFF"] || "").toUpperCase().trim();
+            var grpVal = String(u["LOAD GROUP (5-10-50)"] || u["LOAD GROUP"] || "").toUpperCase().replace(/\s+/g, '');
+
+            if (selectedDivisions.length > 0 && !selectedDivisions.includes(dVal)) continue;
+            if (selectedSubDivisions.length > 0 && !selectedSubDivisions.includes(sdVal)) continue;
+            if (selectedConsumerTypes.length > 0 && !selectedConsumerTypes.includes(ctVal)) continue;
+            if (selectedTypes.length > 0 && !selectedTypes.includes(catVal)) continue;
+            if (selectedReaders.length > 0 && !selectedReaders.includes(mrVal)) continue;
+            if (selectedGroups.length > 0 && !selectedGroups.some(function(g){ return grpVal.includes(g.replace(/\s+/g, '').toUpperCase()); })) continue;
+
+            // Values Fetching with both SURVAY and SURVEY spelling support
+            var mMri = getColByFuzzy(u, "IS MRI AVAILABLE (MAIN METER)");
+            var mSurv = getColByFuzzy(u, "IS LOAD SURVAY AVAILBLE (MAIN MTR)") || getColByFuzzy(u, "IS LOAD SURVEY AVAILABLE (MAIN METER)");
+
+            var pMri = getColByFuzzy(u, "IS MRI AVAILABLE (POLE METER)");
+            var pSurv = getColByFuzzy(u, "IS LOAD SURVAY AVAILBLE (POLE MTR)") || getColByFuzzy(u, "IS LOAD SURVEY AVAILABLE (POLE METER)");
+
+            var loadKw = parseFloat(String(u["LOAD IN KW"] || u["LOAD_KW"] || "0").replace(/[^0-9.-]/g, "")) || 0;
+
+            var poleMtrVal = String(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."] || "").trim().toUpperCase();
+            var hasPoleMeter = poleMtrVal !== "" && poleMtrVal !== "-" && poleMtrVal !== "NAN" && !poleMtrVal.includes("NO");
+
+            // 1. Main Meter: MRI=True AND Survey=(False/No/Blank)
+            var isMainMissing = isMriAvailableTrue(mMri) && isSurveyAvailableFalseOrBlank(mSurv);
+
+            // 2. Pole Meter: Load >= 10, Valid Meter, MRI=True AND Survey=(False/No/Blank)
+            var isPoleMissing = (loadKw >= 10) && hasPoleMeter && isMriAvailableTrue(pMri) && isSurveyAvailableFalseOrBlank(pSurv);
+
+            if (isMainMissing) {
+              var mRow = Object.assign({}, rawRow);
+              mRow["METER SCOPE"] = "MAIN";
+              mRow._uMap = Object.assign({}, u, { "METER SCOPE": "MAIN" });
+              surveyMissingRows.push(mRow);
+            }
+
+            if (isPoleMissing) {
+              var pRow = Object.assign({}, rawRow);
+              pRow["METER SCOPE"] = "POLE";
+              pRow._uMap = Object.assign({}, u, { "METER SCOPE": "POLE" });
+              surveyMissingRows.push(pRow);
+            }
+          }
+
+          clientRenderedRows = surveyMissingRows;
+          window.rawMasterReportBaseRows = clientRenderedRows.slice();
+
+          if (document.getElementById('table-loader')) document.getElementById('table-loader').style.display = 'none';
+          var counterBadge = document.getElementById('report-live-counter');
+          if (counterBadge) {
+            counterBadge.innerText = "Total: " + clientRenderedRows.length;
+            counterBadge.style.background = "#1a73e8";
+          }
+
+          var survCols = [
+            "METER SCOPE", "DIVISION", "VISIT LAST MONTH", "ACCOUNT NO", "CONSUMER-NAME", 
+            "LAST MONTH FINAL MM NO.", "IS MRI AVAILABLE (MAIN METER)", "IS LOAD SURVAY AVAILBLE (MAIN Mtr)", 
+            "LAST MONTH FINAL PM NO.", "IS MRI AVAILABLE (POLE METER)", "IS LOAD SURVAY AVAILBLE (Pole Mtr)"
+          ];
+
+          buildUniversalSubSheetTabs();
+          document.getElementById('table-zone').style.display = 'flex';
+          renderClientTable(survCols);
           return;
         }
 
@@ -4549,9 +4770,6 @@ var selectedSubDivisions = [];
         }
         clientRenderedRows = [];
 
-        var searchInputEl = document.getElementById('live-search-input');
-        var searchQuery = searchInputEl ? searchInputEl.value.trim().toUpperCase() : "";
-
         // 🟢 पहली रिपोर्ट: Main and Pole Exception (For Revisit) का कस्टम 2-पास जनरेटर
         if (activeReportMeta && activeReportMeta.id === "rpt_main_pole_revisit") {
           var monthsShort = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
@@ -4561,7 +4779,6 @@ var selectedSubDivisions = [];
           var fromYear = todayDt.getFullYear();
           var fromDateStr = fromDay + "-" + fromMonth + "-" + fromYear;
 
-          // उसी माह की अंतिम तारीख (Month End)
           var lastDateObj = new Date(todayDt.getFullYear(), todayDt.getMonth() + 1, 0);
           var toDay = String(lastDateObj.getDate()).padStart(2, '0');
           var toMonth = monthsShort[lastDateObj.getMonth()];
@@ -5103,42 +5320,42 @@ var selectedSubDivisions = [];
             row["MISSING TYPE"] = (isMainMissing && isPoleMissing) ? "Both Main & Pole Missing" : (isMainMissing ? "Main Meter Read Missing" : "Pole Meter Read Missing");
           }
 
-          // 🟢 MRI Done But Not Upload रिपोर्ट के लिए स्पेशल फ़िल्टर (Fixed Conflict)
-          var isMriNotUploadRpt = activeReportMeta && (activeReportMeta.id === "rpt_mri_not_upload" || (activeReportMeta.name.toLowerCase().includes("not upload") && !activeReportMeta.name.toLowerCase().includes("read missing")));
-          if (isMriNotUploadRpt) {
-            function checkMriTrue(v) {
-              var s = String(v || "").trim().toUpperCase();
-              return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
-            }
-            var mEx = String(upperRowMap["EXCEPTION TYPE (MAIN METER)"] || "").trim().toUpperCase();
-            var mMri = upperRowMap["IS MRI AVAILABLE (MAIN METER)"];
-            var pEx = String(upperRowMap["EXCEPTION TYPE (POLE METER)"] || "").trim().toUpperCase();
-            var pMri = upperRowMap["IS MRI AVAILABLE (POLE METER)"];
-
-            var isMainMriNotUp = (mEx === "MRI" && !checkMriTrue(mMri));
-            var isPoleMriNotUp = (pEx === "MRI" && !checkMriTrue(pMri));
-
-            if (!isMainMriNotUp && !isPoleMriNotUp) continue;
+          // 🟢 MRI Done But Not Upload रिपोर्ट: Main & Pole Separate Rows with METER SCOPE
+        var isMriNotUploadRpt = activeReportMeta && (activeReportMeta.id === "rpt_mri_not_upload" || (activeReportMeta.name.toLowerCase().includes("not upload") && !activeReportMeta.name.toLowerCase().includes("read missing")));
+        if (isMriNotUploadRpt) {
+          function checkMriTrue(v) {
+            var s = String(v || "").trim().toUpperCase();
+            if (s.includes("TRUE")) return true;
+            return s === "YES" || s === "1" || s === "Y";
           }
+          var mEx = String(upperRowMap["EXCEPTION TYPE (MAIN METER)"] || "").trim().toUpperCase();
+          var mMri = upperRowMap["IS MRI AVAILABLE (MAIN METER)"];
+          var pEx = String(upperRowMap["EXCEPTION TYPE (POLE METER)"] || "").trim().toUpperCase();
+          var pMri = upperRowMap["IS MRI AVAILABLE (POLE METER)"];
 
-          // 🟢 MRI Upload But Load Survey Not Found रिपोर्ट के लिए स्पेशल फ़िल्टर
-          var isSurveyNotFoundRpt = activeReportMeta && (activeReportMeta.id === "rpt_survey_not_found" || activeReportMeta.name.toLowerCase().includes("load survey not found") || activeReportMeta.name.toLowerCase().includes("load survay not found"));
-          if (isSurveyNotFoundRpt) {
-            function checkTrue(v) {
-              var s = String(v || "").trim().toUpperCase();
-              return s === "TRUE" || s === "YES" || s === "1" || s === "Y";
-            }
-            var mMriAvail = upperRowMap["IS MRI AVAILABLE (MAIN METER)"];
-            var mSurvey = upperRowMap["IS LOAD SURVAY AVAILBLE (MAIN MTR)"] || upperRowMap["IS LOAD SURVEY AVAILABLE (MAIN METER)"];
+          var isMainMriNotUp = (mEx === "MRI" && !checkMriTrue(mMri));
+          var isPoleMriNotUp = (pEx === "MRI" && !checkMriTrue(pMri));
 
-            var pMriAvail = upperRowMap["IS MRI AVAILABLE (POLE METER)"];
-            var pSurvey = upperRowMap["IS LOAD SURVAY AVAILBLE (POLE MTR)"] || upperRowMap["IS LOAD SURVEY AVAILABLE (POLE METER)"];
+          if (!isMainMriNotUp && !isPoleMriNotUp) continue;
 
-            var isMainSurveyMissing = checkTrue(mMriAvail) && !checkTrue(mSurvey);
-            var isPoleSurveyMissing = checkTrue(pMriAvail) && !checkTrue(pSurvey);
-
-            if (!isMainSurveyMissing && !isPoleSurveyMissing) continue;
+          if (isMainMriNotUp) {
+            var mRow = Object.assign({}, row);
+            mRow["METER SCOPE"] = "MAIN";
+            mRow["IS MRI AVAILABLE (MAIN METER)"] = "False";
+            mRow["IS MRI AVAILABLE (POLE METER)"] = checkMriTrue(pMri) ? "True" : "False";
+            mRow._uMap = Object.assign({}, upperRowMap, { "METER SCOPE": "MAIN", "IS MRI AVAILABLE (MAIN METER)": "False" });
+            clientRenderedRows.push(mRow);
           }
+          if (isPoleMriNotUp) {
+            var pRow = Object.assign({}, row);
+            pRow["METER SCOPE"] = "POLE";
+            pRow["IS MRI AVAILABLE (POLE METER)"] = "False";
+            pRow["IS MRI AVAILABLE (MAIN METER)"] = checkMriTrue(mMri) ? "True" : "False";
+            pRow._uMap = Object.assign({}, upperRowMap, { "METER SCOPE": "POLE", "IS MRI AVAILABLE (POLE METER)": "False" });
+            clientRenderedRows.push(pRow);
+          }
+          continue;
+        }
 
           // 🟢 REPORT 1: MRI Availble But Reamrk Other Than MRI (Main & Pole Meter)
           if (activeReportMeta && activeReportMeta.id === "rpt_mri_avail_remark_other") {
@@ -5646,10 +5863,15 @@ var selectedSubDivisions = [];
           var subDivVal = String(upperRowMap["SUB DIVISION NAME"] || upperRowMap["SUB DIVISION"] || upperRowMap["SUBDIVISION"] || "").toUpperCase().trim();
           var cTypeVal = String(upperRowMap["CONSUMER TYPE"] || upperRowMap["CONSUMER_TYPE"] || "").toUpperCase().trim();
           var mrVal = String(upperRowMap["VISIT LAST MONTH"] || "").toUpperCase().trim();
-          // 🟢 LMV Category Mapping (CONSUMER CATOGARY / TARIFF)
           var catVal = String(upperRowMap["CONSUMER CATOGARY"] || upperRowMap["CONSUMER CATEGORY"] || upperRowMap["TARIFF"] || "").toUpperCase().trim();
           var grpValRaw = upperRowMap["LOAD GROUP (5-10-50)"] || upperRowMap["LOAD GROUP"] || "";
           var grpVal = String(grpValRaw).toUpperCase().replace(/\s+/g, '');
+
+          var vDateVal = String(upperRowMap["FINAL VISIT DATE"] || upperRowMap["VISIT DATE"] || "").toUpperCase().trim();
+          var exMainVal = String(upperRowMap["EXCEPTION TYPE (MAIN METER)"] || upperRowMap["EXCEPTION TYPE"] || "").toUpperCase().trim();
+          var exPoleVal = String(upperRowMap["EXCEPTION TYPE (POLE METER)"] || "").toUpperCase().trim();
+          var remMainVal = String(upperRowMap["FINAL_MAIN_METER_SITE_REMARK"] || upperRowMap["SITE REMARK"] || "").toUpperCase().trim();
+          var remPoleVal = String(upperRowMap["FINAL_POLE_METER_SITE_REMARK"] || upperRowMap["SITE REMARK (POLE)"] || "").toUpperCase().trim();
 
           if (selectedDivisions.length > 0 && !selectedDivisions.includes(divVal)) continue;
           if (selectedSubDivisions.length > 0 && !selectedSubDivisions.includes(subDivVal)) continue;
@@ -5668,6 +5890,12 @@ var selectedSubDivisions = [];
             }
             if (!matchFound) continue;
           }
+
+          if (selectedVisitDates.length > 0 && !selectedVisitDates.includes(vDateVal)) continue;
+          if (selectedExMain.length > 0 && !selectedExMain.includes(exMainVal)) continue;
+          if (selectedExPole.length > 0 && !selectedExPole.includes(exPoleVal)) continue;
+          if (selectedRemMain.length > 0 && !selectedRemMain.includes(remMainVal)) continue;
+          if (selectedRemPole.length > 0 && !selectedRemPole.includes(remPoleVal)) continue;
 
           clientRenderedRows.push(row);
         }
@@ -5706,119 +5934,7 @@ var selectedSubDivisions = [];
 
       function buildUniversalSubSheetTabs() {
         var tabsBar = document.getElementById('report-subsheet-tabs-bar');
-        var container = document.getElementById('dynamic-subsheet-buttons-cluster');
-        if (!tabsBar || !container) return;
-
-        if (!clientRenderedRows || clientRenderedRows.length === 0 || !activeReportMeta) {
-          tabsBar.style.display = "none";
-          return;
-        }
-
-        window.allReportBaseCachedRows = (window.allReportBaseCachedRows && window.activeSubTabReportId === activeReportMeta.id) 
-          ? window.allReportBaseCachedRows 
-          : clientRenderedRows.slice();
-        window.activeSubTabReportId = activeReportMeta.id;
-
-        var categoryColKey = "";
-        var categoryCounts = {};
-
-        // 🟢 1. FIELD EXCEPTION & REJECTION REPORT (Exact 4 Excel Categories)
-        if (activeReportMeta.id === "rpt_field_exception_rejection") {
-          categoryColKey = "EXCEPTION CATEGORY";
-          var standardCategories = [
-            "Rejection After MRI",
-            "Main Meter Exception",
-            "Pole Meter Exception",
-            "Pole Meter Not Installed"
-          ];
-          standardCategories.forEach(function(c) { categoryCounts[c] = 0; });
-
-          window.allReportBaseCachedRows.forEach(function(row) {
-            var val = String(row["EXCEPTION CATEGORY"] || "").trim();
-            if (categoryCounts.hasOwnProperty(val)) {
-              categoryCounts[val]++;
-            }
-          });
-        }
-        // 🟢 2. UNBILLED MASTER REPORT (No Duplicate / Random Status Tabs - Standardized Alias Mapping)
-        else if (activeReportMeta.id === "rpt_master_unbilled") {
-          categoryColKey = "_STANDARD_UNBILLED_STATUS";
-          window.allReportBaseCachedRows.forEach(function(row) {
-            var u = row._uMap || row;
-            var val = "";
-            var possibleStatusKeys = [
-              "UNBILLED STATUS", "UNBILLED_STATUS", "DERIVED STATUS", "DERIVED_STATUS",
-              "STATUS", "FINAL_STATUS", "BREAKDOWN REMARK", "SITE REMARK", "FINAL BILLING TAG"
-            ];
-            for (var k = 0; k < possibleStatusKeys.length; k++) {
-              var sVal = String(u[possibleStatusKeys[k]] || "").trim();
-              if (sVal && sVal !== "-" && sVal.toUpperCase() !== "NAN" && sVal.toUpperCase() !== "NULL" && sVal.toUpperCase() !== "UNBILLED") {
-                val = sVal;
-                break;
-              }
-            }
-            if (!val) val = "Other Unbilled";
-            row["_STANDARD_UNBILLED_STATUS"] = val;
-            categoryCounts[val] = (categoryCounts[val] || 0) + 1;
-          });
-        }
-        // 🟢 3. OTHER DYNAMIC REPORTS
-        else {
-          var sampleRow = window.allReportBaseCachedRows[0] || {};
-          var possibleKeys = ["SHEET NAME", "CATEGORY", "PENDENCY", "SUB CATEGORY", "REPORT NAME", "DIVISION"];
-          for (var p = 0; p < possibleKeys.length; p++) {
-            var matchKey = Object.keys(sampleRow).find(function(k) {
-              return k.toUpperCase().replace(/[^A-Z0-9]/g, "") === possibleKeys[p].replace(/[^A-Z0-9]/g, "");
-            });
-            if (matchKey) { categoryColKey = matchKey; break; }
-          }
-
-          if (!categoryColKey) {
-            tabsBar.style.display = "none";
-            return;
-          }
-
-          window.allReportBaseCachedRows.forEach(function(row) {
-            var val = String(row[categoryColKey] || "").trim();
-            if (val && val !== "-" && val.toUpperCase() !== "NAN" && val.toUpperCase() !== "NULL") {
-              categoryCounts[val] = (categoryCounts[val] || 0) + 1;
-            }
-          });
-        }
-
-        var categoriesList = Object.keys(categoryCounts).filter(function(k){ return categoryCounts[k] > 0; });
-
-        if (categoriesList.length <= 1) {
-          tabsBar.style.display = "none";
-          return;
-        }
-
-        tabsBar.style.display = "flex";
-        container.innerHTML = "";
-
-        var tabColors = ["#1a73e8", "#0b5394", "#e69138", "#990000", "#3d85c6", "#6f42c1", "#10b981", "#0284c7"];
-
-        // All Sheets Tab
-        var allBtn = document.createElement("button");
-        allBtn.className = "div-tab-btn active-tab";
-        allBtn.innerHTML = `<i class="fa-solid fa-table-cells"></i> All Sheets (${window.allReportBaseCachedRows.length})`;
-        allBtn.onclick = function() {
-          switchUniversalSubTab("ALL", categoryColKey, this);
-        };
-        container.appendChild(allBtn);
-
-        // Individual Category Tabs
-        categoriesList.forEach(function(catName, idx) {
-          var btn = document.createElement("button");
-          btn.className = "div-tab-btn";
-          var color = tabColors[(idx + 1) % tabColors.length];
-          btn.style.borderLeft = "3px solid " + color;
-          btn.innerHTML = `${catName} <span style="background:rgba(0,0,0,0.08); padding:1px 6px; border-radius:10px; font-size:10px; margin-left:3px;">${categoryCounts[catName]}</span>`;
-          btn.onclick = function() {
-            switchUniversalSubTab(catName, categoryColKey, this);
-          };
-          container.appendChild(btn);
-        });
+        if (tabsBar) tabsBar.style.display = "none";
       }
 
       function switchUniversalSubTab(selectedVal, colKey, btnElem) {
@@ -5847,7 +5963,6 @@ var selectedSubDivisions = [];
       function buildMultiSelectPanels(filters) {
         filters = filters || {};
         
-        // 🟢 Sub Division लिस्ट
         var subDivList = filters.subDivisions;
         if (!subDivList || subDivList.length === 0) {
           var sSet = new Set();
@@ -5859,7 +5974,6 @@ var selectedSubDivisions = [];
           subDivList = Array.from(sSet).sort();
         }
 
-        // 🟢 New: CONSUMER TYPE कॉलम से यूनिक लिस्ट
         var ctypeList = [];
         var ctSet = new Set();
         (cachedDatabase || []).forEach(function(row) {
@@ -5870,7 +5984,6 @@ var selectedSubDivisions = [];
         ctypeList = Array.from(ctSet).sort();
         if (ctypeList.length === 0) ctypeList = ["NON-GOVT", "GOVT"];
 
-        // 🟢 LMV Wise (CONSUMER CATOGARY / TARIFF) लिस्ट
         var categoryList = [];
         var cSet = new Set();
         (cachedDatabase || []).forEach(function(row) {
@@ -5880,12 +5993,51 @@ var selectedSubDivisions = [];
         });
         categoryList = Array.from(cSet).sort();
 
+        // New Dropdowns Extraction
+        var vDateSet = new Set(), exMainSet = new Set(), exPoleSet = new Set(), remMainSet = new Set(), remPoleSet = new Set();
+        (cachedDatabase || []).forEach(function(row) {
+          var u = row._uMap || row;
+          var vd = String(u["FINAL VISIT DATE"] || u["VISIT DATE"] || "").trim();
+          if (vd && !["-", "NAN", "NULL"].includes(vd.toUpperCase())) vDateSet.add(vd);
+
+          var em = String(u["EXCEPTION TYPE (MAIN METER)"] || u["EXCEPTION TYPE"] || "").trim();
+          if (em && !["-", "NAN", "NULL"].includes(em.toUpperCase())) exMainSet.add(em);
+
+          var ep = String(u["EXCEPTION TYPE (POLE METER)"] || "").trim();
+          if (ep && !["-", "NAN", "NULL"].includes(ep.toUpperCase())) exPoleSet.add(ep);
+
+          var rm = String(u["FINAL_MAIN_METER_SITE_REMARK"] || u["SITE REMARK"] || "").trim();
+          if (rm && !["-", "NAN", "NULL"].includes(rm.toUpperCase())) remMainSet.add(rm);
+
+          var rp = String(u["FINAL_POLE_METER_SITE_REMARK"] || u["SITE REMARK (POLE)"] || "").trim();
+          if (rp && !["-", "NAN", "NULL"].includes(rp.toUpperCase())) remPoleSet.add(rp);
+        });
+
         setupSinglePanel("panel-div", filters.divisions, "div");
         setupSinglePanel("panel-subdiv", subDivList, "subdiv");
         setupSinglePanel("panel-ctype", ctypeList, "ctype");
         setupSinglePanel("panel-type", categoryList, "type");
         setupSinglePanel("panel-mr", filters.visitors, "mr");
         setupSinglePanel("panel-grp", filters.loadGroups, "grp");
+        // 🟢 Case-insensitive Deduplication to fix duplicate values like 'TDC'
+        function getDeduplicatedSortedList(setObj) {
+          var map = new Map();
+          setObj.forEach(function(val) {
+            var clean = String(val || "").trim();
+            if (!clean || ["-", "NAN", "NULL", "BLANK"].includes(clean.toUpperCase())) return;
+            var key = clean.toUpperCase();
+            if (!map.has(key)) map.set(key, clean);
+          });
+          return Array.from(map.values()).sort(function(a, b) {
+            return a.localeCompare(b, undefined, { sensitivity: 'base' });
+          });
+        }
+
+        setupSinglePanel("panel-vdate", getDeduplicatedSortedList(vDateSet), "vdate");
+        setupSinglePanel("panel-exmain", getDeduplicatedSortedList(exMainSet), "exmain");
+        setupSinglePanel("panel-expole", getDeduplicatedSortedList(exPoleSet), "expole");
+        setupSinglePanel("panel-remmain", getDeduplicatedSortedList(remMainSet), "remmain");
+        setupSinglePanel("panel-rempole", getDeduplicatedSortedList(remPoleSet), "rempole");
         updateAnchorLabels();
       }
 
@@ -6090,11 +6242,13 @@ var selectedSubDivisions = [];
 
       function captureFilterSelections(typeCode) {
         var targetArr = [];
-        var panelId = typeCode === "div" ? "panel-div" : 
-                      typeCode === "subdiv" ? "panel-subdiv" :
-                      typeCode === "ctype" ? "panel-ctype" :
-                      typeCode === "mr" ? "panel-mr" : 
-                      typeCode === "type" ? "panel-type" : "panel-grp";
+        var panelMap = {
+          "div": "panel-div", "subdiv": "panel-subdiv", "ctype": "panel-ctype",
+          "mr": "panel-mr", "type": "panel-type", "grp": "panel-grp",
+          "vdate": "panel-vdate", "exmain": "panel-exmain", "expole": "panel-expole",
+          "remmain": "panel-remmain", "rempole": "panel-rempole"
+        };
+        var panelId = panelMap[typeCode] || "panel-div";
         
         var inputs = document.querySelectorAll('#' + panelId + ' .multiselect-option:not(.select-all-opt) input');
         var totalOptions = inputs.length;
@@ -6115,21 +6269,19 @@ var selectedSubDivisions = [];
         if (typeCode === "div") {
           selectedDivisions = isAllSelected ? [] : targetArr;
           refreshSubDivisionDropdown();
-        } else if (typeCode === "subdiv") {
-          selectedSubDivisions = isAllSelected ? [] : targetArr;
-        } else if (typeCode === "ctype") {
-          selectedConsumerTypes = isAllSelected ? [] : targetArr;
-        } else if (typeCode === "type") {
-          selectedTypes = isAllSelected ? [] : targetArr;
-        } else if (typeCode === "mr") {
-          selectedReaders = isAllSelected ? [] : targetArr;
-        } else if (typeCode === "grp") {
-          selectedGroups = isAllSelected ? [] : targetArr.map(function(v){ return v.replace(/\s+/g, ''); });
-        }
+        } else if (typeCode === "subdiv") selectedSubDivisions = isAllSelected ? [] : targetArr;
+        else if (typeCode === "ctype") selectedConsumerTypes = isAllSelected ? [] : targetArr;
+        else if (typeCode === "type") selectedTypes = isAllSelected ? [] : targetArr;
+        else if (typeCode === "mr") selectedReaders = isAllSelected ? [] : targetArr;
+        else if (typeCode === "grp") selectedGroups = isAllSelected ? [] : targetArr.map(function(v){ return v.replace(/\s+/g, ''); });
+        else if (typeCode === "vdate") selectedVisitDates = isAllSelected ? [] : targetArr;
+        else if (typeCode === "exmain") selectedExMain = isAllSelected ? [] : targetArr;
+        else if (typeCode === "expole") selectedExPole = isAllSelected ? [] : targetArr;
+        else if (typeCode === "remmain") selectedRemMain = isAllSelected ? [] : targetArr;
+        else if (typeCode === "rempole") selectedRemPole = isAllSelected ? [] : targetArr;
 
         updateAnchorLabels();
 
-        // 🟢 150ms का Debounce: बार-बार क्लिक करने पर हैंग नहीं होगा, स्मूथ चलेगा
         clearTimeout(filterDebounceTimer);
         filterDebounceTimer = setTimeout(function() {
           if (typeof triggerPostFilterUpdates === "function") triggerPostFilterUpdates();
@@ -6144,6 +6296,11 @@ var selectedSubDivisions = [];
         setLabelText("lbl-type", "panel-type", "All LMV");
         setLabelText("lbl-mr", "panel-mr", "All Readers");
         setLabelText("lbl-grp", "panel-grp", "All Groups");
+        setLabelText("lbl-vdate", "panel-vdate", "All Dates");
+        setLabelText("lbl-exmain", "panel-exmain", "All Ex (Main)");
+        setLabelText("lbl-expole", "panel-expole", "All Ex (Pole)");
+        setLabelText("lbl-remmain", "panel-remmain", "All Site (Main)");
+        setLabelText("lbl-rempole", "panel-rempole", "All Site (Pole)");
       }
 
       function setLabelText(anchorId, panelId, defText) {
@@ -7898,13 +8055,33 @@ function toggleDarkModeTheme() {
               val = ("0000000000" + val).slice(-10);
             }
 
-            // 🟢 Clean String Parsing to prevent Raw Array/Object/String concatenation bug
-            var cleanRawVal = String(val || "").trim();
-            if (cleanRawVal.includes("'>") || cleanRawVal.includes("'> ") || cleanRawVal.startsWith("False'") || cleanRawVal.startsWith("True'")) {
-              cleanRawVal = cleanRawVal.toUpperCase().includes("TRUE") ? "True" : (cleanRawVal.toUpperCase().includes("FALSE") ? "False" : cleanRawVal.replace(/^[A-Za-z]+'[^>]*>\s*/, '').trim());
+            // 🟢 Clean and Pure Value Normalization
+            var cleanRawVal = String(val !== undefined && val !== null ? val : "").trim();
+
+            // Corrupted Leaks Elimination
+            var upperRaw = cleanRawVal.toUpperCase();
+            if (upperRaw.includes("TRUE") && !upperRaw.includes("POLE") && !upperRaw.includes("MAIN")) {
+              cleanRawVal = "True";
+            } else if (upperRaw.includes("FALSE") && !upperRaw.includes("POLE") && !upperRaw.includes("MAIN")) {
+              cleanRawVal = "False";
+            } else if (upperRaw.includes("POLE")) {
+              cleanRawVal = "POLE";
+            } else if (upperRaw.includes("MAIN")) {
+              cleanRawVal = "MAIN";
             }
 
-            var safeDisplayVal = escapeHtml(cleanRawVal);
+            var safeDisplayVal = "";
+            if (targetClean === "METERSCOPE") {
+              if (cleanRawVal === "MAIN") {
+                safeDisplayVal = '<span style="background:#dbeafe; color:#1d4ed8; padding:3px 9px; border-radius:10px; font-weight:800; font-size:10px; border:1px solid #bfdbfe;">MAIN</span>';
+              } else if (cleanRawVal === "POLE") {
+                safeDisplayVal = '<span style="background:#f3e8ff; color:#7e22ce; padding:3px 9px; border-radius:10px; font-weight:800; font-size:10px; border:1px solid #e9d5ff;">POLE</span>';
+              } else {
+                safeDisplayVal = escapeHtml(cleanRawVal);
+              }
+            } else {
+              safeDisplayVal = escapeHtml(cleanRawVal);
+            }
             var isHighlighted = (isAccountCol || isMeterCol);
             var isNumberVal = !isNaN(parseFloat(cleanRawVal)) && isFinite(cleanRawVal) && !isAccountCol;
 
@@ -7924,13 +8101,32 @@ function toggleDarkModeTheme() {
             var heatClass = "";
             var upperH = h.toUpperCase();
             if (upperH.includes("LOAD SURVAY") || upperH.includes("LOAD SURVEY")) {
+              if (!val || val === "-" || val === "" || val.toUpperCase() === "BLANK") {
+                var uRow = row._uMap || row;
+                var targetIsPole = upperH.includes("POLE") || (row["METER SCOPE"] === "POLE");
+                for (var key in uRow) {
+                  var normK = key.replace(/[^A-Z0-9]/g, "");
+                  if (normK.includes("LOADSURV") || normK.includes("LOADSURVEY")) {
+                    if (targetIsPole && (normK.includes("POLE") || normK.includes("PM"))) {
+                      val = String(uRow[key] || "");
+                      break;
+                    } else if (!targetIsPole && (normK.includes("MAIN") || normK.includes("MM"))) {
+                      val = String(uRow[key] || "");
+                      break;
+                    }
+                  }
+                }
+              }
               if (val === "0" || val === "0%" || val.toUpperCase() === "FALSE" || val.toUpperCase() === "NO") heatClass = "cell-heat-zero";
               else if (val.toUpperCase() === "TRUE" || val.toUpperCase() === "YES" || parseFloat(val) >= 95) heatClass = "cell-heat-high";
             }
 
-            // Quick Inline Editable Columns (Remark, Phone, Exceptions)
+            // Quick Inline Editable Columns (Remark, Phone, Exceptions) - Strip HTML for Copy Attribute to prevent quotation breakout
+            var plainRawText = String(cleanRawVal || "").replace(/<[^>]*>?/gm, '').replace(/['"]/g, '').trim();
             var isEditableCol = upperH.includes("REMARK") || upperH.includes("MOBILE") || upperH.includes("PHONE");
-            var inlineEditAttr = isEditableCol ? ' ondblclick="makeCellInlineEditable(this, \'' + escapeHtml(row["ACCOUNT NO"] || row["ACCOUNT ID"] || "") + '\', \'' + escapeHtml(h) + '\')"' : ' ondblclick="copyTextToClipboard(\'' + safeDisplayVal + '\', \'' + h + '\')"';
+            var inlineEditAttr = isEditableCol 
+              ? ' ondblclick="makeCellInlineEditable(this, \'' + escapeHtml(row["ACCOUNT NO"] || row["ACCOUNT ID"] || "") + '\', \'' + escapeHtml(h) + '\')"' 
+              : ' ondblclick="copyTextToClipboard(\'' + escapeHtml(plainRawText) + '\', \'' + escapeHtml(h) + '\')"';
 
             if (isAccountCol && val && val !== "-") {
               bHtml += '<td class="copyable-cell sticky-col-2 font-mono" style="white-space: nowrap; user-select: all;">' +
@@ -8426,43 +8622,41 @@ function toggleDarkModeTheme() {
         }
 
         // =========================================================================
-        // 🟢 नियम 2: 2, 3, 4 रिपोर्ट -> केवल एक ही कॉलम 'Meter_No'
+        // 🟢 नियम 2: 2, 3, 4 रिपोर्ट -> स्क्रीन पर दिखने वाले सटीक मीटर्स ही एक्सेल में आएँ
         // =========================================================================
         var isReadMissing = (rptId === "rpt_mri_done_read_missing" || rptName.includes("read missing"));
         var isMriNotUpload = (rptId === "rpt_mri_not_upload" || (rptName.includes("not upload") && !rptName.includes("read missing")));
-        var isSurveyNotFound = (rptId === "rpt_survey_not_found" || rptName.includes("load survey not found") || rptName.includes("load survay not found"));
+        var isSurveyNotFound = (rptId === "rpt_load_survey_missing" || rptName.includes("load survey missing"));
 
         if (isReadMissing || isMriNotUpload || isSurveyNotFound) {
           var meterRows = [["Meter_No"]];
           var meterSet = new Set();
-          var rdg = window.cachedRdgMap || cachedRdgMap || {};
 
+          // स्क्रीन पर फ़िल्टर किए गए exportRows के आधार पर ही मीटर नंबर निकालें (ताकि स्क्रीन और एक्सेल मैच हों)
           exportRows.forEach(function(row) {
             var u = row._uMap || row;
-            var mainMtr = cleanMtr(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"]);
-            var poleMtr = cleanMtr(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."]);
+            var scope = String(row["METER SCOPE"] || u["METER SCOPE"] || "").toUpperCase().trim();
 
-            if (isReadMissing) {
-              var isMriM = isCheckTrue(u["IS MRI AVAILABLE (MAIN METER)"] || u["IS MRI AVAILABLE"]);
-              var isMriP = isCheckTrue(u["IS MRI AVAILABLE (POLE METER)"]);
-              if (isMriM && mainMtr && !rdg[mainMtr]) meterSet.add(mainMtr);
-              if (isMriP && poleMtr && !rdg[poleMtr]) meterSet.add(poleMtr);
-            } else if (isMriNotUpload) {
-              var mEx = String(u["EXCEPTION TYPE (MAIN METER)"] || "").trim().toUpperCase();
-              var pEx = String(u["EXCEPTION TYPE (POLE METER)"] || "").trim().toUpperCase();
-              if (mEx === "MRI" && !isCheckTrue(u["IS MRI AVAILABLE (MAIN METER)"]) && mainMtr) meterSet.add(mainMtr);
-              if (pEx === "MRI" && !isCheckTrue(u["IS MRI AVAILABLE (POLE METER)"]) && poleMtr) meterSet.add(poleMtr);
-            } else if (isSurveyNotFound) {
-              var isMriM2 = isCheckTrue(u["IS MRI AVAILABLE (MAIN METER)"]);
-              var isMriP2 = isCheckTrue(u["IS MRI AVAILABLE (POLE METER)"]);
-              var sM = isCheckTrue(u["IS LOAD SURVAY AVAILBLE (MAIN MTR)"] || u["IS LOAD SURVEY AVAILABLE (MAIN METER)"]);
-              var sP = isCheckTrue(u["IS LOAD SURVAY AVAILBLE (POLE MTR)"] || u["IS LOAD SURVEY AVAILABLE (POLE METER)"]);
-              if (isMriM2 && !sM && mainMtr) meterSet.add(mainMtr);
-              if (isMriP2 && !sP && poleMtr) meterSet.add(poleMtr);
+            if (scope === "POLE") {
+              var poleMtr = cleanMtr(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."]);
+              if (poleMtr) meterSet.add(poleMtr);
+            } else if (scope === "MAIN") {
+              var mainMtr = cleanMtr(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"] || u["BILLED METER NUMBER"]);
+              if (mainMtr) meterSet.add(mainMtr);
+            } else {
+              // अगर स्कोप सेट नहीं है तो दोनों चेक करें
+              var mMtr = cleanMtr(u["LAST MONTH FINAL MM NO."] || u["FINAL VISITED MAIN METER NUMBER"]);
+              var pMtr = cleanMtr(u["LAST MONTH FINAL PM NO."] || u["FINAL VISITED POLE METER NO."]);
+              if (mMtr) meterSet.add(mMtr);
+              if (pMtr) meterSet.add(pMtr);
             }
           });
 
-          meterSet.forEach(function(m) { meterRows.push([m]); });
+          meterSet.forEach(function(m) { 
+            if (m && m !== "0" && m !== "NOMTR" && m !== "NOPOLE") {
+              meterRows.push([m]); 
+            }
+          });
 
           var wsSingle = XLSX.utils.aoa_to_sheet(meterRows);
           wsSingle['!cols'] = [{ wch: 22 }];
@@ -8818,10 +9012,12 @@ function toggleDarkModeTheme() {
         if (!popup) return;
         var isOpen = popup.style.display === "block";
         
+        // 🟢 Sabhi top dropdowns aur dusre header popups ko band karein taaki overlap na ho
+        if (typeof closeAllMultiPanels === "function") closeAllMultiPanels();
         closeAllHeaderPopups();
         
         if (!isOpen) {
-          popup.style.display = "block";
+          popup.style.display = "flex";
         }
       }
 
@@ -9900,9 +10096,7 @@ function toggleDarkModeTheme() {
       if (homeZone && homeZone.style.display !== 'none') homeZone.style.display = 'none';
 
       if (!activeReportMeta) {
-        activeReportMeta = codeBuiltinReports[0];
-        var titleElem = document.getElementById('active-report-title');
-        if (titleElem) titleElem.innerText = "GLOBAL DATABASE SEARCH RESULTS";
+        return; // Bina report select kiye apne aap koi report na khule
       }
     }
     if (activeReportMeta) {
@@ -10385,16 +10579,35 @@ function toggleDarkModeTheme() {
         }, 150);
       }
 
+      function handlePendencyFileSelectionPreview(fileInput) {
+        var count = fileInput.files ? fileInput.files.length : 0;
+        var statusDiv = document.getElementById('pendency-status-msg');
+        if (statusDiv && count > 0) {
+          statusDiv.style.color = "#0284c7";
+          statusDiv.innerText = count + " file(s) selected. Click 'Auto Process' to generate Excel.";
+        }
+      }
+
       function openPendencyFinderModal() {
-        document.getElementById('pendency-finder-modal').style.display = 'flex';
-        document.getElementById('pendency-status-msg').innerText = '';
+        var m = document.getElementById('pendency-finder-modal');
+        if (m) m.style.display = 'flex';
+        var msg = document.getElementById('pendency-status-msg');
+        if (msg) msg.innerText = '';
         var finp = document.getElementById('pendencyFileInput');
         if (finp) finp.value = '';
+        var summaryBox = document.getElementById('pendency-sheet-summary-box');
+        if (summaryBox) summaryBox.style.display = 'none';
+        var summaryList = document.getElementById('pendency-sheet-summary-list');
+        if (summaryList) summaryList.innerHTML = '';
       }
 
       function closePendencyFinderModal() {
-        document.getElementById('pendency-finder-modal').style.display = 'none';
-        document.getElementById('pendency-status-msg').innerText = '';
+        var m = document.getElementById('pendency-finder-modal');
+        if (m) m.style.display = 'none';
+        var msg = document.getElementById('pendency-status-msg');
+        if (msg) msg.innerText = '';
+        var summaryBox = document.getElementById('pendency-sheet-summary-box');
+        if (summaryBox) summaryBox.style.display = 'none';
       }
 
       // 🟢 Pendency Finder Template Download Handler
@@ -10443,24 +10656,31 @@ function toggleDarkModeTheme() {
       async function processPendencyExcelUpload() {
         var fileInput = document.getElementById('pendencyFileInput');
         var statusDiv = document.getElementById('pendency-status-msg');
+        var summaryBox = document.getElementById('pendency-sheet-summary-box');
+        var summaryList = document.getElementById('pendency-sheet-summary-list');
+        var totalBadge = document.getElementById('pendency-total-badge');
+        var btnProcess = document.getElementById('btn-process-pendency');
 
         if (!fileInput.files || fileInput.files.length === 0) {
-          alert("कृपया कम से कम एक Excel या CSV फ़ाइल चुनें!");
+          alert("Kripya kam se kam ek Excel ya CSV file chunein!");
           return;
         }
 
         if (!cachedDatabase || cachedDatabase.length === 0) {
           statusDiv.style.color = "#dc2626";
-          statusDiv.innerText = "डेटा अभी लोड नहीं हुआ है। कृपया पहले रिफ्रेश करें!";
+          statusDiv.innerText = "Database load nahi hua hai. Kripya pehle data refresh karein!";
           return;
         }
 
         var files = Array.from(fileInput.files);
         statusDiv.style.color = "#0284c7";
-        statusDiv.innerText = files.length + " फ़ाइलें लोड और प्रोसेस हो रही हैं...";
+        statusDiv.innerText = files.length + " files process ho rahi hain...";
+        if (summaryBox) summaryBox.style.display = "none";
+        if (summaryList) summaryList.innerHTML = "";
+        if (btnProcess) btnProcess.disabled = true;
 
         try {
-          // 1. Build Master Data Map (10-Digit Padded Account Number)
+          // 1. Build Master Database Map (10-Digit Padded)
           var dataMap = new Map();
           cachedDatabase.forEach(function(row) {
             var u = row._uMap || row;
@@ -10472,13 +10692,6 @@ function toggleDarkModeTheme() {
             var paddedAcc = (digitsOnly.length > 0 && digitsOnly.length < 10) ? ("0000000000" + digitsOnly).slice(-10) : accClean;
             if (paddedAcc) dataMap.set(paddedAcc, u);
           });
-
-          var headerCols = [
-            "Pendency", "Account No", "Division", "Consumer Name", "Site Remark (Main Meter)", "New Meter Number (Main Meter)", 
-            "New-Meter-Mri (Yes/No) (Main Meter)", "Meter Type", "Billed Meter Number",
-            "Site Remark (Pole Meter)", "New Meter Number (Pole Meter)", 
-            "New-Meter-Mri (Yes/No) (Pole Meter)", "Load Group"
-          ];
 
           function toProper(str) {
             if (!str || typeof str !== 'string') return (str !== undefined && str !== null) ? str : "";
@@ -10495,34 +10708,77 @@ function toggleDarkModeTheme() {
             "CONSUMERNO", "CONSUMERID", "CANUMBER", "KNUMBER", "CONID", "ACCOUNT NO", "ACCOUNT ID"
           ];
 
-          var pendencyGroups = {};
-          var allCombinedData = [headerCols];
-          var totalMatchedCount = 0;
+          // Current Date Formatting (DD-MM-YYYY)
+          var now = new Date();
+          var day = String(now.getDate()).padStart(2, '0');
+          var month = String(now.getMonth() + 1).padStart(2, '0');
+          var year = now.getFullYear();
+          var todayDateStr = day + "-" + month + "-" + year;
 
-          // 2. Loop through every uploaded file
+          var grandTotalMatched = 0;
+          var sheetSummaryRecords = [];
+
+          // 2. Process Har Ek File
           for (var f = 0; f < files.length; f++) {
             var file = files[f];
-            
-            // 🟢 Auto Pendency Name: Extension hatayenge, original naam as it is rahega
-            var cleanPendencyName = file.name.replace(/\.[^/.]+$/, "").trim();
-            if (!cleanPendencyName) cleanPendencyName = "Pendency " + (f + 1);
+            var rawFileName = file.name.replace(/\.[^/.]+$/, "").trim();
+            var upperFileName = rawFileName.toUpperCase();
 
-            statusDiv.innerText = `फ़ाइल ${f + 1}/${files.length} (${cleanPendencyName}) प्रोसेस हो रही है...`;
+            statusDiv.innerText = `File ${f + 1}/${files.length} (${rawFileName}) reading...`;
 
+            // 🟢 Scope Detection (Main vs Pole)
+            var isPoleScope = upperFileName.includes("POLE");
+            var isMainScope = upperFileName.includes("MAIN");
+
+            // 🟢 Load Detection (10 KW and Above vs 5-9 KW)
+            var loadTag = "";
+            if (upperFileName.includes("10")) {
+              loadTag = "10 KW and Above";
+            } else if (
+              upperFileName.includes("5-9") || 
+              upperFileName.includes("5 TO 9") || 
+              upperFileName.includes("5-9.99") || 
+              upperFileName.includes("5_9") || 
+              upperFileName.includes("9")
+            ) {
+              loadTag = "5-9 KW";
+            }
+
+            // 🟢 Dynamic Columns Definition
+            var activeHeaders = [];
+            if (isPoleScope && !isMainScope) {
+              activeHeaders = [
+                "Pendency", "Account No", "Division", "Consumer Name", "Meter Type", 
+                "Billed Meter Number", "Site Remark (Pole Meter)", "New Meter Number (Pole Meter)", 
+                "New-Meter-Mri (Yes/No) (Pole Meter)", "Load Group"
+              ];
+            } else if (isMainScope && !isPoleScope) {
+              activeHeaders = [
+                "Pendency", "Account No", "Division", "Consumer Name", "Meter Type", 
+                "Billed Meter Number", "Site Remark (Main Meter)", "New Meter Number (Main Meter)", 
+                "New-Meter-Mri (Yes/No) (Main Meter)", "Load Group"
+              ];
+            } else {
+              activeHeaders = [
+                "Pendency", "Account No", "Division", "Consumer Name", "Site Remark (Main Meter)", 
+                "New Meter Number (Main Meter)", "New-Meter-Mri (Yes/No) (Main Meter)", "Meter Type", 
+                "Billed Meter Number", "Site Remark (Pole Meter)", "New Meter Number (Pole Meter)", 
+                "New-Meter-Mri (Yes/No) (Pole Meter)", "Load Group"
+              ];
+            }
+
+            var fileDataRows = [activeHeaders];
             var arrayBuffer = await file.arrayBuffer();
             var workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
-            
-            // 🟢 Smart Sheet Detector: Check if 'DATA' sheet exists (Senior files), else use first sheet
             var targetSheetName = workbook.SheetNames.includes("DATA") ? "DATA" : workbook.SheetNames[0];
             var sheet = workbook.Sheets[targetSheetName];
             var jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "", raw: false });
 
             if (jsonData.length === 0) continue;
 
-            // Find Account Column dynamically in this file
+            // Find Account Column
             var fileHeaders = Object.keys(jsonData[0]);
             var matchedAccKey = null;
-
             for (var h = 0; h < fileHeaders.length; h++) {
               var cleanH = fileHeaders[h].toUpperCase().replace(/[^A-Z0-9]/g, "");
               for (var a = 0; a < accountAliases.length; a++) {
@@ -10533,144 +10789,138 @@ function toggleDarkModeTheme() {
               }
               if (matchedAccKey) break;
             }
-
             if (!matchedAccKey) matchedAccKey = fileHeaders[0];
 
-            if (!pendencyGroups[cleanPendencyName]) {
-              pendencyGroups[cleanPendencyName] = [headerCols];
-            }
-
-            var seenInThisFile = new Set();
+            var seenInFile = new Set();
+            var fileMatchedCount = 0;
 
             for (var r = 0; r < jsonData.length; r++) {
-              var row = jsonData[r];
-              var rawAcc = String(row[matchedAccKey] || "").trim();
+              var rawAcc = String(jsonData[r][matchedAccKey] || "").trim();
               if (!rawAcc) continue;
 
               var cleanAcc = rawAcc.replace(/_P$/i, '').replace(/\.0$/, '');
               var digits = cleanAcc.replace(/[^0-9]/g, '');
-              var paddedAccId = (digits.length > 0 && digits.length < 10) ? ("0000000000" + digits).slice(-10) : cleanAcc;
+              var paddedAcc = (digits.length > 0 && digits.length < 10) ? ("0000000000" + digits).slice(-10) : cleanAcc;
 
-              if (!paddedAccId || seenInThisFile.has(paddedAccId)) continue;
-              seenInThisFile.add(paddedAccId);
+              if (!paddedAcc || seenInFile.has(paddedAcc)) continue;
+              seenInFile.add(paddedAcc);
 
-              // 🟢 STRICT MATCH CHECK: केवल वही अकाउंट आएंगे जो मास्टर डेटाबेस में मौजूद हैं
-              var found = dataMap.get(paddedAccId);
-              if (!found) continue; // जो मैच नहीं हुए उन्हें बाहर कर दिया जाएगा
+              var found = dataMap.get(paddedAcc);
+              if (!found) continue;
 
-              totalMatchedCount++;
-              var rowData = [
-                cleanPendencyName,
-                String(paddedAccId),
-                String(found["DIVISION"] || ""),
-                toProper(found["CONSUMER-NAME"] || found["CONSUMER NAME"] || ""),
-                toProper(found["FINAL_MAIN_METER_SITE_REMARK"] || found["SITE REMARK"] || ""),
-                found["LAST MONTH FINAL MM NO."] ? String(found["LAST MONTH FINAL MM NO."]).trim() : "",
-                parseMriVal(found["IS MRI AVAILABLE (MAIN METER)"]),
-                toProper(found["METER_TYPE"] || found["METER TYPE"] || found["TYPE OF METER"] || ""),
-                found["BILLED METER NUMBER"] ? String(found["BILLED METER NUMBER"]).trim() : "",
-                toProper(found["FINAL_POLE_METER_SITE_REMARK"] || found["SITE REMARK (POLE)"] || ""),
-                found["LAST MONTH FINAL PM NO."] ? String(found["LAST MONTH FINAL PM NO."]).trim() : "",
-                parseMriVal(found["IS MRI AVAILABLE (POLE METER)"]),
-                found["LOAD GROUP (5-10-50)"] || found["LOAD GROUP"] || ""
-              ];
+              fileMatchedCount++;
+              grandTotalMatched++;
 
-              allCombinedData.push(rowData);
-              pendencyGroups[cleanPendencyName].push(rowData);
-            }
-          }
-
-          if (allCombinedData.length <= 1) {
-            statusDiv.style.color = "#dc2626";
-            statusDiv.innerText = "चयनित फ़ाइलों में मास्टर डेटा से मैच होने वाला कोई Account ID नहीं मिला!";
-            return;
-          }
-
-          // 🟢 SEPARATE WORKBOOK DOWNLOAD ENGINE FOR EACH PENDENCY
-          var now = new Date();
-          var day = String(now.getDate()).padStart(2, '0');
-          var month = String(now.getMonth() + 1).padStart(2, '0');
-          var year = now.getFullYear();
-          var dateStr = day + "-" + month + "-" + year;
-          var hours = String(now.getHours()).padStart(2, '0');
-          var minutes = String(now.getMinutes()).padStart(2, '0');
-          var timeStr = hours + "-" + minutes;
-
-          function formatSingleWorkbookSheet(ws) {
-            if (!ws['!ref']) return;
-            var range = XLSX.utils.decode_range(ws['!ref']);
-            ws['!autofilter'] = { ref: ws['!ref'] };
-            ws['!views'] = [{ state: 'frozen', ySplit: 1, xSplit: 0, activeCell: 'A2' }];
-
-            ws['!cols'] = [
-              { wch: 28 }, { wch: 15 }, { wch: 18 }, { wch: 26 },
-              { wch: 28 }, { wch: 22 }, { wch: 14 }, { wch: 18 },
-              { wch: 22 }, { wch: 28 }, { wch: 22 }, { wch: 14 }, { wch: 18 }
-            ];
-
-            for (var R = range.s.r; R <= range.e.r; ++R) {
-              for (var C = range.s.c; C <= range.e.c; ++C) {
-                var cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-                if (!ws[cellAddress]) continue;
-
-                ws[cellAddress].t = 's';
-                ws[cellAddress].z = '@'; // Leading zeros (0) safe
-
-                if (R === 0) {
-                  ws[cellAddress].s = {
-                    fill: { fgColor: { rgb: "0B3C5D" } },
-                    font: { name: "Segoe UI", sz: 9.5, bold: true, color: { rgb: "FFFFFF" } },
-                    alignment: { horizontal: "center", vertical: "center", wrapText: true }
-                  };
-                } else {
-                  ws[cellAddress].s = {
-                    font: { name: "Segoe UI", sz: 8.5, color: { rgb: "1E293B" } },
-                    alignment: { horizontal: (C === 3 || C === 4 || C === 9 ? "left" : "center"), vertical: "center" },
-                    border: {
-                      top: { style: "thin", color: { rgb: "D0D7E1" } },
-                      bottom: { style: "thin", color: { rgb: "D0D7E1" } },
-                      left: { style: "thin", color: { rgb: "D0D7E1" } },
-                      right: { style: "thin", color: { rgb: "D0D7E1" } }
-                    }
-                  };
-                }
+              // Row Data Assembly based on Scope
+              if (isPoleScope && !isMainScope) {
+                fileDataRows.push([
+                  rawFileName,
+                  String(paddedAcc),
+                  String(found["DIVISION"] || ""),
+                  toProper(found["CONSUMER-NAME"] || found["CONSUMER NAME"] || ""),
+                  toProper(found["METER_TYPE"] || found["METER TYPE"] || found["TYPE OF METER"] || ""),
+                  found["BILLED METER NUMBER"] ? String(found["BILLED METER NUMBER"]).trim() : "",
+                  toProper(found["FINAL_POLE_METER_SITE_REMARK"] || found["SITE REMARK (POLE)"] || ""),
+                  found["LAST MONTH FINAL PM NO."] ? String(found["LAST MONTH FINAL PM NO."]).trim() : "",
+                  parseMriVal(found["IS MRI AVAILABLE (POLE METER)"]),
+                  found["LOAD GROUP (5-10-50)"] || found["LOAD GROUP"] || ""
+                ]);
+              } else if (isMainScope && !isPoleScope) {
+                fileDataRows.push([
+                  rawFileName,
+                  String(paddedAcc),
+                  String(found["DIVISION"] || ""),
+                  toProper(found["CONSUMER-NAME"] || found["CONSUMER NAME"] || ""),
+                  toProper(found["METER_TYPE"] || found["METER TYPE"] || found["TYPE OF METER"] || ""),
+                  found["BILLED METER NUMBER"] ? String(found["BILLED METER NUMBER"]).trim() : "",
+                  toProper(found["FINAL_MAIN_METER_SITE_REMARK"] || found["SITE REMARK"] || ""),
+                  found["LAST MONTH FINAL MM NO."] ? String(found["LAST MONTH FINAL MM NO."]).trim() : "",
+                  parseMriVal(found["IS MRI AVAILABLE (MAIN METER)"]),
+                  found["LOAD GROUP (5-10-50)"] || found["LOAD GROUP"] || ""
+                ]);
+              } else {
+                fileDataRows.push([
+                  rawFileName,
+                  String(paddedAcc),
+                  String(found["DIVISION"] || ""),
+                  toProper(found["CONSUMER-NAME"] || found["CONSUMER NAME"] || ""),
+                  toProper(found["FINAL_MAIN_METER_SITE_REMARK"] || found["SITE REMARK"] || ""),
+                  found["LAST MONTH FINAL MM NO."] ? String(found["LAST MONTH FINAL MM NO."]).trim() : "",
+                  parseMriVal(found["IS MRI AVAILABLE (MAIN METER)"]),
+                  toProper(found["METER_TYPE"] || found["METER TYPE"] || found["TYPE OF METER"] || ""),
+                  found["BILLED METER NUMBER"] ? String(found["BILLED METER NUMBER"]).trim() : "",
+                  toProper(found["FINAL_POLE_METER_SITE_REMARK"] || found["SITE REMARK (POLE)"] || ""),
+                  found["LAST MONTH FINAL PM NO."] ? String(found["LAST MONTH FINAL PM NO."]).trim() : "",
+                  parseMriVal(found["IS MRI AVAILABLE (POLE METER)"]),
+                  found["LOAD GROUP (5-10-50)"] || found["LOAD GROUP"] || ""
+                ]);
               }
             }
-          }
 
-          var downloadedCount = 0;
-          var groupKeys = Object.keys(pendencyGroups);
+            sheetSummaryRecords.push({
+              fileName: rawFileName,
+              count: fileMatchedCount,
+              scope: isPoleScope ? "POLE" : (isMainScope ? "MAIN" : "ALL"),
+              load: loadTag || "General"
+            });
 
-          // 🟢 Har Pendency ki alag workbook (.xlsx file) create aur download karein
-          for (var g = 0; g < groupKeys.length; g++) {
-            var pendencyName = groupKeys[g];
-            var groupRows = pendencyGroups[pendencyName];
+            // 🟢 3. Dynamic Output File Name Formation
+            if (fileDataRows.length > 1) {
+              var nameParts = ["EDC Mainpuri"];
+              if (loadTag) nameParts.push(loadTag);
+              
+              if (isPoleScope && !isMainScope) {
+                nameParts.push("Pole Meters Remark against Pending List");
+              } else if (isMainScope && !isPoleScope) {
+                nameParts.push("Main Meters Remark against Pending List");
+              } else {
+                nameParts.push("Remark against Pending List");
+              }
 
-            // Agar data rows maujood hain
-            if (groupRows && groupRows.length > 1) {
-              var separateWb = XLSX.utils.book_new();
-              var separateWs = XLSX.utils.aoa_to_sheet(groupRows);
-              formatSingleWorkbookSheet(separateWs);
+              nameParts.push("As On Date " + todayDateStr);
+              var finalOutFileName = nameParts.join(" ") + ".xlsx";
 
-              var sheetTitle = pendencyName.replace(/[\\/?*\[\]:]/g, "").trim().substring(0, 31) || "Data";
-              XLSX.utils.book_append_sheet(separateWb, separateWs, sheetTitle);
+              var sepWb = XLSX.utils.book_new();
+              var sepWs = XLSX.utils.aoa_to_sheet(fileDataRows);
 
-              // Workbook file ka naam pendency ke naam par
-              var cleanFileName = pendencyName.replace(/[\\/:*?"<>|]/g, "_") + " " + dateStr + ".xlsx";
+              if (typeof beautifyExcelSheet === "function") {
+                beautifyExcelSheet(sepWs, { headerBg: "0B3C5D" });
+              } else {
+                sepWs['!autofilter'] = { ref: sepWs['!ref'] };
+              }
 
-              XLSX.writeFile(separateWb, cleanFileName);
-              downloadedCount++;
-
-              // Browser multiple downloads ko block na kare iske liye gap
-              await new Promise(function(resolve) { setTimeout(resolve, 400); });
+              XLSX.utils.book_append_sheet(sepWb, sepWs, "Pending_Data");
+              XLSX.writeFile(sepWb, finalOutFileName);
+              await new Promise(function(resolve) { setTimeout(resolve, 350); });
             }
           }
 
-          statusDiv.style.color = "#059669";
-          statusDiv.innerHTML = `✅ Success! <b>${downloadedCount} alag-alag Excel Workbooks</b> download ho gayi hain!`;
-          setTimeout(closePendencyFinderModal, 3500);
+          // 🟢 4. UI Par Har Sheet Ke Records Ka Count Dikhana
+          if (summaryBox && summaryList) {
+            summaryBox.style.display = "block";
+            if (totalBadge) totalBadge.innerText = "Total: " + grandTotalMatched;
+            
+            var summaryHtml = "";
+            sheetSummaryRecords.forEach(function(item) {
+              summaryHtml += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:6px 10px; font-size:11px;">
+                  <div style="display:flex; align-items:center; gap:6px; overflow:hidden;">
+                    <span style="background:${item.scope==='POLE'?'#f3e8ff':item.scope==='MAIN'?'#e0f2fe':'#f1f5f9'}; color:${item.scope==='POLE'?'#7e22ce':item.scope==='MAIN'?'#0369a1':'#475569'}; font-size:9.5px; font-weight:800; padding:1px 6px; border-radius:4px;">${item.scope}</span>
+                    <span style="font-weight:700; color:#1e293b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:260px;" title="${item.fileName}">${item.fileName}</span>
+                  </div>
+                  <span style="font-family:monospace; font-weight:800; font-size:12px; color:#15803d; background:#dcfce7; padding:1px 8px; border-radius:10px;">${item.count} Records</span>
+                </div>
+              `;
+            });
+            summaryList.innerHTML = summaryHtml;
+          }
 
-        } catch(err) {
+          if (btnProcess) btnProcess.disabled = false;
+          statusDiv.style.color = "#059669";
+          statusDiv.innerHTML = `✅ Successfully completed! <b>${grandTotalMatched}</b> total records matched across ${files.length} file(s).`;
+
+        } catch (err) {
+          if (btnProcess) btnProcess.disabled = false;
           statusDiv.style.color = "#dc2626";
           statusDiv.innerText = "Processing Error: " + err.message;
         }
@@ -11494,15 +11744,21 @@ function openCustomBulkModal() {
 
     var optId = "chk_col_" + idx;
     var div = document.createElement("div");
-    // 🟢 Clean Modern Selectable Tile Layout
-    div.style = "display:flex; align-items:center; gap:8px; padding:6px 8px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; font-size:11px; font-weight:700; color:#1e293b; font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; transition:all 0.15s; cursor:pointer;";
+    // 🟢 Wide & Clean Tile Styling with clear borders
+    div.style = "display:flex; align-items:center; gap:10px; padding:8px 12px; background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:8px; font-size:11.5px; font-weight:700; color:#1e293b; font-family:'Plus Jakarta Sans', sans-serif; transition:all 0.15s; cursor:pointer; user-select:none; box-shadow:0 1px 2px rgba(0,0,0,0.02);";
     
-    div.onmouseover = function() { this.style.borderColor = "#93c5fd"; this.style.background = "#eff6ff"; };
+    div.onmouseover = function() { 
+      var c = document.getElementById(optId);
+      if (!c || !c.checked) {
+        this.style.borderColor = "#818cf8"; 
+        this.style.background = "#eef2ff"; 
+      }
+    };
     div.onmouseout = function() {
       var c = document.getElementById(optId);
       if (c && c.checked) {
-        this.style.borderColor = "#6366f1";
-        this.style.background = "#eef2ff";
+        this.style.borderColor = "#4f46e5";
+        this.style.background = "#e0e7ff";
       } else {
         this.style.borderColor = "#e2e8f0";
         this.style.background = "#f8fafc";
@@ -11523,16 +11779,17 @@ function openCustomBulkModal() {
     chk.type = "checkbox";
     chk.id = optId;
     chk.value = col;
-    chk.style = "width:15px; height:15px; cursor:pointer; flex-shrink:0; accent-color:#6366f1;";
+    chk.style = "width:16px; height:16px; cursor:pointer; flex-shrink:0; accent-color:#4f46e5;";
     chk.onchange = function() {
-      div.style.borderColor = this.checked ? "#6366f1" : "#e2e8f0";
-      div.style.background = this.checked ? "#eef2ff" : "#f8fafc";
+      div.style.borderColor = this.checked ? "#4f46e5" : "#e2e8f0";
+      div.style.background = this.checked ? "#e0e7ff" : "#f8fafc";
+      div.style.color = this.checked ? "#312e81" : "#1e293b";
     };
 
     var lbl = document.createElement("label");
     lbl.htmlFor = optId;
     lbl.innerText = col;
-    lbl.style = "cursor:pointer; user-select:none; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:'Inter', sans-serif !important; letter-spacing:0.2px;";
+    lbl.style = "cursor:pointer; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:700; font-size:11.5px;";
 
     div.appendChild(chk);
     div.appendChild(lbl);
@@ -12322,6 +12579,11 @@ function openExternalApp(url, appName, event) {
   externalAppCounter++;
   var appId = "extapp_" + externalAppCounter;
 
+  // 🟢 Track karein ki app kahan se open kiya gaya tha (Hub Home ya Tools/Utilities Sub-view)
+  var subHubZone = document.getElementById('hub-sub-view');
+  var openedFromTools = (subHubZone && subHubZone.style.display !== 'none' && currentActiveHubCategory === 'tools');
+  var previousOrigin = openedFromTools ? 'tools' : 'hub';
+
   // 🟢 बाकी सारे zones छुपाएँ
   var topCtrl = document.getElementById('main-top-control-wrapper');
   if (topCtrl) topCtrl.style.setProperty('display', 'none', 'important');
@@ -12423,11 +12685,12 @@ function openExternalApp(url, appName, event) {
   // 🟢 Src set करें
   iframe.src = url;
 
-  // 🟢 Instance Registry में Save करें
+  // 🟢 Instance Registry में Save करें (originView ke sath)
   externalAppInstances[appId] = {
     url: url,
     name: appName || "External App",
     isMinimized: false,
+    originView: previousOrigin,
     iframeEl: iframe,
     loaderEl: loader,
     progressInterval: progressInt
@@ -12519,12 +12782,19 @@ function toggleExternalAppMinimize(id) {
       var appContainer = document.getElementById('external-app-view-zone');
       if (appContainer) appContainer.style.display = 'none';
 
-      // Taskbar के अलावा बाकी UI restore करें
+      // Report section nahi, balki jahan se app open hua tha wahi view restore karein
       var topCtrl = document.getElementById('main-top-control-wrapper');
-      if (topCtrl) topCtrl.style.setProperty('display', 'flex', 'important');
+      if (topCtrl) topCtrl.style.setProperty('display', 'none', 'important');
 
       var tableZone = document.getElementById('table-zone');
-      if (tableZone) tableZone.style.setProperty('display', 'flex', 'important');
+      if (tableZone) tableZone.style.display = 'none';
+
+      if (app.originView === 'tools') {
+        returnToHubHome();
+        openHubCategory('tools');
+      } else {
+        returnToHubHome();
+      }
 
       activeExternalAppId = null;
     }
@@ -12659,15 +12929,22 @@ function closeExternalApp(id) {
       return;
     }
 
-    // कोई app नहीं बचा — Home पर लौटें
+    // कोई app नहीं बचा — Pichle view par lautein
     var appContainer = document.getElementById('external-app-view-zone');
     if (appContainer) appContainer.style.display = 'none';
 
     var topCtrl = document.getElementById('main-top-control-wrapper');
-    if (topCtrl) topCtrl.style.setProperty('display', 'flex', 'important');
+    if (topCtrl) topCtrl.style.setProperty('display', 'none', 'important');
 
     var tableZone = document.getElementById('table-zone');
-    if (tableZone) tableZone.style.setProperty('display', 'flex', 'important');
+    if (tableZone) tableZone.style.display = 'none';
+
+    if (app.originView === 'tools') {
+      returnToHubHome();
+      openHubCategory('tools');
+    } else {
+      returnToHubHome();
+    }
   }
 
   renderExternalAppTaskbar();
@@ -12675,6 +12952,22 @@ function closeExternalApp(id) {
 
 function openXmlReaderToolApp(event) {
   openExternalApp('https://script.google.com/macros/s/AKfycbwr7sE_PPlqZQfXwFjB6JmHokvtZTnP99X9BRa-kuq0VN-KSdXZkGNew-_OHTSQk63jiw/exec', 'XML Reader Tool', event);
+}
+
+function openDailyDataUploadingApp(event) {
+  getExternalAppsList().then(function(apps) {
+    var match = apps.find(function(a){ return a.name.includes("Daily Data"); });
+    var url = match ? match.url : 'https://script.google.com/macros/s/AKfycbx9iV-lk7j2OPAN6cGdXIVg-l54VqzsJWiUwT3J8iiWn0JyxM5KC8BxRDIOOIuraYWUrw/exec';
+    openExternalApp(url, 'Daily Data Uploading', event);
+  });
+}
+
+function openDynamicAnalyticsApp(event) {
+  getExternalAppsList().then(function(apps) {
+    var match = apps.find(function(a){ return a.name.includes("Analytics"); });
+    var url = match ? match.url : 'https://script.google.com/macros/s/AKfycbzQeexHNJAqsdq2Y2xQ-FBwNh1E6amCr2p748MoE34RhydfbgRnZzKPsSD67RM9cH5iVw/exec';
+    openExternalApp(url, 'Analytics Dashboard', event);
+  });
 }
 
 function hardResetLocalCache() {
@@ -12733,12 +13026,17 @@ function downloadTestDistSummaryPDF() {
 
         if (homeZone) {
           homeZone.style.display = 'flex';
-          homeZone.classList.remove('search-mode-active'); // 🟢 class हटाएँ
+          homeZone.classList.remove('search-mode-active');
         }
         if (mainHub) mainHub.style.display = 'flex';
         if (subHub) subHub.style.display = 'none';
         if (c360Hub) c360Hub.style.display = 'none';
-        if (topCtrl) topCtrl.style.setProperty('display', 'none', 'important');
+        
+        // 🟢 Hub/Dashboard par aane par Top Control Bar aur Filters ko completely hide karein
+        var mainTopCtrl = document.getElementById('main-top-control-wrapper');
+        if (mainTopCtrl) mainTopCtrl.style.setProperty('display', 'none', 'important');
+        var filtersPanel = document.getElementById('filters-panel-wrapper');
+        if (filtersPanel) filtersPanel.style.display = 'none';
 
         // 🟢 Home पर Report Updated Timestamp सिंक करें
         syncHomeTimestampBadge();
@@ -12761,62 +13059,51 @@ function downloadTestDistSummaryPDF() {
 
 var EXTERNAL_APPS_STORE_KEY = "rms_external_apps_v1";
 
-// 🟢 Read all saved external apps from IndexedDB (fallback: localStorage)
+// 🟢 Read all saved external apps from Google Sheet (with LocalStorage cache fallback)
 function getExternalAppsList() {
   return new Promise(function(resolve) {
-    try {
-      getIndexedDB().then(function(db) {
-        var tx = db.transaction(["cache_store"], "readonly");
-        var store = tx.objectStore("cache_store");
-        var req = store.get(EXTERNAL_APPS_STORE_KEY);
-        req.onsuccess = function() {
-          var data = req.result;
-          if (Array.isArray(data) && data.length > 0) {
-            resolve(data);
-          } else {
-            try {
-              var ls = localStorage.getItem(EXTERNAL_APPS_STORE_KEY);
-              resolve(ls ? JSON.parse(ls) : []);
-            } catch(e) { resolve([]); }
-          }
-        };
-        req.onerror = function() {
+    fetch(APPS_SCRIPT_WEBAPP_URL + "?action=getExternalApps&_t=" + new Date().getTime())
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data && data.success && Array.isArray(data.apps)) {
+          try { localStorage.setItem(EXTERNAL_APPS_STORE_KEY, JSON.stringify(data.apps)); } catch(e) {}
+          resolve(data.apps);
+        } else {
           try {
             var ls = localStorage.getItem(EXTERNAL_APPS_STORE_KEY);
             resolve(ls ? JSON.parse(ls) : []);
           } catch(e) { resolve([]); }
-        };
-      }).catch(function() {
+        }
+      })
+      .catch(function() {
         try {
           var ls = localStorage.getItem(EXTERNAL_APPS_STORE_KEY);
           resolve(ls ? JSON.parse(ls) : []);
         } catch(e) { resolve([]); }
       });
-    } catch(err) { resolve([]); }
   });
 }
 
-// 🟢 Save external apps list to IndexedDB + localStorage backup
+// 🟢 Save external apps list to Google Sheet (Sync across ALL devices)
 function saveExternalAppsList(appsArray) {
   return new Promise(function(resolve) {
-    try {
-      getIndexedDB().then(function(db) {
-        var tx = db.transaction(["cache_store"], "readwrite");
-        var store = tx.objectStore("cache_store");
-        store.put(appsArray, EXTERNAL_APPS_STORE_KEY);
-        tx.oncomplete = function() {
-          try { localStorage.setItem(EXTERNAL_APPS_STORE_KEY, JSON.stringify(appsArray)); } catch(e) {}
-          resolve(true);
-        };
-        tx.onerror = function() {
-          try { localStorage.setItem(EXTERNAL_APPS_STORE_KEY, JSON.stringify(appsArray)); } catch(e) {}
-          resolve(true);
-        };
-      }).catch(function() {
-        try { localStorage.setItem(EXTERNAL_APPS_STORE_KEY, JSON.stringify(appsArray)); } catch(e) {}
-        resolve(true);
-      });
-    } catch(err) { resolve(false); }
+    try { localStorage.setItem(EXTERNAL_APPS_STORE_KEY, JSON.stringify(appsArray)); } catch(e) {}
+
+    fetch(APPS_SCRIPT_WEBAPP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: "saveExternalApps",
+        apps: appsArray
+      })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(result) {
+      resolve(result && result.success);
+    })
+    .catch(function() {
+      resolve(false);
+    });
   });
 }
 
@@ -12927,6 +13214,42 @@ function openExternalAppsManager() {
           </div>
         </div>
 
+        <!-- 🟢 Icon & Color Selector -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+          <div>
+            <label style="font-size:10.5px; font-weight:800; color:#475569; text-transform:uppercase; display:block; margin-bottom:4px;">Choose App Icon *</label>
+            <select id="ea-input-icon" style="width:100%; padding:8px 10px; border:1.5px solid #cbd5e1; border-radius:7px; font-size:12px; font-weight:700; outline:none; box-sizing:border-box; color:#0f172a; background:white; cursor:pointer;">
+              <option value="fa-solid fa-globe" selected>🌐 Globe / Web (Default)</option>
+              <option value="fa-solid fa-chart-pie">📊 Analytics / Chart</option>
+              <option value="fa-solid fa-database">🗄️ Database / Master</option>
+              <option value="fa-solid fa-file-invoice">📄 Invoice / Billing</option>
+              <option value="fa-solid fa-calculator">🧮 Calculator / Math</option>
+              <option value="fa-solid fa-gauge-high">⚡ Meter / Energy</option>
+              <option value="fa-solid fa-satellite-dish">📡 Live Tracker / GPS</option>
+              <option value="fa-solid fa-users">👥 Consumer / Staff</option>
+              <option value="fa-solid fa-shield-halved">🛡️ Security / Admin</option>
+              <option value="fa-solid fa-cloud-arrow-up">☁️ Cloud / Upload</option>
+              <option value="fa-solid fa-barcode">🏷️ Scanner / Barcode</option>
+              <option value="fa-solid fa-screwdriver-wrench">🔧 Utility / Tool</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:10.5px; font-weight:800; color:#475569; text-transform:uppercase; display:block; margin-bottom:4px;">Choose Theme Color *</label>
+            <select id="ea-input-color" style="width:100%; padding:8px 10px; border:1.5px solid #cbd5e1; border-radius:7px; font-size:12px; font-weight:700; outline:none; box-sizing:border-box; color:#0f172a; background:white; cursor:pointer;">
+              <option value="#6366f1" selected>Indigo (Default)</option>
+              <option value="#0284c7">Sky Blue</option>
+              <option value="#10b981">Emerald Green</option>
+              <option value="#f59e0b">Amber Gold</option>
+              <option value="#ef4444">Coral Red</option>
+              <option value="#ec4899">Pink</option>
+              <option value="#8b5cf6">Purple</option>
+              <option value="#06b6d4">Teal Cyan</option>
+              <option value="#059669">Deep Green</option>
+              <option value="#ea580c">Orange</option>
+            </select>
+          </div>
+        </div>
+
         <div style="display:flex; gap:8px; justify-content:flex-end;">
           <button type="button" onclick="resetExternalAppForm()" style="padding:7px 16px; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; border-radius:7px; font-weight:800; font-size:11.5px; cursor:pointer;">
             <i class="fa-solid fa-rotate-left"></i> Reset
@@ -12994,8 +13317,8 @@ function refreshExternalAppsListUI() {
       html += `
         <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; background:#ffffff; border:1.5px solid #e2e8f0; border-radius:10px; padding:12px 16px; margin-bottom:10px; box-shadow:0 1px 4px rgba(0,0,0,0.04); flex-wrap:wrap;">
           <div style="display:flex; align-items:center; gap:12px; flex:1; min-width:220px;">
-            <div style="width:42px; height:42px; border-radius:10px; background:linear-gradient(135deg, #eef2ff, #e0e7ff); color:#4338ca; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">
-              <i class="fa-solid fa-globe"></i>
+            <div style="width:42px; height:42px; border-radius:10px; background:${app.color ? app.color + '18' : '#eef2ff'}; color:${app.color || '#4338ca'}; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; border:1px solid ${app.color ? app.color + '33' : '#e0e7ff'};">
+              <i class="${app.icon || 'fa-solid fa-globe'}"></i>
             </div>
             <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
               <div style="font-size:13px; font-weight:800; color:#0f172a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:340px;">${escapeHtml(app.name || 'Untitled')}</div>
@@ -13019,11 +13342,13 @@ function refreshExternalAppsListUI() {
   });
 }
 
-// 🟢 Save (Add or Update) app from form
+// 🟢 Save (Add or Update) app from form with Dynamic Icon & Color
 function saveExternalAppFromForm() {
   var name = (document.getElementById('ea-input-name').value || '').trim();
   var url = (document.getElementById('ea-input-url').value || '').trim();
   var remark = (document.getElementById('ea-input-remark').value || '').trim();
+  var icon = (document.getElementById('ea-input-icon').value || 'fa-solid fa-globe').trim();
+  var color = (document.getElementById('ea-input-color').value || '#6366f1').trim();
   var editIndex = parseInt(document.getElementById('ea-edit-index').value || '-1', 10);
   var msg = document.getElementById('ea-form-msg');
 
@@ -13037,10 +13362,18 @@ function saveExternalAppFromForm() {
   }
 
   getExternalAppsList().then(function(apps) {
+    var appObj = { 
+      name: name, 
+      url: url, 
+      remark: remark, 
+      icon: icon, 
+      color: color 
+    };
+
     if (editIndex >= 0 && editIndex < apps.length) {
-      apps[editIndex] = { name: name, url: url, remark: remark };
+      apps[editIndex] = appObj;
     } else {
-      apps.push({ name: name, url: url, remark: remark });
+      apps.push(appObj);
     }
 
     saveExternalAppsList(apps).then(function() {
@@ -13057,6 +13390,8 @@ function resetExternalAppForm() {
   var nameEl = document.getElementById('ea-input-name');
   var urlEl = document.getElementById('ea-input-url');
   var remarkEl = document.getElementById('ea-input-remark');
+  var iconEl = document.getElementById('ea-input-icon');
+  var colorEl = document.getElementById('ea-input-color');
   var idxEl = document.getElementById('ea-edit-index');
   var titleEl = document.getElementById('ea-form-title');
   var btnLabel = document.getElementById('ea-save-btn-label');
@@ -13064,6 +13399,8 @@ function resetExternalAppForm() {
   if (nameEl) nameEl.value = '';
   if (urlEl) urlEl.value = '';
   if (remarkEl) remarkEl.value = '';
+  if (iconEl) iconEl.value = 'fa-solid fa-globe';
+  if (colorEl) colorEl.value = '#6366f1';
   if (idxEl) idxEl.value = '-1';
   if (titleEl) titleEl.innerText = 'Add New Web App';
   if (btnLabel) btnLabel.innerText = 'Save App';
@@ -13078,6 +13415,8 @@ function editExternalApp(index) {
     document.getElementById('ea-input-name').value = app.name || '';
     document.getElementById('ea-input-url').value = app.url || '';
     document.getElementById('ea-input-remark').value = app.remark || '';
+    if (document.getElementById('ea-input-icon')) document.getElementById('ea-input-icon').value = app.icon || 'fa-solid fa-globe';
+    if (document.getElementById('ea-input-color')) document.getElementById('ea-input-color').value = app.color || '#6366f1';
     document.getElementById('ea-edit-index').value = String(index);
     document.getElementById('ea-form-title').innerText = 'Edit Web App';
     document.getElementById('ea-save-btn-label').innerText = 'Update App';
@@ -13107,20 +13446,129 @@ function deleteExternalApp(index) {
 // 🟢 Global Var - Hub Category Memory
 var currentActiveHubCategory = null; // 🟢 Yaad rakhega ki abhi konsa category sub-tab khula tha
 
+      // 🟢 Screen ka Back Button dabane par browser history trigger hogi
       function navigateOneStepBack() {
-        if (currentActiveHubCategory) {
-          // Agar kisi sub-tab category se report me aaye the toh wapas usi category ke sub-tabs par le jayega
-          var catToOpen = currentActiveHubCategory;
-          returnToHubHome();
-          openHubCategory(catToOpen);
+        if (window.history.length > 1) {
+          window.history.back();
         } else {
-          // Direct main hub par le jayega
-          returnToHubHome();
+          performStepBackLogic();
         }
       }
 
-      function openHubCategory(catKey) {
-        currentActiveHubCategory = catKey; // Category memory update
+      // 🟢 EXIT MODAL CONTROLS
+      function showAppExitConfirmModal() {
+        var m = document.getElementById('app-exit-confirm-modal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function cancelAppExit() {
+        var m = document.getElementById('app-exit-confirm-modal');
+        if (m) m.style.display = 'none';
+        // History state preserve karein taaki user wahi bana rahe
+        try {
+          history.pushState({ view: 'home' }, '');
+        } catch(e) {}
+      }
+
+      function confirmAppExit() {
+        var m = document.getElementById('app-exit-confirm-modal');
+        if (m) m.style.display = 'none';
+        // Browser tab close / back exit
+        try {
+          window.close();
+        } catch(e) {}
+        // Agar window.close block ho toh history exit karein
+        history.go(-2);
+      }
+
+      function performStepBackLogic() {
+        // 0. Agar Exit Confirmation Modal khula hai toh use band karein
+        var exitModal = document.getElementById('app-exit-confirm-modal');
+        if (exitModal && exitModal.style.display !== 'none' && exitModal.style.display !== '') {
+          cancelAppExit();
+          return;
+        }
+
+        // 1. Agar koi popup modal khula ho toh sabse pehle use band karein
+        var openModals = [
+          'consumer-360-modal', 'custom-bulk-modal', 'mismatch-modal', 
+          'bulk-update-modal', 'pendency-finder-modal', 'data-matcher-modal', 
+          'new-consumer-modal', 'bulletin-config-modal', 'master-review-modal', 
+          'sync-log-modal', 'external-apps-manager-modal'
+        ];
+        for (var m = 0; m < openModals.length; m++) {
+          var modalEl = document.getElementById(openModals[m]);
+          if (modalEl && modalEl.style.display !== 'none' && modalEl.style.display !== '') {
+            modalEl.style.display = 'none';
+            return;
+          }
+        }
+
+        // 2. Agar External Web App chal raha ho toh use band karein
+        if (activeExternalAppId) {
+          closeExternalApp(activeExternalAppId);
+          return;
+        }
+
+        // 3. Agar Consumer 360 search view me hain toh Main Hub par laayein
+        var c360Hub = document.getElementById('c360-hub-search-view');
+        if (c360Hub && c360Hub.style.display === 'block') {
+          returnToHubHome();
+          return;
+        }
+
+        // 4. Agar Report Table me hain toh pichle Sub-Tab ya Main Hub par laayein
+        var tableZone = document.getElementById('table-zone');
+        var pivotZone = document.getElementById('pivot-page-zone');
+        if ((tableZone && tableZone.style.display !== 'none') || (pivotZone && pivotZone.style.display !== 'none')) {
+          if (currentActiveHubCategory) {
+            var catToOpen = currentActiveHubCategory;
+            returnToHubHome();
+            openHubCategory(catToOpen, true);
+          } else {
+            returnToHubHome();
+          }
+          return;
+        }
+
+        // 5. Agar Sub-Category (Tools / Reports) me hain toh Main Hub par laayein
+        var subHub = document.getElementById('hub-sub-view');
+        if (subHub && subHub.style.display === 'block') {
+          returnToHubHome();
+          return;
+        }
+
+        // 6. 🟢 AGAR ALREADY MAIN HOME / DASHBOARD PAR HAIN -> EXIT CONFIRMATION DIKHAYEIN
+        var homeZone = document.getElementById('home-view-zone');
+        var mainHub = document.getElementById('hub-main-view');
+        if (homeZone && homeZone.style.display !== 'none' && mainHub && mainHub.style.display !== 'none') {
+          showAppExitConfirmModal();
+          return;
+        }
+
+        returnToHubHome();
+      }
+
+      // 🟢 MOBILE HARDWARE BACK BUTTON LISTENER
+      window.addEventListener('popstate', function(e) {
+        performStepBackLogic();
+      });
+
+      // Initial home state set karein
+      (function() {
+        try {
+          history.pushState({ view: 'home' }, '');
+        } catch(err) {}
+      })();
+
+      function openHubCategory(catKey, isBackNavigation) {
+        currentActiveHubCategory = catKey;
+
+        // 🟢 Mobile back button ke liye history record push karein
+        if (!isBackNavigation) {
+          history.pushState({ view: 'category', catKey: catKey }, '');
+        }
+
         var mainHub = document.getElementById('hub-main-view');
         var subHub = document.getElementById('hub-sub-view');
         var subTitle = document.getElementById('hub-sub-title');
@@ -13135,27 +13583,30 @@ var currentActiveHubCategory = null; // 🟢 Yaad rakhega ki abhi konsa category
                 if (catKey === 'tools') {
   subTitle.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i> Tools & Utilities';
   
-  // 🟢 Static (Built-in) Tools
+  // 🟢 Static (Built-in) Data Utilities
   items = [
     { title: 'Matching With Data', icon: 'fa-solid fa-code-compare', color: '#0284c7', action: function(e){ openDataMatcherModal(e); } },
     { title: 'Bulk Column Update', icon: 'fa-solid fa-file-pen', color: '#6366f1', action: function(){ openCustomBulkModal(); } },
     { title: 'Pendency For Remark', icon: 'fa-solid fa-file-circle-check', color: '#0284c7', action: function(){ openPendencyFinderModal(); } },
-    { title: 'New Consumers Add in Master', icon: 'fa-solid fa-user-plus', color: '#059669', action: function(){ openNewConsumerModal(); } },
-    { title: 'XML Reader Tool', icon: 'fa-solid fa-file-code', color: '#0284c7', action: function(e){ openXmlReaderToolApp(e); } }
+    { title: 'New Consumers Add in Master', icon: 'fa-solid fa-user-plus', color: '#059669', action: function(){ openNewConsumerModal(); } }
   ];
 
-  // 🟢 Dynamic (User-added) External Web Apps from IndexedDB
-  getExternalAppsList().then(function(dynamicApps) {
-    dynamicApps.forEach(function(app) {
+  // 🟢 Cloud-Synced Apps (XML Reader, Daily Uploading aur Naye Apps)
+  getExternalAppsList().then(function(cloudApps) {
+    cloudApps.forEach(function(app) {
+      // Analytics Dashboard samne pehle number par hai, isliye tools me filter rahega
+      if (app.name && app.name.toLowerCase().includes("analytics")) return;
+
       items.push({
         title: app.name,
-        icon: 'fa-solid fa-globe',
+        icon: app.icon || 'fa-solid fa-globe',
         color: app.color || '#8b5cf6',
+        border: app.color || '#8b5cf6',
         action: function(e) { openExternalApp(app.url, app.name, e); }
       });
     });
 
-    // 🟢 "Add New Web App" special tile at the end
+    // 🟢 "+ Add New Web App" Tile at end
     items.push({
       title: '+ Add New Web App',
       icon: 'fa-solid fa-circle-plus',
@@ -13164,7 +13615,6 @@ var currentActiveHubCategory = null; // 🟢 Yaad rakhega ki abhi konsa category
       action: function() { openExternalAppsManager(); }
     });
 
-    // 🟢 Render the tiles AFTER dynamic apps load
     renderHubSubTiles(items, subGrid);
   });
 
@@ -13229,7 +13679,7 @@ var currentActiveHubCategory = null; // 🟢 Yaad rakhega ki abhi konsa category
             var isMeterOnly = [
               "rpt_mri_done_read_missing",
               "rpt_mri_not_upload",
-              "rpt_survey_not_found"
+              "rpt_load_survey_missing"
             ].includes(rpt.id);
 
             var actionFn = function() { selectReport(rpt, null, '#10b981'); };
@@ -13311,7 +13761,10 @@ var currentActiveHubCategory = null; // 🟢 Yaad rakhega ki abhi konsa category
 // 🟢 CONSUMER 360° HUB VIEW & LIVE MULTI-KEYWORD SEARCH ENGINE
 var universal360Timer = null;
 
-function openConsumer360HubView() {
+function openConsumer360HubView(isBackNavigation) {
+  if (!isBackNavigation) {
+    history.pushState({ view: 'c360_search' }, '');
+  }
   var homeZone = document.getElementById('home-view-zone');
   var mainHub = document.getElementById('hub-main-view');
   var subHub = document.getElementById('hub-sub-view');
@@ -13742,6 +14195,31 @@ function filterHeaderPopupChecklist(colIdx, query) {
   });
 }
 </script>
+    <!-- 🟢 PROFESSIONAL APP EXIT CONFIRMATION MODAL -->
+    <div id="app-exit-confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.75); z-index:999999999; justify-content:center; align-items:center; backdrop-filter:blur(5px); font-family:'Plus Jakarta Sans', sans-serif;">
+      <div style="background:#ffffff; width:90%; max-width:380px; border-radius:18px; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.45); border:1px solid #e2e8f0; text-align:center; padding:24px 20px;">
+        
+        <div style="width:54px; height:54px; border-radius:50%; background:#fee2e2; color:#dc2626; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 14px auto;">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </div>
+
+        <h3 style="margin:0 0 6px 0; font-size:16px; font-weight:800; color:#0f172a;">Exit Application?</h3>
+        <p style="margin:0 0 20px 0; font-size:12px; color:#64748b; font-weight:600; line-height:1.4;">
+          Kya aap portal se bahar jana chahte hain?<br>Are you sure you want to exit?
+        </p>
+
+        <div style="display:flex; gap:10px; justify-content:center;">
+          <button type="button" onclick="cancelAppExit()" style="flex:1; padding:10px 14px; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; border-radius:8px; font-weight:800; font-size:12px; cursor:pointer;">
+            No, Stay Here
+          </button>
+          <button type="button" onclick="confirmAppExit()" style="flex:1; padding:10px 14px; background:linear-gradient(135deg, #dc2626, #b91c1c); color:white; border:none; border-radius:8px; font-weight:800; font-size:12px; cursor:pointer; box-shadow:0 3px 10px rgba(220,38,38,0.35);">
+            Yes, Exit
+          </button>
+        </div>
+
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
